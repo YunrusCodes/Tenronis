@@ -21,6 +21,7 @@ namespace Tenronis.UI
         [SerializeField] private GameObject gameplayPanel;
         [SerializeField] private TextMeshProUGUI scoreText;
         [SerializeField] private TextMeshProUGUI comboText;
+        [SerializeField] private TextMeshProUGUI salvoText;  // 齊射提示文字
         [SerializeField] private Slider playerHpSlider;
         [SerializeField] private TextMeshProUGUI playerHpText;
         [SerializeField] private Slider enemyHpSlider;
@@ -30,6 +31,10 @@ namespace Tenronis.UI
         [Header("技能UI")]
         [SerializeField] private TextMeshProUGUI executionCountText;
         [SerializeField] private TextMeshProUGUI repairCountText;
+        
+        // 齊射文字顯示計時
+        private float salvoDisplayTimer = 0f;
+        private int lastClearedRows = 0;
         
         [Header("升級UI")]
         [SerializeField] private GameObject levelUpPanel;
@@ -82,6 +87,7 @@ namespace Tenronis.UI
             
             // 訂閱遊戲事件
             GameEvents.OnGameStateChanged += HandleGameStateChanged;
+            GameEvents.OnRowsCleared += HandleRowsClearedForSalvo;
             
             // 初始化UI
             ShowMenu();
@@ -91,6 +97,7 @@ namespace Tenronis.UI
         private void OnDestroy()
         {
             GameEvents.OnGameStateChanged -= HandleGameStateChanged;
+            GameEvents.OnRowsCleared -= HandleRowsClearedForSalvo;
             
             if (startButton != null)
                 startButton.onClick.RemoveListener(OnStartGame);
@@ -107,6 +114,7 @@ namespace Tenronis.UI
             if (GameManager.Instance.CurrentState == GameState.Playing)
             {
                 UpdateGameplayUI();
+                UpdateSalvoDisplay();
             }
         }
         
@@ -136,6 +144,8 @@ namespace Tenronis.UI
                         comboText.gameObject.SetActive(false);
                     }
                 }
+                
+                // 齊射顯示由 UpdateSalvoDisplay() 處理
                 
                 // 玩家HP
                 if (playerHpSlider != null)
@@ -320,6 +330,56 @@ namespace Tenronis.UI
             else
             {
                 Debug.LogError("[GameUI] GameManager.Instance 為空！");
+            }
+        }
+        
+        /// <summary>
+        /// 處理消除行事件（用於齊射顯示）
+        /// </summary>
+        private void HandleRowsClearedForSalvo(int rowCount)
+        {
+            if (rowCount >= 2)
+            {
+                lastClearedRows = rowCount;
+                salvoDisplayTimer = 2f; // 顯示 2 秒
+            }
+        }
+        
+        /// <summary>
+        /// 更新齊射文字顯示
+        /// </summary>
+        private void UpdateSalvoDisplay()
+        {
+            if (salvoText == null) return;
+            
+            // 如果有顯示計時器
+            if (salvoDisplayTimer > 0)
+            {
+                salvoDisplayTimer -= Time.deltaTime;
+                
+                // 根據消除行數顯示不同文字和顏色
+                if (lastClearedRows >= 5)
+                {
+                    salvoText.text = $"超級齊射 x{lastClearedRows}!";
+                    salvoText.color = new Color(1f, 0.84f, 0f); // 金色
+                }
+                else
+                {
+                    salvoText.text = $"齊射 x{lastClearedRows}!";
+                    salvoText.color = new Color(0.13f, 0.83f, 0.93f); // 青色
+                }
+                
+                salvoText.gameObject.SetActive(true);
+                
+                // 時間到了就隱藏
+                if (salvoDisplayTimer <= 0)
+                {
+                    salvoText.gameObject.SetActive(false);
+                }
+            }
+            else
+            {
+                salvoText.gameObject.SetActive(false);
             }
         }
     }

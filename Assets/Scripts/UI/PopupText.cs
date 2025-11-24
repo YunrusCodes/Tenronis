@@ -16,44 +16,67 @@ namespace Tenronis.UI
         
         private float timer;
         
-        /// <summary>
-        /// 初始化彈出文字
-        /// </summary>
-        public void Initialize(string text, Color color, Vector3 worldPosition)
+    /// <summary>
+    /// 初始化彈出文字
+    /// </summary>
+    public void Initialize(string text, Color color, Vector3 worldPosition)
+    {
+        if (textComponent == null)
+            textComponent = GetComponent<TextMeshProUGUI>();
+        
+        textComponent.text = text;
+        textComponent.color = color;
+        
+        // 將世界座標轉換為螢幕座標，再轉換為 Canvas 位置
+        Vector3 screenPos = Camera.main.WorldToScreenPoint(worldPosition);
+        
+        // 設置 RectTransform 位置
+        RectTransform rectTransform = GetComponent<RectTransform>();
+        if (rectTransform != null)
         {
-            if (textComponent == null)
-                textComponent = GetComponent<TextMeshProUGUI>();
-            
-            textComponent.text = text;
-            textComponent.color = color;
-            transform.position = worldPosition;
-            
-            timer = 0f;
-            StartCoroutine(AnimatePopup());
+            rectTransform.position = screenPos;
+        }
+        else
+        {
+            transform.position = screenPos;
         }
         
-        private IEnumerator AnimatePopup()
+        timer = 0f;
+        StartCoroutine(AnimatePopup());
+    }
+        
+    private IEnumerator AnimatePopup()
+    {
+        RectTransform rectTransform = GetComponent<RectTransform>();
+        Vector3 startPos = rectTransform != null ? rectTransform.position : transform.position;
+        
+        while (timer < lifetime)
         {
-            Vector3 startPos = transform.position;
+            timer += Time.deltaTime;
+            float progress = timer / lifetime;
             
-            while (timer < lifetime)
+            // 向上移動（在螢幕空間中）
+            Vector3 newPos = startPos + Vector3.up * (moveSpeed * timer * 50f); // 乘以 50 因為是螢幕像素
+            
+            if (rectTransform != null)
             {
-                timer += Time.deltaTime;
-                float progress = timer / lifetime;
-                
-                // 向上移動
-                transform.position = startPos + Vector3.up * (moveSpeed * timer);
-                
-                // 淡出
-                Color color = textComponent.color;
-                color.a = fadeCurve.Evaluate(progress);
-                textComponent.color = color;
-                
-                yield return null;
+                rectTransform.position = newPos;
+            }
+            else
+            {
+                transform.position = newPos;
             }
             
-            Destroy(gameObject);
+            // 淡出
+            Color color = textComponent.color;
+            color.a = fadeCurve.Evaluate(progress);
+            textComponent.color = color;
+            
+            yield return null;
         }
+        
+        Destroy(gameObject);
+    }
     }
 }
 

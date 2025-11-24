@@ -184,6 +184,8 @@ namespace Tenronis.Managers
                 
                 // 增加分數
                 AddScore(rowCount * 100);
+                
+                // 消除行數的資訊顯示在固定 UI (SalvoText)，不需要彈出文字
             }
         }
         
