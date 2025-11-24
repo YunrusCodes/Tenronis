@@ -446,6 +446,93 @@ namespace Tenronis.Managers
                 }
             }
         }
+        
+        /// <summary>
+        /// 獲取指定列的最高方塊行位置（從上往下，y越小越高）
+        /// 返回-1表示該列沒有方塊
+        /// </summary>
+        public int GetColumnTopRow(int column)
+        {
+            if (column < 0 || column >= GameConstants.BOARD_WIDTH) return -1;
+            
+            // 從上往下（y從0開始）查找第一個方塊
+            for (int y = 0; y < GameConstants.BOARD_HEIGHT; y++)
+            {
+                if (grid[y, column] != null)
+                {
+                    return y;
+                }
+            }
+            
+            return -1; // 該列沒有方塊
+        }
+        
+        /// <summary>
+        /// 獲取所有列的高度信息（返回每列的最高行位置）
+        /// </summary>
+        public Dictionary<int, int> GetAllColumnHeights()
+        {
+            Dictionary<int, int> columnHeights = new Dictionary<int, int>();
+            
+            for (int x = 0; x < GameConstants.BOARD_WIDTH; x++)
+            {
+                int topRow = GetColumnTopRow(x);
+                if (topRow >= 0)
+                {
+                    columnHeights[x] = topRow;
+                }
+            }
+            
+            return columnHeights;
+        }
+        
+        /// <summary>
+        /// 獲取最高點（方塊堆疊最高的列），返回列索引
+        /// 如果有多個相同高度，返回第一個
+        /// </summary>
+        public int GetHighestColumn()
+        {
+            Dictionary<int, int> heights = GetAllColumnHeights();
+            if (heights.Count == 0) return -1;
+            
+            int highestColumn = -1;
+            int highestRow = GameConstants.BOARD_HEIGHT; // 從最大開始（y越小越高）
+            
+            foreach (var kvp in heights)
+            {
+                if (kvp.Value < highestRow)
+                {
+                    highestRow = kvp.Value;
+                    highestColumn = kvp.Key;
+                }
+            }
+            
+            return highestColumn;
+        }
+        
+        /// <summary>
+        /// 獲取最低點（方塊堆疊最低的列），返回列索引
+        /// 如果有多個相同高度，返回第一個
+        /// </summary>
+        public int GetLowestColumn()
+        {
+            Dictionary<int, int> heights = GetAllColumnHeights();
+            if (heights.Count == 0) return -1;
+            
+            int lowestColumn = -1;
+            int lowestRow = -1; // 從最小開始（y越大越低）
+            
+            foreach (var kvp in heights)
+            {
+                if (kvp.Value > lowestRow)
+                {
+                    lowestRow = kvp.Value;
+                    lowestColumn = kvp.Key;
+                }
+            }
+            
+            return lowestColumn;
+        }
     }
 }
 

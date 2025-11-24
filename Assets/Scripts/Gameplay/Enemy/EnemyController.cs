@@ -85,20 +85,61 @@ namespace Tenronis.Gameplay.Enemy
         private void Shoot()
         {
             if (CombatManager.Instance == null) return;
-            
-            // 隨機列
-            int column = Random.Range(0, GameConstants.BOARD_WIDTH);
+            if (GridManager.Instance == null) return;
             
             // 決定子彈類型
             BulletType bulletType = DetermineBulletType();
+            
+            // 決定目標列
+            int column = DetermineTargetColumn(bulletType);
+            
+            // 獲取連發數量
+            int burstCount = currentStageData.burstCount;
             
             // 發射子彈
             CombatManager.Instance.FireBullet(
                 column,
                 bulletType,
                 GameConstants.BULLET_DAMAGE,
-                currentStageData.bulletSpeed
+                currentStageData.bulletSpeed,
+                burstCount
             );
+        }
+        
+        /// <summary>
+        /// 根據子彈類型智能決定目標列
+        /// </summary>
+        private int DetermineTargetColumn(BulletType bulletType)
+        {
+            // 如果啟用智能射擊
+            if (currentStageData.useSmartTargeting && GridManager.Instance != null)
+            {
+                // AddBlock 子彈優先射擊高點
+                if (bulletType == BulletType.AddBlock && currentStageData.addBlockTargetsHigh)
+                {
+                    int highestColumn = GridManager.Instance.GetHighestColumn();
+                    if (highestColumn >= 0)
+                    {
+                        Debug.Log($"[EnemyController] 智能射擊：AddBlock 目標高點列 {highestColumn}");
+                        return highestColumn;
+                    }
+                }
+                
+                // AreaDamage 子彈優先射擊低點
+                if (bulletType == BulletType.AreaDamage && currentStageData.areaDamageTargetsLow)
+                {
+                    int lowestColumn = GridManager.Instance.GetLowestColumn();
+                    if (lowestColumn >= 0)
+                    {
+                        Debug.Log($"[EnemyController] 智能射擊：AreaDamage 目標低點列 {lowestColumn}");
+                        return lowestColumn;
+                    }
+                }
+            }
+            
+            // 預設：隨機列
+            int randomColumn = Random.Range(0, GameConstants.BOARD_WIDTH);
+            return randomColumn;
         }
         
         /// <summary>

@@ -39,6 +39,20 @@ namespace Tenronis.ScriptableObjects
         [Range(0f, 1f)]
         public float insertRowChance = 0.15f;
         
+        [Header("智能射擊系統")]
+        [Tooltip("啟用智能射擊：根據網格狀態選擇目標列")]
+        public bool useSmartTargeting = false;
+        
+        [Tooltip("智能射擊時，AddBlock 子彈是否優先射擊高點")]
+        public bool addBlockTargetsHigh = true;
+        
+        [Tooltip("智能射擊時，AreaDamage 子彈是否優先射擊低點")]
+        public bool areaDamageTargetsLow = true;
+        
+        [Tooltip("連發數量（1 = 單發，3 = 三聯發）")]
+        [Range(1, 5)]
+        public int burstCount = 1;
+        
         [Header("視覺")]
         public Sprite enemyIcon;
         public Color themeColor = Color.red;
