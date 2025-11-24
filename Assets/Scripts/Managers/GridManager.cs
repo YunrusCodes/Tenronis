@@ -45,11 +45,27 @@ namespace Tenronis.Managers
             
             // 訂閱事件
             GameEvents.OnGameStateChanged += HandleGameStateChanged;
+            GameEvents.OnPieceLocked += HandlePieceLocked;
         }
         
         private void OnDestroy()
         {
             GameEvents.OnGameStateChanged -= HandleGameStateChanged;
+            GameEvents.OnPieceLocked -= HandlePieceLocked;
+        }
+        
+        /// <summary>
+        /// 處理方塊鎖定事件 - 自動檢查消除
+        /// </summary>
+        private void HandlePieceLocked()
+        {
+            List<int> clearedRows = CheckAndClearRows();
+            
+            if (clearedRows.Count > 0)
+            {
+                Debug.Log($"[GridManager] 消除了 {clearedRows.Count} 行！");
+                GameEvents.TriggerRowsCleared(clearedRows.Count);
+            }
         }
         
         /// <summary>
@@ -189,7 +205,7 @@ namespace Tenronis.Managers
         {
             return new Vector3(
                 x * blockSize + gridOffset.x,
-                y * blockSize + gridOffset.y,
+                -y * blockSize + gridOffset.y,  // Y軸反轉：Grid的y增加時，世界座標y減少（向下）
                 0f
             );
         }
@@ -200,7 +216,7 @@ namespace Tenronis.Managers
         public Vector2Int WorldToGridPosition(Vector3 worldPos)
         {
             int x = Mathf.RoundToInt((worldPos.x - gridOffset.x) / blockSize);
-            int y = Mathf.RoundToInt((worldPos.y - gridOffset.y) / blockSize);
+            int y = Mathf.RoundToInt((gridOffset.y - worldPos.y) / blockSize);  // Y軸反轉：世界座標y越小，Grid的y越大
             return new Vector2Int(x, y);
         }
         
@@ -268,39 +284,60 @@ namespace Tenronis.Managers
         /// </summary>
         private void ClearRows(List<int> rows)
         {
-            rows.Sort();
+            if (rows.Count == 0) return;
             
+            // 移除所有要清除的行的視覺物件
             foreach (int row in rows)
             {
-                // 移除視覺物件
                 for (int x = 0; x < GameConstants.BOARD_WIDTH; x++)
                 {
                     RemoveBlock(x, row);
                 }
             }
             
-            // 下移上方方塊
-            foreach (int clearedRow in rows)
+            // 建立新網格（從下往上重建）
+            // 使用臨時變量來記錄目標行索引
+            int targetY = GameConstants.BOARD_HEIGHT - 1; // 從底部開始
+            
+            // 從底部往頂部遍歷原網格
+            for (int sourceY = GameConstants.BOARD_HEIGHT - 1; sourceY >= 0; sourceY--)
             {
-                for (int y = clearedRow; y > 0; y--)
+                // 跳過要清除的行
+                if (rows.Contains(sourceY))
+                {
+                    continue;
+                }
+                
+                // 如果源行和目標行不同，移動這一行
+                if (sourceY != targetY)
                 {
                     for (int x = 0; x < GameConstants.BOARD_WIDTH; x++)
                     {
-                        grid[y, x] = grid[y - 1, x];
-                        blockObjects[y, x] = blockObjects[y - 1, x];
+                        grid[targetY, x] = grid[sourceY, x];
+                        blockObjects[targetY, x] = blockObjects[sourceY, x];
                         
-                        if (blockObjects[y, x] != null)
+                        // 更新視覺位置
+                        if (blockObjects[targetY, x] != null)
                         {
-                            blockObjects[y, x].transform.position = GridToWorldPosition(x, y);
+                            blockObjects[targetY, x].transform.position = GridToWorldPosition(x, targetY);
                         }
+                        
+                        // 清空源位置
+                        grid[sourceY, x] = null;
+                        blockObjects[sourceY, x] = null;
                     }
                 }
                 
-                // 清空頂行
+                targetY--;
+            }
+            
+            // 清空頂部新增的空行
+            for (int y = 0; y <= targetY; y++)
+            {
                 for (int x = 0; x < GameConstants.BOARD_WIDTH; x++)
                 {
-                    grid[0, x] = null;
-                    blockObjects[0, x] = null;
+                    grid[y, x] = null;
+                    blockObjects[y, x] = null;
                 }
             }
         }

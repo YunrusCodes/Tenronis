@@ -15,6 +15,6 @@ MonoBehaviour:
   buffName: "\u7DCA\u6025\u4FEE\u5FA9"
   buffType: 2
   description: "\u7ACB\u5373\u56DE\u5FA9 50% \u6700\u5927\u8840\u91CF\uFF0C\u6551\u547D\u7A3B\u8349\uFF01"
-  icon: {fileID: 0}
+  icon: {fileID: 10907, guid: 0000000000000000f000000000000000, type: 0}
   iconColor: {r: 0.2, g: 1, b: 0.3, a: 1}
   spawnWeight: 0.8

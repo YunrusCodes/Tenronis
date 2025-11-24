@@ -37,10 +37,24 @@ namespace Tenronis.Gameplay.Projectiles
             // 向下移動
             transform.position += Vector3.down * speed * Time.deltaTime;
             
-            // 超出範圍時銷毀
-            if (transform.position.y < -2)
+            // 超出範圍時銷毀（低於Grid底部）
+            if (Tenronis.Managers.GridManager.Instance != null)
             {
-                ReturnToPool();
+                float gridBottom = Tenronis.Managers.GridManager.Instance.GridOffset.y - 
+                                   (GameConstants.BOARD_HEIGHT * Tenronis.Managers.GridManager.Instance.BlockSize);
+                
+                if (transform.position.y < gridBottom - 2f)
+                {
+                    ReturnToPool();
+                }
+            }
+            else
+            {
+                // 備用：使用固定值
+                if (transform.position.y < -10f)
+                {
+                    ReturnToPool();
+                }
             }
         }
         

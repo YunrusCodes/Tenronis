@@ -43,10 +43,23 @@ namespace Tenronis.Gameplay.Projectiles
             // 移動
             transform.position += (Vector3)velocity * Time.deltaTime;
             
-            // 超出範圍時銷毀
-            if (transform.position.y > GameConstants.BOARD_HEIGHT + 5)
+            // 超出範圍時銷毀（高於Grid頂部）
+            if (Tenronis.Managers.GridManager.Instance != null)
             {
-                ReturnToPool();
+                float gridTop = Tenronis.Managers.GridManager.Instance.GridOffset.y + 5f;
+                
+                if (transform.position.y > gridTop)
+                {
+                    ReturnToPool();
+                }
+            }
+            else
+            {
+                // 備用：使用固定值
+                if (transform.position.y > 20f)
+                {
+                    ReturnToPool();
+                }
             }
         }
         

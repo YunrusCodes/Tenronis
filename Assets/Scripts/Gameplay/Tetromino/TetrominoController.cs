@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections.Generic;
 using Tenronis.Data;
 using Tenronis.Core;
 using Tenronis.Managers;
@@ -24,8 +25,8 @@ namespace Tenronis.Gameplay.Tetromino
         private TetrominoShape nextShape;
         
         // 視覺預覽
-        private GameObject[] previewBlocks;
-        private GameObject[] ghostBlocks;
+        private List<GameObject> previewBlocks;
+        private List<GameObject> ghostBlocks;
         
         // 遊戲狀態
         private float dropTimer;
@@ -301,10 +302,128 @@ namespace Tenronis.Gameplay.Tetromino
         {
             ClearVisual();
             
-            if (!isActive || currentShape == null) return;
+            if (!isActive || currentShape == null || currentRotation == null) return;
+            if (GridManager.Instance == null) return;
             
-            // TODO: 建立預覽方塊和幽靈方塊視覺
-            // 這部分需要實例化方塊預覽物件
+            int rows = currentRotation.GetLength(0);
+            int cols = currentRotation.GetLength(1);
+            
+            // 建立 List
+            previewBlocks = new List<GameObject>();
+            ghostBlocks = new List<GameObject>();
+            
+            // 計算幽靈方塊位置（硬降落位置）
+            Vector2Int ghostPosition = currentPosition;
+            while (!CheckCollision(ghostPosition + Vector2Int.up, currentRotation))
+            {
+                ghostPosition += Vector2Int.up;
+            }
+            
+            // 建立視覺方塊
+            for (int y = 0; y < rows; y++)
+            {
+                for (int x = 0; x < cols; x++)
+                {
+                    if (currentRotation[y, x] != 0)
+                    {
+                        int gridX = currentPosition.x + x;
+                        int gridY = currentPosition.y + y;
+                        
+                        // 建立預覽方塊（當前位置）
+                        if (GridManager.Instance.IsValidPosition(gridX, gridY))
+                        {
+                            GameObject previewBlock = CreateBlockVisual(gridX, gridY, currentShape.color, 1f);
+                            previewBlocks.Add(previewBlock);
+                        }
+                        
+                        // 建立幽靈方塊（硬降落位置）
+                        int ghostX = ghostPosition.x + x;
+                        int ghostY = ghostPosition.y + y;
+                        
+                        if (ghostPosition != currentPosition && 
+                            GridManager.Instance.IsValidPosition(ghostX, ghostY))
+                        {
+                            GameObject ghostBlock = CreateBlockVisual(ghostX, ghostY, currentShape.color, 0.3f);
+                            ghostBlocks.Add(ghostBlock);
+                        }
+                    }
+                }
+            }
+        }
+        
+        /// <summary>
+        /// 建立方塊視覺
+        /// </summary>
+        private GameObject CreateBlockVisual(int gridX, int gridY, BlockColor color, float alpha)
+        {
+            GameObject blockObj;
+            SpriteRenderer spriteRenderer;
+            
+            // 使用 blockPreviewPrefab 或建立新的方塊
+            if (blockPreviewPrefab != null)
+            {
+                blockObj = Instantiate(blockPreviewPrefab, GridManager.Instance.transform);
+                spriteRenderer = blockObj.GetComponent<SpriteRenderer>();
+                
+                // 如果預製體沒有 SpriteRenderer，添加一個
+                if (spriteRenderer == null)
+                {
+                    spriteRenderer = blockObj.AddComponent<SpriteRenderer>();
+                }
+            }
+            else
+            {
+                // 建立簡單的 2D 方塊
+                blockObj = new GameObject("PreviewBlock");
+                blockObj.transform.SetParent(GridManager.Instance.transform);
+                
+                // 添加 SpriteRenderer
+                spriteRenderer = blockObj.AddComponent<SpriteRenderer>();
+                
+                // 建立一個簡單的白色方形 Sprite
+                Texture2D tex = new Texture2D(1, 1);
+                tex.SetPixel(0, 0, Color.white);
+                tex.Apply();
+                
+                Sprite sprite = Sprite.Create(tex, new Rect(0, 0, 1, 1), new Vector2(0.5f, 0.5f), 1f);
+                spriteRenderer.sprite = sprite;
+            }
+            
+            // 設置位置
+            Vector3 worldPos = GridManager.Instance.GridToWorldPosition(gridX, gridY);
+            blockObj.transform.position = worldPos;
+            
+            // 設置大小
+            float blockSize = GridManager.Instance.BlockSize;
+            blockObj.transform.localScale = new Vector3(blockSize * 0.95f, blockSize * 0.95f, 1f);
+            
+            // 設置顏色
+            Color blockColor = GetColorFromBlockColor(color);
+            blockColor.a = alpha;
+            spriteRenderer.color = blockColor;
+            
+            // 確保方塊在正確的渲染層
+            spriteRenderer.sortingOrder = 10;
+            
+            return blockObj;
+        }
+        
+        /// <summary>
+        /// 將 BlockColor 轉換為 Unity Color
+        /// </summary>
+        private Color GetColorFromBlockColor(BlockColor blockColor)
+        {
+            switch (blockColor)
+            {
+                case BlockColor.Cyan: return Color.cyan;
+                case BlockColor.Yellow: return Color.yellow;
+                case BlockColor.Purple: return new Color(0.5f, 0f, 0.5f);
+                case BlockColor.Green: return Color.green;
+                case BlockColor.Red: return Color.red;
+                case BlockColor.Blue: return Color.blue;
+                case BlockColor.Orange: return new Color(1f, 0.5f, 0f);
+                default: return Color.white;
+            }
         }
         
         /// <summary>

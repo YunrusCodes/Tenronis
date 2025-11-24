@@ -129,7 +129,11 @@ namespace Tenronis.Managers
         {
             if (bulletPool == null) return;
             
-            Vector3 spawnPos = GridManager.Instance.GridToWorldPosition(column, -1);
+            // 在 Grid 頂部（y=0）上方 2 個單位生成子彈
+            Vector3 spawnPos = GridManager.Instance.GridToWorldPosition(column, 0);
+            spawnPos.y += 2f;
+            
+            Debug.Log($"[CombatManager] 發射子彈 - 列: {column}, 類型: {type}, 位置: {spawnPos}, 速度: {speed}");
             
             Bullet bullet = bulletPool.Get();
             bullet.Initialize(spawnPos, type, damage, speed);
@@ -159,23 +163,48 @@ namespace Tenronis.Managers
             List<Missile> missilesToRemove = new List<Missile>();
             List<Bullet> bulletsToRemove = new List<Bullet>();
             
-            foreach (var missile in activeMissiles)
+            // 使用 for 循環從後往前遍歷，避免集合修改錯誤
+            for (int i = activeMissiles.Count - 1; i >= 0; i--)
             {
-                if (!missile.gameObject.activeInHierarchy) continue;
+                if (i >= activeMissiles.Count) continue; // 安全檢查
+                var missile = activeMissiles[i];
                 
-                foreach (var bullet in activeBullets)
+                if (!missile.gameObject.activeInHierarchy)
                 {
-                    if (!bullet.gameObject.activeInHierarchy) continue;
+                    // 清理不活躍的導彈
+                    missilesToRemove.Add(missile);
+                    continue;
+                }
+                
+                for (int j = activeBullets.Count - 1; j >= 0; j--)
+                {
+                    if (j >= activeBullets.Count) continue; // 安全檢查
+                    var bullet = activeBullets[j];
+                    
+                    if (!bullet.gameObject.activeInHierarchy)
+                    {
+                        if (!bulletsToRemove.Contains(bullet))
+                        {
+                            bulletsToRemove.Add(bullet);
+                        }
+                        continue;
+                    }
                     
                     float distance = Vector3.Distance(missile.transform.position, bullet.transform.position);
                     if (distance < 0.5f)
                     {
                         // 碰撞！
-                        bulletsToRemove.Add(bullet);
+                        if (!bulletsToRemove.Contains(bullet))
+                        {
+                            bulletsToRemove.Add(bullet);
+                        }
                         
                         if (!missile.ConsumePierce())
                         {
-                            missilesToRemove.Add(missile);
+                            if (!missilesToRemove.Contains(missile))
+                            {
+                                missilesToRemove.Add(missile);
+                            }
                         }
                         
                         break;
@@ -204,13 +233,26 @@ namespace Tenronis.Managers
         {
             List<Missile> missilesToRemove = new List<Missile>();
             
-            foreach (var missile in activeMissiles)
+            // 計算 Grid 頂部的世界座標
+            float gridTop = GridManager.Instance.GridOffset.y + 1f;
+            
+            // 使用 for 循環從後往前遍歷，避免集合修改錯誤
+            for (int i = activeMissiles.Count - 1; i >= 0; i--)
             {
-                if (!missile.gameObject.activeInHierarchy) continue;
+                if (i >= activeMissiles.Count) continue; // 安全檢查
+                var missile = activeMissiles[i];
                 
-                // 超出上邊界代表擊中敵人
-                if (missile.transform.position.y > GameConstants.BOARD_HEIGHT)
+                if (!missile.gameObject.activeInHierarchy)
                 {
+                    // 清理不活躍的導彈
+                    missilesToRemove.Add(missile);
+                    continue;
+                }
+                
+                // 超出 Grid 頂部代表擊中敵人
+                if (missile.transform.position.y > gridTop)
+                {
+                    Debug.Log($"[CombatManager] 導彈擊中敵人！傷害: {missile.Damage}");
                     GameEvents.TriggerEnemyDamaged(missile.Damage);
                     missilesToRemove.Add(missile);
                 }
@@ -230,15 +272,25 @@ namespace Tenronis.Managers
         {
             List<Bullet> bulletsToRemove = new List<Bullet>();
             
-            foreach (var bullet in activeBullets)
+            // 使用 for 循環從後往前遍歷，避免集合修改錯誤
+            for (int i = activeBullets.Count - 1; i >= 0; i--)
             {
-                if (!bullet.gameObject.activeInHierarchy) continue;
+                if (i >= activeBullets.Count) continue; // 安全檢查
+                var bullet = activeBullets[i];
+                
+                if (!bullet.gameObject.activeInHierarchy)
+                {
+                    // 清理不活躍的子彈
+                    bulletsToRemove.Add(bullet);
+                    continue;
+                }
                 
                 Vector2Int gridPos = GridManager.Instance.WorldToGridPosition(bullet.transform.position);
                 
-                // 擊中玩家基地
+                // 擊中玩家基地（子彈超過Grid底部）
                 if (gridPos.y >= GameConstants.BOARD_HEIGHT)
                 {
+                    Debug.Log($"[CombatManager] 子彈擊中基地！Grid位置: ({gridPos.x}, {gridPos.y}), 傷害: {bullet.Damage}");
                     GameEvents.TriggerPlayerDamaged(bullet.Damage);
                     GameEvents.TriggerPlayImpactSound();
                     bulletsToRemove.Add(bullet);
@@ -252,12 +304,14 @@ namespace Tenronis.Managers
                     
                     if (block != null)
                     {
+                        Debug.Log($"[CombatManager] 子彈擊中方塊！Grid位置: ({gridPos.x}, {gridPos.y}), 類型: {bullet.BulletType}");
                         ProcessBulletEffect(bullet, gridPos, block);
                         bulletsToRemove.Add(bullet);
                     }
                 }
             }
             
+            // 清理（去重）
             foreach (var bullet in bulletsToRemove)
             {
                 activeBullets.Remove(bullet);

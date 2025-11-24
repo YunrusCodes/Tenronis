@@ -235,7 +235,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchoredPosition: {x: -14, y: -81}
   m_SizeDelta: {x: 160, y: 20}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &189125300
@@ -368,7 +368,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: -70.99998}
   m_SizeDelta: {x: 200, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &228435633
@@ -757,6 +757,7 @@ GameObject:
   - component: {fileID: 299105077}
   - component: {fileID: 299105079}
   - component: {fileID: 299105078}
+  - component: {fileID: 299105080}
   m_Layer: 5
   m_Name: LevelUpPanel
   m_TagString: Untagged
@@ -781,7 +782,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchoredPosition: {x: -335, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &299105078
@@ -822,6 +823,20 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 299105076}
   m_CullTransparentMesh: 1
+--- !u!114 &299105080
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 299105076}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9732ca05af5dc7247a18e059b9d85f2c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Tenronis.UI.RoguelikeMenu
+  buffOptionsContainer: {fileID: 667743229}
+  buffOptionPrefab: {fileID: 3777444027611279260, guid: e825b691d93587a4583d7678b9657b22, type: 3}
 --- !u!1 &317400482
 GameObject:
   m_ObjectHideFlags: 0
@@ -1167,7 +1182,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchoredPosition: {x: -26, y: -13}
   m_SizeDelta: {x: 160, y: 20}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &485713717
@@ -1622,9 +1637,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 99c937f469560a048990c4a9830de065, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Tenronis.Managers.CombatManager
-  missilePrefab: {fileID: 0}
-  bulletPrefab: {fileID: 0}
-  projectileContainer: {fileID: 0}
+  missilePrefab: {fileID: -2852913641695233341, guid: a67593dc0c359c946a6f4d0ad74b5eb1, type: 3}
+  bulletPrefab: {fileID: 3072015059056282605, guid: ad034013717641143be3f65fe298aaf2, type: 3}
+  projectileContainer: {fileID: 462396021}
 --- !u!1 &667743228
 GameObject:
   m_ObjectHideFlags: 0
@@ -1679,7 +1694,7 @@ MonoBehaviour:
     m_Top: 0
     m_Bottom: 0
   m_ChildAlignment: 0
-  m_Spacing: 0
+  m_Spacing: 30
   m_ChildForceExpandWidth: 1
   m_ChildForceExpandHeight: 1
   m_ChildControlWidth: 0
@@ -1721,7 +1736,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 11, y: -137}
   m_SizeDelta: {x: 200, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &688040246
@@ -2322,7 +2337,7 @@ GameObject:
   - component: {fileID: 1000076755}
   - component: {fileID: 1000076754}
   m_Layer: 5
-  m_Name: LeftPanel
+  m_Name: PlayerPanel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2346,7 +2361,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 507, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1000076754
@@ -2824,6 +2839,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 1522557084}
   - {fileID: 462396021}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -3251,7 +3267,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 598, y: -279}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1363574093
@@ -3302,6 +3318,8 @@ GameObject:
   m_Component:
   - component: {fileID: 1448617232}
   - component: {fileID: 1448617233}
+  - component: {fileID: 1448617235}
+  - component: {fileID: 1448617234}
   m_Layer: 0
   m_Name: AudioManager
   m_TagString: Untagged
@@ -3336,19 +3354,213 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1159bee41f704e441b4987a5f30c96a5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Tenronis.Audio.AudioManager
-  missileSound: {fileID: 0}
-  explosionSound: {fileID: 0}
-  rotateSound: {fileID: 0}
-  impactSound: {fileID: 0}
-  enemyShootSound: {fileID: 0}
-  enemyHitSound: {fileID: 0}
-  buffSound: {fileID: 0}
-  normalBGM: {fileID: 0}
-  bossBGM: {fileID: 0}
-  sfxSource: {fileID: 0}
-  musicSource: {fileID: 0}
+  missileSound: {fileID: 8300000, guid: d86911de9e1f5784ea92387b819e898a, type: 3}
+  explosionSound: {fileID: 8300000, guid: d86911de9e1f5784ea92387b819e898a, type: 3}
+  rotateSound: {fileID: 8300000, guid: d86911de9e1f5784ea92387b819e898a, type: 3}
+  impactSound: {fileID: 8300000, guid: d86911de9e1f5784ea92387b819e898a, type: 3}
+  enemyShootSound: {fileID: 8300000, guid: d86911de9e1f5784ea92387b819e898a, type: 3}
+  enemyHitSound: {fileID: 8300000, guid: d86911de9e1f5784ea92387b819e898a, type: 3}
+  buffSound: {fileID: 8300000, guid: d86911de9e1f5784ea92387b819e898a, type: 3}
+  normalBGM: {fileID: 8300000, guid: 425585f8e59b4484482a9a65ad8fcffe, type: 3}
+  bossBGM: {fileID: 8300000, guid: 1c440248b6f2ac042968ad39b5ca4672, type: 3}
+  sfxSource: {fileID: 1448617235}
+  musicSource: {fileID: 1448617234}
   sfxVolume: 0.7
   musicVolume: 0.5
+--- !u!82 &1448617234
+AudioSource:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1448617231}
+  m_Enabled: 1
+  serializedVersion: 4
+  OutputAudioMixerGroup: {fileID: 0}
+  m_audioClip: {fileID: 0}
+  m_Resource: {fileID: 0}
+  m_PlayOnAwake: 1
+  m_Volume: 1
+  m_Pitch: 1
+  Loop: 1
+  Mute: 0
+  Spatialize: 0
+  SpatializePostEffects: 0
+  Priority: 128
+  DopplerLevel: 1
+  MinDistance: 1
+  MaxDistance: 500
+  Pan2D: 0
+  rolloffMode: 0
+  BypassEffects: 0
+  BypassListenerEffects: 0
+  BypassReverbZones: 0
+  rolloffCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  panLevelCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  spreadCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  reverbZoneMixCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+--- !u!82 &1448617235
+AudioSource:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1448617231}
+  m_Enabled: 1
+  serializedVersion: 4
+  OutputAudioMixerGroup: {fileID: 0}
+  m_audioClip: {fileID: 0}
+  m_Resource: {fileID: 0}
+  m_PlayOnAwake: 1
+  m_Volume: 1
+  m_Pitch: 1
+  Loop: 0
+  Mute: 0
+  Spatialize: 0
+  SpatializePostEffects: 0
+  Priority: 128
+  DopplerLevel: 1
+  MinDistance: 1
+  MaxDistance: 500
+  Pan2D: 0
+  rolloffMode: 0
+  BypassEffects: 0
+  BypassListenerEffects: 0
+  BypassReverbZones: 0
+  rolloffCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  panLevelCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  spreadCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  reverbZoneMixCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!1 &1514543152
 GameObject:
   m_ObjectHideFlags: 0
@@ -3414,7 +3626,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 1153737087}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1556063342
 GameObject:
@@ -4132,7 +4344,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 104, y: 247}
   m_SizeDelta: {x: 200, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1763985162
@@ -4359,7 +4571,7 @@ MonoBehaviour:
   gridContainer: {fileID: 1522557084}
   blockPrefab: {fileID: 2386012697764751039, guid: 41c93c59eb6643d4982da3482103ebb2, type: 3}
   blockSize: 1
-  gridOffset: {x: -5, y: 10}
+  gridOffset: {x: -10, y: 9}
 --- !u!1 &1881749706
 GameObject:
   m_ObjectHideFlags: 0
@@ -4369,7 +4581,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1881749709}
-  - component: {fileID: 1881749708}
   - component: {fileID: 1881749707}
   m_Layer: 0
   m_Name: EnemyController
@@ -4391,19 +4602,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Tenronis.Gameplay.Enemy.EnemyController
   enemySprite: {fileID: 0}
---- !u!114 &1881749708
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1881749706}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 786722eae11306048899a307b55c5d96, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Tenronis.Gameplay.Tetromino.TetrominoController
-  blockPreviewPrefab: {fileID: 0}
 --- !u!4 &1881749709
 Transform:
   m_ObjectHideFlags: 0
@@ -4455,7 +4653,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchoredPosition: {x: -195, y: -0}
   m_SizeDelta: {x: 160, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1933218055
@@ -4936,7 +5134,7 @@ GameObject:
   - component: {fileID: 2002891257}
   - component: {fileID: 2002891256}
   m_Layer: 5
-  m_Name: RightPanel
+  m_Name: EnemyPanel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4960,8 +5158,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_AnchoredPosition: {x: -574, y: 29}
+  m_SizeDelta: {x: 0, y: -58}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &2002891256
 MonoBehaviour:
@@ -5269,7 +5467,6 @@ SceneRoots:
   - {fileID: 519420032}
   - {fileID: 619394802}
   - {fileID: 1968749265}
-  - {fileID: 1522557084}
   - {fileID: 1153737087}
   - {fileID: 206945817}
   - {fileID: 1881749709}
