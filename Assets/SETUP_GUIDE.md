@@ -300,6 +300,65 @@ A: 需要準備音效檔案並在AudioManager中設置
 2. 添加發光效果
 3. 使用Shader實現HP顏色漸變
 
+## 6. 視覺效果設置
+
+### 6.1 ScreenShake（螢幕震動）
+
+#### 添加到 Camera
+
+1. 在 Hierarchy 選中 `Main Camera`
+2. 在 Inspector 中點擊 `Add Component`
+3. 搜尋 `ScreenShake` → 添加組件
+
+#### 設置參數
+
+在 Inspector 中配置：
+
+```
+ScreenShake (Script)
+├── Shake Intensity: 0.3     ← 震動強度（推薦 0.3-0.5）
+├── Shake Duration: 0.3      ← 震動持續時間（推薦 0.3-0.5 秒）
+└── Shake Curve              ← 震動衰減曲線
+```
+
+**設置 Shake Curve（動畫曲線）：**
+
+1. 點擊 `Shake Curve` 右側的曲線圖示
+2. 預設曲線通常已經設置為 `EaseInOut(0,1,1,0)`
+3. 如果需要自訂：
+   - 左下角關鍵幀：`Time: 0, Value: 1`（震動開始，強度最大）
+   - 右上角關鍵幀：`Time: 1, Value: 0`（震動結束，強度為 0）
+   - 選擇曲線為 `EaseInOut` 讓震動平滑衰減
+
+**效果觸發時機：**
+- ✅ 方塊溢出時（`OnGridOverflow`）→ 強烈震動
+- ✅ 玩家受傷時（`OnPlayerDamaged`）→ 輕微震動
+
+**測試震動效果：**
+1. 啟動遊戲
+2. 讓方塊堆到頂部溢出 → 應該看到明顯震動
+3. 被敵人子彈擊中 → 應該看到輕微震動
+
+#### 進階調整
+
+**不同場景的震動強度：**
+
+| 場景 | Shake Intensity | Shake Duration | 效果 |
+|------|----------------|----------------|------|
+| 輕微震動 | 0.1 - 0.15 | 0.15 - 0.2 | 受傷時的輕微回饋 |
+| 一般震動 | 0.3 - 0.4 | 0.3 - 0.4 | 方塊溢出、消除 |
+| 強烈震動 | 0.5 - 0.8 | 0.5 - 0.7 | Boss 攻擊、大量消除 |
+
+**如果震動太強：**
+- 降低 `Shake Intensity` 至 `0.2` 或更低
+- 縮短 `Shake Duration` 至 `0.2` 秒
+
+**如果震動太弱：**
+- 提高 `Shake Intensity` 至 `0.5` 或更高
+- 延長 `Shake Duration` 至 `0.5` 秒
+
+---
+
 ## 完成！
 
 現在你有一個完整的Tenronis遊戲了！

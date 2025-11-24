@@ -13,7 +13,7 @@ namespace Tenronis.Gameplay.Player
     {
         /// <summary>
         /// 執行處決技能
-        /// 清除每列最底部的方塊並發射導彈
+        /// 清除每列最上面的方塊（削平表面）並發射導彈
         /// </summary>
         public static void ExecuteExecution()
         {
@@ -23,10 +23,11 @@ namespace Tenronis.Gameplay.Player
             var stats = PlayerManager.Instance.Stats;
             int missileCount = 1 + stats.missileExtraCount;
             
-            // 清除每列最底部的方塊
+            // 清除每列最上面的方塊（削平表面）
             for (int x = 0; x < GameConstants.BOARD_WIDTH; x++)
             {
-                for (int y = GameConstants.BOARD_HEIGHT - 1; y >= 0; y--)
+                // 從頂部往底部掃描，找到第一個方塊
+                for (int y = 0; y < GameConstants.BOARD_HEIGHT; y++)
                 {
                     if (GridManager.Instance.IsOccupied(x, y))
                     {
@@ -44,7 +45,7 @@ namespace Tenronis.Gameplay.Player
                             );
                         }
                         
-                        break; // 只清除最底部的一個
+                        break; // 只清除最上面的一個
                     }
                 }
             }
