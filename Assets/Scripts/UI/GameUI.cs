@@ -43,21 +43,49 @@ namespace Tenronis.UI
         
         private void Start()
         {
+            Debug.Log("[GameUI] Start() - 初始化GameUI");
+            
+            // 檢查GameManager是否存在（重要！）
+            if (GameManager.Instance == null)
+            {
+                Debug.LogError("❌ [GameUI] 場景中找不到GameManager！遊戲無法運行！");
+                Debug.LogError("   解決方法：在Hierarchy中建立GameManager物件並添加GameManager腳本");
+                Debug.LogError("   參考文件：Assets/快速設置管理器.md");
+            }
+            else
+            {
+                Debug.Log("✅ [GameUI] GameManager已找到");
+            }
+            
             // 綁定按鈕事件
             if (startButton != null)
+            {
                 startButton.onClick.AddListener(OnStartGame);
+                Debug.Log("[GameUI] StartButton已綁定事件");
+            }
+            else
+            {
+                Debug.LogError("[GameUI] StartButton參考為空！請在Inspector中設置");
+            }
             
             if (restartButton != null)
+            {
                 restartButton.onClick.AddListener(OnRestart);
+                Debug.Log("[GameUI] RestartButton已綁定事件");
+            }
             
             if (menuButton != null)
+            {
                 menuButton.onClick.AddListener(OnReturnToMenu);
+                Debug.Log("[GameUI] MenuButton已綁定事件");
+            }
             
             // 訂閱遊戲事件
             GameEvents.OnGameStateChanged += HandleGameStateChanged;
             
             // 初始化UI
             ShowMenu();
+            Debug.Log("[GameUI] 初始化完成，顯示主選單");
         }
         
         private void OnDestroy()
@@ -254,17 +282,45 @@ namespace Tenronis.UI
         // 按鈕回調
         private void OnStartGame()
         {
-            GameManager.Instance?.StartGame();
+            Debug.Log("=== [GameUI] OnStartGame() 被觸發！===");
+            
+            if (GameManager.Instance != null)
+            {
+                Debug.Log("[GameUI] 調用 GameManager.StartGame()");
+                GameManager.Instance.StartGame();
+            }
+            else
+            {
+                Debug.LogError("[GameUI] GameManager.Instance 為空！無法開始遊戲");
+            }
         }
         
         private void OnRestart()
         {
-            GameManager.Instance?.RestartGame();
+            Debug.Log("=== [GameUI] OnRestart() 被觸發！===");
+            
+            if (GameManager.Instance != null)
+            {
+                GameManager.Instance.RestartGame();
+            }
+            else
+            {
+                Debug.LogError("[GameUI] GameManager.Instance 為空！");
+            }
         }
         
         private void OnReturnToMenu()
         {
-            GameManager.Instance?.ReturnToMenu();
+            Debug.Log("=== [GameUI] OnReturnToMenu() 被觸發！===");
+            
+            if (GameManager.Instance != null)
+            {
+                GameManager.Instance.ReturnToMenu();
+            }
+            else
+            {
+                Debug.LogError("[GameUI] GameManager.Instance 為空！");
+            }
         }
     }
 }

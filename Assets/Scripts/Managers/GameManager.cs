@@ -39,11 +39,14 @@ namespace Tenronis.Managers
             // 單例模式
             if (Instance != null && Instance != this)
             {
+                Debug.LogWarning("[GameManager] 場景中已存在GameManager實例，銷毀重複物件");
                 Destroy(gameObject);
                 return;
             }
+            
             Instance = this;
             DontDestroyOnLoad(gameObject);
+            Debug.Log("[GameManager] 初始化完成 - 單例已建立");
         }
         
         private void OnDestroy()
@@ -67,12 +70,15 @@ namespace Tenronis.Managers
         /// </summary>
         public void ChangeGameState(GameState newState)
         {
-            if (currentState == newState) return;
+            if (currentState == newState)
+            {
+                Debug.LogWarning($"[GameManager] 嘗試切換到相同狀態: {newState}，已忽略");
+                return;
+            }
             
+            Debug.Log($"[GameManager] 狀態變更: {currentState} → {newState}");
             currentState = newState;
             GameEvents.TriggerGameStateChanged(newState);
-            
-            Debug.Log($"[GameManager] 狀態變更: {newState}");
         }
         
         /// <summary>
@@ -80,12 +86,18 @@ namespace Tenronis.Managers
         /// </summary>
         public void StartGame()
         {
+            Debug.Log("=== [GameManager] StartGame() 開始執行 ===");
+            
             currentStageIndex = 0;
             pendingBuffCount = 0;
             damageAccumulator = 0f;
             rogueRequirement = GameConstants.INITIAL_ROGUE_REQUIREMENT;
             
+            Debug.Log($"[GameManager] 遊戲數據已重置 - Stage: {currentStageIndex}, Buffs: {pendingBuffCount}");
+            
             ChangeGameState(GameState.Playing);
+            
+            Debug.Log("=== [GameManager] StartGame() 執行完成 ===");
         }
         
         /// <summary>
