@@ -12,6 +12,11 @@ namespace Tenronis.ScriptableObjects
         public string stageName = "未命名威脅";
         public int stageIndex = 0;
         
+        [Header("過關獎勵")]
+        [Tooltip("過關後獲得的升級卡牌數量")]
+        [Range(0, 5)]
+        public int rewardBuffCount = 1;
+        
         [Header("敵人屬性")]
         public int maxHp = 100;
         

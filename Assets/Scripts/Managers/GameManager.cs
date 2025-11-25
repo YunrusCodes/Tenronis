@@ -61,7 +61,7 @@ namespace Tenronis.Managers
         {
             // 訂閱事件
             GameEvents.OnEnemyDefeated += HandleEnemyDefeated;
-            GameEvents.OnEnemyDamaged += HandleEnemyDamaged;
+            // GameEvents.OnEnemyDamaged += HandleEnemyDamaged; // 已停用：改為關卡固定獎勵
             GameEvents.OnBuffSelected += HandleBuffSelected;
         }
         
@@ -121,6 +121,17 @@ namespace Tenronis.Managers
         /// </summary>
         private void HandleEnemyDefeated()
         {
+            // 獲取當前關卡的獎勵卡牌數量
+            if (stages != null && currentStageIndex < stages.Length)
+            {
+                int stageReward = stages[currentStageIndex].rewardBuffCount;
+                if (stageReward > 0)
+                {
+                    pendingBuffCount += stageReward;
+                    Debug.Log($"[GameManager] 關卡 {currentStageIndex + 1} 完成！獲得 {stageReward} 張升級卡牌，總計: {pendingBuffCount}");
+                }
+            }
+            
             currentStageIndex++;
             
             if (currentStageIndex >= stages.Length)
@@ -152,9 +163,14 @@ namespace Tenronis.Managers
         
         /// <summary>
         /// 處理敵人受傷 - 累積Roguelike點數
+        /// 【已停用】改為關卡固定獎勵機制
         /// </summary>
         private void HandleEnemyDamaged(float damage)
         {
+            // 累積傷害升級機制已停用
+            // 現在改為每關固定獎勵 (StageDataSO.rewardBuffCount)
+            
+            /* 原始代碼（已註解）
             damageAccumulator += damage;
             
             // 檢查是否達到升級要求
@@ -172,6 +188,7 @@ namespace Tenronis.Managers
                 GameEvents.TriggerBuffAvailable();
                 Debug.Log($"[GameManager] 獲得 {buffsEarned} 個升級點數！當前待選: {pendingBuffCount}");
             }
+            */
         }
         
         /// <summary>

@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Tenronis.ScriptableObjects.StageDataSO
   stageName: "\u653B\u57CE\u5766\u514B"
   stageIndex: 2
+  rewardBuffCount: 1
   maxHp: 300
   shootInterval: 1.8
   bulletSpeed: 8.5
