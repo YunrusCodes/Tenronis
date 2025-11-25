@@ -700,6 +700,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Tenronis.Gameplay.Tetromino.TetrominoController
   blockPreviewPrefab: {fileID: 0}
+  lockDelay: 0.5
+  maxLockResets: 15
 --- !u!4 &206945817
 Transform:
   m_ObjectHideFlags: 0
@@ -7493,7 +7495,7 @@ MonoBehaviour:
   gridContainer: {fileID: 1522557084}
   blockPrefab: {fileID: 2386012697764751039, guid: 41c93c59eb6643d4982da3482103ebb2, type: 3}
   blockSize: 1
-  gridOffset: {x: -7.5, y: 9}
+  gridOffset: {x: -8, y: 9}
 --- !u!1 &1881749706
 GameObject:
   m_ObjectHideFlags: 0

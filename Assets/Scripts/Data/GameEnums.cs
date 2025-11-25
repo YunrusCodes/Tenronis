@@ -43,6 +43,16 @@ namespace Tenronis.Data
         Gray,
         Garbage
     }
+    
+    /// <summary>
+    /// 方塊特性類型
+    /// </summary>
+    public enum BlockType
+    {
+        Normal,      // 普通方塊：無特性
+        Void,        // 虛無方塊：消除時不產生導彈（垃圾行）
+        Explosive    // 爆炸方塊：被敵人射擊破壞時對玩家造成傷害
+    }
 
     /// <summary>
     /// 子彈類型

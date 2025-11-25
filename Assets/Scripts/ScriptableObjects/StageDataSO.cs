@@ -34,6 +34,13 @@ namespace Tenronis.ScriptableObjects
         [Tooltip("關卡10：可以發射插入行子彈")]
         public bool canUseInsertRow = false;
         
+        [Header("方塊類型控制")]
+        [Tooltip("AddBlock 生成爆炸方塊（被擊中時玩家 -5 HP）")]
+        public bool useExplosiveBlocks = false;
+        
+        [Tooltip("InsertRow 生成虛無垃圾行（消除時不產生導彈）")]
+        public bool useVoidRow = false;
+        
         [Header("特殊能力機率")]
         [Range(0f, 1f)]
         public float addBlockChance = 0.35f;

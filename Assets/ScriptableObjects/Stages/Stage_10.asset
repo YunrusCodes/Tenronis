@@ -24,5 +24,7 @@ MonoBehaviour:
   addBlockChance: 0.35
   areaDamageChance: 0.25
   insertRowChance: 0.15
+  useExplosiveBlocks: 1
+  useVoidRow: 1
   enemyIcon: {fileID: 0}
   themeColor: {r: 1, g: 0, b: 0, a: 1}

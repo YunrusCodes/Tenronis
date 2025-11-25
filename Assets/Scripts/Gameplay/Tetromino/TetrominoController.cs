@@ -506,7 +506,8 @@ namespace Tenronis.Gameplay.Tetromino
                         
                         if (GridManager.Instance.IsValidPosition(gridX, gridY))
                         {
-                            BlockData block = new BlockData(currentShape.color, blockHp, blockHp);
+                            // 創建普通方塊數據（玩家放置的都是 Normal 類型）
+                            BlockData block = new BlockData(currentShape.color, blockHp, blockHp, false, BlockType.Normal);
                             GridManager.Instance.SetBlock(gridX, gridY, block);
                             Debug.Log($"[MergePieceToGrid] 設置方塊在 ({gridX}, {gridY}), 顏色: {currentShape.color}");
                         }

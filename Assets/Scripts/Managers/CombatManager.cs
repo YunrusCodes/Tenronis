@@ -76,9 +76,16 @@ namespace Tenronis.Managers
         /// <summary>
         /// 發射導彈（消除行時觸發）
         /// </summary>
-        private void HandleRowsCleared(int rowCount)
+        private void HandleRowsCleared(int rowCount, bool hasVoid)
         {
             if (rowCount <= 0) return;
+            
+            // 虛無抵銷：不發射導彈
+            if (hasVoid)
+            {
+                Debug.Log($"[CombatManager] 虛無抵銷！消除了 {rowCount} 行但不發射導彈");
+                return;
+            }
             
             var stats = PlayerManager.Instance.Stats;
             
@@ -350,10 +357,25 @@ namespace Tenronis.Managers
                     GridManager.Instance.DamageBlock(hitPos.x, hitPos.y, 1);
                     CheckCounterFire(hitPos, hitBlock);
                     
-                    // 在上方添加垃圾方塊
+                    // 在上方添加垃圾方塊（根據關卡配置決定類型）
                     if (hitPos.y - 1 >= 0)
                     {
-                        BlockData garbageBlock = new BlockData(BlockColor.Garbage, GameConstants.GARBAGE_BLOCK_HP, GameConstants.GARBAGE_BLOCK_HP);
+                        // 從當前關卡配置讀取是否使用爆炸方塊
+                        bool useExplosive = false;
+                        if (GameManager.Instance != null && GameManager.Instance.CurrentStage != null)
+                        {
+                            useExplosive = GameManager.Instance.CurrentStage.useExplosiveBlocks;
+                        }
+                        
+                        BlockType blockType = useExplosive ? BlockType.Explosive : BlockType.Normal;
+                        
+                        BlockData garbageBlock = new BlockData(
+                            BlockColor.Garbage,
+                            GameConstants.GARBAGE_BLOCK_HP,
+                            GameConstants.GARBAGE_BLOCK_HP,
+                            false,
+                            blockType
+                        );
                         GridManager.Instance.SetBlock(hitPos.x, hitPos.y - 1, garbageBlock);
                         
                         // 檢查是否形成完整行（敵人添加方塊也可以觸發消行）
@@ -428,10 +450,11 @@ namespace Tenronis.Managers
             
             List<int> clearedRows = GridManager.Instance.CheckAndClearRows();
             
+            // 注意：CheckAndClearRows 內部已經觸發 TriggerRowsCleared
+            // 這裡不需要再次觸發，只需要記錄日誌
             if (clearedRows.Count > 0)
             {
                 Debug.Log($"[CombatManager] 敵人添加方塊形成完整行！消除了 {clearedRows.Count} 行");
-                GameEvents.TriggerRowsCleared(clearedRows.Count);
             }
         }
         

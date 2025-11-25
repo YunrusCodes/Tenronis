@@ -186,7 +186,7 @@ namespace Tenronis.Managers
         /// <summary>
         /// 處理消除行
         /// </summary>
-        private void HandleRowsCleared(int rowCount)
+        private void HandleRowsCleared(int rowCount, bool hasVoid)
         {
             if (rowCount > 0)
             {
@@ -199,6 +199,18 @@ namespace Tenronis.Managers
                 
                 // 增加分數
                 AddScore(rowCount * 100);
+                
+                // 虛無抵銷處理
+                if (hasVoid)
+                {
+                    Debug.Log("[PlayerManager] 虛無抵銷！不產生導彈");
+                    // 顯示"虛無抵銷!"彈出文字
+                    GameEvents.TriggerShowPopupText(
+                        "虛無抵銷!",
+                        new Color(0.5f, 0.5f, 0.5f), // 灰色
+                        Vector2.zero
+                    );
+                }
                 
                 // 消除行數的資訊顯示在固定 UI (SalvoText)，不需要彈出文字
             }

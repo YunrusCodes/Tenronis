@@ -37,7 +37,7 @@ namespace Tenronis.Data
         
         // 方塊設定
         public const int BASE_BLOCK_HP = 1;
-        public const int GARBAGE_BLOCK_HP = 2;
+        public const int GARBAGE_BLOCK_HP = 1;
         public const int INDESTRUCTIBLE_BLOCK_HP = 9999;
         
         // 敵人子彈傷害

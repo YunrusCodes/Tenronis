@@ -66,34 +66,13 @@ namespace Tenronis.Gameplay.Player
             FillClosedHoles();
             
             // 檢查並消除滿行
+            // CheckAndClearRows 內部已經觸發 TriggerRowsCleared
+            // 導彈發射由 CombatManager.HandleRowsCleared 統一處理（包含虛無抵銷檢查）
             var clearedRows = GridManager.Instance.CheckAndClearRows();
             
             if (clearedRows.Count > 0)
             {
-                GameEvents.TriggerRowsCleared(clearedRows.Count);
-                
-                var stats = PlayerManager.Instance.Stats;
-                int missileCount = 1 + stats.missileExtraCount;
-                
-                // 發射導彈
-                foreach (int row in clearedRows)
-                {
-                    for (int x = 0; x < GameConstants.BOARD_WIDTH; x++)
-                    {
-                        Vector3 pos = GridManager.Instance.GridToWorldPosition(x, row);
-                        float damage = GameConstants.REPAIR_DAMAGE;
-                        
-                        for (int i = 0; i < missileCount; i++)
-                        {
-                            CombatManager.Instance?.FireMissile(
-                                pos + Vector3.up * (i * 0.2f), 
-                                damage
-                            );
-                        }
-                    }
-                }
-                
-                GameEvents.TriggerPlayMissileSound();
+                Debug.Log($"[SkillExecutor] 修復技能消除了 {clearedRows.Count} 行");
             }
             else
             {

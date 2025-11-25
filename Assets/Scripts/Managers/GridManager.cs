@@ -59,12 +59,13 @@ namespace Tenronis.Managers
         /// </summary>
         private void HandlePieceLocked()
         {
+            // CheckAndClearRows 內部已經觸發 TriggerRowsCleared
+            // 這裡只需要調用，不需要再次觸發事件
             List<int> clearedRows = CheckAndClearRows();
             
             if (clearedRows.Count > 0)
             {
                 Debug.Log($"[GridManager] 消除了 {clearedRows.Count} 行！");
-                GameEvents.TriggerRowsCleared(clearedRows.Count);
             }
         }
         
@@ -236,12 +237,14 @@ namespace Tenronis.Managers
         {
             List<int> normalRows = new List<int>();
             List<int> indestructibleRows = new List<int>();
+            bool hasVoidBlocks = false; // 檢查是否包含虛無方塊
             
             // 檢查所有行
             for (int y = 0; y < GameConstants.BOARD_HEIGHT; y++)
             {
                 bool isFull = true;
                 bool isIndestructible = true;
+                bool rowHasVoid = false;
                 
                 for (int x = 0; x < GameConstants.BOARD_WIDTH; x++)
                 {
@@ -254,10 +257,19 @@ namespace Tenronis.Managers
                     {
                         isIndestructible = false;
                     }
+                    if (grid[y, x].blockType == BlockType.Void)
+                    {
+                        rowHasVoid = true;
+                    }
                 }
                 
                 if (isFull)
                 {
+                    if (rowHasVoid)
+                    {
+                        hasVoidBlocks = true;
+                    }
+                    
                     if (isIndestructible)
                         indestructibleRows.Add(y);
                     else
@@ -282,7 +294,10 @@ namespace Tenronis.Managers
             // 消除行
             if (rowsToClear.Count > 0)
             {
-                ClearRows(rowsToClear);
+                ClearRows(rowsToClear, hasVoidBlocks);
+                
+                // 觸發消除事件，傳遞是否包含虛無方塊的信息
+                GameEvents.TriggerRowsCleared(rowsToClear.Count, hasVoidBlocks);
             }
             
             return rowsToClear;
@@ -291,9 +306,15 @@ namespace Tenronis.Managers
         /// <summary>
         /// 消除指定行
         /// </summary>
-        private void ClearRows(List<int> rows)
+        private void ClearRows(List<int> rows, bool hasVoidBlocks = false)
         {
             if (rows.Count == 0) return;
+            
+            // 如果包含虛無方塊，記錄以供後續處理
+            if (hasVoidBlocks)
+            {
+                Debug.Log($"[GridManager] 消除包含虛無方塊的行，將觸發虛無抵銷");
+            }
             
             // 移除所有要清除的行的視覺物件
             foreach (int row in rows)
@@ -368,6 +389,13 @@ namespace Tenronis.Managers
             
             if (block.hp <= 0)
             {
+                // 檢查是否為爆炸方塊
+                if (block.blockType == BlockType.Explosive)
+                {
+                    Debug.Log($"[GridManager] 爆炸方塊在 ({x}, {y}) 被摧毀！玩家受到 5 點傷害");
+                    GameEvents.TriggerPlayerDamaged(5);
+                }
+                
                 RemoveBlock(x, y); // 這裡會觸發 TriggerGridChanged
                 return true;
             }
@@ -417,17 +445,33 @@ namespace Tenronis.Managers
                 }
             }
             
-            // 在底部插入不可摧毀行
+            // 清空底部行的數據和視覺對象引用（準備插入新行）
             for (int x = 0; x < GameConstants.BOARD_WIDTH; x++)
             {
-                BlockData indestructibleBlock = new BlockData(
+                grid[GameConstants.BOARD_HEIGHT - 1, x] = null;
+                blockObjects[GameConstants.BOARD_HEIGHT - 1, x] = null;
+            }
+            
+            // 在底部插入垃圾行（根據關卡配置決定類型）
+            bool useVoid = false;
+            if (GameManager.Instance != null && GameManager.Instance.CurrentStage != null)
+            {
+                useVoid = GameManager.Instance.CurrentStage.useVoidRow;
+            }
+            
+            BlockType blockType = useVoid ? BlockType.Void : BlockType.Normal;
+            
+            for (int x = 0; x < GameConstants.BOARD_WIDTH; x++)
+            {
+                BlockData insertedBlock = new BlockData(
                     BlockColor.Garbage,
                     GameConstants.INDESTRUCTIBLE_BLOCK_HP,
                     GameConstants.INDESTRUCTIBLE_BLOCK_HP,
-                    true
+                    true,
+                    blockType
                 );
                 // 批量操作，最後才觸發事件
-                SetBlock(x, GameConstants.BOARD_HEIGHT - 1, indestructibleBlock, triggerEvent: false);
+                SetBlock(x, GameConstants.BOARD_HEIGHT - 1, insertedBlock, triggerEvent: false);
             }
             
             // 插入完成後統一觸發一次事件

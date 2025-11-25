@@ -14,19 +14,21 @@ namespace Tenronis.Data
         public int maxHp;
         public bool isIndestructible;
         public float createdTime; // 創建時間（用於反擊判定）
+        public BlockType blockType; // 方塊特性類型
         
-        public BlockData(BlockColor color, int hp, int maxHp, bool isIndestructible = false)
+        public BlockData(BlockColor color, int hp, int maxHp, bool isIndestructible = false, BlockType blockType = BlockType.Normal)
         {
             this.color = color;
             this.hp = hp;
             this.maxHp = maxHp;
             this.isIndestructible = isIndestructible;
             this.createdTime = Time.time;
+            this.blockType = blockType;
         }
         
         public BlockData Clone()
         {
-            return new BlockData(color, hp, maxHp, isIndestructible)
+            return new BlockData(color, hp, maxHp, isIndestructible, blockType)
             {
                 createdTime = this.createdTime
             };

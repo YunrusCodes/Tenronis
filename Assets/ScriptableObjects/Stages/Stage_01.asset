@@ -21,8 +21,14 @@ MonoBehaviour:
   canUseAddBlock: 0
   canUseAreaDamage: 0
   canUseInsertRow: 0
+  useExplosiveBlocks: 0
+  useVoidRow: 0
   addBlockChance: 0.35
   areaDamageChance: 0.25
   insertRowChance: 0.15
+  useSmartTargeting: 0
+  addBlockTargetsHigh: 1
+  areaDamageTargetsLow: 1
+  burstCount: 1
   enemyIcon: {fileID: 0}
   themeColor: {r: 1, g: 0, b: 0, a: 1}
