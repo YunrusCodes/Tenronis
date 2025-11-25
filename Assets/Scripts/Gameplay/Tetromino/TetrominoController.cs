@@ -38,6 +38,15 @@ namespace Tenronis.Gameplay.Tetromino
         private float dropTimer;
         private bool isActive;
         
+        // Lock Delay 機制
+        [Header("Lock Delay 設定")]
+        [SerializeField] private float lockDelay = 0.5f;      // 鎖定延遲（秒）
+        [SerializeField] private int maxLockResets = 15;      // 最大重置次數
+        
+        private bool isGrounded = false;   // 是否觸地
+        private float lockTimer = 0f;      // 鎖定計時器
+        private int lockResetCount = 0;    // 已重置次數
+        
         // 屬性
         public TetrominoShape NextShape => nextShape;
         public Vector2Int CurrentPosition => currentPosition;
@@ -83,6 +92,16 @@ namespace Tenronis.Gameplay.Tetromino
                 MoveDown();
                 dropTimer = 0f;
             }
+            
+            // Lock Delay 計時
+            if (isGrounded)
+            {
+                lockTimer += Time.deltaTime;
+                if (lockTimer >= lockDelay)
+                {
+                    LockPiece();
+                }
+            }
         }
         
         /// <summary>
@@ -118,6 +137,11 @@ namespace Tenronis.Gameplay.Tetromino
             }
             
             isActive = true;
+            
+            // 重置 Lock Delay 狀態
+            isGrounded = false;
+            lockTimer = 0f;
+            lockResetCount = 0;
             
             // 新方塊生成後，所有槽位都可以使用一次
             for (int i = 0; i < 4; i++)
@@ -178,6 +202,11 @@ namespace Tenronis.Gameplay.Tetromino
                 currentRotation = (int[,])currentShape.shape.Clone();
                 currentRotationState = 0;
                 
+                // 重置 Lock Delay 狀態
+                isGrounded = false;
+                lockTimer = 0f;
+                lockResetCount = 0;
+                
                 // 檢查碰撞
                 if (CheckCollision(currentPosition, currentRotation))
                 {
@@ -207,6 +236,11 @@ namespace Tenronis.Gameplay.Tetromino
                 currentRotation = (int[,])currentShape.shape.Clone();
                 currentRotationState = 0;
                 
+                // 重置 Lock Delay 狀態
+                isGrounded = false;
+                lockTimer = 0f;
+                lockResetCount = 0;
+                
                 // 檢查碰撞
                 if (CheckCollision(currentPosition, currentRotation))
                 {
@@ -234,6 +268,9 @@ namespace Tenronis.Gameplay.Tetromino
             {
                 currentPosition = newPos;
                 UpdateVisual();
+                
+                // 成功移動後，重置 Lock Delay（如果在觸地狀態）
+                ResetLockDelay();
             }
         }
         
@@ -249,6 +286,9 @@ namespace Tenronis.Gameplay.Tetromino
             {
                 currentPosition = newPos;
                 UpdateVisual();
+                
+                // 成功移動後，重置 Lock Delay（如果在觸地狀態）
+                ResetLockDelay();
             }
         }
         
@@ -264,10 +304,25 @@ namespace Tenronis.Gameplay.Tetromino
             {
                 currentPosition = newPos;
                 UpdateVisual();
+                
+                // 離開地面，重置 Lock Delay 狀態
+                if (isGrounded)
+                {
+                    isGrounded = false;
+                    lockTimer = 0f;
+                    lockResetCount = 0;
+                }
             }
             else
             {
-                LockPiece();
+                // 方塊觸地，進入 Lock Delay
+                if (!isGrounded)
+                {
+                    isGrounded = true;
+                    lockTimer = 0f;
+                    lockResetCount = 0;
+                    Debug.Log($"[Lock Delay] 方塊觸地，開始鎖定計時（{lockDelay}秒）");
+                }
             }
         }
         
@@ -303,6 +358,9 @@ namespace Tenronis.Gameplay.Tetromino
                     GameEvents.TriggerPlayRotateSound();
                     UpdateVisual();
                     
+                    // 成功旋轉後，重置 Lock Delay（如果在觸地狀態）
+                    ResetLockDelay();
+                    
                     Debug.Log($"[SRS] 旋轉成功！方塊: {currentShape.type}, 狀態: {currentRotationState}, 偏移: {offset}");
                     return;
                 }
@@ -314,7 +372,7 @@ namespace Tenronis.Gameplay.Tetromino
         }
         
         /// <summary>
-        /// 硬降落
+        /// 硬降落（立即鎖定，忽略 Lock Delay）
         /// </summary>
         public void HardDrop()
         {
@@ -325,6 +383,7 @@ namespace Tenronis.Gameplay.Tetromino
                 currentPosition += Vector2Int.up;
             }
             
+            // 硬降立即鎖定，不使用 Lock Delay
             LockPiece();
         }
         
@@ -333,7 +392,14 @@ namespace Tenronis.Gameplay.Tetromino
         /// </summary>
         private void LockPiece()
         {
+            if (!isActive) return;
+            
             isActive = false;
+            isGrounded = false;
+            lockTimer = 0f;
+            lockResetCount = 0;
+            
+            Debug.Log($"[Lock Delay] 方塊已鎖定");
             
             // 將方塊合併到網格
             MergePieceToGrid();
@@ -390,6 +456,19 @@ namespace Tenronis.Gameplay.Tetromino
             GameEvents.TriggerPieceLocked();
             
             // 不生成新方塊，因為要進入選單了
+        }
+        
+        /// <summary>
+        /// 重置 Lock Delay（在成功移動或旋轉後調用）
+        /// </summary>
+        private void ResetLockDelay()
+        {
+            if (isGrounded && lockResetCount < maxLockResets)
+            {
+                lockTimer = 0f;
+                lockResetCount++;
+                Debug.Log($"[Lock Delay] 重置計時器（第 {lockResetCount}/{maxLockResets} 次）");
+            }
         }
         
         /// <summary>
