@@ -25,6 +25,10 @@ namespace Tenronis.Gameplay.Tetromino
         // 下一個方塊
         private TetrominoShape nextShape;
         
+        // 儲存方塊系統（4個位置：A、S、D、F）
+        private TetrominoShape?[] heldPieces = new TetrominoShape?[4];
+        private bool[] canHoldSlot = new bool[4]; // 每個槽位在當前方塊落下前可以使用一次
+        
         // 視覺預覽
         private List<GameObject> previewBlocks;
         private List<GameObject> ghostBlocks;
@@ -37,6 +41,8 @@ namespace Tenronis.Gameplay.Tetromino
         public TetrominoShape NextShape => nextShape;
         public Vector2Int CurrentPosition => currentPosition;
         public bool IsActive => isActive;
+        public TetrominoShape?[] HeldPieces => heldPieces;
+        public bool[] CanHoldSlot => canHoldSlot;
         
         private void Awake()
         {
@@ -110,7 +116,101 @@ namespace Tenronis.Gameplay.Tetromino
             }
             
             isActive = true;
+            
+            // 新方塊生成後，所有槽位都可以使用一次
+            for (int i = 0; i < 4; i++)
+            {
+                canHoldSlot[i] = true;
+            }
+            
+            // 觸發槽位狀態更新事件
+            GameEvents.TriggerHeldSlotStateChanged();
+            
             UpdateVisual();
+        }
+        
+        /// <summary>
+        /// 儲存/交換方塊（每個槽位在當前方塊落下前可以使用一次）
+        /// </summary>
+        /// <param name="slotIndex">儲存位置索引 (0=A, 1=S, 2=D, 3=F)</param>
+        public void HoldPiece(int slotIndex)
+        {
+            if (!isActive) return;
+            if (slotIndex < 0 || slotIndex >= 4) return;
+            
+            // 檢查該槽位是否還可以使用
+            if (!canHoldSlot[slotIndex])
+            {
+                Debug.Log($"[TetrominoController] 槽位 {slotIndex} 在本回合已使用過");
+                return;
+            }
+            
+            // 清除當前視覺
+            ClearVisual();
+            
+            if (heldPieces[slotIndex] == null)
+            {
+                // 儲存槽為空：儲存當前方塊，取出下一個方塊
+                heldPieces[slotIndex] = currentShape;
+                Debug.Log($"[TetrominoController] 儲存方塊到位置 {slotIndex}: {currentShape.name}");
+                
+                // 觸發儲存更新事件
+                GameEvents.TriggerHeldPieceChanged(slotIndex);
+                
+                // 取出下一個方塊作為當前方塊
+                currentShape = nextShape;
+                nextShape = TetrominoDefinitions.GetRandomTetromino();
+                
+                // 觸發下一個方塊已更新事件
+                GameEvents.TriggerNextPieceChanged();
+                
+                // 重置方塊狀態
+                currentPosition = new Vector2Int(GameConstants.BOARD_WIDTH / 2 - 1, 0);
+                currentRotation = (int[,])currentShape.shape.Clone();
+                currentRotationState = 0;
+                
+                // 檢查碰撞
+                if (CheckCollision(currentPosition, currentRotation))
+                {
+                    HandleOverflow();
+                    return;
+                }
+                
+                // 標記該槽位已使用
+                canHoldSlot[slotIndex] = false;
+                GameEvents.TriggerHeldSlotStateChanged();
+                UpdateVisual();
+            }
+            else
+            {
+                // 儲存槽不為空：交換當前方塊與儲存方塊
+                TetrominoShape temp = currentShape;
+                currentShape = heldPieces[slotIndex].Value;
+                heldPieces[slotIndex] = temp;
+                
+                Debug.Log($"[TetrominoController] 交換方塊：{temp.name} ⟷ {currentShape.name}");
+                
+                // 觸發儲存更新事件
+                GameEvents.TriggerHeldPieceChanged(slotIndex);
+                
+                // 重置方塊狀態
+                currentPosition = new Vector2Int(GameConstants.BOARD_WIDTH / 2 - 1, 0);
+                currentRotation = (int[,])currentShape.shape.Clone();
+                currentRotationState = 0;
+                
+                // 檢查碰撞
+                if (CheckCollision(currentPosition, currentRotation))
+                {
+                    // 如果交換後的方塊無法生成，遊戲結束
+                    HandleOverflow();
+                    return;
+                }
+                
+                // 標記該槽位已使用
+                canHoldSlot[slotIndex] = false;
+                GameEvents.TriggerHeldSlotStateChanged();
+                UpdateVisual();
+            }
         }
         
         /// <summary>

@@ -210,6 +210,57 @@ Canvas
    - Spacing: 2
    - Use Sprite: false（使用純色方塊）
 
+#### 儲存方塊 UI (Held Pieces - 按鍵 A、S、D、F)
+```
+Canvas
+└── HeldPiecesPanel (添加 HeldPiecesUI 腳本)
+    ├── Slot1 (空物件 - 儲存位置 A)
+    │   ├── Background (Image - 可選)
+    │   ├── KeyLabel (TextMeshPro - 顯示 "A")
+    │   ├── LockIcon (Image 或 TextMeshPro - 鎖定圖示 🔒)
+    │   └── Container (空物件 - 用於容納方塊預覽)
+    ├── Slot2 (空物件 - 儲存位置 S)
+    │   ├── Background (Image - 可選)
+    │   ├── KeyLabel (TextMeshPro - 顯示 "S")
+    │   ├── LockIcon (Image 或 TextMeshPro - 鎖定圖示 🔒)
+    │   └── Container (空物件 - 用於容納方塊預覽)
+    ├── Slot3 (空物件 - 儲存位置 D)
+    │   ├── Background (Image - 可選)
+    │   ├── KeyLabel (TextMeshPro - 顯示 "D")
+    │   ├── LockIcon (Image 或 TextMeshPro - 鎖定圖示 🔒)
+    │   └── Container (空物件 - 用於容納方塊預覽)
+    └── Slot4 (空物件 - 儲存位置 F)
+        ├── Background (Image - 可選)
+        ├── KeyLabel (TextMeshPro - 顯示 "F")
+        ├── LockIcon (Image 或 TextMeshPro - 鎖定圖示 🔒)
+        └── Container (空物件 - 用於容納方塊預覽)
+```
+
+**設定步驟**：
+1. 在 Canvas 下創建空物件：`HeldPiecesPanel`
+2. 設置位置：左上角（例如：Anchor: Top-Left, Position X: 150, Y: -150）
+3. 添加 `HorizontalLayoutGroup` 組件（可選，自動排列）
+4. 為每個儲存位置創建：
+   - 空物件 `Slot1` ~ `Slot4`
+   - 每個 Slot 大小：Width: 100, Height: 120
+   - 在每個 Slot 下創建：
+     - `Background`（Image，半透明背景）
+     - `KeyLabel`（TextMeshPro，顯示按鍵提示 A/S/D/F）
+     - `LockIcon`（Image 或 TextMeshPro）
+       - **使用 Image**：拖入鎖定圖示 Sprite（🔒）
+       - **使用 TextMeshPro**：Text 設為 "🔒" 或 "LOCKED"
+       - 位置：右上角（Anchor: Top-Right）
+       - 顏色：半透明紅色或灰色
+     - `Container`（空物件，Anchor: Center）
+5. 在 `HeldPiecesPanel` 上添加 `HeldPiecesUI` 腳本
+6. 在 Inspector 中設置：
+   - Slot Containers (Size: 4): 拖入 Slot1/Container ~ Slot4/Container
+   - Key Labels (Size: 4): 拖入 Slot1/KeyLabel ~ Slot4/KeyLabel
+   - **Lock Icons (Size: 4)**: 拖入 Slot1/LockIcon ~ Slot4/LockIcon
+   - Block Size: 25
+   - Spacing: 2
+   - Empty Slot Color: 灰色半透明 (0.3, 0.3, 0.3, 0.5)
+
 #### 升級面板
 ```
 Canvas

@@ -15,6 +15,8 @@ namespace Tenronis.Core
         // === 方塊事件 ===
         public static event Action OnPieceLocked;
         public static event Action OnNextPieceChanged; // 下一個方塊已更新
+        public static event Action<int> OnHeldPieceChanged; // 儲存方塊已更新，參數：儲存位置索引
+        public static event Action OnHeldSlotStateChanged; // 儲存槽位狀態改變（可用/鎖定）
         public static event Action<int> OnRowsCleared; // 參數：消除的行數
         public static event Action OnGridOverflow;
         public static event Action OnGridChanged; // 地形改變（方塊被移除、傷害等）
@@ -48,6 +50,8 @@ namespace Tenronis.Core
         public static void TriggerGameStateChanged(GameState newState) => OnGameStateChanged?.Invoke(newState);
         public static void TriggerPieceLocked() => OnPieceLocked?.Invoke();
         public static void TriggerNextPieceChanged() => OnNextPieceChanged?.Invoke();
+        public static void TriggerHeldPieceChanged(int slotIndex) => OnHeldPieceChanged?.Invoke(slotIndex);
+        public static void TriggerHeldSlotStateChanged() => OnHeldSlotStateChanged?.Invoke();
         public static void TriggerRowsCleared(int count) => OnRowsCleared?.Invoke(count);
         public static void TriggerGridOverflow() => OnGridOverflow?.Invoke();
         public static void TriggerGridChanged() => OnGridChanged?.Invoke();
@@ -75,6 +79,8 @@ namespace Tenronis.Core
             OnGameStateChanged = null;
             OnPieceLocked = null;
             OnNextPieceChanged = null;
+            OnHeldPieceChanged = null;
+            OnHeldSlotStateChanged = null;
             OnRowsCleared = null;
             OnGridOverflow = null;
             OnGridChanged = null;

@@ -48,6 +48,7 @@ namespace Tenronis.Managers
             HandleVerticalMovement();
             HandleRotation();
             HandleHardDrop();
+            HandleHoldPiece();
             HandleSkills();
         }
         
@@ -56,14 +57,14 @@ namespace Tenronis.Managers
         /// </summary>
         private void HandleHorizontalMovement()
         {
-            bool leftPressed = Input.GetKey(KeyCode.LeftArrow) || Input.GetKey(KeyCode.A);
-            bool rightPressed = Input.GetKey(KeyCode.RightArrow) || Input.GetKey(KeyCode.D);
+            bool leftPressed = Input.GetKey(KeyCode.LeftArrow);
+            bool rightPressed = Input.GetKey(KeyCode.RightArrow);
             
             // 左移動
             if (leftPressed)
             {
                 // 首次按下
-                if (Input.GetKeyDown(KeyCode.LeftArrow) || Input.GetKeyDown(KeyCode.A))
+                if (Input.GetKeyDown(KeyCode.LeftArrow))
                 {
                     TetrominoController.Instance?.MoveLeft();
                     leftHoldTimer = 0f;
@@ -106,7 +107,7 @@ namespace Tenronis.Managers
             if (rightPressed)
             {
                 // 首次按下
-                if (Input.GetKeyDown(KeyCode.RightArrow) || Input.GetKeyDown(KeyCode.D))
+                if (Input.GetKeyDown(KeyCode.RightArrow))
                 {
                     TetrominoController.Instance?.MoveRight();
                     rightHoldTimer = 0f;
@@ -147,16 +148,16 @@ namespace Tenronis.Managers
         }
         
         /// <summary>
-        /// 處理垂直移動（軟降）
+        /// 處理垂直移動（軟降）- 只使用下方向鍵
         /// </summary>
         private void HandleVerticalMovement()
         {
-            bool downPressed = Input.GetKey(KeyCode.DownArrow) || Input.GetKey(KeyCode.S);
+            bool downPressed = Input.GetKey(KeyCode.DownArrow);
             
             if (downPressed)
             {
                 // 首次按下
-                if (Input.GetKeyDown(KeyCode.DownArrow) || Input.GetKeyDown(KeyCode.S))
+                if (Input.GetKeyDown(KeyCode.DownArrow))
                 {
                     TetrominoController.Instance?.MoveDown();
                     downHoldTimer = 0f;
@@ -182,11 +183,11 @@ namespace Tenronis.Managers
         }
         
         /// <summary>
-        /// 處理旋轉
+        /// 處理旋轉 - 只使用上方向鍵
         /// </summary>
         private void HandleRotation()
         {
-            if (Input.GetKeyDown(KeyCode.UpArrow) || Input.GetKeyDown(KeyCode.W))
+            if (Input.GetKeyDown(KeyCode.UpArrow))
             {
                 TetrominoController.Instance?.Rotate();
             }
@@ -204,16 +205,50 @@ namespace Tenronis.Managers
         }
         
         /// <summary>
-        /// 處理技能
+        /// 處理儲存/交換方塊 (A、S、D、F)
+        /// </summary>
+        private void HandleHoldPiece()
+        {
+            if (TetrominoController.Instance == null) return;
+            
+            // 儲存位置 0 (按鍵 A)
+            if (Input.GetKeyDown(KeyCode.A))
+            {
+                TetrominoController.Instance.HoldPiece(0);
+            }
+            
+            // 儲存位置 1 (按鍵 S)
+            if (Input.GetKeyDown(KeyCode.S))
+            {
+                TetrominoController.Instance.HoldPiece(1);
+            }
+            
+            // 儲存位置 2 (按鍵 D)
+            if (Input.GetKeyDown(KeyCode.D))
+            {
+                TetrominoController.Instance.HoldPiece(2);
+            }
+            
+            // 儲存位置 3 (按鍵 F)
+            if (Input.GetKeyDown(KeyCode.F))
+            {
+                TetrominoController.Instance.HoldPiece(3);
+            }
+        }
+        
+        /// <summary>
+        /// 處理技能 (Q、E)
         /// </summary>
         private void HandleSkills()
         {
-            if (Input.GetKeyDown(KeyCode.Alpha1))
+            // 處決技能 (Q)
+            if (Input.GetKeyDown(KeyCode.Q))
             {
                 SkillExecutor.ExecuteExecution();
             }
             
-            if (Input.GetKeyDown(KeyCode.Alpha2))
+            // 修復技能 (E)
+            if (Input.GetKeyDown(KeyCode.E))
             {
                 SkillExecutor.ExecuteRepair();
             }
