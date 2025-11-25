@@ -52,6 +52,7 @@ namespace Tenronis.Gameplay.Tetromino
         {
             // 訂閱事件
             GameEvents.OnGameStateChanged += HandleGameStateChanged;
+            GameEvents.OnGridChanged += HandleGridChanged;
             
             // 預先生成下一個方塊
             nextShape = TetrominoDefinitions.GetRandomTetromino();
@@ -60,6 +61,7 @@ namespace Tenronis.Gameplay.Tetromino
         private void OnDestroy()
         {
             GameEvents.OnGameStateChanged -= HandleGameStateChanged;
+            GameEvents.OnGridChanged -= HandleGridChanged;
         }
         
         private void Update()
@@ -570,6 +572,18 @@ namespace Tenronis.Gameplay.Tetromino
                     isActive = false;
                     ClearVisual();
                     break;
+            }
+        }
+        
+        /// <summary>
+        /// 處理地形改變（子彈擊中方塊等）
+        /// </summary>
+        private void HandleGridChanged()
+        {
+            // 只在方塊活躍時更新視覺
+            if (isActive)
+            {
+                UpdateVisual();
             }
         }
     }

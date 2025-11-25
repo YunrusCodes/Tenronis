@@ -138,6 +138,9 @@ namespace Tenronis.Managers
                 Destroy(blockObjects[y, x]);
                 blockObjects[y, x] = null;
             }
+            
+            // 觸發地形改變事件（用於更新 Ghost Piece）
+            GameEvents.TriggerGridChanged();
         }
         
         /// <summary>
@@ -359,12 +362,14 @@ namespace Tenronis.Managers
             
             if (block.hp <= 0)
             {
-                RemoveBlock(x, y);
+                RemoveBlock(x, y); // 這裡會觸發 TriggerGridChanged
                 return true;
             }
             else
             {
                 UpdateBlockVisual(x, y);
+                // HP 改變但沒有移除也觸發事件（視覺上有變化）
+                GameEvents.TriggerGridChanged();
                 return false;
             }
         }

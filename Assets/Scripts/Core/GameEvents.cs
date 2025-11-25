@@ -16,6 +16,7 @@ namespace Tenronis.Core
         public static event Action OnPieceLocked;
         public static event Action<int> OnRowsCleared; // 參數：消除的行數
         public static event Action OnGridOverflow;
+        public static event Action OnGridChanged; // 地形改變（方塊被移除、傷害等）
         
         // === 戰鬥事件 ===
         public static event Action<float> OnMissileFired; // 參數：傷害
@@ -46,6 +47,7 @@ namespace Tenronis.Core
         public static void TriggerPieceLocked() => OnPieceLocked?.Invoke();
         public static void TriggerRowsCleared(int count) => OnRowsCleared?.Invoke(count);
         public static void TriggerGridOverflow() => OnGridOverflow?.Invoke();
+        public static void TriggerGridChanged() => OnGridChanged?.Invoke();
         public static void TriggerMissileFired(float damage) => OnMissileFired?.Invoke(damage);
         public static void TriggerEnemyDamaged(float damage) => OnEnemyDamaged?.Invoke(damage);
         public static void TriggerEnemyDefeated() => OnEnemyDefeated?.Invoke();
@@ -70,6 +72,7 @@ namespace Tenronis.Core
             OnPieceLocked = null;
             OnRowsCleared = null;
             OnGridOverflow = null;
+            OnGridChanged = null;
             OnMissileFired = null;
             OnEnemyDamaged = null;
             OnEnemyDefeated = null;
