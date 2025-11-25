@@ -82,6 +82,13 @@ namespace Tenronis.Gameplay.Tetromino
         /// </summary>
         public void SpawnPiece()
         {
+            // 檢查遊戲狀態，只在 Playing 狀態下才生成方塊
+            if (GameManager.Instance != null && GameManager.Instance.CurrentState != GameState.Playing)
+            {
+                Debug.Log($"[TetrominoController] 遊戲狀態為 {GameManager.Instance.CurrentState}，取消生成方塊");
+                return;
+            }
+            
             currentShape = nextShape;
             nextShape = TetrominoDefinitions.GetRandomTetromino();
             
@@ -575,8 +582,12 @@ namespace Tenronis.Gameplay.Tetromino
                 case GameState.LevelUp:
                 case GameState.GameOver:
                 case GameState.Victory:
+                    // 停止方塊活動
                     isActive = false;
                     ClearVisual();
+                    
+                    // 取消所有待執行的生成方塊指令（防止延遲生成）
+                    CancelInvoke(nameof(SpawnPiece));
                     break;
             }
         }
