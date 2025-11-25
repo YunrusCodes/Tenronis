@@ -292,6 +292,8 @@ namespace Tenronis.Gameplay.Tetromino
             int defenseLevel = PlayerManager.Instance != null ? PlayerManager.Instance.Stats.blockDefenseLevel : 0;
             int blockHp = GameConstants.BASE_BLOCK_HP + defenseLevel;
             
+            Debug.Log($"[MergePieceToGrid] 方塊類型: {currentShape.type}, 顏色: {currentShape.color}, HP: {blockHp}");
+            
             for (int y = 0; y < currentRotation.GetLength(0); y++)
             {
                 for (int x = 0; x < currentRotation.GetLength(1); x++)
@@ -305,6 +307,7 @@ namespace Tenronis.Gameplay.Tetromino
                         {
                             BlockData block = new BlockData(currentShape.color, blockHp, blockHp);
                             GridManager.Instance.SetBlock(gridX, gridY, block);
+                            Debug.Log($"[MergePieceToGrid] 設置方塊在 ({gridX}, {gridY}), 顏色: {currentShape.color}");
                         }
                     }
                 }
