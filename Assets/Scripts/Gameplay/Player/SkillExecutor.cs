@@ -154,18 +154,26 @@ namespace Tenronis.Gameplay.Player
             }
             
             // 填補未訪問的空格（封閉空洞）
+            bool anyFilled = false;
             for (int y = 0; y < GameConstants.BOARD_HEIGHT; y++)
             {
                 for (int x = 0; x < GameConstants.BOARD_WIDTH; x++)
                 {
                     if (grid[y, x] == null && !visited[y, x])
                     {
-                        // 填補空洞
+                        // 填補空洞（批量操作，先不觸發事件）
                         int blockHp = GameConstants.BASE_BLOCK_HP + defenseLevel;
                         BlockData block = new BlockData(BlockColor.Gray, blockHp, blockHp);
-                        GridManager.Instance.SetBlock(x, y, block);
+                        GridManager.Instance.SetBlock(x, y, block, triggerEvent: false);
+                        anyFilled = true;
                     }
                 }
+            }
+            
+            // 如果有填補任何方塊，統一觸發一次事件
+            if (anyFilled)
+            {
+                GameEvents.TriggerGridChanged();
             }
         }
     }

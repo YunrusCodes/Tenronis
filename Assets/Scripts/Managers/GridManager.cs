@@ -107,12 +107,18 @@ namespace Tenronis.Managers
         /// <summary>
         /// 在網格中設置方塊
         /// </summary>
-        public void SetBlock(int x, int y, BlockData blockData)
+        public void SetBlock(int x, int y, BlockData blockData, bool triggerEvent = true)
         {
             if (!IsValidPosition(x, y)) return;
             
             grid[y, x] = blockData;
             UpdateBlockVisual(x, y);
+            
+            // 觸發地形改變事件（新增方塊也需要更新 Ghost Piece）
+            if (triggerEvent)
+            {
+                GameEvents.TriggerGridChanged();
+            }
         }
         
         /// <summary>
@@ -420,8 +426,12 @@ namespace Tenronis.Managers
                     GameConstants.INDESTRUCTIBLE_BLOCK_HP,
                     true
                 );
-                SetBlock(x, GameConstants.BOARD_HEIGHT - 1, indestructibleBlock);
+                // 批量操作，最後才觸發事件
+                SetBlock(x, GameConstants.BOARD_HEIGHT - 1, indestructibleBlock, triggerEvent: false);
             }
+            
+            // 插入完成後統一觸發一次事件
+            GameEvents.TriggerGridChanged();
         }
         
         /// <summary>
