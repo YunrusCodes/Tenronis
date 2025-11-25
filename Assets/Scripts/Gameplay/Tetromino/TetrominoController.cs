@@ -35,6 +35,7 @@ namespace Tenronis.Gameplay.Tetromino
         // 屬性
         public TetrominoShape NextShape => nextShape;
         public Vector2Int CurrentPosition => currentPosition;
+        public bool IsActive => isActive;
         
         private void Awake()
         {
@@ -213,6 +214,61 @@ namespace Tenronis.Gameplay.Tetromino
             
             // 生成下一個方塊
             Invoke(nameof(SpawnPiece), 0.1f);
+        }
+        
+        /// <summary>
+        /// 強制鎖定當前方塊（不生成新方塊）
+        /// 用於在進入選單前保存當前方塊狀態
+        /// </summary>
+        public void ForceLock()
+        {
+            if (!isActive) return;
+            
+            // 檢查方塊是否浮空（下方是否有支撐）
+            if (IsFloating())
+            {
+                Debug.Log("[TetrominoController] 方塊浮空，取消鎖定並保留形狀作為下個方塊");
+                
+                isActive = false;
+                
+                // 保留當前形狀作為下一個方塊（不讓玩家損失）
+                nextShape = currentShape;
+                
+                // 清除視覺
+                ClearVisual();
+                
+                // 不鎖定，不觸發事件
+                return;
+            }
+            
+            Debug.Log("[TetrominoController] 方塊有支撐，鎖定到網格");
+            
+            isActive = false;
+            
+            // 將方塊合併到網格
+            MergePieceToGrid();
+            
+            // 清除視覺
+            ClearVisual();
+            
+            // 觸發事件（會觸發消行檢查）
+            GameEvents.TriggerPieceLocked();
+            
+            // 不生成新方塊，因為要進入選單了
+        }
+        
+        /// <summary>
+        /// 檢查方塊是否浮空（下方是否有支撐）
+        /// </summary>
+        private bool IsFloating()
+        {
+            if (currentRotation == null) return false;
+            
+            // 檢查方塊是否可以繼續下移
+            // 如果可以下移，表示下方是空的（浮空）
+            Vector2Int downPosition = currentPosition + Vector2Int.up; // Y軸向下是+1
+            
+            return !CheckCollision(downPosition, currentRotation);
         }
         
         /// <summary>

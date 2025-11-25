@@ -17,6 +17,7 @@ namespace Tenronis.Audio
         [SerializeField] private AudioClip explosionSound;
         [SerializeField] private AudioClip rotateSound;
         [SerializeField] private AudioClip impactSound;
+        [SerializeField] private AudioClip counterFireSound; // 反擊音效
         [SerializeField] private AudioClip enemyShootSound;
         [SerializeField] private AudioClip enemyHitSound;
         [SerializeField] private AudioClip buffSound;
@@ -70,6 +71,7 @@ namespace Tenronis.Audio
             GameEvents.OnPlayExplosionSound += PlayExplosionSound;
             GameEvents.OnPlayRotateSound += PlayRotateSound;
             GameEvents.OnPlayImpactSound += PlayImpactSound;
+            GameEvents.OnPlayCounterFireSound += PlayCounterFireSound;
             
             // 訂閱遊戲事件以控制BGM
             GameEvents.OnGameStateChanged += HandleGameStateChanged;
@@ -81,6 +83,7 @@ namespace Tenronis.Audio
             GameEvents.OnPlayExplosionSound -= PlayExplosionSound;
             GameEvents.OnPlayRotateSound -= PlayRotateSound;
             GameEvents.OnPlayImpactSound -= PlayImpactSound;
+            GameEvents.OnPlayCounterFireSound -= PlayCounterFireSound;
             GameEvents.OnGameStateChanged -= HandleGameStateChanged;
         }
         
@@ -112,6 +115,7 @@ namespace Tenronis.Audio
         public void PlayExplosionSound() => PlaySound(explosionSound);
         public void PlayRotateSound() => PlaySound(rotateSound);
         public void PlayImpactSound() => PlaySound(impactSound);
+        public void PlayCounterFireSound() => PlaySound(counterFireSound);
         public void PlayEnemyShootSound() => PlaySound(enemyShootSound);
         public void PlayEnemyHitSound() => PlaySound(enemyHitSound);
         public void PlayBuffSound() => PlaySound(buffSound);

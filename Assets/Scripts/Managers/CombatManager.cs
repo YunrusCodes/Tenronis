@@ -409,6 +409,9 @@ namespace Tenronis.Managers
                     FireMissile(firePos, damage);
                 }
                 
+                // 播放反擊音效
+                GameEvents.TriggerPlayCounterFireSound();
+                
                 GameEvents.TriggerShowPopupText("反擊!", new Color(0.29f, 0.87f, 0.5f), GridManager.Instance.GridToWorldPosition(hitPos.x, hitPos.y));
             }
         }

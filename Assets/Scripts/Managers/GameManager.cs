@@ -133,6 +133,13 @@ namespace Tenronis.Managers
                 // 進入下一關
                 if (pendingBuffCount > 0)
                 {
+                    // 先鎖定當前方塊再進入選單
+                    if (Tenronis.Gameplay.Tetromino.TetrominoController.Instance != null && 
+                        Tenronis.Gameplay.Tetromino.TetrominoController.Instance.IsActive)
+                    {
+                        Tenronis.Gameplay.Tetromino.TetrominoController.Instance.ForceLock();
+                    }
+                    
                     ChangeGameState(GameState.LevelUp);
                 }
                 else
