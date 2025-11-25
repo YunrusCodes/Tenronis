@@ -13,6 +13,20 @@ namespace Tenronis.Data
         GameOver,
         Victory
     }
+    
+    /// <summary>
+    /// 方塊類型（用於 SRS 踢牆）
+    /// </summary>
+    public enum TetrominoType
+    {
+        I,  // I 方塊（特殊踢牆規則）
+        O,  // O 方塊（不旋轉）
+        T,  // T 方塊
+        J,  // J 方塊
+        L,  // L 方塊
+        S,  // S 方塊
+        Z   // Z 方塊
+    }
 
     /// <summary>
     /// 方塊顏色類型

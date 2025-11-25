@@ -20,6 +20,7 @@ namespace Tenronis.Gameplay.Tetromino
         private TetrominoShape currentShape;
         private Vector2Int currentPosition;
         private int[,] currentRotation;
+        private int currentRotationState; // 0=0°, 1=90°, 2=180°, 3=270°
         
         // 下一個方塊
         private TetrominoShape nextShape;
@@ -85,6 +86,7 @@ namespace Tenronis.Gameplay.Tetromino
             // 設置初始位置（網格中央頂部）
             currentPosition = new Vector2Int(GameConstants.BOARD_WIDTH / 2 - 1, 0);
             currentRotation = (int[,])currentShape.shape.Clone();
+            currentRotationState = 0; // 初始旋轉狀態為 0
             
             dropTimer = 0f;
             
@@ -149,35 +151,44 @@ namespace Tenronis.Gameplay.Tetromino
         }
         
         /// <summary>
-        /// 旋轉
+        /// 旋轉（使用完整 SRS 系統）
         /// </summary>
         public void Rotate()
         {
             if (!isActive) return;
             
+            // O 方塊不旋轉
+            if (currentShape.type == TetrominoType.O)
+            {
+                return;
+            }
+            
             int[,] rotated = RotateMatrix(currentRotation);
+            int nextRotationState = (currentRotationState + 1) % 4;
             
-            // 嘗試旋轉
-            if (!CheckCollision(currentPosition, rotated))
+            // 獲取 SRS 踢牆測試表
+            Vector2Int[] kickTests = GetSRSKickOffsets(currentShape.type, currentRotationState, nextRotationState);
+            
+            // 嘗試所有踢牆位置
+            foreach (var offset in kickTests)
             {
-                currentRotation = rotated;
-                GameEvents.TriggerPlayRotateSound();
-            }
-            // 嘗試左移旋轉
-            else if (!CheckCollision(currentPosition + Vector2Int.left, rotated))
-            {
-                currentPosition += Vector2Int.left;
-                currentRotation = rotated;
-                GameEvents.TriggerPlayRotateSound();
-            }
-            // 嘗試右移旋轉
-            else if (!CheckCollision(currentPosition + Vector2Int.right, rotated))
-            {
-                currentPosition += Vector2Int.right;
-                currentRotation = rotated;
-                GameEvents.TriggerPlayRotateSound();
+                Vector2Int testPosition = currentPosition + offset;
+                if (!CheckCollision(testPosition, rotated))
+                {
+                    // 旋轉成功
+                    currentPosition = testPosition;
+                    currentRotation = rotated;
+                    currentRotationState = nextRotationState;
+                    GameEvents.TriggerPlayRotateSound();
+                    UpdateVisual();
+                    
+                    Debug.Log($"[SRS] 旋轉成功！方塊: {currentShape.type}, 狀態: {currentRotationState}, 偏移: {offset}");
+                    return;
+                }
             }
             
+            // 所有測試都失敗
+            Debug.Log($"[SRS] 旋轉失敗！方塊: {currentShape.type}");
             UpdateVisual();
         }
         
@@ -299,6 +310,14 @@ namespace Tenronis.Gameplay.Tetromino
         }
         
         /// <summary>
+        /// 獲取 SRS 踢牆偏移表
+        /// </summary>
+        private Vector2Int[] GetSRSKickOffsets(TetrominoType type, int fromState, int toState)
+        {
+            return Tenronis.Data.SRSData.GetKickOffsets(type, fromState, toState);
+        }
+        
+        /// <summary>
         /// 檢查碰撞
         /// </summary>
         private bool CheckCollision(Vector2Int position, int[,] shape)
@@ -358,7 +377,7 @@ namespace Tenronis.Gameplay.Tetromino
         {
             ClearVisual();
             
-            if (!isActive || currentShape == null || currentRotation == null) return;
+            if (!isActive || currentRotation == null) return;
             if (GridManager.Instance == null) return;
             
             int rows = currentRotation.GetLength(0);

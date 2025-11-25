@@ -75,22 +75,5 @@ namespace Tenronis.Data
         }
     }
     
-    /// <summary>
-    /// 俄羅斯方塊形狀定義
-    /// </summary>
-    [Serializable]
-    public class TetrominoShape
-    {
-        public string name;
-        public BlockColor color;
-        public int[,] shape;
-        
-        public TetrominoShape(string name, BlockColor color, int[,] shape)
-        {
-            this.name = name;
-            this.color = color;
-            this.shape = shape;
-        }
-    }
 }
 
