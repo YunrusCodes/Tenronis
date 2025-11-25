@@ -3687,13 +3687,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1159bee41f704e441b4987a5f30c96a5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Tenronis.Audio.AudioManager
-  missileSound: {fileID: 8300000, guid: d86911de9e1f5784ea92387b819e898a, type: 3}
-  explosionSound: {fileID: 8300000, guid: d86911de9e1f5784ea92387b819e898a, type: 3}
-  rotateSound: {fileID: 8300000, guid: d86911de9e1f5784ea92387b819e898a, type: 3}
-  impactSound: {fileID: 8300000, guid: d86911de9e1f5784ea92387b819e898a, type: 3}
-  enemyShootSound: {fileID: 8300000, guid: d86911de9e1f5784ea92387b819e898a, type: 3}
-  enemyHitSound: {fileID: 8300000, guid: d86911de9e1f5784ea92387b819e898a, type: 3}
-  buffSound: {fileID: 8300000, guid: d86911de9e1f5784ea92387b819e898a, type: 3}
+  missileSound: {fileID: 8300000, guid: a652877b012108e41871f867ada9f176, type: 3}
+  explosionSound: {fileID: 8300000, guid: 566d2ea6240b489479a6e9fd608c2621, type: 3}
+  rotateSound: {fileID: 8300000, guid: ba39bf8baf6d13046889b2d64822381a, type: 3}
+  impactSound: {fileID: 8300000, guid: 8b23b175a78d6b5458322e3a6c9905d0, type: 3}
+  counterFireSound: {fileID: 8300000, guid: c458b6714dab015479d507b21fd2cead, type: 3}
+  enemyShootSound: {fileID: 8300000, guid: e58d8bd078f188a4ba314e933b98528b, type: 3}
+  enemyHitSound: {fileID: 8300000, guid: 8b23b175a78d6b5458322e3a6c9905d0, type: 3}
+  buffSound: {fileID: 8300000, guid: c5cb2ac29e89dbf43a9b644caaad45e6, type: 3}
   normalBGM: {fileID: 8300000, guid: 425585f8e59b4484482a9a65ad8fcffe, type: 3}
   bossBGM: {fileID: 8300000, guid: 1c440248b6f2ac042968ad39b5ca4672, type: 3}
   sfxSource: {fileID: 1448617235}
@@ -4537,6 +4538,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Tenronis.Managers.InputManager
   useNewInputSystem: 0
+  dasDelay: 0.15
+  arrInterval: 0.03
+  softDropInterval: 0.05
 --- !u!1 &1713545406
 GameObject:
   m_ObjectHideFlags: 0

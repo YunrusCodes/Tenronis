@@ -222,6 +222,9 @@ namespace Tenronis.Gameplay.Tetromino
             // 清除視覺
             ClearVisual();
             
+            // 播放鎖定音效
+            GameEvents.TriggerPlayLockSound();
+            
             // 觸發事件
             GameEvents.TriggerPieceLocked();
             

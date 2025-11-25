@@ -41,6 +41,7 @@ namespace Tenronis.Core
         public static event Action OnPlayRotateSound;
         public static event Action OnPlayImpactSound;
         public static event Action OnPlayCounterFireSound; // 反擊音效
+        public static event Action OnPlayLockSound; // 方塊鎖定音效
         
         // 觸發方法
         public static void TriggerGameStateChanged(GameState newState) => OnGameStateChanged?.Invoke(newState);
@@ -62,6 +63,7 @@ namespace Tenronis.Core
         public static void TriggerPlayRotateSound() => OnPlayRotateSound?.Invoke();
         public static void TriggerPlayImpactSound() => OnPlayImpactSound?.Invoke();
         public static void TriggerPlayCounterFireSound() => OnPlayCounterFireSound?.Invoke();
+        public static void TriggerPlayLockSound() => OnPlayLockSound?.Invoke();
         
         /// <summary>
         /// 清除所有事件訂閱（場景切換時使用）
@@ -87,6 +89,7 @@ namespace Tenronis.Core
             OnPlayRotateSound = null;
             OnPlayImpactSound = null;
             OnPlayCounterFireSound = null;
+            OnPlayLockSound = null;
         }
     }
 }
