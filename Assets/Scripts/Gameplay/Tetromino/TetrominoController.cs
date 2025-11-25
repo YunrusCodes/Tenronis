@@ -28,6 +28,7 @@ namespace Tenronis.Gameplay.Tetromino
         // 儲存方塊系統（4個位置：A、S、D、F）
         private TetrominoShape?[] heldPieces = new TetrominoShape?[4];
         private bool[] canHoldSlot = new bool[4]; // 每個槽位在當前方塊落下前可以使用一次
+        private int unlockedSlots = 0; // 已解鎖的槽位數量（初始為0）
         
         // 視覺預覽
         private List<GameObject> previewBlocks;
@@ -43,6 +44,7 @@ namespace Tenronis.Gameplay.Tetromino
         public bool IsActive => isActive;
         public TetrominoShape?[] HeldPieces => heldPieces;
         public bool[] CanHoldSlot => canHoldSlot;
+        public int UnlockedSlots => unlockedSlots;
         
         private void Awake()
         {
@@ -137,6 +139,13 @@ namespace Tenronis.Gameplay.Tetromino
         {
             if (!isActive) return;
             if (slotIndex < 0 || slotIndex >= 4) return;
+            
+            // 檢查該槽位是否已解鎖
+            if (slotIndex >= unlockedSlots)
+            {
+                Debug.Log($"[TetrominoController] 槽位 {slotIndex} 尚未解鎖");
+                return;
+            }
             
             // 檢查該槽位是否還可以使用
             if (!canHoldSlot[slotIndex])
@@ -679,6 +688,13 @@ namespace Tenronis.Gameplay.Tetromino
             switch (newState)
             {
                 case GameState.Playing:
+                    // 遊戲開始時重置解鎖槽位數量
+                    if (PlayerManager.Instance != null)
+                    {
+                        unlockedSlots = PlayerManager.Instance.SpaceExpansionLevel;
+                        Debug.Log($"[TetrominoController] 已解鎖 {unlockedSlots} 個儲存槽位");
+                        GameEvents.TriggerHeldSlotStateChanged();
+                    }
                     SpawnPiece();
                     break;
                     
@@ -692,6 +708,19 @@ namespace Tenronis.Gameplay.Tetromino
                     // 取消所有待執行的生成方塊指令（防止延遲生成）
                     CancelInvoke(nameof(SpawnPiece));
                     break;
+            }
+        }
+        
+        /// <summary>
+        /// 解鎖槽位（由升級系統調用）
+        /// </summary>
+        public void UnlockSlot()
+        {
+            if (unlockedSlots < 4)
+            {
+                unlockedSlots++;
+                Debug.Log($"[TetrominoController] 解鎖槽位 {unlockedSlots}，總計已解鎖: {unlockedSlots}");
+                GameEvents.TriggerHeldSlotStateChanged();
             }
         }
         

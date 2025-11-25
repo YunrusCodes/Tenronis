@@ -68,7 +68,8 @@ namespace Tenronis.Data
         Burst,          // 連發：連擊加成
         Counter,        // 反擊：新放置方塊被擊中時反擊
         Execution,      // 處決：清除每列最底部方塊
-        Repair          // 修復：填補封閉空洞
+        Repair,         // 修復：填補封閉空洞
+        SpaceExpansion  // 空間擴充：解鎖儲存槽位
     }
 }
 

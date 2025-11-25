@@ -56,8 +56,10 @@ namespace Tenronis.UI
             for (int i = 0; i < 4; i++)
             {
                 ShowEmptySlot(i);
-                UpdateLockIcon(i, true); // 初始全部可用
             }
+            
+            // 初始化鎖定狀態（根據實際解鎖數量）
+            UpdateLockIcons();
         }
         
         private void OnDestroy()
@@ -78,8 +80,10 @@ namespace Tenronis.UI
                 for (int i = 0; i < 4; i++)
                 {
                     ShowEmptySlot(i);
-                    UpdateLockIcon(i, true); // 重置為可用
                 }
+                
+                // 更新鎖定狀態（根據實際解鎖數量）
+                UpdateLockIcons();
             }
         }
         
@@ -90,23 +94,28 @@ namespace Tenronis.UI
         {
             if (TetrominoController.Instance == null) return;
             
+            int unlockedSlots = TetrominoController.Instance.UnlockedSlots;
             bool[] canUseSlots = TetrominoController.Instance.CanHoldSlot;
+            
             for (int i = 0; i < 4; i++)
             {
-                UpdateLockIcon(i, canUseSlots[i]);
+                // 如果槽位未解鎖，永遠顯示鎖定
+                // 如果槽位已解鎖，根據當前回合使用狀態顯示
+                bool isLocked = (i >= unlockedSlots) || !canUseSlots[i];
+                UpdateLockIcon(i, isLocked);
             }
         }
         
         /// <summary>
         /// 更新特定槽位的鎖定圖示
         /// </summary>
-        private void UpdateLockIcon(int slotIndex, bool canUse)
+        private void UpdateLockIcon(int slotIndex, bool isLocked)
         {
             if (slotIndex < 0 || slotIndex >= 4) return;
             if (lockIcons[slotIndex] == null) return;
             
-            // 可用時隱藏鎖定圖示，不可用時顯示
-            lockIcons[slotIndex].SetActive(!canUse);
+            // isLocked = true 時顯示鎖定圖示
+            lockIcons[slotIndex].SetActive(isLocked);
         }
         
         /// <summary>

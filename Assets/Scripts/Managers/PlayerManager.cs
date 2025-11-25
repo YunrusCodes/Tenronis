@@ -20,6 +20,7 @@ namespace Tenronis.Managers
         
         // 屬性
         public PlayerStats Stats => stats;
+        public int SpaceExpansionLevel => stats.spaceExpansionLevel;
         
         private void Awake()
         {
@@ -146,6 +147,20 @@ namespace Tenronis.Managers
                     
                 case BuffType.Repair:
                     stats.repairCount++;
+                    break;
+                    
+                case BuffType.SpaceExpansion:
+                    if (stats.spaceExpansionLevel < 4)
+                    {
+                        stats.spaceExpansionLevel++;
+                        Debug.Log($"[PlayerManager] 解鎖儲存槽位！當前已解鎖: {stats.spaceExpansionLevel}");
+                        
+                        // 通知 TetrominoController 解鎖槽位
+                        if (Tenronis.Gameplay.Tetromino.TetrominoController.Instance != null)
+                        {
+                            Tenronis.Gameplay.Tetromino.TetrominoController.Instance.UnlockSlot();
+                        }
+                    }
                     break;
             }
             
