@@ -355,6 +355,9 @@ namespace Tenronis.Managers
                     {
                         BlockData garbageBlock = new BlockData(BlockColor.Garbage, GameConstants.GARBAGE_BLOCK_HP, GameConstants.GARBAGE_BLOCK_HP);
                         GridManager.Instance.SetBlock(hitPos.x, hitPos.y - 1, garbageBlock);
+                        
+                        // 檢查是否形成完整行（敵人添加方塊也可以觸發消行）
+                        CheckRowsAfterAddBlock();
                     }
                     break;
                     
@@ -413,6 +416,22 @@ namespace Tenronis.Managers
                 GameEvents.TriggerPlayCounterFireSound();
                 
                 GameEvents.TriggerShowPopupText("反擊!", new Color(0.29f, 0.87f, 0.5f), GridManager.Instance.GridToWorldPosition(hitPos.x, hitPos.y));
+            }
+        }
+        
+        /// <summary>
+        /// 檢查敵人添加方塊後是否形成完整行
+        /// </summary>
+        private void CheckRowsAfterAddBlock()
+        {
+            if (GridManager.Instance == null) return;
+            
+            List<int> clearedRows = GridManager.Instance.CheckAndClearRows();
+            
+            if (clearedRows.Count > 0)
+            {
+                Debug.Log($"[CombatManager] 敵人添加方塊形成完整行！消除了 {clearedRows.Count} 行");
+                GameEvents.TriggerRowsCleared(clearedRows.Count);
             }
         }
         
