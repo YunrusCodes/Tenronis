@@ -186,8 +186,29 @@ Canvas
     ├── SkillPanel
     │   ├── ExecutionButton (顯示次數)
     │   └── RepairButton (顯示次數)
-    └── ComboText (TextMeshPro)
+    ├── ComboText (TextMeshPro)
+    └── SalvoText (TextMeshPro)
 ```
+
+#### 下一個方塊預覽 (Next Piece Preview)
+```
+Canvas
+└── NextPiecePreview (添加 NextPiecePreview 腳本)
+    ├── Background (Image - 可選，半透明背景)
+    ├── Title (TextMeshPro - 顯示 "下一個")
+    └── PreviewContainer (空物件 - 用於容納預覽方塊)
+```
+
+**設定步驟**：
+1. 在 Canvas 下創建空物件：`NextPiecePreview`
+2. 設置位置：右上角（例如：Anchor: Top-Right, Position X: -150, Y: -150）
+3. 添加 `NextPiecePreview` 腳本
+4. 創建子物件 `PreviewContainer`（RectTransform, Anchor: Center）
+5. 在 Inspector 中設置：
+   - Preview Container: 拖入 PreviewContainer
+   - Block Size: 30
+   - Spacing: 2
+   - Use Sprite: false（使用純色方塊）
 
 #### 升級面板
 ```

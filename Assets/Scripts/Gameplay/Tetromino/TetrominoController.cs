@@ -92,6 +92,9 @@ namespace Tenronis.Gameplay.Tetromino
             currentShape = nextShape;
             nextShape = TetrominoDefinitions.GetRandomTetromino();
             
+            // 觸發下一個方塊已更新事件（用於 UI 預覽）
+            GameEvents.TriggerNextPieceChanged();
+            
             // 設置初始位置（網格中央頂部）
             currentPosition = new Vector2Int(GameConstants.BOARD_WIDTH / 2 - 1, 0);
             currentRotation = (int[,])currentShape.shape.Clone();
