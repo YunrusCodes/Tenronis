@@ -461,18 +461,24 @@ namespace Tenronis.Managers
             
             BlockType blockType = useVoid ? BlockType.Void : BlockType.Normal;
             
+            // 垃圾行HP受玩家防禦等級影響
+            int defenseLevel = PlayerManager.Instance != null ? PlayerManager.Instance.Stats.blockDefenseLevel : 0;
+            int indestructibleHp = GameConstants.INDESTRUCTIBLE_BLOCK_HP + defenseLevel;
+            
             for (int x = 0; x < GameConstants.BOARD_WIDTH; x++)
             {
                 BlockData insertedBlock = new BlockData(
                     BlockColor.Garbage,
-                    GameConstants.INDESTRUCTIBLE_BLOCK_HP,
-                    GameConstants.INDESTRUCTIBLE_BLOCK_HP,
+                    indestructibleHp,
+                    indestructibleHp,
                     true,
                     blockType
                 );
                 // 批量操作，最後才觸發事件
                 SetBlock(x, GameConstants.BOARD_HEIGHT - 1, insertedBlock, triggerEvent: false);
             }
+            
+            Debug.Log($"[GridManager] BOSS插入垃圾行 HP: {indestructibleHp} (基礎: {GameConstants.INDESTRUCTIBLE_BLOCK_HP} + 防禦: {defenseLevel})");
             
             // 插入完成後統一觸發一次事件
             GameEvents.TriggerGridChanged();

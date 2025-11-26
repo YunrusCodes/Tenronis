@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Tenronis.ScriptableObjects.StageDataSO
   stageName: "\u91CD\u88DD\u6A5F\u5175"
   stageIndex: 5
+  isBossStage: 0
   rewardBuffCount: 2
   maxHp: 700
   shootInterval: 1.3
@@ -21,7 +22,7 @@ MonoBehaviour:
   canUseAddBlock: 1
   canUseAreaDamage: 0
   canUseInsertRow: 0
-  useExplosiveBlocks: 0
+  useExplosiveBlocks: 1
   useVoidRow: 0
   addBlockChance: 0.35
   areaDamageChance: 0.25

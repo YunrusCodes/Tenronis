@@ -390,14 +390,20 @@ namespace Tenronis.Managers
                         
                         BlockType blockType = useExplosive ? BlockType.Explosive : BlockType.Normal;
                         
+                        // 垃圾方塊HP受玩家防禦等級影響
+                        int defenseLevel = PlayerManager.Instance != null ? PlayerManager.Instance.Stats.blockDefenseLevel : 0;
+                        int garbageHp = GameConstants.GARBAGE_BLOCK_HP + defenseLevel;
+                        
                         BlockData garbageBlock = new BlockData(
                             BlockColor.Garbage,
-                            GameConstants.GARBAGE_BLOCK_HP,
-                            GameConstants.GARBAGE_BLOCK_HP,
+                            garbageHp,
+                            garbageHp,
                             false,
                             blockType
                         );
                         GridManager.Instance.SetBlock(hitPos.x, hitPos.y - 1, garbageBlock);
+                        
+                        Debug.Log($"[CombatManager] 敵人添加垃圾方塊 HP: {garbageHp} (基礎: {GameConstants.GARBAGE_BLOCK_HP} + 防禦: {defenseLevel})");
                         
                         // 檢查是否形成完整行（敵人添加方塊也可以觸發消行）
                         CheckRowsAfterAddBlock();
