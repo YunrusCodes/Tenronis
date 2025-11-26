@@ -18,11 +18,11 @@ MonoBehaviour:
   maxHp: 100
   shootInterval: 2.5
   bulletSpeed: 7
-  canUseAddBlock: 0
+  canUseAddBlock: 1
   canUseAreaDamage: 0
-  canUseInsertRow: 0
-  useExplosiveBlocks: 0
-  useVoidRow: 0
+  canUseInsertRow: 1
+  useExplosiveBlocks: 1
+  useVoidRow: 1
   addBlockChance: 0.35
   areaDamageChance: 0.25
   insertRowChance: 0.15

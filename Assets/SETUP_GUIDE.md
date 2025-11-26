@@ -45,11 +45,24 @@
 1. 建立新物件: `GameObject > 2D Object > Sprite > Square`
 2. 命名為 `Block`
 3. 添加 `Block` 腳本
-4. 設置：
+4. 在Block下創建子物件：
+   - 右鍵 Block > `Create Empty`
+   - 命名為 `SymbolText`
+   - 添加組件: `Add Component > TextMeshPro - Text`
+5. 設置 SymbolText：
+   - Position: `(0, 0, 0)`
+   - Width: `1`
+   - Height: `1`
+   - Alignment: 水平和垂直都居中
+   - Font Size: `8`
+   - Color: 白色（會由腳本控制）
+   - Sorting Layer: 確保在方塊上方
+6. 設置 Block：
    - Scale: (0.9, 0.9, 1) - 讓方塊之間有間隙
    - Sprite Renderer Color: 白色
-5. 拖曳到 `Assets/Prefabs/Blocks/` 資料夾
-6. 刪除場景中的實例
+   - Symbol Text: 拖入SymbolText子物件
+7. 拖曳到 `Assets/Prefabs/Blocks/` 資料夾
+8. 刪除場景中的實例
 
 ### 步驟 5: 建立導彈預製體
 

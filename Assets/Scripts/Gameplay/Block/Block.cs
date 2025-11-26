@@ -1,4 +1,5 @@
 using UnityEngine;
+using TMPro;
 using Tenronis.Data;
 
 namespace Tenronis.Gameplay.Block
@@ -12,6 +13,7 @@ namespace Tenronis.Gameplay.Block
         [Header("視覺設定")]
         [SerializeField] private SpriteRenderer spriteRenderer;
         [SerializeField] private Color[] colorPalette;
+        [SerializeField] private TextMeshPro symbolText; // 方塊標記文字（!或?）
         
         private BlockData blockData;
         
@@ -28,6 +30,7 @@ namespace Tenronis.Gameplay.Block
         {
             blockData = data;
             UpdateVisual();
+            UpdateSymbol();
         }
         
         /// <summary>
@@ -90,6 +93,40 @@ namespace Tenronis.Gameplay.Block
             }
             
             return resultColor;
+        }
+        
+        /// <summary>
+        /// 更新方塊標記符號
+        /// </summary>
+        private void UpdateSymbol()
+        {
+            Debug.Log($"[Block] 更新方塊標記符號 - 方塊類型: {blockData.blockType}");
+            if (symbolText == null || blockData == null) return;
+            
+            // 根據方塊類型顯示符號
+            switch (blockData.blockType)
+            {
+                case BlockType.Explosive:
+                    symbolText.text = "!";
+                    symbolText.color = Color.red;
+                    symbolText.fontSize = 8;
+                    symbolText.fontStyle = FontStyles.Bold;
+                    symbolText.gameObject.SetActive(true);
+                    break;
+                    
+                case BlockType.Void:
+                    symbolText.text = "?";
+                    symbolText.color = new Color(0.7f, 0.7f, 0.7f); // 淺灰色
+                    symbolText.fontSize = 8;
+                    symbolText.fontStyle = FontStyles.Bold;
+                    symbolText.gameObject.SetActive(true);
+                    break;
+                    
+                case BlockType.Normal:
+                default:
+                    symbolText.gameObject.SetActive(false);
+                    break;
+            }
         }
         
         public BlockData GetBlockData() => blockData;
