@@ -30,5 +30,5 @@ MonoBehaviour:
   addBlockTargetsHigh: 1
   areaDamageTargetsLow: 1
   burstCount: 1
-  enemyIcon: {fileID: 0}
+  enemyIcon: {fileID: -8867952745241724321, guid: 5c639cd6726d86d43aa2fd83d0c192cc, type: 3}
   themeColor: {r: 1, g: 0, b: 0, a: 1}

@@ -34,6 +34,8 @@
 在GameControllers下建立：
 - TetrominoController (添加 `TetrominoController` 腳本)
 - EnemyController (添加 `EnemyController` 腳本)
+  - 在EnemyController下建立子物件：EnemySprite (添加 `Sprite Renderer`)
+  - 將EnemySprite拖入EnemyController的 `Enemy Sprite` 欄位
 
 ### 步驟 4: 建立方塊預製體
 
@@ -87,7 +89,20 @@
 
 1. **Missile Prefab**: 拖入Missile預製體
 2. **Bullet Prefab**: 拖入Bullet預製體
-3. **Projectile Container**: 建立新空物件命名為"Projectiles"，拖入
+3. **Explosion Effect Prefab**: 拖入爆炸特效預製體
+   - 推薦使用: `Assets/GabrielAguiarProductions/FreeQuickEffectsVol1/Prefabs/vfx_Explosion_01.prefab`
+   - 或使用: `vfx_Impact_01.prefab` (冲击效果)
+4. **Projectile Container**: 建立新空物件命名為"Projectiles"，拖入
+
+### 步驟 8.5: 設置EnemyController
+
+選擇 EnemyController 物件：
+
+1. **Enemy Sprite**: 拖入EnemySprite子物件
+2. **Damage Effect Prefab**: 拖入受傷特效預製體
+   - 推薦使用: `Assets/GabrielAguiarProductions/FreeQuickEffectsVol1/Prefabs/vfx_Impact_01.prefab`
+   - 或使用: `vfx_Explosion_01.prefab` (爆炸效果)
+   - 或使用: `vfx_Sparks_01.prefab` (火花效果)
 
 ### 步驟 9: 建立關卡數據
 
@@ -99,18 +114,24 @@
 ```
 Stage Name: 偵察無人機
 Stage Index: 0
+Reward Buff Count: 1
 Max Hp: 100
 Shoot Interval: 2
 Bullet Speed: 8
 Can Use Add Block: false
 Can Use Area Damage: false
 Can Use Insert Row: false
+Use Explosive Blocks: false
+Use Void Row: false
+Enemy Icon: [拖入敵人圖片Sprite]
+Theme Color: 紅色
 ```
 
 **範例設定 - Stage_10:**
 ```
 Stage Name: 終焉機械神
 Stage Index: 9
+Reward Buff Count: 3
 Max Hp: 2000
 Shoot Interval: 0.8
 Bullet Speed: 12
@@ -120,7 +141,13 @@ Can Use Insert Row: true
 Add Block Chance: 0.35
 Area Damage Chance: 0.25
 Insert Row Chance: 0.15
+Use Explosive Blocks: true
+Use Void Row: true
+Enemy Icon: [拖入Boss圖片Sprite]
+Theme Color: 紫色
 ```
+
+> **重要**：敵人圖片會在關卡開始時自動顯示在 `EnemySprite` 上，無需手動設置！
 
 ### 步驟 10: 建立Buff數據
 

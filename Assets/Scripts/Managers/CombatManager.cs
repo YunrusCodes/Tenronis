@@ -18,6 +18,9 @@ namespace Tenronis.Managers
         [SerializeField] private Missile missilePrefab;
         [SerializeField] private Bullet bulletPrefab;
         
+        [Header("視覺特效")]
+        [SerializeField] private GameObject explosionEffectPrefab; // 飛彈攔截子彈的爆炸特效
+        
         [Header("容器")]
         [SerializeField] private Transform projectileContainer;
         
@@ -213,7 +216,25 @@ namespace Tenronis.Managers
                     float distance = Vector3.Distance(missile.transform.position, bullet.transform.position);
                     if (distance < 0.5f)
                     {
-                        // 碰撞！
+                        // 碰撞！記錄碰撞位置
+                        Vector3 collisionPosition = (missile.transform.position + bullet.transform.position) / 2f;
+                        
+                        // 播放爆炸特效
+                        if (explosionEffectPrefab != null)
+                        {
+                            GameObject explosion = Instantiate(explosionEffectPrefab, collisionPosition, Quaternion.identity);
+                            Destroy(explosion, 2f); // 2秒後銷毀特效
+                        }
+                        
+                        // 播放爆炸音效
+                        GameEvents.TriggerPlayExplosionSound();
+                        
+                        // 輕微屏幕震動
+                        if (VFX.ScreenShake.Instance != null)
+                        {
+                            VFX.ScreenShake.Instance.Shake(0.08f, 0.05f);
+                        }
+                        
                         if (!bulletsToRemove.Contains(bullet))
                         {
                             bulletsToRemove.Add(bullet);

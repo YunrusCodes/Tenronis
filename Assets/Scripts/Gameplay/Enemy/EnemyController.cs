@@ -16,10 +16,17 @@ namespace Tenronis.Gameplay.Enemy
         [Header("視覺")]
         [SerializeField] private SpriteRenderer enemySprite;
         
+        [Header("受傷特效")]
+        [SerializeField] private GameObject damageEffectPrefab; // 受傷時的爆炸特效
+        
         // 敵人狀態
         private StageDataSO currentStageData;
         private float currentHp;
         private float shootTimer;
+        
+        // 視覺效果
+        private Vector3 originalSpritePosition;
+        private Coroutine shakeCoroutine;
         
         // 屬性
         public float CurrentHp => currentHp;
@@ -38,6 +45,12 @@ namespace Tenronis.Gameplay.Enemy
         
         private void Start()
         {
+            // 記錄敵人Sprite的原始位置
+            if (enemySprite != null)
+            {
+                originalSpritePosition = enemySprite.transform.localPosition;
+            }
+            
             // 訂閱事件
             GameEvents.OnGameStateChanged += HandleGameStateChanged;
             GameEvents.OnEnemyDamaged += HandleDamaged;
@@ -74,6 +87,13 @@ namespace Tenronis.Gameplay.Enemy
             {
                 currentHp = currentStageData.maxHp;
                 shootTimer = 0f;
+                
+                // 自動設置敵人圖示
+                if (enemySprite != null && currentStageData.enemyIcon != null)
+                {
+                    enemySprite.sprite = currentStageData.enemyIcon;
+                    Debug.Log($"[EnemyController] 設置敵人圖示: {currentStageData.enemyIcon.name}");
+                }
                 
                 Debug.Log($"[EnemyController] 初始化: {currentStageData.stageName}, HP: {currentHp}");
             }
@@ -180,10 +200,76 @@ namespace Tenronis.Gameplay.Enemy
             
             Debug.Log($"[EnemyController] 受到傷害: {damage}, 剩餘HP: {currentHp}");
             
+            // 視覺效果：晃動
+            if (enemySprite != null)
+            {
+                if (shakeCoroutine != null)
+                {
+                    StopCoroutine(shakeCoroutine);
+                }
+                shakeCoroutine = StartCoroutine(ShakeSprite());
+            }
+            
+            // 視覺效果：爆炸特效
+            if (damageEffectPrefab != null && enemySprite != null)
+            {
+                SpawnDamageEffect();
+            }
+            
             if (currentHp <= 0f)
             {
                 HandleDefeated();
             }
+        }
+        
+        /// <summary>
+        /// 敵人Sprite晃動效果
+        /// </summary>
+        private System.Collections.IEnumerator ShakeSprite()
+        {
+            float duration = 0.3f;
+            float intensity = 0.2f;
+            float elapsed = 0f;
+            
+            while (elapsed < duration)
+            {
+                float progress = elapsed / duration;
+                float strength = (1f - progress) * intensity;
+                
+                Vector3 offset = new Vector3(
+                    Random.Range(-strength, strength),
+                    Random.Range(-strength, strength),
+                    0f
+                );
+                
+                enemySprite.transform.localPosition = originalSpritePosition + offset;
+                
+                elapsed += Time.deltaTime;
+                yield return null;
+            }
+            
+            enemySprite.transform.localPosition = originalSpritePosition;
+            shakeCoroutine = null;
+        }
+        
+        /// <summary>
+        /// 在敵人Sprite隨機位置生成受傷特效
+        /// </summary>
+        private void SpawnDamageEffect()
+        {
+            // 獲取Sprite的邊界
+            Bounds spriteBounds = enemySprite.bounds;
+            
+            // 在Sprite範圍內隨機位置
+            Vector3 randomPosition = new Vector3(
+                Random.Range(spriteBounds.min.x, spriteBounds.max.x),
+                Random.Range(spriteBounds.min.y, spriteBounds.max.y),
+                enemySprite.transform.position.z
+            );
+            
+            // 實例化爆炸特效
+            GameObject effect = Instantiate(damageEffectPrefab, randomPosition, Quaternion.identity);
+            Destroy(effect, 2f); // 2秒後銷毀
         }
         
         /// <summary>

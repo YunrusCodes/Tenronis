@@ -11,6 +11,8 @@ namespace Tenronis.VFX
     [RequireComponent(typeof(Camera))]
     public class ScreenShake : MonoBehaviour
     {
+        public static ScreenShake Instance { get; private set; }
+        
         [Header("震動設定")]
         [SerializeField] private float shakeIntensity = 0.3f;
         [SerializeField] private float shakeDuration = 0.3f;
@@ -22,6 +24,17 @@ namespace Tenronis.VFX
         
         private void Awake()
         {
+            // Singleton 設置
+            if (Instance == null)
+            {
+                Instance = this;
+            }
+            else
+            {
+                Destroy(gameObject);
+                return;
+            }
+            
             cam = GetComponent<Camera>();
             originalPosition = transform.localPosition;
         }
@@ -44,24 +57,32 @@ namespace Tenronis.VFX
         /// </summary>
         public void TriggerShake()
         {
+            Shake(shakeIntensity, shakeDuration);
+        }
+        
+        /// <summary>
+        /// 觸發自定義強度和持續時間的震動
+        /// </summary>
+        public void Shake(float intensity, float duration)
+        {
             if (shakeCoroutine != null)
             {
                 StopCoroutine(shakeCoroutine);
             }
-            shakeCoroutine = StartCoroutine(Shake());
+            shakeCoroutine = StartCoroutine(ShakeCoroutine(intensity, duration));
         }
         
         /// <summary>
         /// 震動協程
         /// </summary>
-        private IEnumerator Shake()
+        private IEnumerator ShakeCoroutine(float intensity, float duration)
         {
             float elapsed = 0f;
             
-            while (elapsed < shakeDuration)
+            while (elapsed < duration)
             {
-                float progress = elapsed / shakeDuration;
-                float strength = shakeCurve.Evaluate(progress) * shakeIntensity;
+                float progress = elapsed / duration;
+                float strength = shakeCurve.Evaluate(progress) * intensity;
                 
                 Vector3 offset = Random.insideUnitSphere * strength;
                 offset.z = 0; // 保持2D
