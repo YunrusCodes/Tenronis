@@ -27,6 +27,8 @@ namespace Tenronis.Gameplay.Enemy
         // 視覺效果
         private Vector3 originalSpritePosition;
         private Coroutine shakeCoroutine;
+        private Coroutine effectSpawnCoroutine;
+        private int pendingEffectCount = 0; // 待生成的特效數量
         
         // 屬性
         public float CurrentHp => currentHp;
@@ -210,10 +212,16 @@ namespace Tenronis.Gameplay.Enemy
                 shakeCoroutine = StartCoroutine(ShakeSprite());
             }
             
-            // 視覺效果：爆炸特效
+            // 視覺效果：爆炸特效（累積到隊列）
             if (damageEffectPrefab != null && enemySprite != null)
             {
-                SpawnDamageEffect();
+                pendingEffectCount++;
+                
+                // 如果還沒有在生成特效，啟動協程
+                if (effectSpawnCoroutine == null)
+                {
+                    effectSpawnCoroutine = StartCoroutine(SpawnDamageEffectsSequentially());
+                }
             }
             
             if (currentHp <= 0f)
@@ -253,10 +261,30 @@ namespace Tenronis.Gameplay.Enemy
         }
         
         /// <summary>
-        /// 在敵人Sprite隨機位置生成受傷特效
+        /// 依序生成多個受傷特效（協程）
         /// </summary>
-        private void SpawnDamageEffect()
+        private System.Collections.IEnumerator SpawnDamageEffectsSequentially()
         {
+            while (pendingEffectCount > 0)
+            {
+                // 生成一個特效
+                SpawnSingleDamageEffect();
+                pendingEffectCount--;
+                
+                // 等待一小段時間再生成下一個
+                yield return new WaitForSeconds(0.05f); // 50毫秒延遲
+            }
+            
+            effectSpawnCoroutine = null;
+        }
+        
+        /// <summary>
+        /// 在敵人Sprite隨機位置生成單個受傷特效
+        /// </summary>
+        private void SpawnSingleDamageEffect()
+        {
+            if (enemySprite == null || damageEffectPrefab == null) return;
+            
             // 獲取Sprite的邊界
             Bounds spriteBounds = enemySprite.bounds;
             
