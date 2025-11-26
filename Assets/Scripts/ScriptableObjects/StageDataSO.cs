@@ -12,6 +12,9 @@ namespace Tenronis.ScriptableObjects
         public string stageName = "未命名威脅";
         public int stageIndex = 0;
         
+        [Tooltip("是否為Boss關卡（影響BGM和特殊效果）")]
+        public bool isBossStage = false;
+        
         [Header("過關獎勵")]
         [Tooltip("過關後獲得的升級卡牌數量")]
         [Range(0, 5)]

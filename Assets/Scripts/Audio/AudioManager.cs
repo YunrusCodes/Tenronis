@@ -165,12 +165,11 @@ namespace Tenronis.Audio
             {
                 case GameState.Playing:
                 case GameState.LevelUp:
-                    // 決定是否播放Boss主題
+                    // 從關卡數據讀取是否為Boss關卡
                     bool isBossStage = false;
-                    if (GameManager.Instance != null)
+                    if (GameManager.Instance != null && GameManager.Instance.CurrentStage != null)
                     {
-                        int stageIndex = GameManager.Instance.CurrentStageIndex;
-                        isBossStage = (stageIndex == 4 || stageIndex == 9); // Stage 5 和 10
+                        isBossStage = GameManager.Instance.CurrentStage.isBossStage;
                     }
                     PlayBGM(isBossStage);
                     break;
