@@ -30,6 +30,7 @@ namespace Tenronis.Gameplay.Player
         private Coroutine effectSpawnCoroutine;
         private Coroutine spriteFlashCoroutine;
         private int pendingEffectCount = 0; // 待生成的特效數量
+        private bool isGameOver = false; // 遊戲是否結束
         
         private void Awake()
         {
@@ -105,6 +106,16 @@ namespace Tenronis.Gameplay.Player
         /// </summary>
         private void HandlePlayerDamaged(int damage)
         {
+            // 如果遊戲已結束，不再顯示受傷效果
+            if (isGameOver) return;
+            
+            // 檢查玩家是否死亡
+            if (PlayerManager.Instance != null && PlayerManager.Instance.Stats.currentHp <= 0)
+            {
+                HandlePlayerDeath();
+                return;
+            }
+            
             // 視覺效果：晃動
             if (playerSprite != null)
             {
@@ -136,6 +147,44 @@ namespace Tenronis.Gameplay.Player
                     effectSpawnCoroutine = StartCoroutine(SpawnDamageEffectsSequentially());
                 }
             }
+        }
+        
+        /// <summary>
+        /// 處理玩家死亡
+        /// </summary>
+        private void HandlePlayerDeath()
+        {
+            isGameOver = true;
+            
+            // 停止所有視覺效果協程
+            if (shakeCoroutine != null)
+            {
+                StopCoroutine(shakeCoroutine);
+                shakeCoroutine = null;
+            }
+            
+            if (effectSpawnCoroutine != null)
+            {
+                StopCoroutine(effectSpawnCoroutine);
+                effectSpawnCoroutine = null;
+            }
+            
+            if (spriteFlashCoroutine != null)
+            {
+                StopCoroutine(spriteFlashCoroutine);
+                spriteFlashCoroutine = null;
+            }
+            
+            // 清空特效隊列
+            pendingEffectCount = 0;
+            
+            // 恢復Sprite位置
+            if (playerSprite != null)
+            {
+                playerSprite.transform.localPosition = originalSpritePosition;
+            }
+            
+            Debug.Log("[PlayerVisualController] 玩家死亡，停止所有視覺效果");
         }
         
         /// <summary>
@@ -197,7 +246,7 @@ namespace Tenronis.Gameplay.Player
         /// </summary>
         private System.Collections.IEnumerator SpawnDamageEffectsSequentially()
         {
-            while (pendingEffectCount > 0)
+            while (pendingEffectCount > 0 && !isGameOver)
             {
                 // 生成一個特效
                 SpawnSingleDamageEffect();
@@ -205,6 +254,12 @@ namespace Tenronis.Gameplay.Player
                 
                 // 等待一小段時間再生成下一個
                 yield return new WaitForSeconds(0.05f); // 50毫秒延遲
+            }
+            
+            // 如果遊戲結束，清空剩餘特效隊列
+            if (isGameOver)
+            {
+                pendingEffectCount = 0;
             }
             
             effectSpawnCoroutine = null;
@@ -240,7 +295,10 @@ namespace Tenronis.Gameplay.Player
             switch (newState)
             {
                 case GameState.Playing:
-                    // 遊戲開始時重置圖片
+                    // 遊戲開始時重置狀態
+                    isGameOver = false;
+                    pendingEffectCount = 0;
+                    
                     if (playerSprite != null && defaultSprite != null)
                     {
                         playerSprite.sprite = defaultSprite;
@@ -248,7 +306,8 @@ namespace Tenronis.Gameplay.Player
                     break;
                     
                 case GameState.GameOver:
-                    // 遊戲結束時可以添加特殊效果
+                    // 遊戲結束時停止所有特效
+                    HandlePlayerDeath();
                     break;
             }
         }

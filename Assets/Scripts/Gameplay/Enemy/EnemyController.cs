@@ -23,6 +23,7 @@ namespace Tenronis.Gameplay.Enemy
         private StageDataSO currentStageData;
         private float currentHp;
         private float shootTimer;
+        private bool isDefeated = false; // 是否已被擊敗
         
         // 視覺效果
         private Vector3 originalSpritePosition;
@@ -89,6 +90,8 @@ namespace Tenronis.Gameplay.Enemy
             {
                 currentHp = currentStageData.maxHp;
                 shootTimer = 0f;
+                isDefeated = false; // 重置擊敗狀態
+                pendingEffectCount = 0; // 清空特效隊列
                 
                 // 自動設置敵人圖示
                 if (enemySprite != null && currentStageData.enemyIcon != null)
@@ -198,9 +201,19 @@ namespace Tenronis.Gameplay.Enemy
         /// </summary>
         private void HandleDamaged(float damage)
         {
+            // 如果已經被擊敗，不再處理傷害
+            if (isDefeated) return;
+            
             currentHp = Mathf.Max(0f, currentHp - damage);
             
             Debug.Log($"[EnemyController] 受到傷害: {damage}, 剩餘HP: {currentHp}");
+            
+            // 檢查是否被擊敗
+            if (currentHp <= 0f)
+            {
+                HandleDefeated();
+                return; // 擊敗後不再顯示受傷效果
+            }
             
             // 視覺效果：晃動
             if (enemySprite != null)
@@ -222,11 +235,6 @@ namespace Tenronis.Gameplay.Enemy
                 {
                     effectSpawnCoroutine = StartCoroutine(SpawnDamageEffectsSequentially());
                 }
-            }
-            
-            if (currentHp <= 0f)
-            {
-                HandleDefeated();
             }
         }
         
@@ -265,7 +273,7 @@ namespace Tenronis.Gameplay.Enemy
         /// </summary>
         private System.Collections.IEnumerator SpawnDamageEffectsSequentially()
         {
-            while (pendingEffectCount > 0)
+            while (pendingEffectCount > 0 && !isDefeated)
             {
                 // 生成一個特效
                 SpawnSingleDamageEffect();
@@ -273,6 +281,12 @@ namespace Tenronis.Gameplay.Enemy
                 
                 // 等待一小段時間再生成下一個
                 yield return new WaitForSeconds(0.05f); // 50毫秒延遲
+            }
+            
+            // 如果敵人被擊敗，清空剩餘特效隊列
+            if (isDefeated)
+            {
+                pendingEffectCount = 0;
             }
             
             effectSpawnCoroutine = null;
@@ -305,6 +319,30 @@ namespace Tenronis.Gameplay.Enemy
         /// </summary>
         private void HandleDefeated()
         {
+            isDefeated = true;
+            
+            // 停止所有視覺效果協程
+            if (shakeCoroutine != null)
+            {
+                StopCoroutine(shakeCoroutine);
+                shakeCoroutine = null;
+            }
+            
+            if (effectSpawnCoroutine != null)
+            {
+                StopCoroutine(effectSpawnCoroutine);
+                effectSpawnCoroutine = null;
+            }
+            
+            // 清空特效隊列
+            pendingEffectCount = 0;
+            
+            // 恢復Sprite位置
+            if (enemySprite != null)
+            {
+                enemySprite.transform.localPosition = originalSpritePosition;
+            }
+            
             Debug.Log($"[EnemyController] 敵人被擊敗！");
             GameEvents.TriggerEnemyDefeated();
         }
