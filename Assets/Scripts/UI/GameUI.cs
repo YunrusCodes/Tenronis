@@ -136,7 +136,7 @@ namespace Tenronis.UI
                 {
                     if (stats.comboCount > 1)
                     {
-                        comboText.text = $"COMBO x{stats.comboCount}";
+                        comboText.text = $"{stats.comboCount}連發!";
                         comboText.gameObject.SetActive(true);
                     }
                     else
