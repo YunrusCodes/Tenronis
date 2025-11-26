@@ -36,6 +36,9 @@
 - EnemyController (添加 `EnemyController` 腳本)
   - 在EnemyController下建立子物件：EnemySprite (添加 `Sprite Renderer`)
   - 將EnemySprite拖入EnemyController的 `Enemy Sprite` 欄位
+- PlayerVisualController (添加 `PlayerVisualController` 腳本)
+  - 在PlayerVisualController下建立子物件：PlayerSprite (添加 `Sprite Renderer`)
+  - 將PlayerSprite拖入PlayerVisualController的 `Player Sprite` 欄位
 
 ### 步驟 4: 建立方塊預製體
 
@@ -103,6 +106,19 @@
    - 推薦使用: `Assets/GabrielAguiarProductions/FreeQuickEffectsVol1/Prefabs/vfx_Impact_01.prefab`
    - 或使用: `vfx_Explosion_01.prefab` (爆炸效果)
    - 或使用: `vfx_Sparks_01.prefab` (火花效果)
+
+### 步驟 8.6: 設置PlayerVisualController
+
+選擇 PlayerVisualController 物件：
+
+1. **Player Sprite**: 拖入PlayerSprite子物件
+2. **Default Sprite**: 拖入玩家默認圖片（必需）
+3. **Damaged Sprite**: 拖入受傷時的圖片（可選，受傷時短暫顯示）
+4. **Low Hp Sprite**: 拖入低HP時的圖片（可選，HP < 30%時顯示）
+5. **Damage Effect Prefab**: 拖入受傷特效預製體
+   - 推薦使用: `Assets/GabrielAguiarProductions/FreeQuickEffectsVol1/Prefabs/vfx_Impact_01.prefab`
+   - 或使用: `vfx_Explosion_01.prefab` (爆炸效果)
+6. **Low Hp Threshold**: 設置低HP閾值（默認0.3 = 30%）
 
 ### 步驟 9: 建立關卡數據
 
