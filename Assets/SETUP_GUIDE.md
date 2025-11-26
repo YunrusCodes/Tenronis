@@ -109,6 +109,19 @@
 
 ### 步驟 8.6: 設置PlayerVisualController
 
+#### 8.6.1 創建特效點
+
+1. 在 PlayerVisualController 下創建 4 個特效點：
+   - 右鍵 PlayerVisualController > `Create Empty`
+   - 命名為：`EffectPoint_1`, `EffectPoint_2`, `EffectPoint_3`, `EffectPoint_4`
+2. 調整特效點位置（推薦配置）：
+   - EffectPoint_1: Position `(-1, 0.5, 0)` （左上）
+   - EffectPoint_2: Position `(1, 0.5, 0)` （右上）
+   - EffectPoint_3: Position `(-1, -0.5, 0)` （左下）
+   - EffectPoint_4: Position `(1, -0.5, 0)` （右下）
+
+#### 8.6.2 配置PlayerVisualController
+
 選擇 PlayerVisualController 物件：
 
 1. **Player Sprite**: 拖入PlayerSprite子物件
@@ -118,7 +131,16 @@
 5. **Damage Effect Prefab**: 拖入受傷特效預製體
    - 推薦使用: `Assets/GabrielAguiarProductions/FreeQuickEffectsVol1/Prefabs/vfx_Impact_01.prefab`
    - 或使用: `vfx_Explosion_01.prefab` (爆炸效果)
-6. **Low Hp Threshold**: 設置低HP閾值（默認0.3 = 30%）
+6. **Effect Points** (陣列大小: 4): 依序拖入4個特效點
+   - Element 0: EffectPoint_1
+   - Element 1: EffectPoint_2
+   - Element 2: EffectPoint_3
+   - Element 3: EffectPoint_4
+7. **Attack Effect Prefab**: 拖入攻擊/反擊特效預製體
+   - 推薦使用: `Assets/GabrielAguiarProductions/FreeQuickEffectsVol1/Prefabs/vfx_Projectile_01.prefab`
+   - 或使用: `vfx_MuzzleFlash_01.prefab` (槍口火光效果)
+   - 或使用: `vfx_Lightning_01.prefab` (閃電效果)
+8. **Low Hp Threshold**: 設置低HP閾值（默認0.3 = 30%）
 
 ### 步驟 9: 建立關卡數據
 

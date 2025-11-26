@@ -458,6 +458,12 @@ namespace Tenronis.Managers
                 // 播放反擊音效
                 GameEvents.TriggerPlayCounterFireSound();
                 
+                // 觸發玩家反擊視覺特效
+                if (Gameplay.Player.PlayerVisualController.Instance != null)
+                {
+                    Gameplay.Player.PlayerVisualController.Instance.TriggerCounterFireEffect();
+                }
+                
                 GameEvents.TriggerShowPopupText("反擊!", new Color(0.29f, 0.87f, 0.5f), GridManager.Instance.GridToWorldPosition(hitPos.x, hitPos.y));
             }
         }

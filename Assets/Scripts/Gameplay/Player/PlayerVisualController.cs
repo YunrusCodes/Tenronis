@@ -21,6 +21,10 @@ namespace Tenronis.Gameplay.Player
         [Header("受傷特效")]
         [SerializeField] private GameObject damageEffectPrefab; // 受傷時的爆炸特效
         
+        [Header("攻擊特效點")]
+        [SerializeField] private Transform[] effectPoints = new Transform[4]; // 4個固定特效點
+        [SerializeField] private GameObject attackEffectPrefab; // 攻擊/反擊時的特效
+        
         [Header("HP閾值")]
         [SerializeField] private float lowHpThreshold = 0.3f; // 30% HP以下顯示低HP圖片
         
@@ -59,12 +63,17 @@ namespace Tenronis.Gameplay.Player
             // 訂閱事件
             GameEvents.OnPlayerDamaged += HandlePlayerDamaged;
             GameEvents.OnGameStateChanged += HandleGameStateChanged;
+            GameEvents.OnRowsCleared += HandleRowsCleared;
+            
+            // 訂閱反擊事件（需要檢查是否有此事件）
+            // 如果反擊通過其他方式觸發，可能需要調整
         }
         
         private void OnDestroy()
         {
             GameEvents.OnPlayerDamaged -= HandlePlayerDamaged;
             GameEvents.OnGameStateChanged -= HandleGameStateChanged;
+            GameEvents.OnRowsCleared -= HandleRowsCleared;
         }
         
         private void Update()
@@ -321,6 +330,80 @@ namespace Tenronis.Gameplay.Player
             {
                 defaultSprite = sprite;
                 playerSprite.sprite = sprite;
+            }
+        }
+        
+        /// <summary>
+        /// 處理消除行事件
+        /// </summary>
+        private void HandleRowsCleared(int rowCount, bool hasVoid)
+        {
+            if (isGameOver) return;
+            if (attackEffectPrefab == null) return;
+            
+            // 消除多行時，依序在所有特效點生成特效
+            StartCoroutine(SpawnAttackEffectsForRows(rowCount));
+        }
+        
+        /// <summary>
+        /// 為消除的每一行在所有特效點生成特效
+        /// </summary>
+        private System.Collections.IEnumerator SpawnAttackEffectsForRows(int rowCount)
+        {
+            for (int i = 0; i < rowCount; i++)
+            {
+                // 在所有4個特效點生成特效
+                SpawnAttackEffectsAtAllPoints();
+                
+                // 等待一小段時間再處理下一行（確保不在同一幀）
+                yield return new WaitForSeconds(0.08f); // 80毫秒延遲
+            }
+        }
+        
+        /// <summary>
+        /// 在所有特效點生成攻擊特效
+        /// </summary>
+        private void SpawnAttackEffectsAtAllPoints()
+        {
+            for (int i = 0; i < effectPoints.Length; i++)
+            {
+                if (effectPoints[i] != null)
+                {
+                    SpawnEffectAtPoint(i);
+                }
+            }
+        }
+        
+        /// <summary>
+        /// 在指定特效點生成特效
+        /// </summary>
+        private void SpawnEffectAtPoint(int pointIndex)
+        {
+            if (pointIndex < 0 || pointIndex >= effectPoints.Length) return;
+            if (effectPoints[pointIndex] == null) return;
+            if (attackEffectPrefab == null) return;
+            
+            Vector3 spawnPosition = effectPoints[pointIndex].position;
+            GameObject effect = Instantiate(attackEffectPrefab, spawnPosition, Quaternion.identity);
+            Destroy(effect, 2f); // 2秒後銷毀
+        }
+        
+        /// <summary>
+        /// 觸發反擊特效（在隨機特效點）
+        /// </summary>
+        public void TriggerCounterFireEffect()
+        {
+            if (isGameOver) return;
+            if (attackEffectPrefab == null) return;
+            if (effectPoints.Length == 0) return;
+            
+            // 隨機選擇一個特效點
+            int randomIndex = Random.Range(0, effectPoints.Length);
+            
+            // 確保選擇的特效點有效
+            if (effectPoints[randomIndex] != null)
+            {
+                SpawnEffectAtPoint(randomIndex);
             }
         }
     }
