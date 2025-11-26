@@ -270,16 +270,22 @@ namespace Tenronis.Gameplay.Enemy
         
         /// <summary>
         /// 依序生成多個受傷特效（協程）
+        /// 每幀最多生成2個特效
         /// </summary>
         private System.Collections.IEnumerator SpawnDamageEffectsSequentially()
         {
             while (pendingEffectCount > 0 && !isDefeated)
             {
-                // 生成一個特效
-                SpawnSingleDamageEffect();
-                pendingEffectCount--;
+                // 每次生成最多2個特效
+                int effectsThisFrame = Mathf.Min(2, pendingEffectCount);
                 
-                // 等待一小段時間再生成下一個
+                for (int i = 0; i < effectsThisFrame; i++)
+                {
+                    SpawnSingleDamageEffect();
+                    pendingEffectCount--;
+                }
+                
+                // 等待一小段時間再生成下一批
                 yield return new WaitForSeconds(0.05f); // 50毫秒延遲
             }
             
