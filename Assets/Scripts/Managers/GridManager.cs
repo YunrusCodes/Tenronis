@@ -485,6 +485,13 @@ namespace Tenronis.Managers
         {
             if (newState == GameState.Playing)
             {
+                // 檢查是否是新遊戲開始（關卡索引為0）
+                if (GameManager.Instance != null && GameManager.Instance.CurrentStageIndex == 0)
+                {
+                    Debug.Log("[GridManager] 新遊戲開始，清空網格");
+                    ClearGrid();
+                }
+                
                 if (grid == null)
                 {
                     InitializeGrid();

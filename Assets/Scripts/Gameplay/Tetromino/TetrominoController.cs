@@ -768,7 +768,20 @@ namespace Tenronis.Gameplay.Tetromino
             switch (newState)
             {
                 case GameState.Playing:
-                    // 遊戲開始時重置解鎖槽位數量
+                    // 檢查是否是新遊戲開始
+                    if (GameManager.Instance != null && GameManager.Instance.CurrentStageIndex == 0)
+                    {
+                        Debug.Log("[TetrominoController] 新遊戲開始，重置儲存槽位");
+                        // 清空所有儲存槽
+                        for (int i = 0; i < heldPieces.Length; i++)
+                        {
+                            heldPieces[i] = null;
+                            canHoldSlot[i] = true;
+                            GameEvents.TriggerHeldPieceChanged(i);
+                        }
+                    }
+                    
+                    // 重置解鎖槽位數量
                     if (PlayerManager.Instance != null)
                     {
                         unlockedSlots = PlayerManager.Instance.SpaceExpansionLevel;

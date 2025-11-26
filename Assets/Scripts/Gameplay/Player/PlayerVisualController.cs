@@ -308,10 +308,34 @@ namespace Tenronis.Gameplay.Player
                     isGameOver = false;
                     pendingEffectCount = 0;
                     
-                    if (playerSprite != null && defaultSprite != null)
+                    // 停止所有進行中的協程
+                    if (shakeCoroutine != null)
                     {
-                        playerSprite.sprite = defaultSprite;
+                        StopCoroutine(shakeCoroutine);
+                        shakeCoroutine = null;
                     }
+                    if (effectSpawnCoroutine != null)
+                    {
+                        StopCoroutine(effectSpawnCoroutine);
+                        effectSpawnCoroutine = null;
+                    }
+                    if (spriteFlashCoroutine != null)
+                    {
+                        StopCoroutine(spriteFlashCoroutine);
+                        spriteFlashCoroutine = null;
+                    }
+                    
+                    // 恢復Sprite位置和圖片
+                    if (playerSprite != null)
+                    {
+                        playerSprite.transform.localPosition = originalSpritePosition;
+                        if (defaultSprite != null)
+                        {
+                            playerSprite.sprite = defaultSprite;
+                        }
+                    }
+                    
+                    Debug.Log("[PlayerVisualController] 遊戲開始，重置所有視覺狀態");
                     break;
                     
                 case GameState.GameOver:

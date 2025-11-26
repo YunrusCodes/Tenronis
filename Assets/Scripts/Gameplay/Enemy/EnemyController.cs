@@ -93,6 +93,24 @@ namespace Tenronis.Gameplay.Enemy
                 isDefeated = false; // 重置擊敗狀態
                 pendingEffectCount = 0; // 清空特效隊列
                 
+                // 停止所有進行中的協程
+                if (shakeCoroutine != null)
+                {
+                    StopCoroutine(shakeCoroutine);
+                    shakeCoroutine = null;
+                }
+                if (effectSpawnCoroutine != null)
+                {
+                    StopCoroutine(effectSpawnCoroutine);
+                    effectSpawnCoroutine = null;
+                }
+                
+                // 恢復Sprite位置
+                if (enemySprite != null)
+                {
+                    enemySprite.transform.localPosition = originalSpritePosition;
+                }
+                
                 // 自動設置敵人圖示
                 if (enemySprite != null && currentStageData.enemyIcon != null)
                 {
