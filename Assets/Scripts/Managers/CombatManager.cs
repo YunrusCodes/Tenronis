@@ -87,6 +87,7 @@ namespace Tenronis.Managers
             if (hasVoid)
             {
                 Debug.Log($"[CombatManager] 虛無抵銷！消除了 {rowCount} 行但不發射導彈");
+                GameEvents.TriggerPlayVoidNullifySound();
                 return;
             }
             
@@ -143,24 +144,27 @@ namespace Tenronis.Managers
             Vector3 baseSpawnPos = GridManager.Instance.GridToWorldPosition(column, 0);
             baseSpawnPos.y += 2f;
             
-            Debug.Log($"[CombatManager] 發射子彈 - 列: {column}, 類型: {type}, 連發數: {burstCount}, 位置: {baseSpawnPos}, 速度: {speed}");
+        Debug.Log($"[CombatManager] 發射子彈 - 列: {column}, 類型: {type}, 連發數: {burstCount}, 位置: {baseSpawnPos}, 速度: {speed}");
+        
+        // 播放敵人射擊音效
+        GameEvents.TriggerPlayEnemyShootSound(type);
+        
+        // 如果是三聯發，稍微錯開位置
+        for (int i = 0; i < burstCount; i++)
+        {
+            Vector3 spawnPos = baseSpawnPos;
             
-            // 如果是三聯發，稍微錯開位置
-            for (int i = 0; i < burstCount; i++)
+            // 橫向錯開（如果是多發）
+            if (burstCount > 1)
             {
-                Vector3 spawnPos = baseSpawnPos;
-                
-                // 橫向錯開（如果是多發）
-                if (burstCount > 1)
-                {
-                    float offset = (i - (burstCount - 1) * 0.5f) * spreadOffset;
-                    spawnPos.x += offset;
-                }
-                
-                Bullet bullet = bulletPool.Get();
-                bullet.Initialize(spawnPos, type, damage, speed);
-                activeBullets.Add(bullet);
+                float offset = (i - (burstCount - 1) * 0.5f) * spreadOffset;
+                spawnPos.x += offset;
             }
+            
+            Bullet bullet = bulletPool.Get();
+            bullet.Initialize(spawnPos, type, damage, speed);
+            activeBullets.Add(bullet);
+        }
         }
         
         /// <summary>
@@ -401,12 +405,15 @@ namespace Tenronis.Managers
                             false,
                             blockType
                         );
-                        GridManager.Instance.SetBlock(hitPos.x, hitPos.y - 1, garbageBlock);
-                        
-                        Debug.Log($"[CombatManager] 敵人添加垃圾方塊 HP: {garbageHp} (基礎: {GameConstants.GARBAGE_BLOCK_HP} + 防禦: {defenseLevel})");
-                        
-                        // 檢查是否形成完整行（敵人添加方塊也可以觸發消行）
-                        CheckRowsAfterAddBlock();
+                    GridManager.Instance.SetBlock(hitPos.x, hitPos.y - 1, garbageBlock);
+                    
+                    Debug.Log($"[CombatManager] 敵人添加垃圾方塊 HP: {garbageHp} (基礎: {GameConstants.GARBAGE_BLOCK_HP} + 防禦: {defenseLevel})");
+                    
+                    // 播放敵人製造方塊音效
+                    GameEvents.TriggerPlayEnemyAddBlockSound();
+                    
+                    // 檢查是否形成完整行（敵人添加方塊也可以觸發消行）
+                    CheckRowsAfterAddBlock();
                     }
                     break;
                     

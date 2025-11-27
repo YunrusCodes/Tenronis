@@ -12,16 +12,25 @@ namespace Tenronis.Audio
     {
         public static AudioManager Instance { get; private set; }
         
-        [Header("音效")]
-        [SerializeField] private AudioClip missileSound;
-        [SerializeField] private AudioClip explosionSound;
-        [SerializeField] private AudioClip rotateSound;
-        [SerializeField] private AudioClip impactSound;
-        [SerializeField] private AudioClip counterFireSound; // 反擊音效
-        [SerializeField] private AudioClip lockSound; // 方塊鎖定音效
-        [SerializeField] private AudioClip enemyShootSound;
-        [SerializeField] private AudioClip enemyHitSound;
-        [SerializeField] private AudioClip buffSound;
+    [Header("音效")]
+    [SerializeField] private AudioClip missileSound;
+    [SerializeField] private AudioClip explosionSound;
+    [SerializeField] private AudioClip rotateSound;
+    [SerializeField] private AudioClip impactSound;
+    [SerializeField] private AudioClip counterFireSound; // 反擊音效
+    [SerializeField] private AudioClip lockSound; // 方塊鎖定音效
+    [SerializeField] private AudioClip enemyHitSound;
+    [SerializeField] private AudioClip buffSound;
+    
+    [Header("敵人射擊音效")]
+    [SerializeField] private AudioClip enemyShootNormalSound;     // 普通子彈音效
+    [SerializeField] private AudioClip enemyShootAddBlockSound;   // 添加方塊音效
+    [SerializeField] private AudioClip enemyShootAreaDamageSound; // 範圍傷害音效
+    [SerializeField] private AudioClip enemyShootInsertRowSound;  // 插入不可摧毀行音效
+    
+    [Header("特殊事件音效")]
+    [SerializeField] private AudioClip enemyAddBlockSound;        // 敵人製造方塊音效
+    [SerializeField] private AudioClip voidNullifySound;          // 虛空抵銷音效
         
         [Header("音樂")]
         [SerializeField] private AudioClip normalBGM;
@@ -67,27 +76,33 @@ namespace Tenronis.Audio
         
         private void Start()
         {
-            // 訂閱音效事件
-            GameEvents.OnPlayMissileSound += PlayMissileSound;
-            GameEvents.OnPlayExplosionSound += PlayExplosionSound;
-            GameEvents.OnPlayRotateSound += PlayRotateSound;
-            GameEvents.OnPlayImpactSound += PlayImpactSound;
-            GameEvents.OnPlayCounterFireSound += PlayCounterFireSound;
-            GameEvents.OnPlayLockSound += PlayLockSound;
-            
-            // 訂閱遊戲事件以控制BGM
-            GameEvents.OnGameStateChanged += HandleGameStateChanged;
+        // 訂閱音效事件
+        GameEvents.OnPlayMissileSound += PlayMissileSound;
+        GameEvents.OnPlayExplosionSound += PlayExplosionSound;
+        GameEvents.OnPlayRotateSound += PlayRotateSound;
+        GameEvents.OnPlayImpactSound += PlayImpactSound;
+        GameEvents.OnPlayCounterFireSound += PlayCounterFireSound;
+        GameEvents.OnPlayLockSound += PlayLockSound;
+        GameEvents.OnPlayEnemyShootSound += PlayEnemyShootSound;
+        GameEvents.OnPlayEnemyAddBlockSound += PlayEnemyAddBlockSound;
+        GameEvents.OnPlayVoidNullifySound += PlayVoidNullifySound;
+        
+        // 訂閱遊戲事件以控制BGM
+        GameEvents.OnGameStateChanged += HandleGameStateChanged;
         }
         
         private void OnDestroy()
         {
-            GameEvents.OnPlayMissileSound -= PlayMissileSound;
-            GameEvents.OnPlayExplosionSound -= PlayExplosionSound;
-            GameEvents.OnPlayRotateSound -= PlayRotateSound;
-            GameEvents.OnPlayImpactSound -= PlayImpactSound;
-            GameEvents.OnPlayCounterFireSound -= PlayCounterFireSound;
-            GameEvents.OnPlayLockSound -= PlayLockSound;
-            GameEvents.OnGameStateChanged -= HandleGameStateChanged;
+        GameEvents.OnPlayMissileSound -= PlayMissileSound;
+        GameEvents.OnPlayExplosionSound -= PlayExplosionSound;
+        GameEvents.OnPlayRotateSound -= PlayRotateSound;
+        GameEvents.OnPlayImpactSound -= PlayImpactSound;
+        GameEvents.OnPlayCounterFireSound -= PlayCounterFireSound;
+        GameEvents.OnPlayLockSound -= PlayLockSound;
+        GameEvents.OnPlayEnemyShootSound -= PlayEnemyShootSound;
+        GameEvents.OnPlayEnemyAddBlockSound -= PlayEnemyAddBlockSound;
+        GameEvents.OnPlayVoidNullifySound -= PlayVoidNullifySound;
+        GameEvents.OnGameStateChanged -= HandleGameStateChanged;
         }
         
         /// <summary>
@@ -113,16 +128,42 @@ namespace Tenronis.Audio
             }
         }
         
-        // 音效播放方法
-        public void PlayMissileSound() => PlaySound(missileSound);
-        public void PlayExplosionSound() => PlaySound(explosionSound);
-        public void PlayRotateSound() => PlaySound(rotateSound);
-        public void PlayImpactSound() => PlaySound(impactSound);
-        public void PlayCounterFireSound() => PlaySound(counterFireSound);
-        public void PlayLockSound() => PlaySound(lockSound);
-        public void PlayEnemyShootSound() => PlaySound(enemyShootSound);
-        public void PlayEnemyHitSound() => PlaySound(enemyHitSound);
-        public void PlayBuffSound() => PlaySound(buffSound);
+    // 音效播放方法
+    public void PlayMissileSound() => PlaySound(missileSound);
+    public void PlayExplosionSound() => PlaySound(explosionSound);
+    public void PlayRotateSound() => PlaySound(rotateSound);
+    public void PlayImpactSound() => PlaySound(impactSound);
+    public void PlayCounterFireSound() => PlaySound(counterFireSound);
+    public void PlayLockSound() => PlaySound(lockSound);
+    public void PlayEnemyHitSound() => PlaySound(enemyHitSound);
+    public void PlayBuffSound() => PlaySound(buffSound);
+    
+    /// <summary>
+    /// 根據子彈類型播放敵人射擊音效
+    /// </summary>
+    public void PlayEnemyShootSound(BulletType bulletType)
+    {
+        AudioClip clip = bulletType switch
+        {
+            BulletType.Normal => enemyShootNormalSound,
+            BulletType.AddBlock => enemyShootAddBlockSound,
+            BulletType.AreaDamage => enemyShootAreaDamageSound,
+            BulletType.InsertRow => enemyShootInsertRowSound,
+            _ => enemyShootNormalSound
+        };
+        
+        PlaySound(clip);
+    }
+    
+    /// <summary>
+    /// 播放敵人製造方塊音效
+    /// </summary>
+    public void PlayEnemyAddBlockSound() => PlaySound(enemyAddBlockSound);
+    
+    /// <summary>
+    /// 播放虛空抵銷音效
+    /// </summary>
+    public void PlayVoidNullifySound() => PlaySound(voidNullifySound);
         
         /// <summary>
         /// 播放BGM

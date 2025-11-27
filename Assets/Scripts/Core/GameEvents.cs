@@ -38,13 +38,16 @@ namespace Tenronis.Core
         // === UI事件 ===
         public static event Action<string, Color, Vector2> OnShowPopupText; // 文字、顏色、位置
         
-        // === 音效事件 ===
-        public static event Action OnPlayMissileSound;
-        public static event Action OnPlayExplosionSound;
-        public static event Action OnPlayRotateSound;
-        public static event Action OnPlayImpactSound;
-        public static event Action OnPlayCounterFireSound; // 反擊音效
-        public static event Action OnPlayLockSound; // 方塊鎖定音效
+    // === 音效事件 ===
+    public static event Action OnPlayMissileSound;
+    public static event Action OnPlayExplosionSound;
+    public static event Action OnPlayRotateSound;
+    public static event Action OnPlayImpactSound;
+    public static event Action OnPlayCounterFireSound; // 反擊音效
+    public static event Action OnPlayLockSound; // 方塊鎖定音效
+    public static event Action<BulletType> OnPlayEnemyShootSound; // 敵人射擊音效
+    public static event Action OnPlayEnemyAddBlockSound; // 敵人製造方塊音效
+    public static event Action OnPlayVoidNullifySound; // 虛空抵銷音效
         
         // 觸發方法
         public static void TriggerGameStateChanged(GameState newState) => OnGameStateChanged?.Invoke(newState);
@@ -64,12 +67,15 @@ namespace Tenronis.Core
         public static void TriggerBuffAvailable() => OnBuffAvailable?.Invoke();
         public static void TriggerBuffSelected(BuffType type) => OnBuffSelected?.Invoke(type);
         public static void TriggerShowPopupText(string text, Color color, Vector2 position) => OnShowPopupText?.Invoke(text, color, position);
-        public static void TriggerPlayMissileSound() => OnPlayMissileSound?.Invoke();
-        public static void TriggerPlayExplosionSound() => OnPlayExplosionSound?.Invoke();
-        public static void TriggerPlayRotateSound() => OnPlayRotateSound?.Invoke();
-        public static void TriggerPlayImpactSound() => OnPlayImpactSound?.Invoke();
-        public static void TriggerPlayCounterFireSound() => OnPlayCounterFireSound?.Invoke();
-        public static void TriggerPlayLockSound() => OnPlayLockSound?.Invoke();
+    public static void TriggerPlayMissileSound() => OnPlayMissileSound?.Invoke();
+    public static void TriggerPlayExplosionSound() => OnPlayExplosionSound?.Invoke();
+    public static void TriggerPlayRotateSound() => OnPlayRotateSound?.Invoke();
+    public static void TriggerPlayImpactSound() => OnPlayImpactSound?.Invoke();
+    public static void TriggerPlayCounterFireSound() => OnPlayCounterFireSound?.Invoke();
+    public static void TriggerPlayLockSound() => OnPlayLockSound?.Invoke();
+    public static void TriggerPlayEnemyShootSound(BulletType bulletType) => OnPlayEnemyShootSound?.Invoke(bulletType);
+    public static void TriggerPlayEnemyAddBlockSound() => OnPlayEnemyAddBlockSound?.Invoke();
+    public static void TriggerPlayVoidNullifySound() => OnPlayVoidNullifySound?.Invoke();
         
         /// <summary>
         /// 清除所有事件訂閱（場景切換時使用）
@@ -93,13 +99,16 @@ namespace Tenronis.Core
             OnBuffAvailable = null;
             OnBuffSelected = null;
             OnShowPopupText = null;
-            OnPlayMissileSound = null;
-            OnPlayExplosionSound = null;
-            OnPlayRotateSound = null;
-            OnPlayImpactSound = null;
-            OnPlayCounterFireSound = null;
-            OnPlayLockSound = null;
-        }
+        OnPlayMissileSound = null;
+        OnPlayExplosionSound = null;
+        OnPlayRotateSound = null;
+        OnPlayImpactSound = null;
+        OnPlayCounterFireSound = null;
+        OnPlayLockSound = null;
+        OnPlayEnemyShootSound = null;
+        OnPlayEnemyAddBlockSound = null;
+        OnPlayVoidNullifySound = null;
     }
+}
 }
 
