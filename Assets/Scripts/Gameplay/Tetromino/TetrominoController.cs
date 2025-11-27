@@ -854,26 +854,8 @@ namespace Tenronis.Gameplay.Tetromino
         /// </summary>
         private void HandleOverflow()
         {
-            GameEvents.TriggerGridOverflow();
-            GameEvents.TriggerPlayExplosionSound();
-            
-            // 清空網格
-            GridManager.Instance.ClearGrid();
-            
-            // 計算傷害
-            int damage = PlayerManager.Instance != null 
-                ? Mathf.FloorToInt(PlayerManager.Instance.Stats.currentHp * GameConstants.OVERFLOW_DAMAGE_PERCENT / 100f)
-                : GameConstants.OVERFLOW_DAMAGE_PERCENT;
-            
-            GameEvents.TriggerPlayerDamaged(damage);
-            
-            // 觸發爆炸傷害（如果有）
-            if (PlayerManager.Instance != null && PlayerManager.Instance.Stats.explosionDamage > 0)
-            {
-                float explosionDamage = PlayerManager.Instance.Stats.explosionDamage;
-                GameEvents.TriggerEnemyDamaged(explosionDamage);
-                PlayerManager.Instance.ConsumeExplosionCharge();
-            }
+            // 使用統一的溢出處理（50% 當前HP 傷害）
+            GridManager.Instance.HandleOverflow();
             
             // 重新生成方塊
             Invoke(nameof(SpawnPiece), 0.5f);

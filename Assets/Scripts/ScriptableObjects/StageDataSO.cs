@@ -1,7 +1,27 @@
 using UnityEngine;
+using System;
 
 namespace Tenronis.ScriptableObjects
 {
+    /// <summary>
+    /// 敵人技能配置
+    /// </summary>
+    [Serializable]
+    public class EnemyAbility
+    {
+        public bool enabled = false;
+        
+        [Range(0f, 1f)]
+        [Tooltip("使用此技能的機率（0 = 不使用，1 = 總是使用）")]
+        public float chance = 0.2f;
+        
+        public EnemyAbility(bool enabled = false, float chance = 0.2f)
+        {
+            this.enabled = enabled;
+            this.chance = chance;
+        }
+    }
+    
     /// <summary>
     /// 關卡數據 ScriptableObject
     /// </summary>
@@ -27,44 +47,36 @@ namespace Tenronis.ScriptableObjects
         public float shootInterval = 2f;      // 射擊間隔（秒）
         public float bulletSpeed = 8f;        // 子彈速度（格子/秒）
         
-        [Header("特殊能力解鎖")]
-        [Tooltip("關卡5+：可以發射添加方塊子彈")]
-        public bool canUseAddBlock = false;
+        [Tooltip("連發數量（1 = 單發，3 = 三聯發）")]
+        [Range(1, 5)]
+        public int burstCount = 1;
         
-        [Tooltip("關卡8+：可以發射範圍傷害子彈")]
-        public bool canUseAreaDamage = false;
+        [Header("=== 敵人技能配置 ===")]
+        [Space(10)]
         
-        [Tooltip("關卡10：可以發射插入行子彈")]
-        public bool canUseInsertRow = false;
+        [Tooltip("普通子彈：造成 1 點傷害")]
+        public EnemyAbility normalBullet = new EnemyAbility(true, 1f);
         
-        [Tooltip("關卡11+：可以發射腐化爆炸方塊子彈（腐化下個方塊）")]
-        public bool canUseCorruptExplosive = false;
+        [Tooltip("範圍傷害子彈：3x3 範圍傷害")]
+        public EnemyAbility areaBullet = new EnemyAbility(false, 0.25f);
         
-        [Tooltip("關卡12+：可以發射腐化虛無方塊子彈（腐化下個方塊）")]
-        public bool canUseCorruptVoid = false;
+        [Tooltip("添加普通方塊：在擊中方塊上方添加垃圾方塊")]
+        public EnemyAbility addBlockBullet = new EnemyAbility(false, 0.3f);
         
-        [Header("方塊類型控制")]
-        [Tooltip("AddBlock 生成爆炸方塊（被擊中時玩家 -5 HP）")]
-        public bool useExplosiveBlocks = false;
+        [Tooltip("添加爆炸方塊：添加的方塊被擊中時對玩家造成 5 點傷害")]
+        public EnemyAbility addExplosiveBlockBullet = new EnemyAbility(false, 0.2f);
         
-        [Tooltip("InsertRow 生成虛無垃圾行（消除時不產生導彈）")]
-        public bool useVoidRow = false;
+        [Tooltip("插入普通垃圾行：從底部插入不可摧毀的垃圾行")]
+        public EnemyAbility addRowBullet = new EnemyAbility(false, 0.15f);
         
-        [Header("特殊能力機率")]
-        [Range(0f, 1f)]
-        public float addBlockChance = 0.35f;
+        [Tooltip("插入虛無垃圾行：插入的垃圾行消除時不產生導彈")]
+        public EnemyAbility addVoidRowBullet = new EnemyAbility(false, 0.1f);
         
-        [Range(0f, 1f)]
-        public float areaDamageChance = 0.25f;
+        [Tooltip("腐化爆炸方塊：將下個方塊的隨機一格變成爆炸方塊")]
+        public EnemyAbility corruptExplosiveBullet = new EnemyAbility(false, 0.15f);
         
-        [Range(0f, 1f)]
-        public float insertRowChance = 0.15f;
-        
-        [Range(0f, 1f)]
-        public float corruptExplosiveChance = 0.15f;
-        
-        [Range(0f, 1f)]
-        public float corruptVoidChance = 0.1f;
+        [Tooltip("腐化虛無方塊：將下個方塊的隨機一格變成虛無方塊")]
+        public EnemyAbility corruptVoidBullet = new EnemyAbility(false, 0.1f);
         
         [Header("智能射擊系統")]
         [Tooltip("啟用智能射擊：根據網格狀態選擇目標列")]
@@ -75,10 +87,6 @@ namespace Tenronis.ScriptableObjects
         
         [Tooltip("智能射擊時，AreaDamage 子彈是否優先射擊低點")]
         public bool areaDamageTargetsLow = true;
-        
-        [Tooltip("連發數量（1 = 單發，3 = 三聯發）")]
-        [Range(1, 5)]
-        public int burstCount = 1;
         
         [Header("視覺")]
         public Sprite enemyIcon;

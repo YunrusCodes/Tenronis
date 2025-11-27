@@ -11,29 +11,41 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 3fe80882f65a4ff479ef1fca5ee38a6f, type: 3}
   m_Name: Stage_03
-  m_EditorClassIdentifier: Assembly-CSharp::Tenronis.ScriptableObjects.StageDataSO
-  stageName: "\u653B\u57CE\u5766\u514B"
+  m_EditorClassIdentifier: 
+  stageName: "\u7834\u58DE\u8005"
   stageIndex: 2
-  isBossStage: 1
+  isBossStage: 0
   rewardBuffCount: 1
-  maxHp: 300
-  shootInterval: 1.8
-  bulletSpeed: 8.5
-  canUseAddBlock: 0
-  canUseAreaDamage: 0
-  canUseInsertRow: 0
-  canUseCorruptExplosive: 1
-  canUseCorruptVoid: 0
-  useExplosiveBlocks: 0
-  useVoidRow: 0
-  addBlockChance: 0.35
-  areaDamageChance: 0.25
-  insertRowChance: 0.15
-  corruptExplosiveChance: 0.15
-  corruptVoidChance: 0.1
+  maxHp: 180
+  shootInterval: 2
+  bulletSpeed: 8
+  burstCount: 1
+  normalBullet:
+    enabled: 1
+    chance: 0.75
+  areaBullet:
+    enabled: 1
+    chance: 0.25
+  addBlockBullet:
+    enabled: 0
+    chance: 0.3
+  addExplosiveBlockBullet:
+    enabled: 0
+    chance: 0.2
+  addRowBullet:
+    enabled: 0
+    chance: 0.15
+  addVoidRowBullet:
+    enabled: 0
+    chance: 0.1
+  corruptExplosiveBullet:
+    enabled: 0
+    chance: 0.15
+  corruptVoidBullet:
+    enabled: 0
+    chance: 0.1
   useSmartTargeting: 0
   addBlockTargetsHigh: 1
   areaDamageTargetsLow: 1
-  burstCount: 1
   enemyIcon: {fileID: -8867952745241724321, guid: 5c639cd6726d86d43aa2fd83d0c192cc, type: 3}
-  themeColor: {r: 1, g: 0, b: 0, a: 1}
+  themeColor: {r: 1, g: 0.7, b: 0.3, a: 1}

@@ -385,19 +385,9 @@ namespace Tenronis.Managers
                     GridManager.Instance.DamageBlock(hitPos.x, hitPos.y, 1);
                     CheckCounterFire(hitPos, hitBlock);
                     
-                    // 在上方添加垃圾方塊（根據關卡配置決定類型）
+                    // 在上方添加普通垃圾方塊
                     if (hitPos.y - 1 >= 0)
                     {
-                        // 從當前關卡配置讀取是否使用爆炸方塊
-                        bool useExplosive = false;
-                        if (GameManager.Instance != null && GameManager.Instance.CurrentStage != null)
-                        {
-                            useExplosive = GameManager.Instance.CurrentStage.useExplosiveBlocks;
-                        }
-                        
-                        BlockType blockType = useExplosive ? BlockType.Explosive : BlockType.Normal;
-                        
-                        // 垃圾方塊HP受玩家防禦等級影響
                         int defenseLevel = PlayerManager.Instance != null ? PlayerManager.Instance.Stats.blockDefenseLevel : 0;
                         int garbageHp = GameConstants.GARBAGE_BLOCK_HP + defenseLevel;
                         
@@ -406,17 +396,50 @@ namespace Tenronis.Managers
                             garbageHp,
                             garbageHp,
                             false,
-                            blockType
+                            BlockType.Normal
                         );
-                    GridManager.Instance.SetBlock(hitPos.x, hitPos.y - 1, garbageBlock);
+                        GridManager.Instance.SetBlock(hitPos.x, hitPos.y - 1, garbageBlock);
+                        
+                        Debug.Log($"[CombatManager] 敵人添加普通垃圾方塊 HP: {garbageHp}");
+                        GameEvents.TriggerPlayEnemyAddBlockSound();
+                        CheckRowsAfterAddBlock();
+                    }
+                    else if (hitPos.y == 0)
+                    {
+                        // 頂部溢出：清空網格並造成傷害（50% 當前HP）
+                        Debug.Log("[CombatManager] AddBlock 溢出！方塊堆到頂部，清空網格");
+                        GridManager.Instance.HandleOverflow();
+                    }
+                    break;
                     
-                    Debug.Log($"[CombatManager] 敵人添加垃圾方塊 HP: {garbageHp} (基礎: {GameConstants.GARBAGE_BLOCK_HP} + 防禦: {defenseLevel})");
+                case BulletType.AddExplosiveBlock:
+                    GridManager.Instance.DamageBlock(hitPos.x, hitPos.y, 1);
+                    CheckCounterFire(hitPos, hitBlock);
                     
-                    // 播放敵人製造方塊音效
-                    GameEvents.TriggerPlayEnemyAddBlockSound();
-                    
-                    // 檢查是否形成完整行（敵人添加方塊也可以觸發消行）
-                    CheckRowsAfterAddBlock();
+                    // 在上方添加爆炸垃圾方塊
+                    if (hitPos.y - 1 >= 0)
+                    {
+                        int defenseLevel = PlayerManager.Instance != null ? PlayerManager.Instance.Stats.blockDefenseLevel : 0;
+                        int garbageHp = GameConstants.GARBAGE_BLOCK_HP + defenseLevel;
+                        
+                        BlockData explosiveBlock = new BlockData(
+                            BlockColor.Garbage,
+                            garbageHp,
+                            garbageHp,
+                            false,
+                            BlockType.Explosive
+                        );
+                        GridManager.Instance.SetBlock(hitPos.x, hitPos.y - 1, explosiveBlock);
+                        
+                        Debug.Log($"[CombatManager] 敵人添加爆炸垃圾方塊 HP: {garbageHp}");
+                        GameEvents.TriggerPlayEnemyAddBlockSound();
+                        CheckRowsAfterAddBlock();
+                    }
+                    else if (hitPos.y == 0)
+                    {
+                        // 頂部溢出：清空網格並造成傷害（50% 當前HP）
+                        Debug.Log("[CombatManager] AddExplosiveBlock 溢出！方塊堆到頂部，清空網格");
+                        GridManager.Instance.HandleOverflow();
                     }
                     break;
                     
@@ -440,8 +463,16 @@ namespace Tenronis.Managers
                     GridManager.Instance.DamageBlock(hitPos.x, hitPos.y, 1);
                     CheckCounterFire(hitPos, hitBlock);
                     
-                    // 插入不可摧毀行
-                    GridManager.Instance.InsertIndestructibleRow();
+                    // 插入普通不可摧毀行
+                    GridManager.Instance.InsertIndestructibleRow(BlockType.Normal);
+                    break;
+                    
+                case BulletType.InsertVoidRow:
+                    GridManager.Instance.DamageBlock(hitPos.x, hitPos.y, 1);
+                    CheckCounterFire(hitPos, hitBlock);
+                    
+                    // 插入虛無不可摧毀行
+                    GridManager.Instance.InsertIndestructibleRow(BlockType.Void);
                     break;
                     
                 case BulletType.CorruptExplosive:

@@ -459,7 +459,8 @@ namespace Tenronis.Managers
         /// <summary>
         /// 插入不可摧毀行（Boss技能）
         /// </summary>
-        public void InsertIndestructibleRow()
+        /// <param name="blockType">要插入的方塊類型（Normal 或 Void）</param>
+        public void InsertIndestructibleRow(BlockType blockType = BlockType.Normal)
         {
             // 檢查頂行是否有方塊
             bool topRowHasBlocks = false;
@@ -474,8 +475,9 @@ namespace Tenronis.Managers
             
             if (topRowHasBlocks)
             {
-                // 觸發溢出傷害
-                GameEvents.TriggerPlayerDamaged(GameConstants.INSERT_ROW_OVERFLOW_DAMAGE);
+                // 觸發溢出：清空網格並造成傷害（50% 當前HP）
+                HandleOverflow();
+                return; // 溢出後直接返回，不再插入行
             }
             
             // 所有行上移
@@ -500,15 +502,6 @@ namespace Tenronis.Managers
                 blockObjects[GameConstants.BOARD_HEIGHT - 1, x] = null;
             }
             
-            // 在底部插入垃圾行（根據關卡配置決定類型）
-            bool useVoid = false;
-            if (GameManager.Instance != null && GameManager.Instance.CurrentStage != null)
-            {
-                useVoid = GameManager.Instance.CurrentStage.useVoidRow;
-            }
-            
-            BlockType blockType = useVoid ? BlockType.Void : BlockType.Normal;
-            
             // 垃圾行HP受玩家防禦等級影響
             int defenseLevel = PlayerManager.Instance != null ? PlayerManager.Instance.Stats.blockDefenseLevel : 0;
             int indestructibleHp = GameConstants.INDESTRUCTIBLE_BLOCK_HP + defenseLevel;
@@ -526,7 +519,8 @@ namespace Tenronis.Managers
                 SetBlock(x, GameConstants.BOARD_HEIGHT - 1, insertedBlock, triggerEvent: false);
             }
             
-            Debug.Log($"[GridManager] BOSS插入垃圾行 HP: {indestructibleHp} (基礎: {GameConstants.INDESTRUCTIBLE_BLOCK_HP} + 防禦: {defenseLevel})");
+            string blockTypeName = blockType == BlockType.Void ? "虛無垃圾行" : "普通垃圾行";
+            Debug.Log($"[GridManager] 插入{blockTypeName} HP: {indestructibleHp} (基礎: {GameConstants.INDESTRUCTIBLE_BLOCK_HP} + 防禦: {defenseLevel})");
             
             // 插入完成後統一觸發一次事件
             GameEvents.TriggerGridChanged();
@@ -564,6 +558,39 @@ namespace Tenronis.Managers
                 {
                     UpdateBlockVisual(x, y);
                 }
+            }
+        }
+        
+        /// <summary>
+        /// 處理溢出（統一處理：清空網格 + 造成傷害）
+        /// 所有溢出都造成 50% 當前HP 的傷害
+        /// </summary>
+        public void HandleOverflow()
+        {
+            Debug.Log("[GridManager] 溢出觸發！清空網格");
+            
+            // 觸發溢出事件
+            GameEvents.TriggerGridOverflow();
+            GameEvents.TriggerPlayExplosionSound();
+            
+            // 清空網格
+            ClearGrid();
+            
+            // 計算傷害：所有溢出都使用百分比傷害（50% 當前HP）
+            int damage = PlayerManager.Instance != null 
+                ? Mathf.FloorToInt(PlayerManager.Instance.Stats.currentHp * GameConstants.OVERFLOW_DAMAGE_PERCENT / 100f)
+                : GameConstants.OVERFLOW_DAMAGE_PERCENT;
+            
+            Debug.Log($"[GridManager] 溢出造成傷害: {damage} (當前HP的 {GameConstants.OVERFLOW_DAMAGE_PERCENT}%)");
+            GameEvents.TriggerPlayerDamaged(damage);
+            
+            // 觸發爆炸傷害（如果有 Explosion Buff）
+            if (PlayerManager.Instance != null && PlayerManager.Instance.Stats.explosionDamage > 0)
+            {
+                float explosionDamage = PlayerManager.Instance.Stats.explosionDamage;
+                GameEvents.TriggerEnemyDamaged(explosionDamage);
+                PlayerManager.Instance.ConsumeExplosionCharge();
+                Debug.Log($"[GridManager] 溢出觸發爆炸充能傷害: {explosionDamage}");
             }
         }
         

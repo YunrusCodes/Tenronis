@@ -157,8 +157,9 @@ namespace Tenronis.Gameplay.Enemy
             // 如果啟用智能射擊
             if (currentStageData.useSmartTargeting && GridManager.Instance != null)
             {
-                // AddBlock 子彈優先射擊高點
-                if (bulletType == BulletType.AddBlock && currentStageData.addBlockTargetsHigh)
+                // AddBlock 類型子彈優先射擊高點
+                if ((bulletType == BulletType.AddBlock || bulletType == BulletType.AddExplosiveBlock) 
+                    && currentStageData.addBlockTargetsHigh)
                 {
                     int highestColumn = GridManager.Instance.GetHighestColumn();
                     if (highestColumn >= 0)
@@ -193,50 +194,70 @@ namespace Tenronis.Gameplay.Enemy
             float rand = Random.value;
             float cumulativeChance = 0f;
             
-            // Stage 12+: 可以使用腐化虛無方塊
-            if (currentStageData.canUseCorruptVoid)
+            // 腐化虛無方塊
+            if (currentStageData.corruptVoidBullet.enabled)
             {
-                cumulativeChance += currentStageData.corruptVoidChance;
+                cumulativeChance += currentStageData.corruptVoidBullet.chance;
                 if (rand < cumulativeChance)
                 {
                     return BulletType.CorruptVoid;
                 }
             }
             
-            // Stage 11+: 可以使用腐化爆炸方塊
-            if (currentStageData.canUseCorruptExplosive)
+            // 腐化爆炸方塊
+            if (currentStageData.corruptExplosiveBullet.enabled)
             {
-                cumulativeChance += currentStageData.corruptExplosiveChance;
+                cumulativeChance += currentStageData.corruptExplosiveBullet.chance;
                 if (rand < cumulativeChance)
                 {
                     return BulletType.CorruptExplosive;
                 }
             }
             
-            // Stage 10: 可以使用插入行
-            if (currentStageData.canUseInsertRow)
+            // 插入虛無垃圾行
+            if (currentStageData.addVoidRowBullet.enabled)
             {
-                cumulativeChance += currentStageData.insertRowChance;
+                cumulativeChance += currentStageData.addVoidRowBullet.chance;
+                if (rand < cumulativeChance)
+                {
+                    return BulletType.InsertVoidRow;
+                }
+            }
+            
+            // 插入普通垃圾行
+            if (currentStageData.addRowBullet.enabled)
+            {
+                cumulativeChance += currentStageData.addRowBullet.chance;
                 if (rand < cumulativeChance)
                 {
                     return BulletType.InsertRow;
                 }
             }
             
-            // Stage 8+: 可以使用範圍傷害
-            if (currentStageData.canUseAreaDamage)
+            // 範圍傷害
+            if (currentStageData.areaBullet.enabled)
             {
-                cumulativeChance += currentStageData.areaDamageChance;
+                cumulativeChance += currentStageData.areaBullet.chance;
                 if (rand < cumulativeChance)
                 {
                     return BulletType.AreaDamage;
                 }
             }
             
-            // Stage 5+: 可以使用添加方塊
-            if (currentStageData.canUseAddBlock)
+            // 添加爆炸方塊
+            if (currentStageData.addExplosiveBlockBullet.enabled)
             {
-                cumulativeChance += currentStageData.addBlockChance;
+                cumulativeChance += currentStageData.addExplosiveBlockBullet.chance;
+                if (rand < cumulativeChance)
+                {
+                    return BulletType.AddExplosiveBlock;
+                }
+            }
+            
+            // 添加普通方塊
+            if (currentStageData.addBlockBullet.enabled)
+            {
+                cumulativeChance += currentStageData.addBlockBullet.chance;
                 if (rand < cumulativeChance)
                 {
                     return BulletType.AddBlock;
