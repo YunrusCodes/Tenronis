@@ -59,10 +59,12 @@ namespace Tenronis.Data
     /// </summary>
     public enum BulletType
     {
-        Normal,         // 普通子彈
-        AddBlock,       // 添加方塊
-        AreaDamage,     // 範圍傷害
-        InsertRow       // 插入不可摧毀行
+        Normal,           // 普通子彈
+        AddBlock,         // 添加方塊
+        AreaDamage,       // 範圍傷害
+        InsertRow,        // 插入不可摧毀行
+        CorruptExplosive, // 腐化：將下個方塊的隨機一格變成爆炸方塊
+        CorruptVoid       // 腐化：將下個方塊的隨機一格變成虛無方塊
     }
 
     /// <summary>

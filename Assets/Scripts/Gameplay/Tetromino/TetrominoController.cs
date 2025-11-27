@@ -25,6 +25,11 @@ namespace Tenronis.Gameplay.Tetromino
         // 下一個方塊
         private TetrominoShape nextShape;
         
+        // 方塊腐化系統：記錄被腐化的格子及其類型
+        // Key: "x,y" 格式，Value: BlockType
+        private Dictionary<string, BlockType> currentCorruptedBlocks = new Dictionary<string, BlockType>();
+        private Dictionary<string, BlockType> nextCorruptedBlocks = new Dictionary<string, BlockType>();
+        
         // 儲存方塊系統（4個位置：A、S、D、F）
         private TetrominoShape?[] heldPieces = new TetrominoShape?[4];
         private bool[] canHoldSlot = new bool[4]; // 每個槽位在當前方塊落下前可以使用一次
@@ -116,16 +121,24 @@ namespace Tenronis.Gameplay.Tetromino
                 return;
             }
             
-            currentShape = nextShape;
-            nextShape = TetrominoDefinitions.GetRandomTetromino();
-            
-            // 觸發下一個方塊已更新事件（用於 UI 預覽）
-            GameEvents.TriggerNextPieceChanged();
-            
-            // 設置初始位置（網格中央頂部）
-            currentPosition = new Vector2Int(GameConstants.BOARD_WIDTH / 2 - 1, 0);
-            currentRotation = (int[,])currentShape.shape.Clone();
-            currentRotationState = 0; // 初始旋轉狀態為 0
+        currentShape = nextShape;
+        nextShape = TetrominoDefinitions.GetRandomTetromino();
+        
+        // 將下個方塊的腐化信息轉移到當前方塊
+        currentCorruptedBlocks.Clear();
+        foreach (var kvp in nextCorruptedBlocks)
+        {
+            currentCorruptedBlocks[kvp.Key] = kvp.Value;
+        }
+        nextCorruptedBlocks.Clear();
+        
+        // 觸發下一個方塊已更新事件（用於 UI 預覽）
+        GameEvents.TriggerNextPieceChanged();
+        
+        // 設置初始位置（網格中央頂部）
+        currentPosition = new Vector2Int(GameConstants.BOARD_WIDTH / 2 - 1, 0);
+        currentRotation = (int[,])currentShape.shape.Clone();
+        currentRotationState = 0; // 初始旋轉狀態為 0
             
             dropTimer = 0f;
             
@@ -333,12 +346,6 @@ namespace Tenronis.Gameplay.Tetromino
         {
             if (!isActive) return;
             
-            // O 方塊不旋轉
-            if (currentShape.type == TetrominoType.O)
-            {
-                return;
-            }
-            
             int[,] rotated = RotateMatrix(currentRotation);
             int nextRotationState = (currentRotationState + 1) % 4;
             
@@ -355,6 +362,10 @@ namespace Tenronis.Gameplay.Tetromino
                     currentPosition = testPosition;
                     currentRotation = rotated;
                     currentRotationState = nextRotationState;
+                    
+                    // 旋轉腐化信息的座標
+                    RotateCorruptedBlocks();
+                    
                     GameEvents.TriggerPlayRotateSound();
                     UpdateVisual();
                     
@@ -506,10 +517,20 @@ namespace Tenronis.Gameplay.Tetromino
                         
                         if (GridManager.Instance.IsValidPosition(gridX, gridY))
                         {
-                            // 創建普通方塊數據（玩家放置的都是 Normal 類型）
-                            BlockData block = new BlockData(currentShape.color, blockHp, blockHp, false, BlockType.Normal);
+                            // 檢查這個格子是否被腐化
+                            string key = $"{x},{y}";
+                            BlockType blockType = BlockType.Normal;
+                            
+                            if (currentCorruptedBlocks.ContainsKey(key))
+                            {
+                                blockType = currentCorruptedBlocks[key];
+                                Debug.Log($"[MergePieceToGrid] 格子 ({x}, {y}) 被腐化為 {blockType}");
+                            }
+                            
+                            // 創建方塊數據（可能是腐化的）
+                            BlockData block = new BlockData(currentShape.color, blockHp, blockHp, false, blockType);
                             GridManager.Instance.SetBlock(gridX, gridY, block);
-                            Debug.Log($"[MergePieceToGrid] 設置方塊在 ({gridX}, {gridY}), 顏色: {currentShape.color}");
+                            Debug.Log($"[MergePieceToGrid] 設置方塊在 ({gridX}, {gridY}), 顏色: {currentShape.color}, 類型: {blockType}");
                         }
                     }
                 }
@@ -578,6 +599,45 @@ namespace Tenronis.Gameplay.Tetromino
         }
         
         /// <summary>
+        /// 旋轉腐化方塊的座標（順時針90度）
+        /// </summary>
+        private void RotateCorruptedBlocks()
+        {
+            if (currentCorruptedBlocks.Count == 0) return;
+            
+            // 注意：此時 currentRotation 已經是旋轉後的矩陣
+            // 旋轉後矩陣尺寸：newRows x newCols
+            // 旋轉前矩陣尺寸：oldRows x oldCols，其中 oldRows = newCols, oldCols = newRows
+            int newRows = currentRotation.GetLength(0);
+            int newCols = currentRotation.GetLength(1);
+            int oldRows = newCols;  // 旋轉前的行數 = 旋轉後的列數
+            
+            // 創建新的腐化信息字典
+            Dictionary<string, BlockType> rotatedCorrupted = new Dictionary<string, BlockType>();
+            
+            foreach (var kvp in currentCorruptedBlocks)
+            {
+                // 解析原座標（基於旋轉前的矩陣）
+                string[] parts = kvp.Key.Split(',');
+                int x = int.Parse(parts[0]);
+                int y = int.Parse(parts[1]);
+                
+                // 計算旋轉後的座標（順時針90度）
+                // 規則：(x, y) -> (oldRows - 1 - y, x)
+                int newX = oldRows - 1 - y;
+                int newY = x;
+                
+                string newKey = $"{newX},{newY}";
+                rotatedCorrupted[newKey] = kvp.Value;
+                
+                Debug.Log($"[RotateCorrupted] ({x},{y}) -> ({newX},{newY}), Type: {kvp.Value}");
+            }
+            
+            // 更新腐化信息
+            currentCorruptedBlocks = rotatedCorrupted;
+        }
+        
+        /// <summary>
         /// 更新視覺
         /// </summary>
         private void UpdateVisual()
@@ -611,10 +671,18 @@ namespace Tenronis.Gameplay.Tetromino
                         int gridX = currentPosition.x + x;
                         int gridY = currentPosition.y + y;
                         
+                        // 檢查這個格子是否被腐化
+                        string key = $"{x},{y}";
+                        BlockType? corruptType = null;
+                        if (currentCorruptedBlocks.ContainsKey(key))
+                        {
+                            corruptType = currentCorruptedBlocks[key];
+                        }
+                        
                         // 建立預覽方塊（當前位置）
                         if (GridManager.Instance.IsValidPosition(gridX, gridY))
                         {
-                            GameObject previewBlock = CreateBlockVisual(gridX, gridY, currentShape.color, 1f);
+                            GameObject previewBlock = CreateBlockVisual(gridX, gridY, currentShape.color, 1f, corruptType);
                             previewBlocks.Add(previewBlock);
                         }
                         
@@ -625,7 +693,7 @@ namespace Tenronis.Gameplay.Tetromino
                         if (ghostPosition != currentPosition && 
                             GridManager.Instance.IsValidPosition(ghostX, ghostY))
                         {
-                            GameObject ghostBlock = CreateBlockVisual(ghostX, ghostY, currentShape.color, 0.3f);
+                            GameObject ghostBlock = CreateBlockVisual(ghostX, ghostY, currentShape.color, 0.3f, corruptType);
                             ghostBlocks.Add(ghostBlock);
                         }
                     }
@@ -636,7 +704,7 @@ namespace Tenronis.Gameplay.Tetromino
         /// <summary>
         /// 建立方塊視覺
         /// </summary>
-        private GameObject CreateBlockVisual(int gridX, int gridY, BlockColor color, float alpha)
+        private GameObject CreateBlockVisual(int gridX, int gridY, BlockColor color, float alpha, BlockType? corruptType = null)
         {
             GameObject blockObj;
             SpriteRenderer spriteRenderer;
@@ -679,15 +747,66 @@ namespace Tenronis.Gameplay.Tetromino
             float blockSize = GridManager.Instance.BlockSize;
             blockObj.transform.localScale = new Vector3(blockSize * 0.95f, blockSize * 0.95f, 1f);
             
-            // 設置顏色
-            Color blockColor = GetColorFromBlockColor(color);
-            blockColor.a = alpha;
+            // 設置顏色（如果被腐化則使用白色底）
+            Color blockColor;
+            if (corruptType.HasValue && (corruptType.Value == BlockType.Explosive || corruptType.Value == BlockType.Void))
+            {
+                blockColor = new Color(1f, 1f, 1f, alpha); // 白色底
+            }
+            else
+            {
+                blockColor = GetColorFromBlockColor(color);
+                blockColor.a = alpha;
+            }
             spriteRenderer.color = blockColor;
             
             // 確保方塊在正確的渲染層
             spriteRenderer.sortingOrder = 10;
             
+            // 如果方塊被腐化，添加符號標記
+            if (corruptType.HasValue && (corruptType.Value == BlockType.Explosive || corruptType.Value == BlockType.Void))
+            {
+                AddCorruptionSymbol(blockObj, corruptType.Value, blockSize, alpha);
+            }
+            
             return blockObj;
+        }
+        
+        /// <summary>
+        /// 添加腐化符號標記
+        /// </summary>
+        private void AddCorruptionSymbol(GameObject blockObj, BlockType corruptType, float blockSize, float alpha)
+        {
+            // 創建符號文字物件
+            GameObject symbolObj = new GameObject("CorruptionSymbol");
+            symbolObj.transform.SetParent(blockObj.transform);
+            symbolObj.transform.localPosition = Vector3.zero;
+            symbolObj.transform.localScale = Vector3.one;
+            
+            // 添加 TextMeshPro 組件
+            TMPro.TextMeshPro symbolText = symbolObj.AddComponent<TMPro.TextMeshPro>();
+            
+            // 設置符號和顏色
+            if (corruptType == BlockType.Explosive)
+            {
+                symbolText.text = "!";
+                symbolText.color = new Color(1f, 0f, 0f, alpha); // 紅色
+            }
+            else // Void
+            {
+                symbolText.text = "X";
+                symbolText.color = new Color(0f, 0f, 0f, alpha); // 黑色
+            }
+            
+            // 設置文字屬性
+            symbolText.fontSize = 8;
+            symbolText.fontStyle = TMPro.FontStyles.Bold;
+            symbolText.alignment = TMPro.TextAlignmentOptions.Center;
+            symbolText.sortingOrder = 11; // 確保在方塊上方
+            
+            // 設置 RectTransform
+            RectTransform rectTransform = symbolObj.GetComponent<RectTransform>();
+            rectTransform.sizeDelta = new Vector2(blockSize, blockSize);
         }
         
         /// <summary>
@@ -815,6 +934,63 @@ namespace Tenronis.Gameplay.Tetromino
                 Debug.Log($"[TetrominoController] 解鎖槽位 {unlockedSlots}，總計已解鎖: {unlockedSlots}");
                 GameEvents.TriggerHeldSlotStateChanged();
             }
+        }
+        
+        /// <summary>
+        /// 腐化下個方塊的隨機一格
+        /// </summary>
+        /// <param name="blockType">要腐化成的方塊類型（Explosive 或 Void）</param>
+        public void CorruptNextPiece(BlockType blockType)
+        {
+            if (blockType != BlockType.Explosive && blockType != BlockType.Void)
+            {
+                Debug.LogWarning($"[TetrominoController] 無效的腐化類型: {blockType}");
+                return;
+            }
+            
+            // 獲取下個方塊的所有非空格子
+            List<string> availableBlocks = new List<string>();
+            int[,] shape = nextShape.shape;
+            
+            for (int y = 0; y < shape.GetLength(0); y++)
+            {
+                for (int x = 0; x < shape.GetLength(1); x++)
+                {
+                    if (shape[y, x] != 0)
+                    {
+                        string key = $"{x},{y}";
+                        // 只腐化尚未被腐化的格子
+                        if (!nextCorruptedBlocks.ContainsKey(key))
+                        {
+                            availableBlocks.Add(key);
+                        }
+                    }
+                }
+            }
+            
+            // 如果有可腐化的格子，隨機選擇一個
+            if (availableBlocks.Count > 0)
+            {
+                string targetKey = availableBlocks[Random.Range(0, availableBlocks.Count)];
+                nextCorruptedBlocks[targetKey] = blockType;
+                
+                Debug.Log($"[TetrominoController] 下個方塊格子 {targetKey} 被腐化為 {blockType}");
+                
+                // 觸發下一個方塊已更新事件（用於 UI 預覽更新）
+                GameEvents.TriggerNextPieceChanged();
+            }
+            else
+            {
+                Debug.LogWarning($"[TetrominoController] 下個方塊沒有可腐化的格子");
+            }
+        }
+        
+        /// <summary>
+        /// 獲取下個方塊的腐化信息（用於 UI 顯示）
+        /// </summary>
+        public Dictionary<string, BlockType> GetNextCorruptedBlocks()
+        {
+            return new Dictionary<string, BlockType>(nextCorruptedBlocks);
         }
         
         /// <summary>

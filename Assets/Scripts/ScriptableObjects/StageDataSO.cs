@@ -37,6 +37,12 @@ namespace Tenronis.ScriptableObjects
         [Tooltip("關卡10：可以發射插入行子彈")]
         public bool canUseInsertRow = false;
         
+        [Tooltip("關卡11+：可以發射腐化爆炸方塊子彈（腐化下個方塊）")]
+        public bool canUseCorruptExplosive = false;
+        
+        [Tooltip("關卡12+：可以發射腐化虛無方塊子彈（腐化下個方塊）")]
+        public bool canUseCorruptVoid = false;
+        
         [Header("方塊類型控制")]
         [Tooltip("AddBlock 生成爆炸方塊（被擊中時玩家 -5 HP）")]
         public bool useExplosiveBlocks = false;
@@ -53,6 +59,12 @@ namespace Tenronis.ScriptableObjects
         
         [Range(0f, 1f)]
         public float insertRowChance = 0.15f;
+        
+        [Range(0f, 1f)]
+        public float corruptExplosiveChance = 0.15f;
+        
+        [Range(0f, 1f)]
+        public float corruptVoidChance = 0.1f;
         
         [Header("智能射擊系統")]
         [Tooltip("啟用智能射擊：根據網格狀態選擇目標列")]

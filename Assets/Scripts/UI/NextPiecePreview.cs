@@ -3,6 +3,7 @@ using UnityEngine.UI;
 using System.Collections.Generic;
 using Tenronis.Data;
 using Tenronis.Gameplay.Tetromino;
+using TMPro;
 
 namespace Tenronis.UI
 {
@@ -19,6 +20,9 @@ namespace Tenronis.UI
         [Header("視覺設定")]
         [SerializeField] private bool useSprite = false; // 是否使用 Sprite
         [SerializeField] private Sprite blockSprite; // 方塊 Sprite（可選）
+        
+        [Header("腐化符號設定")]
+        [SerializeField] private float symbolFontSize = 8f; // 符號字體大小
         
         private List<GameObject> previewBlocks = new List<GameObject>();
         
@@ -68,6 +72,13 @@ namespace Tenronis.UI
             int rows = shape.shape.GetLength(0);
             int cols = shape.shape.GetLength(1);
             
+            // 獲取腐化信息
+            Dictionary<string, BlockType> corruptedBlocks = new Dictionary<string, BlockType>();
+            if (TetrominoController.Instance != null)
+            {
+                corruptedBlocks = TetrominoController.Instance.GetNextCorruptedBlocks();
+            }
+            
             // 計算方塊實際佔用的範圍（忽略空白）
             int minX = cols, maxX = 0, minY = rows, maxY = 0;
             bool hasBlock = false;
@@ -107,7 +118,15 @@ namespace Tenronis.UI
                         int relativeX = x - minX;
                         int relativeY = y - minY;
                         
-                        GameObject blockObj = CreateUIBlock(relativeX, relativeY, offsetX, offsetY, blockColor);
+                        // 檢查這個格子是否被腐化
+                        string key = $"{x},{y}";
+                        BlockType? corruptType = null;
+                        if (corruptedBlocks.ContainsKey(key))
+                        {
+                            corruptType = corruptedBlocks[key];
+                        }
+                        
+                        GameObject blockObj = CreateUIBlock(relativeX, relativeY, offsetX, offsetY, blockColor, corruptType);
                         previewBlocks.Add(blockObj);
                     }
                 }
@@ -117,7 +136,7 @@ namespace Tenronis.UI
         /// <summary>
         /// 建立 UI 方塊
         /// </summary>
-        private GameObject CreateUIBlock(int x, int y, float offsetX, float offsetY, Color color)
+        private GameObject CreateUIBlock(int x, int y, float offsetX, float offsetY, Color color, BlockType? corruptType = null)
         {
             GameObject blockObj = new GameObject($"PreviewBlock_{x}_{y}");
             blockObj.transform.SetParent(previewContainer, false);
@@ -131,20 +150,72 @@ namespace Tenronis.UI
             rectTransform.anchoredPosition = new Vector2(posX, posY);
             
             // 添加視覺組件
+            Color blockColor = color;
+            
+            // 如果方塊被腐化，使用白色底
+            if (corruptType.HasValue && (corruptType.Value == BlockType.Explosive || corruptType.Value == BlockType.Void))
+            {
+                blockColor = Color.white;
+            }
+            
             if (useSprite && blockSprite != null)
             {
                 Image image = blockObj.AddComponent<Image>();
                 image.sprite = blockSprite;
-                image.color = color;
+                image.color = blockColor;
             }
             else
             {
                 // 使用純色方塊
                 Image image = blockObj.AddComponent<Image>();
-                image.color = color;
+                image.color = blockColor;
+            }
+            
+            // 如果方塊被腐化，添加符號標記
+            if (corruptType.HasValue && (corruptType.Value == BlockType.Explosive || corruptType.Value == BlockType.Void))
+            {
+                AddCorruptionSymbol(blockObj, corruptType.Value);
             }
             
             return blockObj;
+        }
+        
+        /// <summary>
+        /// 添加腐化符號標記（UI版本）
+        /// </summary>
+        private void AddCorruptionSymbol(GameObject blockObj, BlockType corruptType)
+        {
+            // 創建符號文字物件
+            GameObject symbolObj = new GameObject("CorruptionSymbol");
+            symbolObj.transform.SetParent(blockObj.transform, false);
+            
+            // 添加 RectTransform
+            RectTransform symbolRect = symbolObj.AddComponent<RectTransform>();
+            symbolRect.anchorMin = Vector2.zero;
+            symbolRect.anchorMax = Vector2.one;
+            symbolRect.sizeDelta = Vector2.zero;
+            symbolRect.anchoredPosition = Vector2.zero;
+            
+            // 添加 TextMeshProUGUI 組件
+            TextMeshProUGUI symbolText = symbolObj.AddComponent<TextMeshProUGUI>();
+            
+            // 設置符號和顏色
+            if (corruptType == BlockType.Explosive)
+            {
+                symbolText.text = "!";
+                symbolText.color = Color.red; // 紅色
+            }
+            else // Void
+            {
+                symbolText.text = "X";
+                symbolText.color = Color.black; // 黑色
+            }
+            
+            // 設置文字屬性
+            symbolText.fontSize = symbolFontSize;
+            symbolText.fontStyle = FontStyles.Bold;
+            symbolText.alignment = TextAlignmentOptions.Center;
+            symbolText.overflowMode = TextOverflowModes.Overflow;
         }
         
         /// <summary>

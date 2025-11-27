@@ -191,23 +191,56 @@ namespace Tenronis.Gameplay.Enemy
         private BulletType DetermineBulletType()
         {
             float rand = Random.value;
+            float cumulativeChance = 0f;
+            
+            // Stage 12+: 可以使用腐化虛無方塊
+            if (currentStageData.canUseCorruptVoid)
+            {
+                cumulativeChance += currentStageData.corruptVoidChance;
+                if (rand < cumulativeChance)
+                {
+                    return BulletType.CorruptVoid;
+                }
+            }
+            
+            // Stage 11+: 可以使用腐化爆炸方塊
+            if (currentStageData.canUseCorruptExplosive)
+            {
+                cumulativeChance += currentStageData.corruptExplosiveChance;
+                if (rand < cumulativeChance)
+                {
+                    return BulletType.CorruptExplosive;
+                }
+            }
             
             // Stage 10: 可以使用插入行
-            if (currentStageData.canUseInsertRow && rand < currentStageData.insertRowChance)
+            if (currentStageData.canUseInsertRow)
             {
-                return BulletType.InsertRow;
+                cumulativeChance += currentStageData.insertRowChance;
+                if (rand < cumulativeChance)
+                {
+                    return BulletType.InsertRow;
+                }
             }
             
             // Stage 8+: 可以使用範圍傷害
-            if (currentStageData.canUseAreaDamage && rand < currentStageData.areaDamageChance + currentStageData.insertRowChance)
+            if (currentStageData.canUseAreaDamage)
             {
-                return BulletType.AreaDamage;
+                cumulativeChance += currentStageData.areaDamageChance;
+                if (rand < cumulativeChance)
+                {
+                    return BulletType.AreaDamage;
+                }
             }
             
             // Stage 5+: 可以使用添加方塊
-            if (currentStageData.canUseAddBlock && rand < currentStageData.addBlockChance + currentStageData.areaDamageChance + currentStageData.insertRowChance)
+            if (currentStageData.canUseAddBlock)
             {
-                return BulletType.AddBlock;
+                cumulativeChance += currentStageData.addBlockChance;
+                if (rand < cumulativeChance)
+                {
+                    return BulletType.AddBlock;
+                }
             }
             
             // 預設：普通子彈

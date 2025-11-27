@@ -115,8 +115,8 @@ namespace Tenronis.Gameplay.Block
                     break;
                     
                 case BlockType.Void:
-                    symbolText.text = "?";
-                    symbolText.color = new Color(0.7f, 0.7f, 0.7f); // 淺灰色
+                    symbolText.text = "X";
+                    symbolText.color = Color.black; // 黑色
                     symbolText.fontSize = 8;
                     symbolText.fontStyle = FontStyles.Bold;
                     symbolText.gameObject.SetActive(true);

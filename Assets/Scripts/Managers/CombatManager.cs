@@ -440,6 +440,32 @@ namespace Tenronis.Managers
                     // 插入不可摧毀行
                     GridManager.Instance.InsertIndestructibleRow();
                     break;
+                    
+                case BulletType.CorruptExplosive:
+                    GridManager.Instance.DamageBlock(hitPos.x, hitPos.y, 1);
+                    CheckCounterFire(hitPos, hitBlock);
+                    
+                    // 腐化下個方塊的隨機一格為爆炸方塊
+                    if (Gameplay.Tetromino.TetrominoController.Instance != null)
+                    {
+                        Gameplay.Tetromino.TetrominoController.Instance.CorruptNextPiece(BlockType.Explosive);
+                        GameEvents.TriggerPlayCorruptSound(BlockType.Explosive);
+                        Debug.Log("[CombatManager] 下個方塊被腐化為爆炸方塊！");
+                    }
+                    break;
+                    
+                case BulletType.CorruptVoid:
+                    GridManager.Instance.DamageBlock(hitPos.x, hitPos.y, 1);
+                    CheckCounterFire(hitPos, hitBlock);
+                    
+                    // 腐化下個方塊的隨機一格為虛無方塊
+                    if (Gameplay.Tetromino.TetrominoController.Instance != null)
+                    {
+                        Gameplay.Tetromino.TetrominoController.Instance.CorruptNextPiece(BlockType.Void);
+                        GameEvents.TriggerPlayCorruptSound(BlockType.Void);
+                        Debug.Log("[CombatManager] 下個方塊被腐化為虛無方塊！");
+                    }
+                    break;
             }
         }
         
