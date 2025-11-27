@@ -411,6 +411,9 @@ namespace Tenronis.Managers
                     break;
                     
                 case BulletType.AreaDamage:
+                    // 檢查中心方塊是否能觸發彈反
+                    CheckCounterFire(hitPos, hitBlock);
+                    
                     // 3x3範圍傷害
                     for (int dy = -1; dy <= 1; dy++)
                     {
