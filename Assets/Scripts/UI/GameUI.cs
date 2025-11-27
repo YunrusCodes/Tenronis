@@ -336,7 +336,7 @@ namespace Tenronis.UI
         /// <summary>
         /// 處理消除行事件（用於齊射顯示）
         /// </summary>
-        private void HandleRowsClearedForSalvo(int rowCount, bool hasVoid)
+        private void HandleRowsClearedForSalvo(int totalRowCount, int nonGarbageRowCount, bool hasVoid)
         {
             // 虛無抵銷：不顯示齊射文字
             // （"虛無抵銷!"會由 PlayerManager 的 pop-up text 顯示）
@@ -345,10 +345,10 @@ namespace Tenronis.UI
                 return;
             }
             
-            // 正常齊射顯示（2 排以上）
-            if (rowCount >= 2)
+            // 正常齊射顯示（2 排非垃圾方塊以上）
+            if (nonGarbageRowCount >= 2)
             {
-                lastClearedRows = rowCount;
+                lastClearedRows = nonGarbageRowCount;
                 salvoDisplayTimer = 2f; // 顯示 2 秒
             }
         }

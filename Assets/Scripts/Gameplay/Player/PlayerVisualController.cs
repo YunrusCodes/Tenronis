@@ -360,13 +360,20 @@ namespace Tenronis.Gameplay.Player
         /// <summary>
         /// 處理消除行事件
         /// </summary>
-        private void HandleRowsCleared(int rowCount, bool hasVoid)
+        private void HandleRowsCleared(int totalRowCount, int nonGarbageRowCount, bool hasVoid)
         {
             if (isGameOver) return;
             if (attackEffectPrefab == null) return;
             
-            // 消除多行時，依序在所有特效點生成特效
-            StartCoroutine(SpawnAttackEffectsForRows(rowCount));
+            // 虛無抵銷時不生成攻擊特效
+            if (hasVoid)
+            {
+                Debug.Log("[PlayerVisualController] 虛無抵銷，不生成攻擊特效");
+                return;
+            }
+            
+            // 根據非垃圾方塊行數生成攻擊特效
+            StartCoroutine(SpawnAttackEffectsForRows(nonGarbageRowCount));
         }
         
         /// <summary>

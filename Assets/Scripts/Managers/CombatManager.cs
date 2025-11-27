@@ -79,30 +79,33 @@ namespace Tenronis.Managers
         /// <summary>
         /// 發射導彈（消除行時觸發）
         /// </summary>
-        private void HandleRowsCleared(int rowCount, bool hasVoid)
+        private void HandleRowsCleared(int totalRowCount, int nonGarbageRowCount, bool hasVoid)
         {
-            if (rowCount <= 0) return;
+            if (nonGarbageRowCount <= 0) return;
             
             // 虛無抵銷：不發射導彈
             if (hasVoid)
             {
-                Debug.Log($"[CombatManager] 虛無抵銷！消除了 {rowCount} 行但不發射導彈");
+                Debug.Log($"[CombatManager] 虛無抵銷！消除了 {totalRowCount} 行但不發射導彈");
                 GameEvents.TriggerPlayVoidNullifySound();
                 return;
             }
             
+            // 只為非垃圾方塊行發射導彈
+            Debug.Log($"[CombatManager] 消除了 {totalRowCount} 行（其中 {nonGarbageRowCount} 行非垃圾方塊），發射 {nonGarbageRowCount} 行導彈");
+            
             var stats = PlayerManager.Instance.Stats;
             
-            // 計算傷害加成
-            float salvoBonus = rowCount > 1 ? (rowCount - 1) * (stats.salvoLevel * GameConstants.SALVO_DAMAGE_MULTIPLIER) : 0f;
+            // 計算傷害加成（基於非垃圾方塊行數）
+            float salvoBonus = nonGarbageRowCount > 1 ? (nonGarbageRowCount - 1) * (stats.salvoLevel * GameConstants.SALVO_DAMAGE_MULTIPLIER) : 0f;
             float burstBonus = stats.burstLevel * stats.comboCount * GameConstants.BURST_DAMAGE_MULTIPLIER;
             float totalDamage = (GameConstants.BASE_MISSILE_DAMAGE + salvoBonus + burstBonus);
             
             // 每個方塊位置發射導彈
             int missileCountPerBlock = 1 + stats.missileExtraCount;
             
-            // 簡化：每消除一行，在隨機列發射導彈群
-            for (int row = 0; row < rowCount; row++)
+            // 簡化：每消除一行非垃圾方塊，在隨機列發射導彈群
+            for (int row = 0; row < nonGarbageRowCount; row++)
             {
                 for (int x = 0; x < GameConstants.BOARD_WIDTH; x++)
                 {

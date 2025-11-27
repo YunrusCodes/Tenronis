@@ -186,9 +186,9 @@ namespace Tenronis.Managers
         /// <summary>
         /// 處理消除行
         /// </summary>
-        private void HandleRowsCleared(int rowCount, bool hasVoid)
+        private void HandleRowsCleared(int totalRowCount, int nonGarbageRowCount, bool hasVoid)
         {
-            if (rowCount > 0)
+            if (totalRowCount > 0)
             {
                 // 增加Combo
                 stats.comboCount++;
@@ -197,8 +197,8 @@ namespace Tenronis.Managers
                 // 取消Combo重置
                 comboResetPending = false;
                 
-                // 增加分數
-                AddScore(rowCount * 100);
+                // 增加分數（按總行數計算）
+                AddScore(totalRowCount * 100);
                 
                 // 虛無抵銷處理
                 if (hasVoid)

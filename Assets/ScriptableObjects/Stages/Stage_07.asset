@@ -19,14 +19,18 @@ MonoBehaviour:
   maxHp: 900
   shootInterval: 1.2
   bulletSpeed: 10.5
-  canUseAddBlock: 1
+  canUseAddBlock: 0
   canUseAreaDamage: 1
   canUseInsertRow: 0
-  useExplosiveBlocks: 1
+  canUseCorruptExplosive: 1
+  canUseCorruptVoid: 1
+  useExplosiveBlocks: 0
   useVoidRow: 0
   addBlockChance: 0.35
   areaDamageChance: 0.25
   insertRowChance: 0.15
+  corruptExplosiveChance: 0.15
+  corruptVoidChance: 0.1
   useSmartTargeting: 0
   addBlockTargetsHigh: 1
   areaDamageTargetsLow: 1

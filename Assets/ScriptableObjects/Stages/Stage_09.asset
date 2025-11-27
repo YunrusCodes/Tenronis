@@ -22,11 +22,15 @@ MonoBehaviour:
   canUseAddBlock: 1
   canUseAreaDamage: 0
   canUseInsertRow: 0
+  canUseCorruptExplosive: 1
+  canUseCorruptVoid: 1
   useExplosiveBlocks: 0
   useVoidRow: 0
   addBlockChance: 0.35
   areaDamageChance: 0.25
   insertRowChance: 0.15
+  corruptExplosiveChance: 0.15
+  corruptVoidChance: 0.1
   useSmartTargeting: 0
   addBlockTargetsHigh: 1
   areaDamageTargetsLow: 1

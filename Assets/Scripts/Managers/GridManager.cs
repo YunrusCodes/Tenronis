@@ -20,6 +20,10 @@ namespace Tenronis.Managers
         [SerializeField] private float blockSize = 1f;
         [SerializeField] private Vector2 gridOffset = Vector2.zero;
         
+        [Header("腐化方塊特效")]
+        [SerializeField] private GameObject explosiveBlockEffectPrefab; // 爆炸方塊被摧毀的特效
+        [SerializeField] private GameObject voidBlockEffectPrefab; // 虛無方塊消除的特效
+        
         // 網格數據（二維陣列）
         private BlockData[,] grid;
         private GameObject[,] blockObjects; // 視覺物件
@@ -238,6 +242,7 @@ namespace Tenronis.Managers
             List<int> normalRows = new List<int>();
             List<int> indestructibleRows = new List<int>();
             bool hasVoidBlocks = false; // 檢查是否包含虛無方塊
+            bool isGarbageOnly = true; // 檢查是否全部為垃圾方塊
             
             // 檢查所有行
             for (int y = 0; y < GameConstants.BOARD_HEIGHT; y++)
@@ -277,6 +282,30 @@ namespace Tenronis.Managers
                 }
             }
             
+            // 統計非垃圾方塊的行數
+            List<int> allRowsToClear = new List<int>();
+            allRowsToClear.AddRange(normalRows);
+            allRowsToClear.AddRange(indestructibleRows);
+            
+            int nonGarbageRowCount = 0;
+            foreach (int row in allRowsToClear)
+            {
+                bool isGarbageRow = true;
+                for (int x = 0; x < GameConstants.BOARD_WIDTH; x++)
+                {
+                    if (grid[row, x] != null && grid[row, x].color != BlockColor.Garbage)
+                    {
+                        isGarbageRow = false;
+                        break;
+                    }
+                }
+                
+                if (!isGarbageRow)
+                {
+                    nonGarbageRowCount++;
+                }
+            }
+            
             // 處理消除邏輯
             List<int> rowsToClear = new List<int>();
             
@@ -296,8 +325,8 @@ namespace Tenronis.Managers
             {
                 ClearRows(rowsToClear, hasVoidBlocks);
                 
-                // 觸發消除事件，傳遞是否包含虛無方塊的信息
-                GameEvents.TriggerRowsCleared(rowsToClear.Count, hasVoidBlocks);
+                // 觸發消除事件，傳遞總行數、非垃圾方塊行數和是否包含虛無方塊的信息
+                GameEvents.TriggerRowsCleared(rowsToClear.Count, nonGarbageRowCount, hasVoidBlocks);
             }
             
             return rowsToClear;
@@ -321,6 +350,17 @@ namespace Tenronis.Managers
             {
                 for (int x = 0; x < GameConstants.BOARD_WIDTH; x++)
                 {
+                    // 如果是虛無方塊消除，生成特效
+                    if (hasVoidBlocks && grid[row, x] != null && grid[row, x].blockType == BlockType.Void)
+                    {
+                        if (voidBlockEffectPrefab != null)
+                        {
+                            Vector3 effectPos = GridToWorldPosition(x, row);
+                            GameObject effect = Instantiate(voidBlockEffectPrefab, effectPos, Quaternion.identity);
+                            Destroy(effect, 2f);
+                        }
+                    }
+                    
                     RemoveBlock(x, row);
                 }
             }
@@ -394,6 +434,14 @@ namespace Tenronis.Managers
                 {
                     Debug.Log($"[GridManager] 爆炸方塊在 ({x}, {y}) 被摧毀！玩家受到 5 點傷害");
                     GameEvents.TriggerPlayerDamaged(5);
+                    
+                    // 生成爆炸特效
+                    if (explosiveBlockEffectPrefab != null)
+                    {
+                        Vector3 effectPos = GridToWorldPosition(x, y);
+                        GameObject effect = Instantiate(explosiveBlockEffectPrefab, effectPos, Quaternion.identity);
+                        Destroy(effect, 2f);
+                    }
                 }
                 
                 RemoveBlock(x, y); // 這裡會觸發 TriggerGridChanged
