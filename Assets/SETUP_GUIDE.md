@@ -265,7 +265,8 @@ Canvas
     │   └── EnemyHpText (TextMeshPro)
     ├── SkillPanel
     │   ├── ExecutionButton (顯示次數)
-    │   └── RepairButton (顯示次數)
+    │   ├── RepairButton (顯示次數)
+    │   └── ExplosionDamageText (TextMeshPro) ← 💣 爆炸充能顯示
     ├── ComboText (TextMeshPro)
     └── SalvoText (TextMeshPro)
 ```
@@ -411,6 +412,8 @@ Canvas
 - Stage Text → StageText
 - Execution Count Text → ExecutionCountText
 - Repair Count Text → RepairCountText
+- **Explosion Damage Text → ExplosionDamageText** ← 💣 新增（顯示爆炸充能）
+- Salvo Text → SalvoText
 - Level Up Panel → LevelUpPanel
 - Game Over Panel → GameOverPanel
 - Victory Panel → VictoryPanel
@@ -424,20 +427,101 @@ Canvas
 - CP 不足時：HP 降至 1（瀕死狀態）
 - 最多可承受：4 次溢出（100 / 25 = 4）
 
+**💣 爆炸充能（Explosion Damage）UI 設置**：
+1. **創建 ExplosionDamageText**：
+   - 在 SkillPanel 下：`右鍵 > UI > TextMeshPro - Text`
+   - 命名為：`ExplosionDamageText`
+   - 位置：放在技能按鈕區域（與 Execution/Repair 並列）
+   - 設置文字：
+     - Font Size: 16-20
+     - Alignment: 居中
+     - Color: 橘紅色 (#FF6B35) 或金色 (#FFD700)
+     - 範例文字：`"50"`
+   
+2. **工作原理**：
+   - 始終顯示爆炸充能數值
+   - 顯示格式：純數字（例如：`"0"`、`"50"`、`"100"`、`"150"`）
+   - 初始值為 `0`（未獲得 Buff 時）
+   - 每選一次「爆炸充能」Buff，數值 +50
+
 ### 步驟 14: 設置RoguelikeMenu
 
-1. 建立BuffOption預製體：
+#### 升級面板結構：
+```
+LevelUpPanel (添加 RoguelikeMenu 腳本)
+├── CurrentStatsText (TextMeshPro) ← 📊 新增：顯示當前強化狀態
+└── BuffOptionsContainer (HorizontalLayoutGroup)
+    └── （動態生成 BuffOption）
+```
+
+#### 設置步驟：
+
+1. **建立 BuffOption 預製體**：
    ```
    BuffOption (添加 Button 組件)
    ├── Icon (Image)
    ├── Title (TextMeshPro)
    └── Description (TextMeshPro)
    ```
-2. 拖曳到 `Assets/Prefabs/UI/`
-3. 選擇LevelUpPanel上的RoguelikeMenu腳本
-4. 設置：
-   - Buff Options Container → BuffOptionsContainer
-   - Buff Option Prefab → BuffOption預製體
+   - 拖曳到 `Assets/Prefabs/UI/`
+
+2. **創建當前狀態顯示（CurrentStatsText）**：
+   - 在 LevelUpPanel 下：`右鍵 > UI > TextMeshPro - Text`
+   - 命名為：`CurrentStatsText`
+   - 位置：放在 BuffOptionsContainer 上方或左側
+   - 設置：
+     - Font Size: 16-18
+     - Alignment: 左上對齊
+     - Color: 白色或淡藍色
+     - Width: 300-400
+     - Height: 400-600（自動調整）
+     - 啟用「Vertical Overflow」→ Overflow
+     - 範例文字：
+       ```
+       【當前強化狀態】
+       
+       ═══ 被動強化 ═══
+       🛡️ 裝甲強化: Lv.2 (+2 HP)
+       🚀 多重齊射: Lv.1 (+1 導彈/行)
+       
+       ═══ 主動技能 ═══
+       ✂️ 處決: x2 可用
+       ```
+
+3. **連接 RoguelikeMenu 腳本**：
+   - 選擇 LevelUpPanel 上的 RoguelikeMenu 腳本
+   - 設置：
+     - Buff Options Container → BuffOptionsContainer
+     - Buff Option Prefab → BuffOption 預製體
+     - **Current Stats Text → CurrentStatsText** ← 📊 新增
+
+#### 功能說明：
+- **CurrentStatsText** 會自動顯示：
+  - 所有已獲得的被動強化及等級
+  - 所有可用的主動技能及剩餘次數
+  - 如果尚未獲得任何強化，會顯示提示文字
+- 每次選擇 Buff 後，狀態會自動更新
+
+#### 推薦的升級面板佈局：
+```
+LevelUpPanel (全螢幕半透明背景)
+├── LeftPanel (當前狀態)
+│   └── CurrentStatsText
+│       - Position: 左側
+│       - Width: 300-400px
+│       - 顯示所有已獲得的強化
+├── RightPanel (選擇新增益)
+│   ├── Title (TextMeshPro - "選擇一個強化")
+│   └── BuffOptionsContainer
+│       ├── BuffOption 1 (動態生成)
+│       ├── BuffOption 2 (動態生成)
+│       └── BuffOption 3 (動態生成)
+```
+
+**設計建議**：
+- 左側顯示「你已經有什麼」
+- 右側顯示「你可以選什麼」
+- 讓玩家清楚看到強化的累積效果
 
 ### 步驟 15: 設置攝影機
 

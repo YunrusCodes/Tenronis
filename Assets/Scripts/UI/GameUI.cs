@@ -33,6 +33,7 @@ namespace Tenronis.UI
         [Header("技能UI")]
         [SerializeField] private TextMeshProUGUI executionCountText;
         [SerializeField] private TextMeshProUGUI repairCountText;
+        [SerializeField] private TextMeshProUGUI explosionDamageText;
         
         // 齊射文字顯示計時
         private float salvoDisplayTimer = 0f;
@@ -175,6 +176,12 @@ namespace Tenronis.UI
                 
                 if (repairCountText != null)
                     repairCountText.text = $"x{stats.repairCount}";
+                
+                // 爆炸充能
+                if (explosionDamageText != null)
+                {
+                    explosionDamageText.text = stats.explosionDamage.ToString();
+                }
             }
             
             // 敵人HP
