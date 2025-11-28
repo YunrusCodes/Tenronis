@@ -68,7 +68,7 @@ namespace Tenronis.Editor
                 "• 攻击密度 (0-20) = (连发 / 射击间隔) × 8 + 子弹速度 × 0.8\n" +
                 "• 技能压制 (0-70) = Σ(技能概率 × 危险度 × 10) + 智能瞄准(+15)\n" +
                 "  威胁度排序: 插入行(12) > 范围(10) > 爆炸块(8) > 普通块(5) > 腐化爆(4) > 腐化虚(3) > 普通(1)\n" +
-                "• 战斗长度 (0-10) = Clamp((敌人HP / 1500) × 10, 0, 10)\n" +
+                "• 战斗长度 (0-10) = Clamp((敌人HP / 3000) × 10, 0, 10)\n" +
                 "• 总难度 (0-100) = 攻击密度 + 技能压制 + 战斗长度",
                 MessageType.Info
             );
@@ -146,7 +146,7 @@ namespace Tenronis.Editor
             skillScore = Mathf.Clamp(skillScore, 0f, 70f);
 
             // === 3. 战斗长度 (0-10分) ===
-            float timeScore = Mathf.Clamp((data.maxHp / 1500f) * 10f, 0f, 10f);
+            float timeScore = Mathf.Clamp((data.maxHp / 3000f) * 10f, 0f, 10f);
 
             // === 总难度 (0-100分) ===
             float difficulty = attackScore + skillScore + timeScore;
@@ -251,7 +251,7 @@ namespace Tenronis.Editor
             skillScore = Mathf.Clamp(skillScore, 0f, 70f);
             
             // 3. 战斗长度 (0-10)
-            float time = Mathf.Clamp((data.maxHp / 1500f) * 10f, 0f, 10f);
+            float time = Mathf.Clamp((data.maxHp / 3000f) * 10f, 0f, 10f);
             
             // 绘制分类统计
             EditorGUILayout.BeginVertical(EditorStyles.helpBox);

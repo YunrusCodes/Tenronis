@@ -16,7 +16,7 @@ MonoBehaviour:
   stageIndex: 11
   isBossStage: 0
   rewardBuffCount: 2
-  maxHp: 700
+  maxHp: 1400
   shootInterval: 1.7
   bulletSpeed: 8.5
   burstCount: 1

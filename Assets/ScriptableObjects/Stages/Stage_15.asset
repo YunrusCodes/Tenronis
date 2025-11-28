@@ -14,9 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   stageName: "\u667A\u80FD\u72E9\u7375\u8005"
   stageIndex: 14
-  isBossStage: 0
+  isBossStage: 1
   rewardBuffCount: 2
-  maxHp: 1000
+  maxHp: 2000
   shootInterval: 1.5
   bulletSpeed: 9.5
   burstCount: 1
@@ -49,6 +49,3 @@ MonoBehaviour:
   areaDamageTargetsLow: 1
   enemyIcon: {fileID: -8867952745241724321, guid: 5c639cd6726d86d43aa2fd83d0c192cc, type: 3}
   themeColor: {r: 1, g: 0.2, b: 0.3, a: 1}
-
-
-

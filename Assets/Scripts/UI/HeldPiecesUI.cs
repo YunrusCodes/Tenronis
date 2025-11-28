@@ -31,6 +31,7 @@ namespace Tenronis.UI
         [SerializeField] private Color emptySlotColor = new Color(0.3f, 0.3f, 0.3f, 0.5f); // 空位顏色
         
         private List<GameObject>[] slotPreviews = new List<GameObject>[4]; // 每個位置的預覽方塊
+        private GameState previousGameState = GameState.Menu; // 用於判斷是否為真正開局
         
         private void Start()
         {
@@ -76,15 +77,22 @@ namespace Tenronis.UI
         {
             if (newState == GameState.Playing)
             {
-                // 遊戲開始時清空所有儲存
-                for (int i = 0; i < 4; i++)
+                bool isReturningFromLevelUp = previousGameState == GameState.LevelUp;
+
+                // 僅在真正開局或重新初始化時清空儲存
+                if (!isReturningFromLevelUp)
                 {
-                    ShowEmptySlot(i);
+                    for (int i = 0; i < 4; i++)
+                    {
+                        ShowEmptySlot(i);
+                    }
                 }
                 
                 // 更新鎖定狀態（根據實際解鎖數量）
                 UpdateLockIcons();
             }
+
+            previousGameState = newState;
         }
         
         /// <summary>

@@ -14,9 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   stageName: "\u8150\u5316\u8005"
   stageIndex: 4
-  isBossStage: 0
+  isBossStage: 1
   rewardBuffCount: 1
-  maxHp: 200
+  maxHp: 400
   shootInterval: 2.4
   bulletSpeed: 7
   burstCount: 1
