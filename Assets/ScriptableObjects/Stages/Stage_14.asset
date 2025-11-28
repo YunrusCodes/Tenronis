@@ -10,42 +10,45 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 3fe80882f65a4ff479ef1fca5ee38a6f, type: 3}
-  m_Name: Stage_04
+  m_Name: Stage_14
   m_EditorClassIdentifier: 
-  stageName: "\u5F37\u5316\u6230\u9B25"
-  stageIndex: 3
+  stageName: "\u865B\u7121\u6BD2\u7624"
+  stageIndex: 13
   isBossStage: 0
-  rewardBuffCount: 1
-  maxHp: 150
-  shootInterval: 2.5
-  bulletSpeed: 6.5
+  rewardBuffCount: 2
+  maxHp: 900
+  shootInterval: 1.5
+  bulletSpeed: 9
   burstCount: 1
   normalBullet:
     enabled: 1
-    chance: 1
+    chance: 0.25
   areaBullet:
-    enabled: 0
-    chance: 0
+    enabled: 1
+    chance: 0.2
   addBlockBullet:
-    enabled: 0
-    chance: 0
+    enabled: 1
+    chance: 0.15
   addExplosiveBlockBullet:
-    enabled: 0
-    chance: 0
+    enabled: 1
+    chance: 0.15
   addRowBullet:
     enabled: 0
     chance: 0
   addVoidRowBullet:
-    enabled: 0
-    chance: 0
+    enabled: 1
+    chance: 0.1
   corruptExplosiveBullet:
-    enabled: 0
-    chance: 0
+    enabled: 1
+    chance: 0.1
   corruptVoidBullet:
-    enabled: 0
-    chance: 0
+    enabled: 1
+    chance: 0.05
   useSmartTargeting: 0
   addBlockTargetsHigh: 1
   areaDamageTargetsLow: 1
   enemyIcon: {fileID: -8867952745241724321, guid: 5c639cd6726d86d43aa2fd83d0c192cc, type: 3}
-  themeColor: {r: 0.3, g: 0.9, b: 0.7, a: 1}
+  themeColor: {r: 1, g: 0.3, b: 0.3, a: 1}
+
+
+

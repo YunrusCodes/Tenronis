@@ -12,40 +12,40 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3fe80882f65a4ff479ef1fca5ee38a6f, type: 3}
   m_Name: Stage_09
   m_EditorClassIdentifier: 
-  stageName: "\u865B\u7121\u541E\u5674\u8005"
+  stageName: "\u91CD\u88DD\u7206\u64CA\u8266"
   stageIndex: 8
   isBossStage: 0
-  rewardBuffCount: 2
-  maxHp: 1000
-  shootInterval: 1.1
-  bulletSpeed: 11
-  burstCount: 3
+  rewardBuffCount: 1
+  maxHp: 450
+  shootInterval: 2
+  bulletSpeed: 8
+  burstCount: 1
   normalBullet:
     enabled: 1
-    chance: 0.25
+    chance: 0.45
   areaBullet:
     enabled: 1
-    chance: 0.15
+    chance: 0.25
   addBlockBullet:
     enabled: 1
     chance: 0.15
   addExplosiveBlockBullet:
     enabled: 1
-    chance: 0.2
+    chance: 0.15
   addRowBullet:
-    enabled: 1
-    chance: 0.1
+    enabled: 0
+    chance: 0
   addVoidRowBullet:
-    enabled: 1
-    chance: 0.05
+    enabled: 0
+    chance: 0
   corruptExplosiveBullet:
-    enabled: 1
-    chance: 0.05
+    enabled: 0
+    chance: 0
   corruptVoidBullet:
-    enabled: 1
-    chance: 0.05
-  useSmartTargeting: 1
+    enabled: 0
+    chance: 0
+  useSmartTargeting: 0
   addBlockTargetsHigh: 1
   areaDamageTargetsLow: 1
   enemyIcon: {fileID: -8867952745241724321, guid: 5c639cd6726d86d43aa2fd83d0c192cc, type: 3}
-  themeColor: {r: 0.5, g: 0, b: 0.8, a: 1}
+  themeColor: {r: 1, g: 0.85, b: 0.2, a: 1}
