@@ -257,7 +257,9 @@ Canvas
     │   └── StageText (TextMeshPro)
     ├── LeftPanel
     │   ├── PlayerHpSlider (Slider)
-    │   └── PlayerHpText (TextMeshPro)
+    │   ├── PlayerHpText (TextMeshPro)
+    │   ├── PlayerCpSlider (Slider) ← 🏰 Castle Point 條
+    │   └── PlayerCpText (TextMeshPro) ← 🏰 CP 數值
     ├── RightPanel
     │   ├── EnemyHpSlider (Slider)
     │   └── EnemyHpText (TextMeshPro)
@@ -266,6 +268,38 @@ Canvas
     │   └── RepairButton (顯示次數)
     ├── ComboText (TextMeshPro)
     └── SalvoText (TextMeshPro)
+```
+
+**🏰 Castle Point (CP) 設置詳細步驟：**
+
+1. **創建 CP Slider**：
+   - 在 LeftPanel 下：`右鍵 > UI > Slider`
+   - 命名為：`PlayerCpSlider`
+   - 位置：放在 PlayerHpSlider 下方
+   - 設置 Slider：
+     - Fill Rect → Fill 的顏色：金色/黃色 (#FFD700) 或藍色 (#3B82F6)
+     - Background → 深灰色半透明
+     - Min Value: 0
+     - Max Value: 100
+     - Whole Numbers: 勾選（整數顯示）
+
+2. **創建 CP Text**：
+   - 在 LeftPanel 下：`右鍵 > UI > TextMeshPro - Text`
+   - 命名為：`PlayerCpText`
+   - 位置：放在 PlayerCpSlider 旁邊或下方
+   - 設置文字：
+     - Font Size: 18-24
+     - Alignment: 居中
+     - Color: 金色/黃色或白色
+     - 範例文字：`"CP: 100 / 100"`
+
+**推薦的 LeftPanel 佈局**：
+```
+LeftPanel (VerticalLayoutGroup 可選)
+├── PlayerHpSlider (紅色條)
+├── PlayerHpText (顯示 "100 / 100")
+├── PlayerCpSlider (金色/藍色條) ← 新增
+└── PlayerCpText (顯示 "CP: 100 / 100") ← 新增
 ```
 
 #### 下一個方塊預覽 (Next Piece Preview)
@@ -370,6 +404,8 @@ Canvas
 - Combo Text → ComboText
 - Player Hp Slider → PlayerHpSlider
 - Player Hp Text → PlayerHpText
+- **Player Cp Slider → PlayerCpSlider** ← 🏰 新增
+- **Player Cp Text → PlayerCpText** ← 🏰 新增
 - Enemy Hp Slider → EnemyHpSlider
 - Enemy Hp Text → EnemyHpText
 - Stage Text → StageText
@@ -381,6 +417,12 @@ Canvas
 - Final Score Text → FinalScoreText
 - Restart Button → RestartButton
 - Menu Button → MenuButton
+
+**🏰 Castle Point (CP) 系統說明**：
+- CP 起始值：100
+- 溢出時消耗：25 CP
+- CP 不足時：HP 降至 1（瀕死狀態）
+- 最多可承受：4 次溢出（100 / 25 = 4）
 
 ### 步驟 14: 設置RoguelikeMenu
 

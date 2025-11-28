@@ -24,6 +24,8 @@ namespace Tenronis.UI
         [SerializeField] private TextMeshProUGUI salvoText;  // 齊射提示文字
         [SerializeField] private Slider playerHpSlider;
         [SerializeField] private TextMeshProUGUI playerHpText;
+        [SerializeField] private Slider playerCpSlider;
+        [SerializeField] private TextMeshProUGUI playerCpText;
         [SerializeField] private Slider enemyHpSlider;
         [SerializeField] private TextMeshProUGUI enemyHpText;
         [SerializeField] private TextMeshProUGUI stageText;
@@ -156,6 +158,16 @@ namespace Tenronis.UI
                 
                 if (playerHpText != null)
                     playerHpText.text = $"{stats.currentHp} / {stats.maxHp}";
+                
+                // 玩家CP (Castle Point)
+                if (playerCpSlider != null)
+                {
+                    playerCpSlider.maxValue = stats.maxCp;
+                    playerCpSlider.value = stats.currentCp;
+                }
+                
+                if (playerCpText != null)
+                    playerCpText.text = $"CP: {stats.currentCp} / {stats.maxCp}";
                 
                 // 技能
                 if (executionCountText != null)

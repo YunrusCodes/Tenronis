@@ -562,8 +562,8 @@ namespace Tenronis.Managers
         }
         
         /// <summary>
-        /// 處理溢出（統一處理：清空網格 + 造成傷害）
-        /// 所有溢出都造成 50% 當前HP 的傷害
+        /// 處理溢出（統一處理：清空網格 + 消耗 Castle Point）
+        /// 溢出時消耗 25 CP，CP 不足時 HP 變成 1
         /// </summary>
         public void HandleOverflow()
         {
@@ -576,21 +576,33 @@ namespace Tenronis.Managers
             // 清空網格
             ClearGrid();
             
-            // 計算傷害：所有溢出都使用百分比傷害（50% 當前HP）
-            int damage = PlayerManager.Instance != null 
-                ? Mathf.FloorToInt(PlayerManager.Instance.Stats.currentHp * GameConstants.OVERFLOW_DAMAGE_PERCENT / 100f)
-                : GameConstants.OVERFLOW_DAMAGE_PERCENT;
-            
-            Debug.Log($"[GridManager] 溢出造成傷害: {damage} (當前HP的 {GameConstants.OVERFLOW_DAMAGE_PERCENT}%)");
-            GameEvents.TriggerPlayerDamaged(damage);
-            
-            // 觸發爆炸傷害（如果有 Explosion Buff）
-            if (PlayerManager.Instance != null && PlayerManager.Instance.Stats.explosionDamage > 0)
+            // Castle Point 系統
+            if (PlayerManager.Instance != null)
             {
-                float explosionDamage = PlayerManager.Instance.Stats.explosionDamage;
-                GameEvents.TriggerEnemyDamaged(explosionDamage);
-                PlayerManager.Instance.ConsumeExplosionCharge();
-                Debug.Log($"[GridManager] 溢出觸發爆炸充能傷害: {explosionDamage}");
+                var stats = PlayerManager.Instance.Stats;
+                
+                if (stats.currentCp >= GameConstants.OVERFLOW_CP_COST)
+                {
+                    // CP 足夠：消耗 CP
+                    stats.currentCp -= GameConstants.OVERFLOW_CP_COST;
+                    Debug.Log($"[GridManager] 溢出消耗 {GameConstants.OVERFLOW_CP_COST} CP，剩餘 CP: {stats.currentCp}");
+                }
+                else
+                {
+                    // CP 不足：HP 變成 1（瀕死狀態）
+                    Debug.LogWarning($"[GridManager] CP 不足！當前 CP: {stats.currentCp}，HP 降至 1");
+                    stats.currentCp = 0; // CP 歸零
+                    stats.currentHp = 1; // HP 變成 1
+                }
+                
+                // 觸發爆炸傷害（如果有 Explosion Buff）
+                if (stats.explosionDamage > 0)
+                {
+                    float explosionDamage = stats.explosionDamage;
+                    GameEvents.TriggerEnemyDamaged(explosionDamage);
+                    PlayerManager.Instance.ConsumeExplosionCharge();
+                    Debug.Log($"[GridManager] 溢出觸發爆炸充能傷害: {explosionDamage}");
+                }
             }
         }
         

@@ -14,6 +14,8 @@ namespace Tenronis.Data
         
         // 玩家設定
         public const int PLAYER_MAX_HP = 100;
+        public const int PLAYER_MAX_CP = 100; // Castle Point 最大值
+        public const int OVERFLOW_CP_COST = 25; // 溢出時消耗的 CP
         
         // 導彈設定
         public const float MISSILE_SPEED = 20f; // 格子/秒

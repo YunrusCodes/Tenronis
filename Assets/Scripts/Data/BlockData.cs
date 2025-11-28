@@ -43,6 +43,8 @@ namespace Tenronis.Data
     {
         public int maxHp;
         public int currentHp;
+        public int maxCp;              // Castle Point 最大值
+        public int currentCp;          // Castle Point 當前值
         public int score;
         
         // 升級數據
@@ -65,6 +67,8 @@ namespace Tenronis.Data
         {
             maxHp = GameConstants.PLAYER_MAX_HP;
             currentHp = GameConstants.PLAYER_MAX_HP;
+            maxCp = GameConstants.PLAYER_MAX_CP;
+            currentCp = GameConstants.PLAYER_MAX_CP;
             score = 0;
             blockDefenseLevel = 0;
             missileExtraCount = 0;
