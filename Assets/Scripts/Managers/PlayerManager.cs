@@ -171,6 +171,26 @@ namespace Tenronis.Managers
                         }
                     }
                     break;
+                    
+                case BuffType.ResourceExpansion:
+                    if (stats.cpExpansionLevel < 3)
+                    {
+                        int oldMaxCp = stats.maxCp;
+                        stats.cpExpansionLevel++;
+                        stats.maxCp += 50;
+                        // 同時增加當前CP（保持比例）
+                        if (oldMaxCp > 0)
+                        {
+                            float cpRatio = (float)stats.currentCp / oldMaxCp;
+                            stats.currentCp = Mathf.RoundToInt(stats.maxCp * cpRatio);
+                        }
+                        else
+                        {
+                            stats.currentCp = stats.maxCp;
+                        }
+                        Debug.Log($"[PlayerManager] 資源擴充！CP上限增加50，當前上限: {stats.maxCp} (等級: {stats.cpExpansionLevel}/3)");
+                    }
+                    break;
             }
             
             Debug.Log($"[PlayerManager] 應用Buff: {buffType}");

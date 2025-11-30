@@ -160,6 +160,9 @@ namespace Tenronis.UI
             if (stats.spaceExpansionLevel > 1)
                 sb.AppendLine($"📦 空間擴充: {stats.spaceExpansionLevel} 槽位已解鎖");
             
+            if (stats.cpExpansionLevel > 0)
+                sb.AppendLine($"⚡ 資源擴充: Lv.{stats.cpExpansionLevel} (CP上限: {stats.maxCp})");
+            
             // 主動技能
             if (stats.executionCount > 0 || stats.repairCount > 0)
             {
@@ -177,8 +180,8 @@ namespace Tenronis.UI
             if (stats.blockDefenseLevel == 0 && stats.missileExtraCount == 0 && 
                 stats.salvoLevel <= 1 && stats.burstLevel <= 1 && 
                 stats.counterFireLevel <= 1 && stats.explosionDamage == 0 && 
-                stats.spaceExpansionLevel <= 1 && stats.executionCount == 0 && 
-                stats.repairCount == 0)
+                stats.spaceExpansionLevel <= 1 && stats.cpExpansionLevel == 0 && 
+                stats.executionCount == 0 && stats.repairCount == 0)
             {
                 sb.AppendLine();
                 sb.AppendLine("目前尚未獲得任何強化");

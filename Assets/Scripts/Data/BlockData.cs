@@ -55,6 +55,7 @@ namespace Tenronis.Data
         public int burstLevel;             // 連發等級
         public int counterFireLevel;       // 反擊等級
         public int spaceExpansionLevel;    // 空間擴充等級（解鎖儲存槽位數量）
+        public int cpExpansionLevel;       // 資源擴充等級（增加CP上限）
         
         // 技能充能
         public int executionCount;         // 處決次數
@@ -77,6 +78,7 @@ namespace Tenronis.Data
             burstLevel = 1;
             counterFireLevel = 1;
             spaceExpansionLevel = 1; // 初始解鎖 1 個槽位（A 鍵）
+            cpExpansionLevel = 0;
             executionCount = 0;
             repairCount = 0;
             comboCount = 0;
