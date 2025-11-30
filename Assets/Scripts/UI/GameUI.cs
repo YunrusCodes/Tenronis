@@ -170,13 +170,6 @@ namespace Tenronis.UI
                 if (playerCpText != null)
                     playerCpText.text = $"CP: {stats.currentCp} / {stats.maxCp}";
                 
-                // 技能
-                if (executionCountText != null)
-                    executionCountText.text = $"x{stats.executionCount}";
-                
-                if (repairCountText != null)
-                    repairCountText.text = $"x{stats.repairCount}";
-                
                 // 爆炸充能
                 if (explosionDamageText != null)
                 {

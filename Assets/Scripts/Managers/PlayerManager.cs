@@ -150,14 +150,6 @@ namespace Tenronis.Managers
                     stats.counterFireLevel++;
                     break;
                     
-                case BuffType.Execution:
-                    stats.executionCount++;
-                    break;
-                    
-                case BuffType.Repair:
-                    stats.repairCount++;
-                    break;
-                    
                 case BuffType.SpaceExpansion:
                     if (stats.spaceExpansionLevel < 4)
                     {
@@ -283,28 +275,35 @@ namespace Tenronis.Managers
         }
         
         /// <summary>
-        /// 使用處決技能
+        /// 使用處決技能（消耗CP）
         /// </summary>
         public bool UseExecution()
         {
-            if (stats.executionCount <= 0) return false;
+            int cost = GameConstants.EXECUTION_CP_COST;
+            if (stats.currentCp < cost) return false;
             
-            stats.executionCount--;
+            stats.currentCp -= cost;
             CancelComboReset();
             stats.comboCount++;
             GameEvents.TriggerComboChanged(stats.comboCount);
+            GameEvents.TriggerCpChanged(stats.currentCp, stats.maxCp);
             
+            Debug.Log($"[PlayerManager] 使用處決技能，消耗 {cost} CP，剩餘: {stats.currentCp}/{stats.maxCp}");
             return true;
         }
         
         /// <summary>
-        /// 使用修復技能
+        /// 使用修復技能（消耗CP）
         /// </summary>
         public bool UseRepair()
         {
-            if (stats.repairCount <= 0) return false;
+            int cost = GameConstants.REPAIR_CP_COST;
+            if (stats.currentCp < cost) return false;
             
-            stats.repairCount--;
+            stats.currentCp -= cost;
+            GameEvents.TriggerCpChanged(stats.currentCp, stats.maxCp);
+            
+            Debug.Log($"[PlayerManager] 使用修復技能，消耗 {cost} CP，剩餘: {stats.currentCp}/{stats.maxCp}");
             return true;
         }
         

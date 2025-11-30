@@ -27,6 +27,9 @@ namespace Tenronis.Core
         public static event Action OnEnemyDefeated;
         public static event Action<int> OnPlayerDamaged; // 參數：傷害
         
+        // === CP事件 ===
+        public static event Action<int, int> OnCpChanged; // 參數：當前CP, 最大CP
+        
         // === Combo事件 ===
         public static event Action<int> OnComboChanged; // 參數：當前Combo數
         public static event Action OnComboReset;
@@ -63,6 +66,7 @@ namespace Tenronis.Core
         public static void TriggerEnemyDamaged(float damage) => OnEnemyDamaged?.Invoke(damage);
         public static void TriggerEnemyDefeated() => OnEnemyDefeated?.Invoke();
         public static void TriggerPlayerDamaged(int damage) => OnPlayerDamaged?.Invoke(damage);
+        public static void TriggerCpChanged(int currentCp, int maxCp) => OnCpChanged?.Invoke(currentCp, maxCp);
         public static void TriggerComboChanged(int combo) => OnComboChanged?.Invoke(combo);
         public static void TriggerComboReset() => OnComboReset?.Invoke();
         public static void TriggerBuffAvailable() => OnBuffAvailable?.Invoke();
@@ -96,6 +100,7 @@ namespace Tenronis.Core
             OnEnemyDamaged = null;
             OnEnemyDefeated = null;
             OnPlayerDamaged = null;
+            OnCpChanged = null;
             OnComboChanged = null;
             OnComboReset = null;
             OnBuffAvailable = null;

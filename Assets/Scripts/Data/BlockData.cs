@@ -57,10 +57,6 @@ namespace Tenronis.Data
         public int spaceExpansionLevel;    // 空間擴充等級（解鎖儲存槽位數量）
         public int cpExpansionLevel;       // 資源擴充等級（增加CP上限）
         
-        // 技能充能
-        public int executionCount;         // 處決次數
-        public int repairCount;            // 修復次數
-        
         // 戰鬥狀態
         public int comboCount;             // 當前連擊數
         
@@ -79,8 +75,6 @@ namespace Tenronis.Data
             counterFireLevel = 1;
             spaceExpansionLevel = 1; // 初始解鎖 1 個槽位（A 鍵）
             cpExpansionLevel = 0;
-            executionCount = 0;
-            repairCount = 0;
             comboCount = 0;
         }
     }
