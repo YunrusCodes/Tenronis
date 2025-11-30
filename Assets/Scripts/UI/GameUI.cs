@@ -173,7 +173,7 @@ namespace Tenronis.UI
                 // 爆炸充能
                 if (explosionDamageText != null)
                 {
-                    explosionDamageText.text = stats.explosionDamage.ToString();
+                    explosionDamageText.text = $"{stats.explosionCharge}/{stats.explosionMaxCharge}";
                 }
             }
             

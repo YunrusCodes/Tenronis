@@ -51,6 +51,20 @@ namespace Tenronis.Data
         public const int BASE_HIT_DAMAGE = 10;
         public const int OVERFLOW_DAMAGE_PERCENT = 50; // 溢出時損失50%血量
         public const int INSERT_ROW_OVERFLOW_DAMAGE = 50; // 插入行頂出方塊時的固定傷害
+        
+        // 爆炸充能系統
+        public const int EXPLOSION_INITIAL_MAX_CHARGE = 200; // 初始充能上限
+        public const int EXPLOSION_COUNTER_CHARGE = 5; // 反擊一次增加的充能
+        public const int EXPLOSION_ROW_CLEAR_CHARGE = 50; // 消排一次增加的充能
+        public const int EXPLOSION_BUFF_MAX_CHARGE_INCREASE = 200; // Explosion Buff 每次增加的上限
+        public const int EXPLOSION_BUFF_MAX_LEVEL = 4; // Explosion Buff 最高等級
+        
+        // Buff等級上限
+        public const int VOLLEY_MAX_LEVEL = 6; // Volley 最高等級
+        public const int BURST_MAX_LEVEL = 6; // Burst 最高等級
+        public const int COUNTER_MAX_LEVEL = 6; // Counter 最高等級
+        public const int SPACE_EXPANSION_MAX_LEVEL = 4; // SpaceExpansion 最高等級
+        public const int RESOURCE_EXPANSION_MAX_LEVEL = 3; // ResourceExpansion 最高等級
     }
 }
 

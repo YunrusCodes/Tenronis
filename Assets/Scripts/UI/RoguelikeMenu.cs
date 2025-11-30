@@ -20,6 +20,7 @@ namespace Tenronis.UI
         
         [Header("當前強化狀態")]
         [SerializeField] private TextMeshProUGUI currentStatsText;
+        [SerializeField] private TextMeshProUGUI legendaryBuffText;
         
         private List<GameObject> currentOptions = new List<GameObject>();
         
@@ -131,47 +132,68 @@ namespace Tenronis.UI
             if (PlayerManager.Instance == null) return;
             
             var stats = PlayerManager.Instance.Stats;
-            System.Text.StringBuilder sb = new System.Text.StringBuilder();
             
+            // 更新傳奇強化（裝甲強化、協同火力）
+            if (legendaryBuffText != null)
+            {
+                System.Text.StringBuilder legendarySb = new System.Text.StringBuilder();
+                legendarySb.AppendLine("【傳奇強化】");
+                legendarySb.AppendLine($"裝甲強化: Lv.{stats.blockDefenseLevel} (+{stats.blockDefenseLevel} HP)");
+                legendarySb.AppendLine($"協同火力: Lv.{stats.salvoLevel} ({stats.salvoLevel * 50}% 多行加成)");
+                legendaryBuffText.text = legendarySb.ToString();
+            }
+            
+            // 更新普通強化（其他6個，每行顯示3個）
+            System.Text.StringBuilder sb = new System.Text.StringBuilder();
             sb.AppendLine("【當前強化狀態】");
             sb.AppendLine();
             
-            // 被動強化
+            // 被動強化 - 每行顯示3個
             sb.AppendLine("═══ 被動強化 ═══");
             
-            if (stats.blockDefenseLevel > 0)
-                sb.AppendLine($"🛡️ 裝甲強化: Lv.{stats.blockDefenseLevel} (+{stats.blockDefenseLevel} HP)");
+            // 收集其他強化信息（排除裝甲強化和協同火力）
+            var buffLines = new List<string>();
             
-            if (stats.missileExtraCount > 0)
-                sb.AppendLine($"🚀 多重齊射: Lv.{stats.missileExtraCount} (+{stats.missileExtraCount} 導彈/行)");
+            if (stats.missileExtraCount >= GameConstants.VOLLEY_MAX_LEVEL)
+                buffLines.Add($"齊射強化: Lv.{stats.missileExtraCount}/{GameConstants.VOLLEY_MAX_LEVEL} (已達上限)");
+            else
+                buffLines.Add($"齊射強化: Lv.{stats.missileExtraCount}/{GameConstants.VOLLEY_MAX_LEVEL}");
             
-            if (stats.salvoLevel > 1)
-                sb.AppendLine($"🎯 協同打擊: Lv.{stats.salvoLevel} ({stats.salvoLevel * 50}% 多行加成)");
+            if (stats.burstLevel >= GameConstants.BURST_MAX_LEVEL)
+                buffLines.Add($"連發強化: Lv.{stats.burstLevel}/{GameConstants.BURST_MAX_LEVEL} (已達上限) ({stats.burstLevel * 25}% 連擊加成)");
+            else
+                buffLines.Add($"連發強化: Lv.{stats.burstLevel}/{GameConstants.BURST_MAX_LEVEL} ({stats.burstLevel * 25}% 連擊加成)");
             
-            if (stats.burstLevel > 1)
-                sb.AppendLine($"💥 連擊爆發: Lv.{stats.burstLevel} ({stats.burstLevel * 25}% 連擊加成)");
+            if (stats.counterFireLevel >= GameConstants.COUNTER_MAX_LEVEL)
+                buffLines.Add($"反擊強化: Lv.{stats.counterFireLevel}/{GameConstants.COUNTER_MAX_LEVEL} (已達上限) ({stats.counterFireLevel} 反擊導彈)");
+            else
+                buffLines.Add($"反擊強化: Lv.{stats.counterFireLevel}/{GameConstants.COUNTER_MAX_LEVEL} ({stats.counterFireLevel} 反擊導彈)");
             
-            if (stats.counterFireLevel > 1)
-                sb.AppendLine($"⚔️ 反擊系統: Lv.{stats.counterFireLevel} ({stats.counterFireLevel} 反擊導彈)");
+            if (stats.explosionChargeLevel >= GameConstants.EXPLOSION_BUFF_MAX_LEVEL)
+                buffLines.Add($"過載爆破: Lv.{stats.explosionChargeLevel}/{GameConstants.EXPLOSION_BUFF_MAX_LEVEL} (已達上限) (充能: {stats.explosionCharge}/{stats.explosionMaxCharge})");
+            else
+                buffLines.Add($"過載爆破: Lv.{stats.explosionChargeLevel}/{GameConstants.EXPLOSION_BUFF_MAX_LEVEL} (充能: {stats.explosionCharge}/{stats.explosionMaxCharge})");
             
-            if (stats.explosionDamage > 0)
-                sb.AppendLine($"💣 爆炸充能: +{stats.explosionDamage} 溢出傷害");
+            if (stats.spaceExpansionLevel >= GameConstants.SPACE_EXPANSION_MAX_LEVEL)
+                buffLines.Add($"空間擴充: Lv.{stats.spaceExpansionLevel}/{GameConstants.SPACE_EXPANSION_MAX_LEVEL} (已達上限，{stats.spaceExpansionLevel} 槽位)");
+            else
+                buffLines.Add($"空間擴充: Lv.{stats.spaceExpansionLevel}/{GameConstants.SPACE_EXPANSION_MAX_LEVEL} ({stats.spaceExpansionLevel} 槽位)");
             
-            if (stats.spaceExpansionLevel > 1)
-                sb.AppendLine($"📦 空間擴充: {stats.spaceExpansionLevel} 槽位已解鎖");
+            if (stats.cpExpansionLevel >= GameConstants.RESOURCE_EXPANSION_MAX_LEVEL)
+                buffLines.Add($"資源擴充: Lv.{stats.cpExpansionLevel}/{GameConstants.RESOURCE_EXPANSION_MAX_LEVEL} (已達上限，CP: {stats.maxCp})");
+            else
+                buffLines.Add($"資源擴充: Lv.{stats.cpExpansionLevel}/{GameConstants.RESOURCE_EXPANSION_MAX_LEVEL} (CP: {stats.maxCp})");
             
-            if (stats.cpExpansionLevel > 0)
-                sb.AppendLine($"⚡ 資源擴充: Lv.{stats.cpExpansionLevel} (CP上限: {stats.maxCp})");
-            
-            // 如果沒有任何強化
-            if (stats.blockDefenseLevel == 0 && stats.missileExtraCount == 0 && 
-                stats.salvoLevel <= 1 && stats.burstLevel <= 1 && 
-                stats.counterFireLevel <= 1 && stats.explosionDamage == 0 && 
-                stats.spaceExpansionLevel <= 1 && stats.cpExpansionLevel == 0)
+            // 每行顯示3個
+            for (int i = 0; i < buffLines.Count; i += 3)
             {
-                sb.AppendLine();
-                sb.AppendLine("目前尚未獲得任何強化");
-                sb.AppendLine("選擇一個強化開始變強吧！");
+                var line = new System.Text.StringBuilder();
+                for (int j = 0; j < 3 && (i + j) < buffLines.Count; j++)
+                {
+                    if (j > 0) line.Append("  |  ");
+                    line.Append(buffLines[i + j]);
+                }
+                sb.AppendLine(line.ToString());
             }
             
             currentStatsText.text = sb.ToString();

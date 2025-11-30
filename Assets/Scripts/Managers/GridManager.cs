@@ -595,13 +595,13 @@ namespace Tenronis.Managers
                     stats.currentHp = 1; // HP 變成 1
                 }
                 
-                // 觸發爆炸傷害（如果有 Explosion Buff）
-                if (stats.explosionDamage > 0)
+                // 觸發爆炸傷害（如果有充能）
+                if (stats.explosionCharge > 0)
                 {
-                    float explosionDamage = stats.explosionDamage;
+                    float explosionDamage = stats.explosionCharge;
                     GameEvents.TriggerEnemyDamaged(explosionDamage);
                     PlayerManager.Instance.ConsumeExplosionCharge();
-                    Debug.Log($"[GridManager] 溢出觸發爆炸充能傷害: {explosionDamage}");
+                    Debug.Log($"[GridManager] 溢出觸發爆炸充能傷害: {explosionDamage} (上限: {stats.explosionMaxCharge})");
                 }
             }
         }

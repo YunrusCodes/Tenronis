@@ -50,7 +50,9 @@ namespace Tenronis.Data
         // 升級數據
         public int blockDefenseLevel;      // 方塊防禦等級（增加方塊HP）
         public int missileExtraCount;      // 額外導彈數量
-        public int explosionDamage;        // 爆炸充能傷害
+        public int explosionCharge;        // 當前爆炸充能
+        public int explosionMaxCharge;     // 爆炸充能上限
+        public int explosionChargeLevel;   // 爆炸充能等級（Explosion Buff等級）
         public int salvoLevel;             // 齊射等級
         public int burstLevel;             // 連發等級
         public int counterFireLevel;       // 反擊等級
@@ -68,9 +70,11 @@ namespace Tenronis.Data
             currentCp = GameConstants.PLAYER_MAX_CP;
             score = 0;
             blockDefenseLevel = 0;
-            missileExtraCount = 0;
-            explosionDamage = 0;
-            salvoLevel = 1;
+            missileExtraCount = 1; // Volley 起始等級 1
+            explosionCharge = 0;
+            explosionMaxCharge = GameConstants.EXPLOSION_INITIAL_MAX_CHARGE;
+            explosionChargeLevel = 1; // Explosion 起始等級 1
+            salvoLevel = 0; // Salvo 起始等級 0
             burstLevel = 1;
             counterFireLevel = 1;
             spaceExpansionLevel = 1; // 初始解鎖 1 個槽位（A 鍵）

@@ -127,7 +127,11 @@ namespace Tenronis.Managers
                     break;
                     
                 case BuffType.Volley:
-                    stats.missileExtraCount++;
+                    if (stats.missileExtraCount < GameConstants.VOLLEY_MAX_LEVEL)
+                    {
+                        stats.missileExtraCount++;
+                        Debug.Log($"[PlayerManager] 齊射強化等級提升至: {stats.missileExtraCount}/{GameConstants.VOLLEY_MAX_LEVEL}");
+                    }
                     break;
                     
                 case BuffType.Heal:
@@ -135,26 +139,52 @@ namespace Tenronis.Managers
                     break;
                     
                 case BuffType.Explosion:
-                    stats.explosionDamage += 50;
+                    if (stats.explosionChargeLevel < GameConstants.EXPLOSION_BUFF_MAX_LEVEL)
+                    {
+                        stats.explosionChargeLevel++;
+                        stats.explosionMaxCharge += GameConstants.EXPLOSION_BUFF_MAX_CHARGE_INCREASE;
+                        Debug.Log($"[PlayerManager] 爆炸充能上限增加200，當前上限: {stats.explosionMaxCharge} (等級: {stats.explosionChargeLevel}/{GameConstants.EXPLOSION_BUFF_MAX_LEVEL})");
+                    }
+                    else
+                    {
+                        Debug.Log($"[PlayerManager] 爆炸充能已達最高等級 {GameConstants.EXPLOSION_BUFF_MAX_LEVEL}");
+                    }
                     break;
                     
                 case BuffType.Salvo:
                     stats.salvoLevel++;
+                    Debug.Log($"[PlayerManager] 協同火力等級提升至: {stats.salvoLevel}");
                     break;
                     
                 case BuffType.Burst:
-                    stats.burstLevel++;
+                    if (stats.burstLevel < GameConstants.BURST_MAX_LEVEL)
+                    {
+                        stats.burstLevel++;
+                        Debug.Log($"[PlayerManager] 連發強化等級提升至: {stats.burstLevel}/{GameConstants.BURST_MAX_LEVEL}");
+                    }
+                    else
+                    {
+                        Debug.Log($"[PlayerManager] 連發強化已達最高等級 {GameConstants.BURST_MAX_LEVEL}");
+                    }
                     break;
                     
                 case BuffType.Counter:
-                    stats.counterFireLevel++;
+                    if (stats.counterFireLevel < GameConstants.COUNTER_MAX_LEVEL)
+                    {
+                        stats.counterFireLevel++;
+                        Debug.Log($"[PlayerManager] 反擊強化等級提升至: {stats.counterFireLevel}/{GameConstants.COUNTER_MAX_LEVEL}");
+                    }
+                    else
+                    {
+                        Debug.Log($"[PlayerManager] 反擊強化已達最高等級 {GameConstants.COUNTER_MAX_LEVEL}");
+                    }
                     break;
                     
                 case BuffType.SpaceExpansion:
-                    if (stats.spaceExpansionLevel < 4)
+                    if (stats.spaceExpansionLevel < GameConstants.SPACE_EXPANSION_MAX_LEVEL)
                     {
                         stats.spaceExpansionLevel++;
-                        Debug.Log($"[PlayerManager] 解鎖儲存槽位！當前已解鎖: {stats.spaceExpansionLevel}");
+                        Debug.Log($"[PlayerManager] 解鎖儲存槽位！當前已解鎖: {stats.spaceExpansionLevel}/{GameConstants.SPACE_EXPANSION_MAX_LEVEL}");
                         
                         // 通知 TetrominoController 解鎖槽位
                         if (Tenronis.Gameplay.Tetromino.TetrominoController.Instance != null)
@@ -162,10 +192,14 @@ namespace Tenronis.Managers
                             Tenronis.Gameplay.Tetromino.TetrominoController.Instance.UnlockSlot();
                         }
                     }
+                    else
+                    {
+                        Debug.Log($"[PlayerManager] 空間擴充已達最高等級 {GameConstants.SPACE_EXPANSION_MAX_LEVEL}");
+                    }
                     break;
                     
                 case BuffType.ResourceExpansion:
-                    if (stats.cpExpansionLevel < 3)
+                    if (stats.cpExpansionLevel < GameConstants.RESOURCE_EXPANSION_MAX_LEVEL)
                     {
                         int oldMaxCp = stats.maxCp;
                         stats.cpExpansionLevel++;
@@ -180,7 +214,11 @@ namespace Tenronis.Managers
                         {
                             stats.currentCp = stats.maxCp;
                         }
-                        Debug.Log($"[PlayerManager] 資源擴充！CP上限增加50，當前上限: {stats.maxCp} (等級: {stats.cpExpansionLevel}/3)");
+                        Debug.Log($"[PlayerManager] 資源擴充！CP上限增加50，當前上限: {stats.maxCp} (等級: {stats.cpExpansionLevel}/{GameConstants.RESOURCE_EXPANSION_MAX_LEVEL})");
+                    }
+                    else
+                    {
+                        Debug.Log($"[PlayerManager] 資源擴充已達最高等級 {GameConstants.RESOURCE_EXPANSION_MAX_LEVEL}");
                     }
                     break;
             }
@@ -220,6 +258,9 @@ namespace Tenronis.Managers
                 
                 // 增加分數（按總行數計算）
                 AddScore(totalRowCount * 100);
+                
+                // 增加爆炸充能（消排增加50充能）
+                AddExplosionCharge(GameConstants.EXPLOSION_ROW_CLEAR_CHARGE);
                 
                 // 虛無抵銷處理
                 if (hasVoid)
@@ -267,11 +308,20 @@ namespace Tenronis.Managers
         }
         
         /// <summary>
+        /// 增加爆炸充能
+        /// </summary>
+        public void AddExplosionCharge(int amount)
+        {
+            stats.explosionCharge = Mathf.Min(stats.explosionMaxCharge, stats.explosionCharge + amount);
+            Debug.Log($"[PlayerManager] 爆炸充能增加 {amount}，當前: {stats.explosionCharge}/{stats.explosionMaxCharge}");
+        }
+        
+        /// <summary>
         /// 消耗爆炸充能
         /// </summary>
         public void ConsumeExplosionCharge()
         {
-            stats.explosionDamage = 0;
+            stats.explosionCharge = 0;
         }
         
         /// <summary>

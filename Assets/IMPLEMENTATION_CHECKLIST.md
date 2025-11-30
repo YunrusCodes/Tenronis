@@ -77,15 +77,16 @@
   - [ ] Stage 10: 終焉機械神
 
 - [ ] 建立9個BuffData
-  - [ ] Defense Buff
-  - [ ] Volley Buff
-  - [ ] Heal Buff
-  - [ ] Explosion Buff
-  - [ ] Salvo Buff
-  - [ ] Burst Buff
-  - [ ] Counter Buff
-  - [ ] Execution Buff
-  - [ ] Repair Buff
+  - [ ] Defense Buff（起始0，無上限）
+  - [ ] Volley Buff（齊射強化，起始1，上限6）
+  - [ ] Heal Buff（立即效果）
+  - [ ] Explosion Buff（過載爆破，起始1，上限4，增加充能上限）
+  - [ ] Salvo Buff（協同火力，起始0，無上限）
+  - [ ] Burst Buff（連發強化，起始1，上限6）
+  - [ ] Counter Buff（反擊強化，起始1，上限6）
+  - [ ] SpaceExpansion Buff（起始1，上限4）
+  - [ ] ResourceExpansion Buff（起始0，上限3）
+  - [ ] **注意**：Execution 和 Repair 已改為消耗CP的技能，不再作為Buff
 
 ### 管理器連接
 - [ ] GameManager
@@ -115,8 +116,7 @@
   - [ ] Combo Text
   - [ ] Player HP Slider + Text
   - [ ] Enemy HP Slider + Text
-  - [ ] Execution Count Text
-  - [ ] Repair Count Text
+  - [ ] **注意**：Execution 和 Repair 已改為消耗CP的技能，不再顯示次數UI
 - [ ] 建立LevelUpPanel
   - [ ] Buff Options Container
 - [ ] 建立GameOverPanel
@@ -196,8 +196,13 @@
 - [ ] Roguelike點數正確累積
 - [ ] 升級選單正常彈出
 - [ ] Buff選擇生效
-- [ ] 處決技能正常使用
-- [ ] 修復技能正常使用（BFS填補空洞）
+- [ ] 處決技能正常使用（消耗5 CP）
+- [ ] 修復技能正常使用（消耗30 CP，BFS填補空洞）
+- [ ] CP系統正常運作（技能消耗、UI更新）
+- [ ] 資源擴充Buff正常運作（CP上限增加）
+- [ ] 爆炸充能系統正常運作（反擊+5，消排+50，溢出造成傷害）
+- [ ] 強化等級限制正常運作（有上限的Buff達到上限後不再增加）
+- [ ] UI顯示正常（每行3個強化，傳奇強化單獨顯示）
 - [ ] 不可摧毀行插入正常
 - [ ] 4種子彈類型效果正確
 

@@ -216,14 +216,16 @@ Spawn Weight: 1.0
 
 建議建立的Buff：
 - Defense (裝甲強化)
-- Volley (多重齊射)
+- Volley (齊射強化)
 - Heal (緊急修復)
 - Explosion (過載爆破)
 - Salvo (協同火力)
-- Burst (連發加速器)
-- Counter (反擊系統)
-- Execution (戰術處決)
-- Repair (結構修復)
+- Burst (連發強化)
+- Counter (反擊強化)
+- SpaceExpansion (空間擴充)
+- ResourceExpansion (資源擴充)
+
+**注意**：Execution 和 Repair 已改為消耗CP的技能，不再作為Buff出現。
 
 ### 步驟 11: 設置GameManager
 
@@ -264,9 +266,8 @@ Canvas
     │   ├── EnemyHpSlider (Slider)
     │   └── EnemyHpText (TextMeshPro)
     ├── SkillPanel
-    │   ├── ExecutionButton (顯示次數)
-    │   ├── RepairButton (顯示次數)
     │   └── ExplosionDamageText (TextMeshPro) ← 💣 爆炸充能顯示
+    │   （注意：Execution 和 Repair 已改為消耗CP的技能，不再顯示次數）
     ├── ComboText (TextMeshPro)
     └── SalvoText (TextMeshPro)
 ```
@@ -410,8 +411,8 @@ Canvas
 - Enemy Hp Slider → EnemyHpSlider
 - Enemy Hp Text → EnemyHpText
 - Stage Text → StageText
-- Execution Count Text → ExecutionCountText
-- Repair Count Text → RepairCountText
+- Execution Count Text → （已移除，改為消耗CP技能）
+- Repair Count Text → （已移除，改為消耗CP技能）
 - **Explosion Damage Text → ExplosionDamageText** ← 💣 新增（顯示爆炸充能）
 - Salvo Text → SalvoText
 - Level Up Panel → LevelUpPanel
@@ -426,6 +427,23 @@ Canvas
 - 溢出時消耗：25 CP
 - CP 不足時：HP 降至 1（瀕死狀態）
 - 最多可承受：4 次溢出（100 / 25 = 4）
+- **技能消耗**：
+  - Execution（處決）：消耗 5 CP
+  - Repair（修復）：消耗 30 CP
+- **資源擴充Buff**：每次選擇CP上限+50，起始等級0，最高等級3（最多可提升至250）
+
+**💣 爆炸充能系統說明**：
+- **初始充能上限**：200
+- **充能獲得方式**：
+  - 反擊一次：+5充能
+  - 消排一次：+50充能
+- **Explosion Buff效果**：
+  - 每次選擇充能上限+200
+  - 起始等級1，最高等級4
+  - 最多可達1000充能上限
+- **溢出傷害**：
+  - 溢出時對敵人造成當前充能值的傷害
+  - 傷害後充能歸零
 
 **💣 爆炸充能（Explosion Damage）UI 設置**：
 1. **創建 ExplosionDamageText**：
@@ -449,7 +467,8 @@ Canvas
 #### 升級面板結構：
 ```
 LevelUpPanel (添加 RoguelikeMenu 腳本)
-├── CurrentStatsText (TextMeshPro) ← 📊 新增：顯示當前強化狀態
+├── LegendaryBuffText (TextMeshPro) ← 📊 新增：顯示傳奇強化（裝甲強化、協同火力）
+├── CurrentStatsText (TextMeshPro) ← 📊 顯示當前強化狀態（其他6個，每行3個）
 └── BuffOptionsContainer (HorizontalLayoutGroup)
     └── （動態生成 BuffOption）
 ```
@@ -465,51 +484,74 @@ LevelUpPanel (添加 RoguelikeMenu 腳本)
    ```
    - 拖曳到 `Assets/Prefabs/UI/`
 
-2. **創建當前狀態顯示（CurrentStatsText）**：
+2. **創建傳奇強化顯示（LegendaryBuffText）**：
+   - 在 LevelUpPanel 下：`右鍵 > UI > TextMeshPro - Text`
+   - 命名為：`LegendaryBuffText`
+   - 位置：放在左側或上方
+   - 設置：
+     - Font Size: 16-18
+     - Alignment: 左上對齊
+     - Color: 金色或特殊顏色（區分傳奇強化）
+     - Width: 300-400
+     - Height: 100-150
+     - 範例文字：
+       ```
+       【傳奇強化】
+       裝甲強化: Lv.0 (+0 HP)
+       協同火力: Lv.0 (0% 多行加成)
+       ```
+
+3. **創建當前狀態顯示（CurrentStatsText）**：
    - 在 LevelUpPanel 下：`右鍵 > UI > TextMeshPro - Text`
    - 命名為：`CurrentStatsText`
-   - 位置：放在 BuffOptionsContainer 上方或左側
+   - 位置：放在 LegendaryBuffText 下方或右側
    - 設置：
      - Font Size: 16-18
      - Alignment: 左上對齊
      - Color: 白色或淡藍色
-     - Width: 300-400
+     - Width: 400-600
      - Height: 400-600（自動調整）
      - 啟用「Vertical Overflow」→ Overflow
-     - 範例文字：
+     - 範例文字（每行3個）：
        ```
        【當前強化狀態】
        
        ═══ 被動強化 ═══
-       🛡️ 裝甲強化: Lv.2 (+2 HP)
-       🚀 多重齊射: Lv.1 (+1 導彈/行)
-       
-       ═══ 主動技能 ═══
-       ✂️ 處決: x2 可用
+       齊射強化: Lv.1/6  |  連發強化: Lv.1/6 (25% 連擊加成)  |  反擊強化: Lv.1/6 (1 反擊導彈)
+       過載爆破: Lv.1/4 (充能: 0/200)  |  空間擴充: Lv.1/4 (1 槽位)  |  資源擴充: Lv.0/3 (CP: 100)
        ```
 
-3. **連接 RoguelikeMenu 腳本**：
+4. **連接 RoguelikeMenu 腳本**：
    - 選擇 LevelUpPanel 上的 RoguelikeMenu 腳本
    - 設置：
      - Buff Options Container → BuffOptionsContainer
      - Buff Option Prefab → BuffOption 預製體
+     - **Legendary Buff Text → LegendaryBuffText** ← 📊 新增
      - **Current Stats Text → CurrentStatsText** ← 📊 新增
 
 #### 功能說明：
+- **LegendaryBuffText** 會自動顯示：
+  - 裝甲強化（Defense）
+  - 協同火力（Salvo）
+  - 不論等級是否為0，一律顯示
 - **CurrentStatsText** 會自動顯示：
-  - 所有已獲得的被動強化及等級
-  - 所有可用的主動技能及剩餘次數
-  - 如果尚未獲得任何強化，會顯示提示文字
+  - 其他6個被動強化（每行3個）
+  - 顯示格式：`強化名稱: Lv.當前/上限`
+  - 不論等級是否為0，一律顯示
 - 每次選擇 Buff 後，狀態會自動更新
 
 #### 推薦的升級面板佈局：
 ```
 LevelUpPanel (全螢幕半透明背景)
 ├── LeftPanel (當前狀態)
+│   ├── LegendaryBuffText
+│   │   - Position: 左上
+│   │   - Width: 300-400px
+│   │   - 顯示傳奇強化（裝甲強化、協同火力）
 │   └── CurrentStatsText
-│       - Position: 左側
-│       - Width: 300-400px
-│       - 顯示所有已獲得的強化
+│       - Position: 左側，LegendaryBuffText下方
+│       - Width: 400-600px
+│       - 顯示其他6個強化（每行3個）
 ├── RightPanel (選擇新增益)
 │   ├── Title (TextMeshPro - "選擇一個強化")
 │   └── BuffOptionsContainer
@@ -520,6 +562,8 @@ LevelUpPanel (全螢幕半透明背景)
 
 **設計建議**：
 - 左側顯示「你已經有什麼」
+  - 上方：傳奇強化（特殊顯示）
+  - 下方：其他強化（每行3個，整齊排列）
 - 右側顯示「你可以選什麼」
 - 讓玩家清楚看到強化的累積效果
 
