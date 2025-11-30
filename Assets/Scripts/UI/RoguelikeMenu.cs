@@ -46,7 +46,7 @@ namespace Tenronis.UI
             
             if (GameManager.Instance == null) return;
             
-            BuffDataSO[] options = GameManager.Instance.GetRandomBuffOptions(3);
+            BuffDataSO[] options = GameManager.Instance.GetRandomBuffOptions(3, isLegendaryBuffSelectionPhase);
             
             foreach (var buffData in options)
             {
@@ -147,20 +147,25 @@ namespace Tenronis.UI
             GameEvents.TriggerBuffSelected(buffType);
             
             // 檢查選擇後的狀態（是否有新的普通強化達到滿級）
-            bool hasMaxedNormalBuffAfter = PlayerManager.Instance != null && PlayerManager.Instance.HasMaxedNormalBuff();
-            
-            // 如果選擇的普通強化使其達到滿級，且之前沒有普通強化滿級，則提供一次傳奇強化選擇
-            bool shouldOfferLegendaryBuff = isNormalBuff && 
-                                            !hadMaxedNormalBuffBefore && 
-                                            hasMaxedNormalBuffAfter;
-            
-            // 如果這是最後一個Buff，且應該提供傳奇強化，繼續顯示選單
-            if (isLastBuff && shouldOfferLegendaryBuff)
+            bool isSelectedBuffMaxed = false;
+            if (isNormalBuff && PlayerManager.Instance != null)
             {
-                Debug.Log("[RoguelikeMenu] 普通強化已達滿級，提供傳奇強化選擇機會！");
+                isSelectedBuffMaxed = PlayerManager.Instance.IsBuffMaxed(buffType);
+            }
+            
+            // 如果選擇的普通強化使其達到滿級，則提供一次傳奇強化選擇
+            bool shouldOfferLegendaryBuff = isNormalBuff && isSelectedBuffMaxed;
+            
+            // 如果應該提供傳奇強化（Bonus Pick）
+            if (shouldOfferLegendaryBuff)
+            {
+                Debug.Log("[RoguelikeMenu] 普通強化已達滿級，提供額外傳奇強化選擇機會！");
                 
                 // 標記進入傳奇強化選擇階段
                 isLegendaryBuffSelectionPhase = true;
+                
+                // 增加一次待選次數（因為這是額外的獎勵）
+                GameManager.Instance.AddPendingBuffs(1);
                 
                 // 刷新選項（會顯示傳奇強化）
                 GenerateBuffOptions();
@@ -169,6 +174,10 @@ namespace Tenronis.UI
                 // 保持選單打開，不關閉
                 return;
             }
+            
+            // 如果不是 Bonus Pick，或者 Bonus Pick 已經選完了
+            // 重置傳奇強化選擇階段標記（這樣下次刷新就會回到普通池，除非所有普通強化都滿了）
+            isLegendaryBuffSelectionPhase = false;
             
             // 檢查是否還有待選Buff
             if (GameManager.Instance.PendingBuffCount > 0)
@@ -179,17 +188,10 @@ namespace Tenronis.UI
             }
             else
             {
-                // 如果選擇的是傳奇強化，且這是傳奇強化選擇階段，則恢復遊戲狀態
-                bool isLegendaryBuff = System.Array.IndexOf(GameConstants.LEGENDARY_BUFFS, buffType) >= 0;
-                if (isLegendaryBuff && isLegendaryBuffSelectionPhase)
+                // 恢復遊戲狀態
+                if (GameManager.Instance != null && GameManager.Instance.CurrentState == GameState.LevelUp)
                 {
-                    // 傳奇強化選擇完成，恢復遊戲狀態
-                    Debug.Log("[RoguelikeMenu] 傳奇強化選擇完成，恢復遊戲狀態");
-                    if (GameManager.Instance != null && GameManager.Instance.CurrentState == GameState.LevelUp)
-                    {
-                        GameManager.Instance.ChangeGameState(GameState.Playing);
-                    }
-                    isLegendaryBuffSelectionPhase = false; // 重置標記
+                    GameManager.Instance.ChangeGameState(GameState.Playing);
                 }
                 
                 // 關閉選單

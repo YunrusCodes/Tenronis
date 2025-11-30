@@ -7880,8 +7880,6 @@ MonoBehaviour:
   enemyHpSlider: {fileID: 189125300}
   enemyHpText: {fileID: 688040246}
   stageText: {fileID: 1063154954}
-  executionCountText: {fileID: 2066850921}
-  repairCountText: {fileID: 1074393737}
   explosionDamageText: {fileID: 240248087}
   executionKeyLabelText: {fileID: 1477441707}
   executionCostText: {fileID: 2066850921}
@@ -9998,8 +9996,6 @@ MonoBehaviour:
   - {fileID: 11400000, guid: ff4fc4990991d954e8cd5f061b5544bd, type: 2}
   - {fileID: 11400000, guid: 4851e4ffa4be26b449c2ccd1e6a9c934, type: 2}
   - {fileID: 11400000, guid: 6d8ad6a5918fabc44b1f48a058fffbc3, type: 2}
-  - {fileID: 11400000, guid: 1207cbeba2b06794da8c73c6469437c9, type: 2}
-  - {fileID: 11400000, guid: 0e24f43da417cea419780ec950989fb4, type: 2}
   legendaryBuffs:
   - {fileID: 11400000, guid: 593218382254a8f4f868a161a0aa8990, type: 2}
   - {fileID: 11400000, guid: 4984fdceb682ce2449c3b18662087da4, type: 2}

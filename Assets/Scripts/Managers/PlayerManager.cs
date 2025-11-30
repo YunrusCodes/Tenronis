@@ -59,9 +59,9 @@ namespace Tenronis.Managers
                 case BuffType.ResourceExpansion:
                     return stats.cpExpansionLevel >= GameConstants.RESOURCE_EXPANSION_MAX_LEVEL;
 
-                // ⭐ TacticalExpansion 現在是傳奇強化 → 永遠不視為“滿級”
+                // ⭐ TacticalExpansion 是傳奇強化，但有等級上限
                 case BuffType.TacticalExpansion:
-                    return false;
+                    return stats.tacticalExpansionLevel >= GameConstants.TACTICAL_EXPANSION_MAX_LEVEL;
 
                 default:
                     return false; 
