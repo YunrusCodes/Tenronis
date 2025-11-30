@@ -77,16 +77,21 @@
   - [ ] Stage 10: 終焉機械神
 
 - [ ] 建立9個BuffData
-  - [ ] Defense Buff（起始0，無上限）
-  - [ ] Volley Buff（齊射強化，起始1，上限6）
-  - [ ] Heal Buff（立即效果）
-  - [ ] Explosion Buff（過載爆破，起始1，上限4，增加充能上限）
-  - [ ] Salvo Buff（協同火力，起始0，無上限）
+
+**傳奇強化（3種）**：
+  - [ ] Defense Buff（裝甲強化，起始0，無上限）
+  - [ ] Volley Buff（協同火力，起始0，無上限，增加每個位置發射的導彈數量）
+  - [ ] Heal Buff（緊急修復，立即效果）
+
+**普通強化（6種）**：
+  - [ ] Salvo Buff（齊射強化，起始1，上限6，多行消除時增加導彈傷害）
   - [ ] Burst Buff（連發強化，起始1，上限6）
   - [ ] Counter Buff（反擊強化，起始1，上限6）
-  - [ ] SpaceExpansion Buff（起始1，上限4）
-  - [ ] ResourceExpansion Buff（起始0，上限3）
-  - [ ] **注意**：Execution 和 Repair 已改為消耗CP的技能，不再作為Buff
+  - [ ] Explosion Buff（過載爆破，起始1，上限4，增加充能上限）
+  - [ ] SpaceExpansion Buff（空間擴充，起始1，上限4）
+  - [ ] ResourceExpansion Buff（資源擴充，起始0，上限3）
+
+**注意**：Execution 和 Repair 已改為消耗CP的技能，不再作為Buff
 
 ### 管理器連接
 - [ ] GameManager

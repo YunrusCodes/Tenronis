@@ -215,15 +215,19 @@ Spawn Weight: 1.0
 ```
 
 建議建立的Buff：
-- Defense (裝甲強化)
-- Volley (齊射強化)
-- Heal (緊急修復)
-- Explosion (過載爆破)
-- Salvo (協同火力)
-- Burst (連發強化)
-- Counter (反擊強化)
-- SpaceExpansion (空間擴充)
-- ResourceExpansion (資源擴充)
+
+**傳奇強化（3種）**：
+- Defense (裝甲強化，起始0，無上限)
+- Volley (協同火力，起始0，無上限)
+- Heal (緊急修復，立即效果)
+
+**普通強化（6種）**：
+- Salvo (齊射強化，起始1，上限6)
+- Burst (連發強化，起始1，上限6)
+- Counter (反擊強化，起始1，上限6)
+- Explosion (過載爆破，起始1，上限4)
+- SpaceExpansion (空間擴充，起始1，上限4)
+- ResourceExpansion (資源擴充，起始0，上限3)
 
 **注意**：Execution 和 Repair 已改為消耗CP的技能，不再作為Buff出現。
 
