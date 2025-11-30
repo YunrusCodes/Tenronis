@@ -93,6 +93,13 @@
 ### Roguelike系統
 - 關卡完成後獲得升級點數（由關卡配置決定）
 - 9種Buff可選擇，各有不同的起始等級和上限等級
+- **Buff分類**：
+  - 普通強化（6種）：有上限等級的強化（Salvo, Burst, Counter, Explosion, SpaceExpansion, ResourceExpansion）
+  - 傳奇強化（3種）：無上限或特殊效果的強化（Defense, Volley, Heal）
+- **傳奇強化選擇機制**：
+  - 當有普通強化達到滿級時，會自動提供傳奇強化選擇機會
+  - 傳奇強化選擇時，只從傳奇強化陣列中選擇
+  - 如果傳奇強化數量 ≤ 3，直接顯示全部；如果 > 3，隨機選擇3個
 - 技能系統：Execution和Repair改為消耗CP使用（5 CP和30 CP）
 - 爆炸充能系統：反擊+5充能，消排+50充能，Explosion Buff增加上限（起始1級，最高4級）
 

@@ -60,11 +60,31 @@ namespace Tenronis.Data
         public const int EXPLOSION_BUFF_MAX_LEVEL = 4; // Explosion Buff 最高等級
         
         // Buff等級上限
-        public const int VOLLEY_MAX_LEVEL = 6; // Volley 最高等級
+        public const int SALVO_MAX_LEVEL = 6; // Salvo（齊射強化）最高等級
         public const int BURST_MAX_LEVEL = 6; // Burst 最高等級
         public const int COUNTER_MAX_LEVEL = 6; // Counter 最高等級
         public const int SPACE_EXPANSION_MAX_LEVEL = 4; // SpaceExpansion 最高等級
         public const int RESOURCE_EXPANSION_MAX_LEVEL = 3; // ResourceExpansion 最高等級
+        
+        // 強化分類
+        // 普通強化：有上限等級的強化
+        public static readonly BuffType[] NORMAL_BUFFS = new BuffType[]
+        {
+            BuffType.Salvo,              // 齊射強化：起始1，上限6
+            BuffType.Burst,              // 連發強化：起始1，上限6
+            BuffType.Counter,            // 反擊強化：起始1，上限6
+            BuffType.Explosion,          // 過載爆破：起始1，上限4
+            BuffType.SpaceExpansion,     // 空間擴充：起始1，上限4
+            BuffType.ResourceExpansion   // 資源擴充：起始0，上限3
+        };
+        
+        // 傳奇強化：無上限或特殊效果的強化
+        public static readonly BuffType[] LEGENDARY_BUFFS = new BuffType[]
+        {
+            BuffType.Defense,            // 裝甲強化：起始0，無上限
+            BuffType.Volley,             // 協同火力：起始0，無上限
+            BuffType.Heal                // 緊急修復：立即效果
+        };
     }
 }
 

@@ -23,9 +23,11 @@ namespace Tenronis.UI
         [SerializeField] private TextMeshProUGUI legendaryBuffText;
         
         private List<GameObject> currentOptions = new List<GameObject>();
+        private bool isLegendaryBuffSelectionPhase = false; // 標記是否處於傳奇強化選擇階段
         
         private void OnEnable()
         {
+            isLegendaryBuffSelectionPhase = false; // 重置標記
             GenerateBuffOptions();
             UpdateCurrentStats();
         }
@@ -63,15 +65,40 @@ namespace Tenronis.UI
         /// </summary>
         private void SetupBuffOption(GameObject optionObj, BuffDataSO buffData)
         {
+            // 檢查是否為傳奇強化
+            bool isLegendary = System.Array.IndexOf(GameConstants.LEGENDARY_BUFFS, buffData.buffType) >= 0;
+            
             // 標題
             var titleText = optionObj.transform.Find("Title")?.GetComponent<TextMeshProUGUI>();
             if (titleText != null)
-                titleText.text = buffData.buffName;
+            {
+                if (isLegendary)
+                {
+                    titleText.text = $"⭐ {buffData.buffName} ⭐"; // 傳奇強化標記
+                    titleText.color = new Color(1f, 0.84f, 0f); // 金色
+                }
+                else
+                {
+                    titleText.text = buffData.buffName;
+                    titleText.color = Color.white;
+                }
+            }
             
             // 描述
             var descText = optionObj.transform.Find("Description")?.GetComponent<TextMeshProUGUI>();
             if (descText != null)
-                descText.text = buffData.description;
+            {
+                if (isLegendary)
+                {
+                    descText.text = $"[傳奇強化]\n{buffData.description}";
+                    descText.color = new Color(1f, 0.84f, 0f); // 金色
+                }
+                else
+                {
+                    descText.text = buffData.description;
+                    descText.color = Color.white;
+                }
+            }
             
             // 圖示
             var iconImage = optionObj.transform.Find("Icon")?.GetComponent<Image>();
@@ -107,7 +134,41 @@ namespace Tenronis.UI
         /// </summary>
         private void OnSelectBuff(BuffType buffType)
         {
+            // 記錄選擇前的狀態（是否有普通強化已滿級）
+            bool hadMaxedNormalBuffBefore = PlayerManager.Instance != null && PlayerManager.Instance.HasMaxedNormalBuff();
+            
+            // 檢查選擇的Buff是否為普通強化
+            bool isNormalBuff = System.Array.IndexOf(GameConstants.NORMAL_BUFFS, buffType) >= 0;
+            
+            // 檢查這是否會是最後一個Buff（在觸發事件前檢查）
+            bool isLastBuff = GameManager.Instance.PendingBuffCount <= 1;
+            
+            // 觸發Buff選擇事件（這會應用Buff效果）
             GameEvents.TriggerBuffSelected(buffType);
+            
+            // 檢查選擇後的狀態（是否有新的普通強化達到滿級）
+            bool hasMaxedNormalBuffAfter = PlayerManager.Instance != null && PlayerManager.Instance.HasMaxedNormalBuff();
+            
+            // 如果選擇的普通強化使其達到滿級，且之前沒有普通強化滿級，則提供一次傳奇強化選擇
+            bool shouldOfferLegendaryBuff = isNormalBuff && 
+                                            !hadMaxedNormalBuffBefore && 
+                                            hasMaxedNormalBuffAfter;
+            
+            // 如果這是最後一個Buff，且應該提供傳奇強化，繼續顯示選單
+            if (isLastBuff && shouldOfferLegendaryBuff)
+            {
+                Debug.Log("[RoguelikeMenu] 普通強化已達滿級，提供傳奇強化選擇機會！");
+                
+                // 標記進入傳奇強化選擇階段
+                isLegendaryBuffSelectionPhase = true;
+                
+                // 刷新選項（會顯示傳奇強化）
+                GenerateBuffOptions();
+                UpdateCurrentStats();
+                
+                // 保持選單打開，不關閉
+                return;
+            }
             
             // 檢查是否還有待選Buff
             if (GameManager.Instance.PendingBuffCount > 0)
@@ -118,6 +179,19 @@ namespace Tenronis.UI
             }
             else
             {
+                // 如果選擇的是傳奇強化，且這是傳奇強化選擇階段，則恢復遊戲狀態
+                bool isLegendaryBuff = System.Array.IndexOf(GameConstants.LEGENDARY_BUFFS, buffType) >= 0;
+                if (isLegendaryBuff && isLegendaryBuffSelectionPhase)
+                {
+                    // 傳奇強化選擇完成，恢復遊戲狀態
+                    Debug.Log("[RoguelikeMenu] 傳奇強化選擇完成，恢復遊戲狀態");
+                    if (GameManager.Instance != null && GameManager.Instance.CurrentState == GameState.LevelUp)
+                    {
+                        GameManager.Instance.ChangeGameState(GameState.Playing);
+                    }
+                    isLegendaryBuffSelectionPhase = false; // 重置標記
+                }
+                
                 // 關閉選單
                 gameObject.SetActive(false);
             }
@@ -139,7 +213,7 @@ namespace Tenronis.UI
                 System.Text.StringBuilder legendarySb = new System.Text.StringBuilder();
                 legendarySb.AppendLine("【傳奇強化】");
                 legendarySb.AppendLine($"裝甲強化: Lv.{stats.blockDefenseLevel} (+{stats.blockDefenseLevel} HP)");
-                legendarySb.AppendLine($"協同火力: Lv.{stats.salvoLevel} ({stats.salvoLevel * 50}% 多行加成)");
+                legendarySb.AppendLine($"協同火力: Lv.{stats.missileExtraCount} (每個位置 +{stats.missileExtraCount} 導彈)");
                 legendaryBuffText.text = legendarySb.ToString();
             }
             
@@ -154,10 +228,10 @@ namespace Tenronis.UI
             // 收集其他強化信息（排除裝甲強化和協同火力）
             var buffLines = new List<string>();
             
-            if (stats.missileExtraCount >= GameConstants.VOLLEY_MAX_LEVEL)
-                buffLines.Add($"齊射強化: Lv.{stats.missileExtraCount}/{GameConstants.VOLLEY_MAX_LEVEL} (已達上限)");
+            if (stats.salvoLevel >= GameConstants.SALVO_MAX_LEVEL)
+                buffLines.Add($"齊射強化: Lv.{stats.salvoLevel}/{GameConstants.SALVO_MAX_LEVEL} (已達上限) ({stats.salvoLevel * 50}% 多行加成)");
             else
-                buffLines.Add($"齊射強化: Lv.{stats.missileExtraCount}/{GameConstants.VOLLEY_MAX_LEVEL}");
+                buffLines.Add($"齊射強化: Lv.{stats.salvoLevel}/{GameConstants.SALVO_MAX_LEVEL} ({stats.salvoLevel * 50}% 多行加成)");
             
             if (stats.burstLevel >= GameConstants.BURST_MAX_LEVEL)
                 buffLines.Add($"連發強化: Lv.{stats.burstLevel}/{GameConstants.BURST_MAX_LEVEL} (已達上限) ({stats.burstLevel * 25}% 連擊加成)");

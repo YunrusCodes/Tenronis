@@ -75,10 +75,10 @@ namespace Tenronis.Data
     public enum BuffType
     {
         Defense,        // 防禦：增加方塊HP
-        Volley,         // 齊射：每消除一行增加導彈數量
+        Volley,         // 協同火力：增加每個位置發射的導彈數量
         Heal,           // 治療：恢復HP
         Explosion,      // 爆炸：溢出時造成傷害
-        Salvo,          // 協同：多行消除加成
+        Salvo,          // 齊射強化：多行消除時增加導彈傷害
         Burst,          // 連發：連擊加成
         Counter,        // 反擊：新放置方塊被擊中時反擊
         Execution,      // 處決：清除每列最底部方塊

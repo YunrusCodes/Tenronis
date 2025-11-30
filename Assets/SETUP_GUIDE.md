@@ -232,7 +232,24 @@ Spawn Weight: 1.0
 選擇 GameManager 物件：
 
 1. **Stages**: 設置陣列大小為10，拖入所有關卡數據
-2. **Available Buffs**: 設置陣列大小為9，拖入所有Buff數據
+2. **Normal Buffs** (普通強化): 設置陣列大小為6，拖入以下Buff：
+   - Salvo (齊射強化)
+   - Burst (連發強化)
+   - Counter (反擊強化)
+   - Explosion (過載爆破)
+   - SpaceExpansion (空間擴充)
+   - ResourceExpansion (資源擴充)
+3. **Legendary Buffs** (傳奇強化): 設置陣列大小為3，拖入以下Buff：
+   - Defense (裝甲強化)
+   - Volley (協同火力)
+   - Heal (緊急修復)
+
+**傳奇強化選擇機制說明**：
+- 當有普通強化達到滿級時，會自動提供傳奇強化選擇機會
+- 傳奇強化選擇時，只從 Legendary Buffs 陣列中選擇
+- 如果傳奇強化數量 ≤ 3，直接顯示全部（不隨機選擇）
+- 如果傳奇強化數量 > 3，隨機選擇3個（根據權重）
+- 不會過濾傳奇強化（除了null），保留所有內容（包括Execution和Repair，如果它們在陣列中）
 
 ### 步驟 12: 建立UI
 

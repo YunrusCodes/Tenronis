@@ -22,6 +22,45 @@ namespace Tenronis.Managers
         public PlayerStats Stats => stats;
         public int SpaceExpansionLevel => stats.spaceExpansionLevel;
         
+        /// <summary>
+        /// 檢查是否有普通強化已達滿級
+        /// </summary>
+        public bool HasMaxedNormalBuff()
+        {
+            // 檢查所有普通強化是否已達上限
+            if (stats.salvoLevel >= GameConstants.SALVO_MAX_LEVEL) return true;
+            if (stats.burstLevel >= GameConstants.BURST_MAX_LEVEL) return true;
+            if (stats.counterFireLevel >= GameConstants.COUNTER_MAX_LEVEL) return true;
+            if (stats.explosionChargeLevel >= GameConstants.EXPLOSION_BUFF_MAX_LEVEL) return true;
+            if (stats.spaceExpansionLevel >= GameConstants.SPACE_EXPANSION_MAX_LEVEL) return true;
+            if (stats.cpExpansionLevel >= GameConstants.RESOURCE_EXPANSION_MAX_LEVEL) return true;
+            return false;
+        }
+        
+        /// <summary>
+        /// 檢查指定Buff是否已達滿級
+        /// </summary>
+        public bool IsBuffMaxed(BuffType buffType)
+        {
+            switch (buffType)
+            {
+                case BuffType.Salvo:
+                    return stats.salvoLevel >= GameConstants.SALVO_MAX_LEVEL;
+                case BuffType.Burst:
+                    return stats.burstLevel >= GameConstants.BURST_MAX_LEVEL;
+                case BuffType.Counter:
+                    return stats.counterFireLevel >= GameConstants.COUNTER_MAX_LEVEL;
+                case BuffType.Explosion:
+                    return stats.explosionChargeLevel >= GameConstants.EXPLOSION_BUFF_MAX_LEVEL;
+                case BuffType.SpaceExpansion:
+                    return stats.spaceExpansionLevel >= GameConstants.SPACE_EXPANSION_MAX_LEVEL;
+                case BuffType.ResourceExpansion:
+                    return stats.cpExpansionLevel >= GameConstants.RESOURCE_EXPANSION_MAX_LEVEL;
+                default:
+                    return false; // 傳奇強化或無上限的Buff永遠不算滿級
+            }
+        }
+        
         private void Awake()
         {
             if (Instance != null && Instance != this)
@@ -127,11 +166,8 @@ namespace Tenronis.Managers
                     break;
                     
                 case BuffType.Volley:
-                    if (stats.missileExtraCount < GameConstants.VOLLEY_MAX_LEVEL)
-                    {
-                        stats.missileExtraCount++;
-                        Debug.Log($"[PlayerManager] 齊射強化等級提升至: {stats.missileExtraCount}/{GameConstants.VOLLEY_MAX_LEVEL}");
-                    }
+                    stats.missileExtraCount++;
+                    Debug.Log($"[PlayerManager] 協同火力等級提升至: {stats.missileExtraCount}");
                     break;
                     
                 case BuffType.Heal:
@@ -152,8 +188,15 @@ namespace Tenronis.Managers
                     break;
                     
                 case BuffType.Salvo:
-                    stats.salvoLevel++;
-                    Debug.Log($"[PlayerManager] 協同火力等級提升至: {stats.salvoLevel}");
+                    if (stats.salvoLevel < GameConstants.SALVO_MAX_LEVEL)
+                    {
+                        stats.salvoLevel++;
+                        Debug.Log($"[PlayerManager] 齊射強化等級提升至: {stats.salvoLevel}/{GameConstants.SALVO_MAX_LEVEL}");
+                    }
+                    else
+                    {
+                        Debug.Log($"[PlayerManager] 齊射強化已達最高等級 {GameConstants.SALVO_MAX_LEVEL}");
+                    }
                     break;
                     
                 case BuffType.Burst:

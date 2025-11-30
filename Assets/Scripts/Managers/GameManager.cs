@@ -15,8 +15,11 @@ namespace Tenronis.Managers
         [Header("關卡數據")]
         [SerializeField] private StageDataSO[] stages;
         
-        [Header("Buff數據")]
-        [SerializeField] private BuffDataSO[] availableBuffs;
+        [Header("普通強化")]
+        [SerializeField] private BuffDataSO[] normalBuffs;
+        
+        [Header("傳奇強化")]
+        [SerializeField] private BuffDataSO[] legendaryBuffs;
         
         // 遊戲狀態
         private GameState currentState = GameState.Menu;
@@ -30,7 +33,8 @@ namespace Tenronis.Managers
         public StageDataSO CurrentStage => stages != null && currentStageIndex < stages.Length ? stages[currentStageIndex] : null;
         public int CurrentStageIndex => currentStageIndex;
         public int TotalStages => stages != null ? stages.Length : 0;
-        public BuffDataSO[] AvailableBuffs => availableBuffs;
+        public BuffDataSO[] NormalBuffs => normalBuffs;
+        public BuffDataSO[] LegendaryBuffs => legendaryBuffs;
         public int PendingBuffCount => pendingBuffCount;
         public int RogueRequirement => rogueRequirement;
         
@@ -208,8 +212,53 @@ namespace Tenronis.Managers
             
             if (pendingBuffCount <= 0)
             {
-                // 恢復遊戲
-                ChangeGameState(GameState.Playing);
+                // 檢查是否需要提供傳奇強化選擇
+                // 如果選擇的普通強化使其達到滿級，且之前沒有普通強化滿級，則不立即改變狀態
+                // 讓RoguelikeMenu決定是否繼續顯示選單
+                bool shouldWaitForLegendaryBuff = false;
+                
+                if (PlayerManager.Instance != null)
+                {
+                    // 檢查選擇的Buff是否為普通強化
+                    bool isNormalBuff = System.Array.IndexOf(GameConstants.NORMAL_BUFFS, buffType) >= 0;
+                    
+                    if (isNormalBuff)
+                    {
+                        // 檢查是否使普通強化達到滿級
+                        bool isNowMaxed = PlayerManager.Instance.IsBuffMaxed(buffType);
+                        
+                        if (isNowMaxed)
+                        {
+                            // 檢查之前是否有其他普通強化已滿級
+                            // 如果這是第一個達到滿級的普通強化，則需要提供傳奇強化選擇
+                            // 注意：這裡我們無法直接知道之前的狀態，所以我們假設
+                            // 如果這個Buff剛好達到滿級，且沒有其他普通強化滿級，則需要提供傳奇強化
+                            bool hasOtherMaxedNormalBuff = false;
+                            foreach (var normalBuffType in GameConstants.NORMAL_BUFFS)
+                            {
+                                if (normalBuffType != buffType && PlayerManager.Instance.IsBuffMaxed(normalBuffType))
+                                {
+                                    hasOtherMaxedNormalBuff = true;
+                                    break;
+                                }
+                            }
+                            
+                            // 如果沒有其他普通強化滿級，則需要提供傳奇強化選擇
+                            shouldWaitForLegendaryBuff = !hasOtherMaxedNormalBuff;
+                        }
+                    }
+                }
+                
+                if (!shouldWaitForLegendaryBuff)
+                {
+                    // 恢復遊戲
+                    ChangeGameState(GameState.Playing);
+                }
+                else
+                {
+                    Debug.Log("[GameManager] 檢測到普通強化達到滿級，等待傳奇強化選擇...");
+                    // 不改變狀態，讓RoguelikeMenu處理傳奇強化選擇
+                }
             }
         }
         
@@ -226,26 +275,97 @@ namespace Tenronis.Managers
         /// </summary>
         public BuffDataSO[] GetRandomBuffOptions(int count = 3)
         {
-            if (availableBuffs == null || availableBuffs.Length == 0)
-                return new BuffDataSO[0];
-            
-            // 基於權重的隨機選擇
             var options = new System.Collections.Generic.List<BuffDataSO>();
-            var tempBuffs = new System.Collections.Generic.List<BuffDataSO>(availableBuffs);
             
-            for (int i = 0; i < Mathf.Min(count, tempBuffs.Count); i++)
+            // 檢查是否有普通強化已達滿級
+            bool hasMaxedNormalBuff = PlayerManager.Instance != null && PlayerManager.Instance.HasMaxedNormalBuff();
+            
+            // 過濾普通強化（排除已滿級和技能）
+            var availableNormalBuffs = new System.Collections.Generic.List<BuffDataSO>();
+            if (normalBuffs != null)
             {
+                foreach (var buff in normalBuffs)
+                {
+                    if (buff == null) continue;
+                    
+                    // 排除技能（Execution和Repair）
+                    if (buff.buffType == BuffType.Execution || buff.buffType == BuffType.Repair)
+                        continue;
+                    
+                    // 檢查是否已達滿級
+                    if (PlayerManager.Instance != null && PlayerManager.Instance.IsBuffMaxed(buff.buffType))
+                        continue; // 已滿級的普通強化不再出現
+                    
+                    availableNormalBuffs.Add(buff);
+                }
+            }
+            
+            // 如果有普通強化滿級，直接使用legendaryBuffs陣列中的所有內容（不過濾）
+            if (hasMaxedNormalBuff && legendaryBuffs != null && legendaryBuffs.Length > 0)
+            {
+                // 過濾掉null，但保留所有其他內容（包括Execution和Repair）
+                var availableLegendaryBuffs = new System.Collections.Generic.List<BuffDataSO>();
+                foreach (var buff in legendaryBuffs)
+                {
+                    if (buff != null)
+                    {
+                        availableLegendaryBuffs.Add(buff);
+                    }
+                }
+                
+                // 如果不足 count 個就顯示全部，否則顯示 count 個
+                // 如果傳奇強化數量 <= count，直接顯示全部（不隨機選擇）
+                if (availableLegendaryBuffs.Count <= count)
+                {
+                    // 直接添加所有傳奇強化
+                    options.AddRange(availableLegendaryBuffs);
+                }
+                else
+                {
+                    // 如果超過 count 個，才隨機選擇 count 個
+                    var selectedLegendary = SelectRandomBuff(availableLegendaryBuffs, count);
+                    options.AddRange(selectedLegendary);
+                }
+                // 不補充普通強化，即使選項不足 count 個
+            }
+            // 如果沒有普通強化滿級，全部從普通強化中選擇
+            else if (!hasMaxedNormalBuff && availableNormalBuffs.Count > 0)
+            {
+                int normalCount = Mathf.Min(count, availableNormalBuffs.Count);
+                var selectedNormal = SelectRandomBuff(availableNormalBuffs, normalCount);
+                options.AddRange(selectedNormal);
+            }
+            
+            return options.ToArray();
+        }
+        
+        /// <summary>
+        /// 從指定列表中基於權重隨機選擇Buff
+        /// </summary>
+        private System.Collections.Generic.List<BuffDataSO> SelectRandomBuff(
+            System.Collections.Generic.List<BuffDataSO> buffList, 
+            int count)
+        {
+            var selected = new System.Collections.Generic.List<BuffDataSO>();
+            var tempList = new System.Collections.Generic.List<BuffDataSO>(buffList);
+            
+            for (int i = 0; i < Mathf.Min(count, tempList.Count); i++)
+            {
+                // 計算總權重
                 float totalWeight = 0f;
-                foreach (var buff in tempBuffs)
+                foreach (var buff in tempList)
                 {
                     totalWeight += buff.spawnWeight;
                 }
                 
+                if (totalWeight <= 0) break;
+                
+                // 基於權重隨機選擇
                 float randomValue = Random.Range(0f, totalWeight);
                 float currentWeight = 0f;
                 
-                BuffDataSO selectedBuff = tempBuffs[0];
-                foreach (var buff in tempBuffs)
+                BuffDataSO selectedBuff = tempList[0];
+                foreach (var buff in tempList)
                 {
                     currentWeight += buff.spawnWeight;
                     if (randomValue <= currentWeight)
@@ -255,11 +375,11 @@ namespace Tenronis.Managers
                     }
                 }
                 
-                options.Add(selectedBuff);
-                tempBuffs.Remove(selectedBuff);
+                selected.Add(selectedBuff);
+                tempList.Remove(selectedBuff);
             }
             
-            return options.ToArray();
+            return selected;
         }
     }
 }

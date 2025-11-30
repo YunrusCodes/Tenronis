@@ -91,7 +91,8 @@
 ### 管理器連接
 - [ ] GameManager
   - [ ] 連接Stages陣列
-  - [ ] 連接AvailableBuffs陣列
+  - [ ] 連接Normal Buffs陣列（6個普通強化）
+  - [ ] 連接Legendary Buffs陣列（3個傳奇強化）
 - [ ] GridManager
   - [ ] 連接Block Prefab
   - [ ] 連接Grid Container
