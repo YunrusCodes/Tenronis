@@ -132,6 +132,13 @@ namespace Tenronis.Managers
                 }
             }
             
+            // 恢復CP至全滿
+            if (PlayerManager.Instance != null)
+            {
+                PlayerManager.Instance.RestoreCp();
+                Debug.Log($"[GameManager] 關卡完成，CP已恢復至全滿");
+            }
+            
             currentStageIndex++;
             
             if (currentStageIndex >= stages.Length)

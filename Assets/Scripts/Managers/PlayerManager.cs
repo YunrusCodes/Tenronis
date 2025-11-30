@@ -94,6 +94,15 @@ namespace Tenronis.Managers
         }
         
         /// <summary>
+        /// 恢復CP至全滿
+        /// </summary>
+        public void RestoreCp()
+        {
+            stats.currentCp = stats.maxCp;
+            Debug.Log($"[PlayerManager] CP已恢復至全滿: {stats.currentCp} / {stats.maxCp}");
+        }
+        
+        /// <summary>
         /// 受到傷害
         /// </summary>
         private void HandlePlayerDamaged(int damage)

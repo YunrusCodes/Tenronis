@@ -1,4 +1,4 @@
-%YAML 1.1
+﻿%YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
 --- !u!114 &11400000
 MonoBehaviour:
@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3fe80882f65a4ff479ef1fca5ee38a6f, type: 3}
   m_Name: Stage_01
   m_EditorClassIdentifier: 
-  stageName: "\u5075\u5BDF\u7121\u4EBA\u6A5F"
+  stageName: "\u6DF1\u6E0A\u76DC\u89C0\u8005"
   stageIndex: 0
   isBossStage: 0
   rewardBuffCount: 1
@@ -47,5 +47,5 @@ MonoBehaviour:
   useSmartTargeting: 0
   addBlockTargetsHigh: 1
   areaDamageTargetsLow: 1
-  enemyIcon: {fileID: -8867952745241724321, guid: 5c639cd6726d86d43aa2fd83d0c192cc, type: 3}
+  enemyIcon: {fileID: 4254376627341140762, guid: 9706af6aa4ed2364e98db91e2307a06b, type: 3}
   themeColor: {r: 0.5, g: 0.8, b: 1, a: 1}
