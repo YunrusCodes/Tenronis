@@ -22,7 +22,7 @@ namespace Tenronis.Data
         public const int REPAIR_CP_COST = 30;
 
         // 導彈設定
-        public const float MISSILE_SPEED = 2f;
+        public const float MISSILE_SPEED = 20f;
 
         // Roguelike系統
         public const int INITIAL_ROGUE_REQUIREMENT = 50;
@@ -35,7 +35,7 @@ namespace Tenronis.Data
         public const float COMBO_RESET_DELAY = 0.3f;
 
         // 傷害計算
-        public const float BASE_MISSILE_DAMAGE = 20f;
+        public const float BASE_MISSILE_DAMAGE = 2f;
         public const float SALVO_DAMAGE_MULTIPLIER = 0.5f;
         public const float BURST_DAMAGE_MULTIPLIER = 0.25f;
         public const float EXECUTION_DAMAGE = 4f;
