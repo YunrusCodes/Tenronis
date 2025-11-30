@@ -58,6 +58,7 @@ namespace Tenronis.Data
         public int counterFireLevel;       // 反擊等級
         public int spaceExpansionLevel;    // 空間擴充等級（解鎖儲存槽位數量）
         public int cpExpansionLevel;       // 資源擴充等級（增加CP上限）
+        public int tacticalExpansionLevel; // 戰術擴展等級（解鎖技能）
         
         // 戰鬥狀態
         public int comboCount;             // 當前連擊數
@@ -79,6 +80,7 @@ namespace Tenronis.Data
             counterFireLevel = 1;
             spaceExpansionLevel = 1; // 初始解鎖 1 個槽位（A 鍵）
             cpExpansionLevel = 0;
+            tacticalExpansionLevel = 0; // 戰術擴展起始等級 0
             comboCount = 0;
         }
     }

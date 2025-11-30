@@ -31,9 +31,11 @@ namespace Tenronis.UI
         [SerializeField] private TextMeshProUGUI stageText;
         
         [Header("技能UI")]
-        [SerializeField] private TextMeshProUGUI executionCountText;
-        [SerializeField] private TextMeshProUGUI repairCountText;
         [SerializeField] private TextMeshProUGUI explosionDamageText;
+        [SerializeField] private TextMeshProUGUI executionKeyLabelText; // 處決技能按鍵標籤（顯示"1"或"Locked"）
+        [SerializeField] private TextMeshProUGUI executionCostText; // 處決技能CP消耗顯示
+        [SerializeField] private TextMeshProUGUI repairKeyLabelText; // 修補技能按鍵標籤（顯示"2"或"Locked"）
+        [SerializeField] private TextMeshProUGUI repairCostText; // 修補技能CP消耗顯示
         
         // 齊射文字顯示計時
         private float salvoDisplayTimer = 0f;
@@ -91,6 +93,7 @@ namespace Tenronis.UI
             // 訂閱遊戲事件
             GameEvents.OnGameStateChanged += HandleGameStateChanged;
             GameEvents.OnRowsCleared += HandleRowsClearedForSalvo;
+            GameEvents.OnSkillUnlocked += UpdateSkillUI;
             
             // 初始化UI
             ShowMenu();
@@ -101,6 +104,7 @@ namespace Tenronis.UI
         {
             GameEvents.OnGameStateChanged -= HandleGameStateChanged;
             GameEvents.OnRowsCleared -= HandleRowsClearedForSalvo;
+            GameEvents.OnSkillUnlocked -= UpdateSkillUI;
             
             if (startButton != null)
                 startButton.onClick.RemoveListener(OnStartGame);
@@ -175,6 +179,9 @@ namespace Tenronis.UI
                 {
                     explosionDamageText.text = $"{stats.explosionCharge}/{stats.explosionMaxCharge}";
                 }
+                
+                // 更新技能UI
+                UpdateSkillUI();
             }
             
             // 敵人HP
@@ -400,6 +407,66 @@ namespace Tenronis.UI
             else
             {
                 salvoText.gameObject.SetActive(false);
+            }
+        }
+        
+        /// <summary>
+        /// 更新技能UI顯示
+        /// </summary>
+        private void UpdateSkillUI()
+        {
+            if (PlayerManager.Instance == null) return;
+            
+            var stats = PlayerManager.Instance.Stats;
+            
+            // 處決技能UI
+            if (executionKeyLabelText != null)
+            {
+                if (PlayerManager.Instance.IsExecutionUnlocked())
+                {
+                    executionKeyLabelText.text = "1";
+                }
+                else
+                {
+                    executionKeyLabelText.text = "Locked";
+                }
+            }
+            
+            if (executionCostText != null)
+            {
+                if (PlayerManager.Instance.IsExecutionUnlocked())
+                {
+                    executionCostText.text = $"CP-{GameConstants.EXECUTION_CP_COST}";
+                }
+                else
+                {
+                    executionCostText.text = "";
+                }
+            }
+            
+            // 修補技能UI
+            if (repairKeyLabelText != null)
+            {
+                if (PlayerManager.Instance.IsRepairUnlocked())
+                {
+                    repairKeyLabelText.text = "2";
+                }
+                else
+                {
+                    repairKeyLabelText.text = "Locked";
+                }
+            }
+            
+            if (repairCostText != null)
+            {
+                if (PlayerManager.Instance.IsRepairUnlocked())
+                {
+                    repairCostText.text = $"CP-{GameConstants.REPAIR_CP_COST}";
+                }
+                else
+                {
+                    repairCostText.text = "";
+                }
             }
         }
     }

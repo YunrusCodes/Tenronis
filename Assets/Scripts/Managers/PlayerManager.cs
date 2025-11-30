@@ -34,9 +34,11 @@ namespace Tenronis.Managers
             if (stats.explosionChargeLevel >= GameConstants.EXPLOSION_BUFF_MAX_LEVEL) return true;
             if (stats.spaceExpansionLevel >= GameConstants.SPACE_EXPANSION_MAX_LEVEL) return true;
             if (stats.cpExpansionLevel >= GameConstants.RESOURCE_EXPANSION_MAX_LEVEL) return true;
+
+            // ❌ 已移除 TacticalExpansion（因為它現在是傳奇）
             return false;
         }
-        
+
         /// <summary>
         /// 檢查指定Buff是否已達滿級
         /// </summary>
@@ -56,10 +58,16 @@ namespace Tenronis.Managers
                     return stats.spaceExpansionLevel >= GameConstants.SPACE_EXPANSION_MAX_LEVEL;
                 case BuffType.ResourceExpansion:
                     return stats.cpExpansionLevel >= GameConstants.RESOURCE_EXPANSION_MAX_LEVEL;
+
+                // ⭐ TacticalExpansion 現在是傳奇強化 → 永遠不視為“滿級”
+                case BuffType.TacticalExpansion:
+                    return false;
+
                 default:
-                    return false; // 傳奇強化或無上限的Buff永遠不算滿級
+                    return false; 
             }
         }
+
         
         private void Awake()
         {
@@ -264,6 +272,21 @@ namespace Tenronis.Managers
                         Debug.Log($"[PlayerManager] 資源擴充已達最高等級 {GameConstants.RESOURCE_EXPANSION_MAX_LEVEL}");
                     }
                     break;
+                    
+                case BuffType.TacticalExpansion:
+                    if (stats.tacticalExpansionLevel < GameConstants.TACTICAL_EXPANSION_MAX_LEVEL)
+                    {
+                        stats.tacticalExpansionLevel++;
+                        string unlockedSkill = stats.tacticalExpansionLevel == 1 ? "處決" : "修補";
+                        Debug.Log($"[PlayerManager] 戰術擴展等級提升至: {stats.tacticalExpansionLevel}/{GameConstants.TACTICAL_EXPANSION_MAX_LEVEL}，解鎖技能: {unlockedSkill}");
+                        // 觸發UI更新事件
+                        GameEvents.TriggerSkillUnlocked();
+                    }
+                    else
+                    {
+                        Debug.Log($"[PlayerManager] 戰術擴展已達最高等級 {GameConstants.TACTICAL_EXPANSION_MAX_LEVEL}");
+                    }
+                    break;
             }
             
             Debug.Log($"[PlayerManager] 應用Buff: {buffType}");
@@ -368,10 +391,32 @@ namespace Tenronis.Managers
         }
         
         /// <summary>
+        /// 檢查處決技能是否已解鎖
+        /// </summary>
+        public bool IsExecutionUnlocked()
+        {
+            return stats.tacticalExpansionLevel >= 1;
+        }
+        
+        /// <summary>
+        /// 檢查修補技能是否已解鎖
+        /// </summary>
+        public bool IsRepairUnlocked()
+        {
+            return stats.tacticalExpansionLevel >= 2;
+        }
+        
+        /// <summary>
         /// 使用處決技能（消耗CP）
         /// </summary>
         public bool UseExecution()
         {
+            if (!IsExecutionUnlocked())
+            {
+                Debug.Log("[PlayerManager] 處決技能尚未解鎖！");
+                return false;
+            }
+            
             int cost = GameConstants.EXECUTION_CP_COST;
             if (stats.currentCp < cost) return false;
             
@@ -390,6 +435,12 @@ namespace Tenronis.Managers
         /// </summary>
         public bool UseRepair()
         {
+            if (!IsRepairUnlocked())
+            {
+                Debug.Log("[PlayerManager] 修補技能尚未解鎖！");
+                return false;
+            }
+            
             int cost = GameConstants.REPAIR_CP_COST;
             if (stats.currentCp < cost) return false;
             

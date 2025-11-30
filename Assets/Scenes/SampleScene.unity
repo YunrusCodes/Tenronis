@@ -7883,6 +7883,10 @@ MonoBehaviour:
   executionCountText: {fileID: 2066850921}
   repairCountText: {fileID: 1074393737}
   explosionDamageText: {fileID: 240248087}
+  executionKeyLabelText: {fileID: 1477441707}
+  executionCostText: {fileID: 2066850921}
+  repairKeyLabelText: {fileID: 685973095}
+  repairCostText: {fileID: 1074393737}
   levelUpPanel: {fileID: 299105076}
   gameOverPanel: {fileID: 1761173488}
   victoryPanel: {fileID: 1833709566}
@@ -9561,7 +9565,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 22.833252, y: -100.52649}
+  m_AnchoredPosition: {x: 22.833313, y: -100.52646}
   m_SizeDelta: {x: 160, y: 30}
   m_Pivot: {x: 0, y: 0}
 --- !u!222 &1933218057
@@ -9999,6 +10003,7 @@ MonoBehaviour:
   legendaryBuffs:
   - {fileID: 11400000, guid: 593218382254a8f4f868a161a0aa8990, type: 2}
   - {fileID: 11400000, guid: 4984fdceb682ce2449c3b18662087da4, type: 2}
+  - {fileID: 11400000, guid: 48128f06871961e4b9172a811e99ca73, type: 2}
 --- !u!1 &2035590757
 GameObject:
   m_ObjectHideFlags: 0

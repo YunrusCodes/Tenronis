@@ -212,8 +212,22 @@ namespace Tenronis.UI
             {
                 System.Text.StringBuilder legendarySb = new System.Text.StringBuilder();
                 legendarySb.AppendLine("【傳奇強化】");
-                legendarySb.AppendLine($"裝甲強化: Lv.{stats.blockDefenseLevel} (+{stats.blockDefenseLevel} HP)");
-                legendarySb.AppendLine($"協同火力: Lv.{stats.missileExtraCount} (每個位置 +{stats.missileExtraCount} 導彈)");
+                legendarySb.AppendLine($"裝甲強化 Defense: Lv.{stats.blockDefenseLevel} (+{stats.blockDefenseLevel} HP)");
+                legendarySb.AppendLine($"協同火力 Volley: Lv.{stats.missileExtraCount} (每個位置 +{stats.missileExtraCount} 導彈)");
+
+                // 傳奇：戰術擴展
+                string tacticalInfo = "";
+                if (stats.tacticalExpansionLevel >= 1) tacticalInfo = "處決";
+                if (stats.tacticalExpansionLevel >= 2) tacticalInfo = "處決、修補";
+
+                if (stats.tacticalExpansionLevel > 0)
+                {
+                    legendarySb.AppendLine($"戰術擴展 Tactical Expansion: Lv.{stats.tacticalExpansionLevel}/{GameConstants.TACTICAL_EXPANSION_MAX_LEVEL} (技能：{tacticalInfo})");
+                }
+                else
+                {
+                    legendarySb.AppendLine($"戰術擴展 Tactical Expansion: 未解鎖");
+                }
                 legendaryBuffText.text = legendarySb.ToString();
             }
             
@@ -257,7 +271,6 @@ namespace Tenronis.UI
                 buffLines.Add($"資源擴充: Lv.{stats.cpExpansionLevel}/{GameConstants.RESOURCE_EXPANSION_MAX_LEVEL} (已達上限，CP: {stats.maxCp})");
             else
                 buffLines.Add($"資源擴充: Lv.{stats.cpExpansionLevel}/{GameConstants.RESOURCE_EXPANSION_MAX_LEVEL} (CP: {stats.maxCp})");
-            
             // 每行顯示3個
             for (int i = 0; i < buffLines.Count; i += 3)
             {

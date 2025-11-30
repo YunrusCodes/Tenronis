@@ -10,11 +10,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0acd80e3a578b4042a6a130781010d29, type: 3}
-  m_Name: Buff_Heal
+  m_Name: Buff_TacticalExpansion
   m_EditorClassIdentifier: Assembly-CSharp::Tenronis.ScriptableObjects.BuffDataSO
-  buffName: "\u7DCA\u6025\u4FEE\u5FA9"
-  buffType: 2
-  description: "\u7ACB\u5373\u56DE\u5FA9 50% \u6700\u5927\u8840\u91CF\uFF0C\u6551\u547D\u7A3B\u8349\uFF01"
+  buffName: "\u6230\u8853\u64F4\u5C55"
+  buffType: 11
+  description: "\u6BCF\u6B21\u9078\u64C7\u89E3\u9396\u6280\u80FD\uFF0CLv1\u89E3\u9396\u8655\u6C7A\uFF0CLv2\u89E3\u9396\u4FEE\u88DC\uFF08\u8D77\u59CB\u7B49\u7D1A0\uFF0C\u6700\u9AD8\u7B49\u7D1A2\uFF09"
   icon: {fileID: 10907, guid: 0000000000000000f000000000000000, type: 0}
-  iconColor: {r: 0.2, g: 1, b: 0.3, a: 1}
-  spawnWeight: 1
+  iconColor: {r: 0.8, g: 0.4, b: 0.2, a: 1}
+  spawnWeight: 1.0
+
