@@ -86,6 +86,26 @@ namespace Tenronis.Gameplay.Projectiles
                     spriteRenderer.color = new Color(0.66f, 0.33f, 0.97f); // 紫色
                     transform.localScale = Vector3.one * 0.35f;
                     break;
+
+                case BulletType.AddExplosiveBlock:
+                    spriteRenderer.color = new Color(1f, 0.92f, 0.016f); // 黃色
+                    transform.localScale = Vector3.one * 0.3f;
+                    break;
+
+                case BulletType.InsertVoidRow:
+                    spriteRenderer.color = new Color(0.2f, 0.2f, 0.2f); // 深灰色
+                    transform.localScale = Vector3.one * 0.35f;
+                    break;
+
+                case BulletType.CorruptExplosive:
+                    spriteRenderer.color = new Color(1f, 0f, 1f); // 洋紅色
+                    transform.localScale = Vector3.one * 0.3f;
+                    break;
+
+                case BulletType.CorruptVoid:
+                    spriteRenderer.color = new Color(0f, 1f, 1f); // 青色
+                    transform.localScale = Vector3.one * 0.3f;
+                    break;
             }
         }
         
