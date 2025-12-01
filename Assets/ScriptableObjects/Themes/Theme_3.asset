@@ -1,0 +1,51 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b4b436aae261119448a7d93cc922b45e, type: 3}
+  m_Name: Theme_3
+  m_EditorClassIdentifier: 
+  themeName: "Explosive Growth"
+  themeIcon: {fileID: 0}
+  themeColor: {r: 1, g: 1, b: 1, a: 1}
+  description: "Theme 3: Explosive Growth"
+  easyStages:
+  - {fileID: 11400000, guid: 8976e252004533c468a449bdd82714b8, type: 2}
+  - {fileID: 11400000, guid: 06f7ac65cdecfca47bafeeea15386f04, type: 2}
+  - {fileID: 11400000, guid: 1e943e164560d2d4598594bcce45d892, type: 2}
+  - {fileID: 11400000, guid: ca836fb65b46b1847928d842b3571c37, type: 2}
+  - {fileID: 11400000, guid: 307037b4e12974b479083a39225a3c62, type: 2}
+  - {fileID: 11400000, guid: faf4d4f9a0134d57850ddd8215d91af0, type: 2}
+  - {fileID: 11400000, guid: 19ccc48e8cb74321aaa20ce9b495d42a, type: 2}
+  - {fileID: 11400000, guid: 04833d7c18fd4f51b6c951433835e796, type: 2}
+  - {fileID: 11400000, guid: 99a095f4954f47c18d23eeb93f352540, type: 2}
+  - {fileID: 11400000, guid: 0bd7cd4ece9845d5991f702546520554, type: 2}
+  normalStages:
+  - {fileID: 11400000, guid: 660b6b692c8a99142a9de0c1dd38535a, type: 2}
+  - {fileID: 11400000, guid: db81e73b73ca3aa42bf3822ab43f422e, type: 2}
+  - {fileID: 11400000, guid: 066656367f3e0f749aa5b4513e45a16b, type: 2}
+  - {fileID: 11400000, guid: aafc6a324837cdb4689b4056107fcb54, type: 2}
+  - {fileID: 11400000, guid: 59285c1aa765e9b41aa16a550e4a2144, type: 2}
+  - {fileID: 11400000, guid: 7a794be897db4e2a9d833eac48b095e9, type: 2}
+  - {fileID: 11400000, guid: b25970cb758047e4847a4c1b5336ce57, type: 2}
+  - {fileID: 11400000, guid: c3bd2abf9e2b4a08800a7b6507937be8, type: 2}
+  - {fileID: 11400000, guid: 0460c9d0877743118a6c20782ca59aea, type: 2}
+  - {fileID: 11400000, guid: 386f8c0f0c1f4f518e64d94d4bb5e300, type: 2}
+  hardStages:
+  - {fileID: 11400000, guid: 80306844de104a44da61eaeff22d7934, type: 2}
+  - {fileID: 11400000, guid: 21c525518d6b02a4caeffc34b503793e, type: 2}
+  - {fileID: 11400000, guid: 9946dc6176e9d9d4b86537d21f838f66, type: 2}
+  - {fileID: 11400000, guid: 6e4e3d4d1279adc459a3d8926e63b2d3, type: 2}
+  - {fileID: 11400000, guid: 1a1f7a61d25a75d4088eb8faf29dae73, type: 2}
+  - {fileID: 11400000, guid: 0c892847cf2a4426b6ed3f4a5b341a5c, type: 2}
+  - {fileID: 11400000, guid: acfab65a931a42ef929166f45bd78314, type: 2}
+  - {fileID: 11400000, guid: 18659a25d4824b71bbaff07979aaf893, type: 2}
+  - {fileID: 11400000, guid: 29dde54d10844ffdbbde53b3955eb9b3, type: 2}
+  - {fileID: 11400000, guid: 0055dc4d9fae46009991cece62b287c7, type: 2}

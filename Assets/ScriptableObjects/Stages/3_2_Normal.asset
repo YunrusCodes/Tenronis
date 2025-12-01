@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3fe80882f65a4ff479ef1fca5ee38a6f, type: 3}
   m_Name: 3_2_Normal
   m_EditorClassIdentifier: 
-  stageName: "Theme 3 - Stage 2"
+  stageName: Theme 3 - Stage 2
   stageIndex: 12
   isBossStage: 0
   difficultyTrack: 1
@@ -21,33 +21,33 @@ MonoBehaviour:
   playerSP: 0.6
   rewardBuffCount: 1
   maxHp: 375
-  shootInterval: 1.463
+  shootInterval: 1.54
   bulletSpeed: 8
-  burstCount: 2
+  burstCount: 1
   normalBullet:
     enabled: 1
     chance: 1
   areaBullet:
-    enabled: 0
-    chance: 0
+    enabled: 1
+    chance: 0.25
   addBlockBullet:
-    enabled: 0
-    chance: 0
+    enabled: 1
+    chance: 0.3
   addExplosiveBlockBullet:
     enabled: 1
-    chance: 0.15
+    chance: 0.2
   addRowBullet:
-    enabled: 0
-    chance: 0
+    enabled: 1
+    chance: 0.15
   addVoidRowBullet:
     enabled: 0
-    chance: 0
+    chance: 0.1
   corruptExplosiveBullet:
     enabled: 0
-    chance: 0
+    chance: 0.15
   corruptVoidBullet:
     enabled: 0
-    chance: 0
+    chance: 0.1
   useSmartTargeting: 0
   addBlockTargetsHigh: 1
   areaDamageTargetsLow: 1

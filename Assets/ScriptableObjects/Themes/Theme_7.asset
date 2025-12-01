@@ -1,0 +1,51 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b4b436aae261119448a7d93cc922b45e, type: 3}
+  m_Name: Theme_7
+  m_EditorClassIdentifier: 
+  themeName: "Dual-Type Pressure"
+  themeIcon: {fileID: 0}
+  themeColor: {r: 1, g: 1, b: 1, a: 1}
+  description: "Theme 7: Dual-Type Pressure"
+  easyStages:
+  - {fileID: 11400000, guid: a6d3c3bc2bad4ec4199d3aa8b7c3c35a, type: 2}
+  - {fileID: 11400000, guid: 6d1763f47b13e6040824ee4ce7ddfc92, type: 2}
+  - {fileID: 11400000, guid: 593d007f734d8ff4f8e093a8e6c91349, type: 2}
+  - {fileID: 11400000, guid: 6075920951ef4f0448cce0e2ddc97e1b, type: 2}
+  - {fileID: 11400000, guid: f86c9d903f70c5c48a13b297558de65e, type: 2}
+  - {fileID: 11400000, guid: cc4c7324d52d46d9a90cfaeb0a5bb9bb, type: 2}
+  - {fileID: 11400000, guid: 29373cea207f4d8d8968b0c72fd52f12, type: 2}
+  - {fileID: 11400000, guid: de09e3954d794fd9872f527aaf0e4ff9, type: 2}
+  - {fileID: 11400000, guid: ab8bb2b0c9424a528631ecec1fd8f92c, type: 2}
+  - {fileID: 11400000, guid: ddc3f35a26ce4ac6bcfb16fffad09328, type: 2}
+  normalStages:
+  - {fileID: 11400000, guid: 77987e369d63b234180a8dbb2f698925, type: 2}
+  - {fileID: 11400000, guid: 873e69938e4204c42bf9b2ea20c0e929, type: 2}
+  - {fileID: 11400000, guid: 5202ca9e270a3ae489e7bb5738e76b07, type: 2}
+  - {fileID: 11400000, guid: 39de11a6a9e99f447a80ca3311f59a91, type: 2}
+  - {fileID: 11400000, guid: 70f8dc2abfdb4934081f548601bc2194, type: 2}
+  - {fileID: 11400000, guid: 05114fb9a13e492eb255210f11c9573b, type: 2}
+  - {fileID: 11400000, guid: f2d2704936b8444897a5857f7650da2d, type: 2}
+  - {fileID: 11400000, guid: 0bd96727137a47f38d4e327730aa7fd1, type: 2}
+  - {fileID: 11400000, guid: 741d0000586249c2a94c84b1916fdf02, type: 2}
+  - {fileID: 11400000, guid: e324ad7ebc2644988655493093dc750d, type: 2}
+  hardStages:
+  - {fileID: 11400000, guid: ddc79f8fc81398440ab3869fd395ebf8, type: 2}
+  - {fileID: 11400000, guid: 97670139de1062d4bb499fe12ed267f4, type: 2}
+  - {fileID: 11400000, guid: 7e07c35750bc1d84b9b24948a6cd213e, type: 2}
+  - {fileID: 11400000, guid: 5bfd97dce868b7745acff1d47bbf3fe9, type: 2}
+  - {fileID: 11400000, guid: d5f56ce62a0df54469638a8c04a26424, type: 2}
+  - {fileID: 11400000, guid: c08886d07e3147aea170683fe41e139a, type: 2}
+  - {fileID: 11400000, guid: 529286b2b34546c2b23737c500c1d8cf, type: 2}
+  - {fileID: 11400000, guid: 686307610a364cf98c3ee3d36476787f, type: 2}
+  - {fileID: 11400000, guid: 48aa601f9c644941bb8d6062fff99edc, type: 2}
+  - {fileID: 11400000, guid: 79136838540b41b6925f0d35b19144e4, type: 2}

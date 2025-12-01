@@ -136,16 +136,12 @@ namespace Tenronis.Gameplay.Enemy
             // 決定目標列
             int column = DetermineTargetColumn(bulletType);
             
-            // 獲取連發數量
-            int burstCount = currentStageData.burstCount;
-            
-            // 發射子彈
+            // 發射子彈（移除 burstCount，永遠單發）
             CombatManager.Instance.FireBullet(
                 column,
                 bulletType,
                 GameConstants.BULLET_DAMAGE,
-                currentStageData.bulletSpeed,
-                burstCount
+                currentStageData.bulletSpeed
             );
         }
         

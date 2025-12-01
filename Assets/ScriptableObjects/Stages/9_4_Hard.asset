@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3fe80882f65a4ff479ef1fca5ee38a6f, type: 3}
   m_Name: 9_4_Hard
   m_EditorClassIdentifier: 
-  stageName: "Theme 9 - Stage 4"
+  stageName: Theme 9 - Stage 4
   stageIndex: 44
   isBossStage: 0
   difficultyTrack: 2
@@ -21,34 +21,34 @@ MonoBehaviour:
   playerSP: 0.6
   rewardBuffCount: 1
   maxHp: 600
-  shootInterval: 0.798
+  shootInterval: 1.2199999
   bulletSpeed: 10
-  burstCount: 4
+  burstCount: 1
   normalBullet:
     enabled: 1
     chance: 1
   areaBullet:
     enabled: 1
-    chance: 0.25
+    chance: 0.4
   addBlockBullet:
     enabled: 1
-    chance: 0.2
+    chance: 0.48000002
   addExplosiveBlockBullet:
     enabled: 1
-    chance: 0.15
+    chance: 0.32000002
   addRowBullet:
     enabled: 1
-    chance: 0.1
+    chance: 0.24000001
   addVoidRowBullet:
-    enabled: 0
-    chance: 0
+    enabled: 1
+    chance: 0.16000001
   corruptExplosiveBullet:
-    enabled: 0
-    chance: 0
+    enabled: 1
+    chance: 0.24000001
   corruptVoidBullet:
-    enabled: 0
-    chance: 0
-  useSmartTargeting: 0
+    enabled: 1
+    chance: 0.16000001
+  useSmartTargeting: 1
   addBlockTargetsHigh: 1
   areaDamageTargetsLow: 1
   enemyIcon: {fileID: -3753429730417257469, guid: a286511a5ac457d4391b92edd3569046, type: 3}

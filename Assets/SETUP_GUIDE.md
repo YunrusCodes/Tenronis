@@ -765,3 +765,76 @@ ScreenShake (Script)
 - 建立更多關卡
 - 添加音效和音樂
 
+
+
+# Tenronis Setup Guide
+
+## 1. 關卡與主題設置 (Themes & Stages)
+
+### 1.1 建立關卡數據 (StageDataSO)
+1. 在 Project 視窗中，右鍵點擊 `Create -> Tenronis -> Stage Data`。
+2. 命名為 `T_S_Difficulty` (例如 `1_1_Easy`)。
+3. 設定關卡參數：
+   - **Stage Name**: 顯示名稱 (例如 "Theme 1 - Stage 1")
+   - **Difficulty Track**: Casual / Standard / Expert
+   - **Bullet Config**: 設定子彈生成機率
+
+### 1.2 建立主題套組 (StageSetSO)
+1. 在 Project 視窗中，右鍵點擊 `Create -> Tenronis -> Stage Set (Theme)`。
+2. 命名為 `Theme_X` (例如 `Theme_1`)。
+3. 在 Inspector 中設定：
+   - **Theme Name**: 主題名稱 (例如 "Basic Shooter")
+   - **Easy Stages**: 拖入該主題的 5 個 Easy 關卡
+   - **Normal Stages**: 拖入該主題的 5 個 Normal 關卡
+   - **Hard Stages**: 拖入該主題的 5 個 Hard 關卡
+
+### 1.3 註冊主題到 GameManager
+1. 選擇場景中的 `GameManager` 物件。
+2. 找到 `All Themes` 列表。
+3. 將建立好的 `StageSetSO` 拖入列表中。
+4. 列表順序決定了 UI 顯示順序。
+
+## 2. UI 設置流程
+
+### 2.1 設置 GameUI
+1. 確保場景中有 `GameUI` 物件。
+2. 檢查 `GameUI` Inspector 中的參考：
+   - **Menu Panel**: 主選單容器
+   - **Theme List Panel**: 主題選擇頁面 (需包含 ScrollView 或 Grid)
+   - **Difficulty Select Panel**: 難度選擇頁面
+   - **Theme Button Prefab**: 用於生成主題按鈕的 Prefab
+   - **Theme Button Container**: 主題按鈕的父物件 (Content)
+
+### 2.2 設置按鈕事件
+- **Theme Button Prefab**: 需包含 `Button` 組件和 `TextMeshProUGUI` 子物件。
+- **Difficulty Buttons**: 在 `Difficulty Select Panel` 中，分別對應 `Easy`, `Normal`, `Hard` 按鈕。
+
+## 3. 擴充指南
+
+### 3.1 新增主題 (Theme 11+)
+1. 依照 1.2 步驟建立新的 `StageSetSO`。
+2. 依照 1.3 步驟將其加入 `GameManager` 的 `All Themes` 列表。
+3. UI 會自動根據列表長度生成對應按鈕。
+
+### 3.2 新增難度 (Expert+)
+1. 修改 `DifficultyTrack` enum (在 `StageDataSO.cs`)。
+2. 修改 `StageSetSO.cs` 增加對應的 List。
+3. 修改 `GameManager.StartGame` 邏輯。
+4. 修改 `GameUI` 增加對應按鈕。
+
+## 4. 遊戲流程圖
+
+```mermaid
+graph TD
+    Start[啟動遊戲] --> Menu[主選單 (Theme Selection)]
+    Menu -->|選擇主題| Difficulty[難度選擇]
+    Difficulty -->|Back| Menu
+    Difficulty -->|選擇難度| Playing[遊戲進行中]
+    Playing -->|通關| LevelUp[升級選單]
+    LevelUp -->|選擇Buff| Playing
+    Playing -->|失敗| GameOver[遊戲結束]
+    Playing -->|全部通關| Victory[勝利]
+    GameOver -->|Restart| Playing
+    GameOver -->|Menu| Menu
+    Victory -->|Menu| Menu
+```

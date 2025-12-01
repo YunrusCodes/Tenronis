@@ -75,10 +75,6 @@ namespace Tenronis.ScriptableObjects
         public float shootInterval = 2f;      // 射擊間隔（秒）
         public float bulletSpeed = 8f;        // 子彈速度（格子/秒）
         
-        [Tooltip("連發數量（1 = 單發，3 = 三聯發）")]
-        [Range(1, 5)]
-        public int burstCount = 1;
-        
         [Header("=== 敵人技能配置 ===")]
         [Space(10)]
         
@@ -331,10 +327,7 @@ namespace Tenronis.ScriptableObjects
             // 3. 計算子彈速度（公式來源：04_Difficulty_Model.md）
             bulletSpeed = CalculatedBulletSpeed;
             
-            // 4. 計算連發數量（基於難度和關卡）
-            burstCount = CalculateBurstCount();
-            
-            // 5. 計算技能機率（基於難度倍率）
+            // 4. 計算技能機率（基於難度倍率）
             ApplySkillDensity();
             
             // 6. 智能瞄準（Expert 難度啟用）
@@ -345,32 +338,7 @@ namespace Tenronis.ScriptableObjects
 #endif
         }
         
-        /// <summary>
-        /// 計算連發數量
-        /// 基於關卡進度和難度
-        /// </summary>
-        private int CalculateBurstCount()
-        {
-            // 基礎連發數
-            int baseBurst = 1;
-            
-            // 根據關卡索引增加
-            if (stageIndex >= 5) baseBurst = 2;
-            if (stageIndex >= 12) baseBurst = 3;
-            if (stageIndex >= 18) baseBurst = 4;
-            
-            // 難度修正
-            if (difficultyTrack == DifficultyTrack.Casual && baseBurst > 1)
-            {
-                baseBurst -= 1;
-            }
-            else if (difficultyTrack == DifficultyTrack.Expert && stageIndex >= 10)
-            {
-                baseBurst += 1;
-            }
-            
-            return Mathf.Clamp(baseBurst, 1, 5);
-        }
+
         
         /// <summary>
         /// 應用技能密度

@@ -137,37 +137,25 @@ namespace Tenronis.Managers
         }
         
         /// <summary>
-        /// 發射子彈（敵人攻擊）
+        /// 發射子彈(敵人攻擊)
         /// </summary>
-        public void FireBullet(int column, BulletType type, int damage, float speed, int burstCount = 1, float spreadOffset = 0.3f)
+        public void FireBullet(int column, BulletType type, int damage, float speed)
         {
             if (bulletPool == null) return;
             
             // 在 Grid 頂部（y=0）上方 2 個單位生成子彈
-            Vector3 baseSpawnPos = GridManager.Instance.GridToWorldPosition(column, 0);
-            baseSpawnPos.y += 2f;
+            Vector3 spawnPos = GridManager.Instance.GridToWorldPosition(column, 0);
+            spawnPos.y += 2f;
             
-        Debug.Log($"[CombatManager] 發射子彈 - 列: {column}, 類型: {type}, 連發數: {burstCount}, 位置: {baseSpawnPos}, 速度: {speed}");
-        
-        // 播放敵人射擊音效
-        GameEvents.TriggerPlayEnemyShootSound(type);
-        
-        // 如果是三聯發，稍微錯開位置
-        for (int i = 0; i < burstCount; i++)
-        {
-            Vector3 spawnPos = baseSpawnPos;
+            Debug.Log($"[CombatManager] 發射子彈 - 列: {column}, 類型: {type}, 位置: {spawnPos}, 速度: {speed}");
             
-            // 橫向錯開（如果是多發）
-            if (burstCount > 1)
-            {
-                float offset = (i - (burstCount - 1) * 0.5f) * spreadOffset;
-                spawnPos.x += offset;
-            }
+            // 播放敵人射擊音效
+            GameEvents.TriggerPlayEnemyShootSound(type);
             
+            // 發射單發子彈
             Bullet bullet = bulletPool.Get();
             bullet.Initialize(spawnPos, type, damage, speed);
             activeBullets.Add(bullet);
-        }
         }
         
         /// <summary>

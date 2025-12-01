@@ -5,6 +5,8 @@ using Tenronis.Data;
 using Tenronis.Core;
 using Tenronis.Managers;
 using Tenronis.Gameplay.Enemy;
+using Tenronis.ScriptableObjects;
+using System.Collections.Generic;
 
 namespace Tenronis.UI
 {
@@ -15,9 +17,19 @@ namespace Tenronis.UI
     {
         [Header("主選單")]
         [SerializeField] private GameObject menuPanel;
+        [SerializeField] private GameObject themeListPanel;
+        [SerializeField] private GameObject difficultySelectPanel;
+        
+        [Header("按鈕與預製件")]
+        [SerializeField] private Button themeButtonPrefab; // 用於生成主題按鈕
+        [SerializeField] private Transform themeButtonContainer; // 主題按鈕容器
+        [SerializeField] private Button backToThemeButton; // 返回主題選擇按鈕
+        
+        [Header("難度按鈕 (在 DifficultySelectPanel 中)")]
         [SerializeField] private Button easyButton;
         [SerializeField] private Button normalButton;
         [SerializeField] private Button hardButton;
+        [SerializeField] private TextMeshProUGUI selectedThemeTitle; // 顯示當前選擇的主題名稱
         
         [Header("遊戲中UI")]
         [SerializeField] private GameObject gameplayPanel;
@@ -34,10 +46,10 @@ namespace Tenronis.UI
         
         [Header("技能UI")]
         [SerializeField] private TextMeshProUGUI explosionDamageText;
-        [SerializeField] private TextMeshProUGUI executionKeyLabelText; // 處決技能按鍵標籤（顯示"1"或"Locked"）
-        [SerializeField] private TextMeshProUGUI executionCostText; // 處決技能CP消耗顯示
-        [SerializeField] private TextMeshProUGUI repairKeyLabelText; // 修補技能按鍵標籤（顯示"2"或"Locked"）
-        [SerializeField] private TextMeshProUGUI repairCostText; // 修補技能CP消耗顯示
+        [SerializeField] private TextMeshProUGUI executionKeyLabelText;
+        [SerializeField] private TextMeshProUGUI executionCostText;
+        [SerializeField] private TextMeshProUGUI repairKeyLabelText;
+        [SerializeField] private TextMeshProUGUI repairCostText;
         
         // 齊射文字顯示計時
         private float salvoDisplayTimer = 0f;
@@ -53,64 +65,27 @@ namespace Tenronis.UI
         [SerializeField] private Button restartButton;
         [SerializeField] private Button menuButton;
         
+        // 狀態變數
+        private int selectedThemeIndex = -1;
+        
         private void Start()
         {
             Debug.Log("[GameUI] Start() - 初始化GameUI");
             
-            // 檢查GameManager是否存在（重要！）
             if (GameManager.Instance == null)
             {
-                Debug.LogError("❌ [GameUI] 場景中找不到GameManager！遊戲無法運行！");
-                Debug.LogError("   解決方法：在Hierarchy中建立GameManager物件並添加GameManager腳本");
-                Debug.LogError("   參考文件：Assets/快速設置管理器.md");
-            }
-            else
-            {
-                Debug.Log("✅ [GameUI] GameManager已找到");
+                Debug.LogError("❌ [GameUI] 場景中找不到GameManager！");
+                return;
             }
             
             // 綁定按鈕事件
-            if (easyButton != null)
-            {
-                easyButton.onClick.AddListener(OnStartGameEasy);
-                Debug.Log("[GameUI] EasyButton已綁定事件");
-            }
-            else
-            {
-                Debug.LogError("[GameUI] EasyButton參考為空！請在Inspector中設置");
-            }
+            if (easyButton != null) easyButton.onClick.AddListener(OnStartGameEasy);
+            if (normalButton != null) normalButton.onClick.AddListener(OnStartGameNormal);
+            if (hardButton != null) hardButton.onClick.AddListener(OnStartGameHard);
+            if (backToThemeButton != null) backToThemeButton.onClick.AddListener(ShowThemeSelection);
             
-            if (normalButton != null)
-            {
-                normalButton.onClick.AddListener(OnStartGameNormal);
-                Debug.Log("[GameUI] NormalButton已綁定事件");
-            }
-            else
-            {
-                Debug.LogError("[GameUI] NormalButton參考為空！請在Inspector中設置");
-            }
-            
-            if (hardButton != null)
-            {
-                hardButton.onClick.AddListener(OnStartGameHard);
-                Debug.Log("[GameUI] HardButton已綁定事件");
-            }
-            else
-            {
-                Debug.LogError("[GameUI] HardButton參考為空！請在Inspector中設置");
-            }
-            
-            if (restartButton != null)
-            {
-                restartButton.onClick.AddListener(OnRestart);
-                Debug.Log("[GameUI] RestartButton已綁定事件");
-            }
-            
-            if (menuButton != null)
-            {
-                menuButton.onClick.AddListener(OnReturnToMenu);
-                Debug.Log("[GameUI] MenuButton已綁定事件");
-            }
+            if (restartButton != null) restartButton.onClick.AddListener(OnRestart);
+            if (menuButton != null) menuButton.onClick.AddListener(OnReturnToMenu);
             
             // 訂閱遊戲事件
             GameEvents.OnGameStateChanged += HandleGameStateChanged;
@@ -119,7 +94,6 @@ namespace Tenronis.UI
             
             // 初始化UI
             ShowMenu();
-            Debug.Log("[GameUI] 初始化完成，顯示主選單");
         }
         
         private void OnDestroy()
@@ -128,20 +102,13 @@ namespace Tenronis.UI
             GameEvents.OnRowsCleared -= HandleRowsClearedForSalvo;
             GameEvents.OnSkillUnlocked -= UpdateSkillUI;
             
-            if (easyButton != null)
-                easyButton.onClick.RemoveListener(OnStartGameEasy);
+            if (easyButton != null) easyButton.onClick.RemoveListener(OnStartGameEasy);
+            if (normalButton != null) normalButton.onClick.RemoveListener(OnStartGameNormal);
+            if (hardButton != null) hardButton.onClick.RemoveListener(OnStartGameHard);
+            if (backToThemeButton != null) backToThemeButton.onClick.RemoveListener(ShowThemeSelection);
             
-            if (normalButton != null)
-                normalButton.onClick.RemoveListener(OnStartGameNormal);
-            
-            if (hardButton != null)
-                hardButton.onClick.RemoveListener(OnStartGameHard);
-            
-            if (restartButton != null)
-                restartButton.onClick.RemoveListener(OnRestart);
-            
-            if (menuButton != null)
-                menuButton.onClick.RemoveListener(OnReturnToMenu);
+            if (restartButton != null) restartButton.onClick.RemoveListener(OnRestart);
+            if (menuButton != null) menuButton.onClick.RemoveListener(OnReturnToMenu);
         }
         
         private void Update()
@@ -153,88 +120,8 @@ namespace Tenronis.UI
             }
         }
         
-        /// <summary>
-        /// 更新遊戲中UI
-        /// </summary>
-        private void UpdateGameplayUI()
-        {
-            if (PlayerManager.Instance != null)
-            {
-                var stats = PlayerManager.Instance.Stats;
-                
-                // 分數
-                if (scoreText != null)
-                    scoreText.text = stats.score.ToString("N0");
-                
-                // Combo
-                if (comboText != null)
-                {
-                    if (stats.comboCount > 1)
-                    {
-                        comboText.text = $"{stats.comboCount}連發!";
-                        comboText.gameObject.SetActive(true);
-                    }
-                    else
-                    {
-                        comboText.gameObject.SetActive(false);
-                    }
-                }
-                
-                // 齊射顯示由 UpdateSalvoDisplay() 處理
-                
-                // 玩家HP
-                if (playerHpSlider != null)
-                {
-                    playerHpSlider.maxValue = stats.maxHp;
-                    playerHpSlider.value = stats.currentHp;
-                }
-                
-                if (playerHpText != null)
-                    playerHpText.text = $"{stats.currentHp} / {stats.maxHp}";
-                
-                // 玩家CP (Castle Point)
-                if (playerCpSlider != null)
-                {
-                    playerCpSlider.maxValue = stats.maxCp;
-                    playerCpSlider.value = stats.currentCp;
-                }
-                
-                if (playerCpText != null)
-                    playerCpText.text = $"CP: {stats.currentCp} / {stats.maxCp}";
-                
-                // 爆炸充能
-                if (explosionDamageText != null)
-                {
-                    explosionDamageText.text = $"{stats.explosionCharge}/{stats.explosionMaxCharge}";
-                }
-                
-                // 更新技能UI
-                UpdateSkillUI();
-            }
-            
-            // 敵人HP
-            if (EnemyController.Instance != null)
-            {
-                if (enemyHpSlider != null)
-                {
-                    enemyHpSlider.maxValue = EnemyController.Instance.MaxHp;
-                    enemyHpSlider.value = EnemyController.Instance.CurrentHp;
-                }
-                
-                if (enemyHpText != null)
-                    enemyHpText.text = $"{Mathf.Ceil(EnemyController.Instance.CurrentHp)} / {EnemyController.Instance.MaxHp}";
-            }
-            
-            // 關卡
-            if (stageText != null && GameManager.Instance != null)
-            {
-                stageText.text = $"STAGE {GameManager.Instance.CurrentStageIndex + 1} / {GameManager.Instance.TotalStages}";
-            }
-        }
+        // --- UI 狀態控制 ---
         
-        /// <summary>
-        /// 顯示主選單
-        /// </summary>
         private void ShowMenu()
         {
             SetPanelActive(menuPanel, true);
@@ -242,11 +129,57 @@ namespace Tenronis.UI
             SetPanelActive(levelUpPanel, false);
             SetPanelActive(gameOverPanel, false);
             SetPanelActive(victoryPanel, false);
+            
+            // 預設顯示主題選擇
+            ShowThemeSelection();
         }
         
-        /// <summary>
-        /// 顯示遊戲中UI
-        /// </summary>
+        private void ShowThemeSelection()
+        {
+            SetPanelActive(themeListPanel, true);
+            SetPanelActive(difficultySelectPanel, false);
+            
+            // 動態生成主題按鈕
+            if (themeButtonContainer != null && themeButtonPrefab != null)
+            {
+                // 清除舊按鈕
+                foreach (Transform child in themeButtonContainer)
+                {
+                    Destroy(child.gameObject);
+                }
+                
+                // 生成新按鈕
+                var themes = GameManager.Instance.allThemes;
+                for (int i = 0; i < themes.Count; i++)
+                {
+                    int index = i; // 閉包捕獲
+                    var theme = themes[i];
+                    var btn = Instantiate(themeButtonPrefab, themeButtonContainer);
+                    var btnText = btn.GetComponentInChildren<TextMeshProUGUI>();
+                    if (btnText != null) btnText.text = theme.themeName;
+                    
+                    btn.onClick.AddListener(() => OnThemeSelected(index));
+                }
+            }
+        }
+        
+        private void OnThemeSelected(int index)
+        {
+            selectedThemeIndex = index;
+            ShowDifficultySelection();
+        }
+        
+        private void ShowDifficultySelection()
+        {
+            SetPanelActive(themeListPanel, false);
+            SetPanelActive(difficultySelectPanel, true);
+            
+            if (selectedThemeTitle != null && selectedThemeIndex >= 0 && selectedThemeIndex < GameManager.Instance.allThemes.Count)
+            {
+                selectedThemeTitle.text = GameManager.Instance.allThemes[selectedThemeIndex].themeName;
+            }
+        }
+        
         private void ShowGameplay()
         {
             SetPanelActive(menuPanel, false);
@@ -256,9 +189,6 @@ namespace Tenronis.UI
             SetPanelActive(victoryPanel, false);
         }
         
-        /// <summary>
-        /// 顯示升級選單
-        /// </summary>
         private void ShowLevelUp()
         {
             SetPanelActive(menuPanel, false);
@@ -268,9 +198,6 @@ namespace Tenronis.UI
             SetPanelActive(victoryPanel, false);
         }
         
-        /// <summary>
-        /// 顯示遊戲結束
-        /// </summary>
         private void ShowGameOver()
         {
             SetPanelActive(menuPanel, false);
@@ -283,9 +210,6 @@ namespace Tenronis.UI
                 finalScoreText.text = $"最終分數: {PlayerManager.Instance.Stats.score:N0}";
         }
         
-        /// <summary>
-        /// 顯示勝利
-        /// </summary>
         private void ShowVictory()
         {
             SetPanelActive(menuPanel, false);
@@ -298,169 +222,116 @@ namespace Tenronis.UI
                 finalScoreText.text = $"最終分數: {PlayerManager.Instance.Stats.score:N0}";
         }
         
-        /// <summary>
-        /// 設置面板活躍狀態
-        /// </summary>
         private void SetPanelActive(GameObject panel, bool active)
         {
-            if (panel != null)
-                panel.SetActive(active);
+            if (panel != null) panel.SetActive(active);
         }
         
-        /// <summary>
-        /// 處理遊戲狀態變更
-        /// </summary>
-        private void HandleGameStateChanged(GameState newState)
-        {
-            switch (newState)
-            {
-                case GameState.Menu:
-                    ShowMenu();
-                    break;
-                    
-                case GameState.Playing:
-                    ShowGameplay();
-                    break;
-                    
-                case GameState.LevelUp:
-                    ShowLevelUp();
-                    break;
-                    
-                case GameState.GameOver:
-                    ShowGameOver();
-                    break;
-                    
-                case GameState.Victory:
-                    ShowVictory();
-                    break;
-            }
-        }
+        // --- 遊戲邏輯 ---
         
-        // 按鈕回調
         private void OnStartGameEasy()
         {
-            Debug.Log("=== [GameUI] OnStartGameEasy() 被觸發！===");
-            
-            if (GameManager.Instance != null)
-            {
-                Debug.Log("[GameUI] 調用 GameManager.StartGameEasy()");
-                GameManager.Instance.StartGameEasy();
-            }
-            else
-            {
-                Debug.LogError("[GameUI] GameManager.Instance 為空！無法開始遊戲");
-            }
+            if (selectedThemeIndex == -1) return;
+            GameManager.Instance.StartGame(selectedThemeIndex, DifficultyTrack.Casual);
         }
         
         private void OnStartGameNormal()
         {
-            Debug.Log("=== [GameUI] OnStartGameNormal() 被觸發！===");
-            
-            if (GameManager.Instance != null)
-            {
-                Debug.Log("[GameUI] 調用 GameManager.StartGameNormal()");
-                GameManager.Instance.StartGameNormal();
-            }
-            else
-            {
-                Debug.LogError("[GameUI] GameManager.Instance 為空！無法開始遊戲");
-            }
+            if (selectedThemeIndex == -1) return;
+            GameManager.Instance.StartGame(selectedThemeIndex, DifficultyTrack.Standard);
         }
         
         private void OnStartGameHard()
         {
-            Debug.Log("=== [GameUI] OnStartGameHard() 被觸發！===");
-            
-            if (GameManager.Instance != null)
-            {
-                Debug.Log("[GameUI] 調用 GameManager.StartGameHard()");
-                GameManager.Instance.StartGameHard();
-            }
-            else
-            {
-                Debug.LogError("[GameUI] GameManager.Instance 為空！無法開始遊戲");
-            }
+            if (selectedThemeIndex == -1) return;
+            GameManager.Instance.StartGame(selectedThemeIndex, DifficultyTrack.Expert);
         }
         
         private void OnRestart()
         {
-            Debug.Log("=== [GameUI] OnRestart() 被觸發！===");
-            
-            if (GameManager.Instance != null)
-            {
-                GameManager.Instance.RestartGame();
-            }
-            else
-            {
-                Debug.LogError("[GameUI] GameManager.Instance 為空！");
-            }
+            GameManager.Instance.RestartGame();
         }
         
         private void OnReturnToMenu()
         {
-            Debug.Log("=== [GameUI] OnReturnToMenu() 被觸發！===");
-            
-            if (GameManager.Instance != null)
+            GameManager.Instance.ReturnToMenu();
+        }
+        
+        private void HandleGameStateChanged(GameState newState)
+        {
+            switch (newState)
             {
-                GameManager.Instance.ReturnToMenu();
-            }
-            else
-            {
-                Debug.LogError("[GameUI] GameManager.Instance 為空！");
+                case GameState.Menu: ShowMenu(); break;
+                case GameState.Playing: ShowGameplay(); break;
+                case GameState.LevelUp: ShowLevelUp(); break;
+                case GameState.GameOver: ShowGameOver(); break;
+                case GameState.Victory: ShowVictory(); break;
             }
         }
         
-        /// <summary>
-        /// 處理消除行事件（用於齊射顯示）
-        /// </summary>
-        private void HandleRowsClearedForSalvo(int totalRowCount, int nonGarbageRowCount, bool hasVoid)
+        // --- UI 更新 (保持原有邏輯) ---
+        
+        private void UpdateGameplayUI()
         {
-            // 虛無抵銷：不顯示齊射文字
-            // （"虛無抵銷!"會由 PlayerManager 的 pop-up text 顯示）
-            if (hasVoid)
+            if (PlayerManager.Instance != null)
             {
-                return;
+                var stats = PlayerManager.Instance.Stats;
+                if (scoreText != null) scoreText.text = stats.score.ToString("N0");
+                if (comboText != null)
+                {
+                    comboText.text = stats.comboCount > 1 ? $"{stats.comboCount}連發!" : "";
+                    comboText.gameObject.SetActive(stats.comboCount > 1);
+                }
+                
+                if (playerHpSlider != null) { playerHpSlider.maxValue = stats.maxHp; playerHpSlider.value = stats.currentHp; }
+                if (playerHpText != null) playerHpText.text = $"{stats.currentHp} / {stats.maxHp}";
+                if (playerCpSlider != null) { playerCpSlider.maxValue = stats.maxCp; playerCpSlider.value = stats.currentCp; }
+                if (playerCpText != null) playerCpText.text = $"CP: {stats.currentCp} / {stats.maxCp}";
+                if (explosionDamageText != null) explosionDamageText.text = $"{stats.explosionCharge}/{stats.explosionMaxCharge}";
+                
+                UpdateSkillUI();
             }
             
-            // 正常齊射顯示（2 排非垃圾方塊以上）
+            if (EnemyController.Instance != null)
+            {
+                if (enemyHpSlider != null) { enemyHpSlider.maxValue = EnemyController.Instance.MaxHp; enemyHpSlider.value = EnemyController.Instance.CurrentHp; }
+                if (enemyHpText != null) enemyHpText.text = $"{Mathf.Ceil(EnemyController.Instance.CurrentHp)} / {EnemyController.Instance.MaxHp}";
+            }
+            
+            if (stageText != null && GameManager.Instance != null)
+            {
+                stageText.text = $"STAGE {GameManager.Instance.CurrentStageIndex + 1} / {GameManager.Instance.TotalStages}";
+            }
+        }
+        
+        private void HandleRowsClearedForSalvo(int totalRowCount, int nonGarbageRowCount, bool hasVoid)
+        {
+            if (hasVoid) return;
             if (nonGarbageRowCount >= 2)
             {
                 lastClearedRows = nonGarbageRowCount;
-                salvoDisplayTimer = 2f; // 顯示 2 秒
+                salvoDisplayTimer = 2f;
             }
         }
         
-        /// <summary>
-        /// 更新齊射文字顯示
-        /// </summary>
         private void UpdateSalvoDisplay()
         {
             if (salvoText == null) return;
-            
-            // 如果有顯示計時器
             if (salvoDisplayTimer > 0)
             {
                 salvoDisplayTimer -= Time.deltaTime;
-                
-                // 根據消除行數顯示不同文字和顏色
                 if (lastClearedRows >= 5)
                 {
                     salvoText.text = $"超級齊射 x{lastClearedRows}!";
-                    salvoText.color = new Color(1f, 0.84f, 0f); // 金色
+                    salvoText.color = new Color(1f, 0.84f, 0f);
                 }
                 else
                 {
                     salvoText.text = $"齊射 x{lastClearedRows}!";
-                    salvoText.color = new Color(0.13f, 0.83f, 0.93f); // 青色
+                    salvoText.color = new Color(0.13f, 0.83f, 0.93f);
                 }
-                
                 salvoText.gameObject.SetActive(true);
-                
-                // 時間到了就隱藏
-                if (salvoDisplayTimer <= 0)
-                {
-                    salvoText.gameObject.SetActive(false);
-                }
+                if (salvoDisplayTimer <= 0) salvoText.gameObject.SetActive(false);
             }
             else
             {
@@ -468,64 +339,13 @@ namespace Tenronis.UI
             }
         }
         
-        /// <summary>
-        /// 更新技能UI顯示
-        /// </summary>
         private void UpdateSkillUI()
         {
             if (PlayerManager.Instance == null) return;
-            
-            var stats = PlayerManager.Instance.Stats;
-            
-            // 處決技能UI
-            if (executionKeyLabelText != null)
-            {
-                if (PlayerManager.Instance.IsExecutionUnlocked())
-                {
-                    executionKeyLabelText.text = "1";
-                }
-                else
-                {
-                    executionKeyLabelText.text = "Locked";
-                }
-            }
-            
-            if (executionCostText != null)
-            {
-                if (PlayerManager.Instance.IsExecutionUnlocked())
-                {
-                    executionCostText.text = $"CP-{GameConstants.EXECUTION_CP_COST}";
-                }
-                else
-                {
-                    executionCostText.text = "";
-                }
-            }
-            
-            // 修補技能UI
-            if (repairKeyLabelText != null)
-            {
-                if (PlayerManager.Instance.IsRepairUnlocked())
-                {
-                    repairKeyLabelText.text = "2";
-                }
-                else
-                {
-                    repairKeyLabelText.text = "Locked";
-                }
-            }
-            
-            if (repairCostText != null)
-            {
-                if (PlayerManager.Instance.IsRepairUnlocked())
-                {
-                    repairCostText.text = $"CP-{GameConstants.REPAIR_CP_COST}";
-                }
-                else
-                {
-                    repairCostText.text = "";
-                }
-            }
+            if (executionKeyLabelText != null) executionKeyLabelText.text = PlayerManager.Instance.IsExecutionUnlocked() ? "1" : "Locked";
+            if (executionCostText != null) executionCostText.text = PlayerManager.Instance.IsExecutionUnlocked() ? $"CP-{GameConstants.EXECUTION_CP_COST}" : "";
+            if (repairKeyLabelText != null) repairKeyLabelText.text = PlayerManager.Instance.IsRepairUnlocked() ? "2" : "Locked";
+            if (repairCostText != null) repairCostText.text = PlayerManager.Instance.IsRepairUnlocked() ? $"CP-{GameConstants.REPAIR_CP_COST}" : "";
         }
     }
 }

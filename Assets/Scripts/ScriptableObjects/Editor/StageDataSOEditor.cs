@@ -25,7 +25,6 @@ namespace Tenronis.ScriptableObjects.Editor
         private SerializedProperty maxHp;
         private SerializedProperty shootInterval;
         private SerializedProperty bulletSpeed;
-        private SerializedProperty burstCount;
         
         private SerializedProperty normalBullet;
         private SerializedProperty areaBullet;
@@ -64,7 +63,6 @@ namespace Tenronis.ScriptableObjects.Editor
             maxHp = serializedObject.FindProperty("maxHp");
             shootInterval = serializedObject.FindProperty("shootInterval");
             bulletSpeed = serializedObject.FindProperty("bulletSpeed");
-            burstCount = serializedObject.FindProperty("burstCount");
             
             normalBullet = serializedObject.FindProperty("normalBullet");
             areaBullet = serializedObject.FindProperty("areaBullet");
@@ -159,7 +157,6 @@ namespace Tenronis.ScriptableObjects.Editor
                 EditorGUILayout.PropertyField(maxHp, new GUIContent("最大 HP"));
                 EditorGUILayout.PropertyField(shootInterval, new GUIContent("射擊間隔（秒）"));
                 EditorGUILayout.PropertyField(bulletSpeed, new GUIContent("子彈速度"));
-                EditorGUILayout.PropertyField(burstCount, new GUIContent("連發數量"));
                 
                 GUI.enabled = true;
                 
