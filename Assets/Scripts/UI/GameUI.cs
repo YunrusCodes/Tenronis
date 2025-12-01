@@ -15,7 +15,9 @@ namespace Tenronis.UI
     {
         [Header("主選單")]
         [SerializeField] private GameObject menuPanel;
-        [SerializeField] private Button startButton;
+        [SerializeField] private Button easyButton;
+        [SerializeField] private Button normalButton;
+        [SerializeField] private Button hardButton;
         
         [Header("遊戲中UI")]
         [SerializeField] private GameObject gameplayPanel;
@@ -68,14 +70,34 @@ namespace Tenronis.UI
             }
             
             // 綁定按鈕事件
-            if (startButton != null)
+            if (easyButton != null)
             {
-                startButton.onClick.AddListener(OnStartGame);
-                Debug.Log("[GameUI] StartButton已綁定事件");
+                easyButton.onClick.AddListener(OnStartGameEasy);
+                Debug.Log("[GameUI] EasyButton已綁定事件");
             }
             else
             {
-                Debug.LogError("[GameUI] StartButton參考為空！請在Inspector中設置");
+                Debug.LogError("[GameUI] EasyButton參考為空！請在Inspector中設置");
+            }
+            
+            if (normalButton != null)
+            {
+                normalButton.onClick.AddListener(OnStartGameNormal);
+                Debug.Log("[GameUI] NormalButton已綁定事件");
+            }
+            else
+            {
+                Debug.LogError("[GameUI] NormalButton參考為空！請在Inspector中設置");
+            }
+            
+            if (hardButton != null)
+            {
+                hardButton.onClick.AddListener(OnStartGameHard);
+                Debug.Log("[GameUI] HardButton已綁定事件");
+            }
+            else
+            {
+                Debug.LogError("[GameUI] HardButton參考為空！請在Inspector中設置");
             }
             
             if (restartButton != null)
@@ -106,8 +128,14 @@ namespace Tenronis.UI
             GameEvents.OnRowsCleared -= HandleRowsClearedForSalvo;
             GameEvents.OnSkillUnlocked -= UpdateSkillUI;
             
-            if (startButton != null)
-                startButton.onClick.RemoveListener(OnStartGame);
+            if (easyButton != null)
+                easyButton.onClick.RemoveListener(OnStartGameEasy);
+            
+            if (normalButton != null)
+                normalButton.onClick.RemoveListener(OnStartGameNormal);
+            
+            if (hardButton != null)
+                hardButton.onClick.RemoveListener(OnStartGameHard);
             
             if (restartButton != null)
                 restartButton.onClick.RemoveListener(OnRestart);
@@ -309,14 +337,44 @@ namespace Tenronis.UI
         }
         
         // 按鈕回調
-        private void OnStartGame()
+        private void OnStartGameEasy()
         {
-            Debug.Log("=== [GameUI] OnStartGame() 被觸發！===");
+            Debug.Log("=== [GameUI] OnStartGameEasy() 被觸發！===");
             
             if (GameManager.Instance != null)
             {
-                Debug.Log("[GameUI] 調用 GameManager.StartGame()");
-                GameManager.Instance.StartGame();
+                Debug.Log("[GameUI] 調用 GameManager.StartGameEasy()");
+                GameManager.Instance.StartGameEasy();
+            }
+            else
+            {
+                Debug.LogError("[GameUI] GameManager.Instance 為空！無法開始遊戲");
+            }
+        }
+        
+        private void OnStartGameNormal()
+        {
+            Debug.Log("=== [GameUI] OnStartGameNormal() 被觸發！===");
+            
+            if (GameManager.Instance != null)
+            {
+                Debug.Log("[GameUI] 調用 GameManager.StartGameNormal()");
+                GameManager.Instance.StartGameNormal();
+            }
+            else
+            {
+                Debug.LogError("[GameUI] GameManager.Instance 為空！無法開始遊戲");
+            }
+        }
+        
+        private void OnStartGameHard()
+        {
+            Debug.Log("=== [GameUI] OnStartGameHard() 被觸發！===");
+            
+            if (GameManager.Instance != null)
+            {
+                Debug.Log("[GameUI] 調用 GameManager.StartGameHard()");
+                GameManager.Instance.StartGameHard();
             }
             else
             {

@@ -12,8 +12,10 @@ namespace Tenronis.Managers
     {
         public static GameManager Instance { get; private set; }
         
-        [Header("關卡數據")]
-        [SerializeField] private StageDataSO[] stages;
+        [Header("關卡數據 - 三軌難度")]
+        [SerializeField] private StageDataSO[] easyStages;
+        [SerializeField] private StageDataSO[] normalStages;
+        [SerializeField] private StageDataSO[] hardStages;
         
         [Header("普通強化")]
         [SerializeField] private BuffDataSO[] normalBuffs;
@@ -23,6 +25,8 @@ namespace Tenronis.Managers
         
         // 遊戲狀態
         private GameState currentState = GameState.Menu;
+        private DifficultyTrack currentDifficulty = DifficultyTrack.Standard;
+        private StageDataSO[] currentStages = null;
         private int currentStageIndex = 0;
         private int pendingBuffCount = 0;
         private float damageAccumulator = 0f;
@@ -30,9 +34,10 @@ namespace Tenronis.Managers
         
         // 屬性
         public GameState CurrentState => currentState;
-        public StageDataSO CurrentStage => stages != null && currentStageIndex < stages.Length ? stages[currentStageIndex] : null;
+        public DifficultyTrack CurrentDifficulty => currentDifficulty;
+        public StageDataSO CurrentStage => currentStages != null && currentStageIndex < currentStages.Length ? currentStages[currentStageIndex] : null;
         public int CurrentStageIndex => currentStageIndex;
-        public int TotalStages => stages != null ? stages.Length : 0;
+        public int TotalStages => currentStages != null ? currentStages.Length : 0;
         public BuffDataSO[] NormalBuffs => normalBuffs;
         public BuffDataSO[] LegendaryBuffs => legendaryBuffs;
         public int PendingBuffCount => pendingBuffCount;
@@ -86,18 +91,65 @@ namespace Tenronis.Managers
         }
         
         /// <summary>
-        /// 開始遊戲
+        /// 開始遊戲 - Easy 難度（Casual 軌道）
         /// </summary>
-        public void StartGame()
+        public void StartGameEasy()
         {
-            Debug.Log("=== [GameManager] StartGame() 開始執行 ===");
+            StartGame(DifficultyTrack.Casual);
+        }
+        
+        /// <summary>
+        /// 開始遊戲 - Normal 難度（Standard 軌道）
+        /// </summary>
+        public void StartGameNormal()
+        {
+            StartGame(DifficultyTrack.Standard);
+        }
+        
+        /// <summary>
+        /// 開始遊戲 - Hard 難度（Expert 軌道）
+        /// </summary>
+        public void StartGameHard()
+        {
+            StartGame(DifficultyTrack.Expert);
+        }
+        
+        /// <summary>
+        /// 開始遊戲（內部方法）
+        /// </summary>
+        private void StartGame(DifficultyTrack difficulty)
+        {
+            Debug.Log($"=== [GameManager] StartGame({difficulty}) 開始執行 ===");
+            
+            currentDifficulty = difficulty;
+            
+            // 根據難度選擇對應的關卡陣列
+            switch (difficulty)
+            {
+                case DifficultyTrack.Casual:
+                    currentStages = easyStages;
+                    Debug.Log("[GameManager] 選擇難度：Casual（Easy）");
+                    break;
+                case DifficultyTrack.Standard:
+                    currentStages = normalStages;
+                    Debug.Log("[GameManager] 選擇難度：Standard（Normal）");
+                    break;
+                case DifficultyTrack.Expert:
+                    currentStages = hardStages;
+                    Debug.Log("[GameManager] 選擇難度：Expert（Hard）");
+                    break;
+                default:
+                    currentStages = normalStages;
+                    Debug.LogWarning($"[GameManager] 未知難度 {difficulty}，使用 Standard 作為預設");
+                    break;
+            }
             
             currentStageIndex = 0;
             pendingBuffCount = 0;
             damageAccumulator = 0f;
             rogueRequirement = GameConstants.INITIAL_ROGUE_REQUIREMENT;
             
-            Debug.Log($"[GameManager] 遊戲數據已重置 - Stage: {currentStageIndex}, Buffs: {pendingBuffCount}");
+            Debug.Log($"[GameManager] 遊戲數據已重置 - Difficulty: {difficulty}, Stage: {currentStageIndex}, Buffs: {pendingBuffCount}, Total Stages: {TotalStages}");
             
             ChangeGameState(GameState.Playing);
             
@@ -105,11 +157,11 @@ namespace Tenronis.Managers
         }
         
         /// <summary>
-        /// 重新開始遊戲
+        /// 重新開始遊戲（使用當前難度）
         /// </summary>
         public void RestartGame()
         {
-            StartGame();
+            StartGame(currentDifficulty);
         }
         
         /// <summary>
@@ -126,13 +178,13 @@ namespace Tenronis.Managers
         private void HandleEnemyDefeated()
         {
             // 獲取當前關卡的獎勵卡牌數量
-            if (stages != null && currentStageIndex < stages.Length)
+            if (currentStages != null && currentStageIndex < currentStages.Length)
             {
-                int stageReward = stages[currentStageIndex].rewardBuffCount;
+                int stageReward = currentStages[currentStageIndex].rewardBuffCount;
                 if (stageReward > 0)
                 {
                     pendingBuffCount += stageReward;
-                    Debug.Log($"[GameManager] 關卡 {currentStageIndex + 1} 完成！獲得 {stageReward} 張升級卡牌，總計: {pendingBuffCount}");
+                    Debug.Log($"[GameManager] 關卡 {currentStageIndex + 1}/{currentStages.Length} 完成！難度: {currentDifficulty}, 獲得 {stageReward} 張升級卡牌，總計: {pendingBuffCount}");
                 }
             }
             
@@ -145,9 +197,10 @@ namespace Tenronis.Managers
             
             currentStageIndex++;
             
-            if (currentStageIndex >= stages.Length)
+            if (currentStages == null || currentStageIndex >= currentStages.Length)
             {
                 // 勝利
+                Debug.Log($"[GameManager] 所有關卡完成！難度: {currentDifficulty}");
                 ChangeGameState(GameState.Victory);
             }
             else

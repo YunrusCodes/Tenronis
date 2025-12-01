@@ -155,50 +155,75 @@
    - 或使用: `vfx_Lightning_01.prefab` (閃電效果)
 8. **Low Hp Threshold**: 設置低HP閾值（默認0.3 = 30%）
 
-### 步驟 9: 建立關卡數據
+### 步驟 9: 建立關卡數據（三軌難度）
 
 1. 在Project視窗: `Assets/ScriptableObjects/Stages`
 2. 右鍵 > `Create > Tenronis > Stage Data`
-3. 建立10個關卡，命名為 `Stage_01` 到 `Stage_10`
+3. 建立30個關卡：
+   - **Easy1 ~ Easy10**（Casual 軌道）
+   - **Normal1 ~ Normal10**（Standard 軌道）
+   - **Hard1 ~ Hard10**（Expert 軌道）
 
-**範例設定 - Stage_01:**
+**範例設定 - Easy1（Casual 軌道）:**
 ```
-Stage Name: 偵察無人機
-Stage Index: 0
+Stage Name: 深淵窺視者
+Stage Index: 1
+Is Boss Stage: false
+Difficulty Track: Casual
+Auto Balance: true ← 啟用自動平衡
+Player PDA: 7
+Player SP: 0.7
 Reward Buff Count: 1
-Max Hp: 100
-Shoot Interval: 2
-Bullet Speed: 8
-Can Use Add Block: false
-Can Use Area Damage: false
-Can Use Insert Row: false
-Use Explosive Blocks: false
-Use Void Row: false
+Max Hp: 245
+Shoot Interval: 2.9
+Bullet Speed: 6
+Burst Count: 1
+[技能設置會由 Auto Balance 自動計算]
 Enemy Icon: [拖入敵人圖片Sprite]
-Theme Color: 紅色
+Theme Color: 淡藍色
 ```
 
-**範例設定 - Stage_10:**
+**範例設定 - Normal1（Standard 軌道）:**
 ```
-Stage Name: 終焉機械神
-Stage Index: 9
-Reward Buff Count: 3
-Max Hp: 2000
-Shoot Interval: 0.8
-Bullet Speed: 12
-Can Use Add Block: true
-Can Use Area Damage: true
-Can Use Insert Row: true
-Add Block Chance: 0.35
-Area Damage Chance: 0.25
-Insert Row Chance: 0.15
-Use Explosive Blocks: true
-Use Void Row: true
+Stage Name: 深淵全能者
+Stage Index: 1
+Is Boss Stage: false
+Difficulty Track: Standard
+Auto Balance: true
+Player PDA: 7
+Player SP: 0.6
+Reward Buff Count: 1
+Max Hp: 175
+Shoot Interval: 1.9
+Bullet Speed: 8
+Burst Count: 1
+Enemy Icon: [拖入敵人圖片Sprite]
+Theme Color: 藍色
+```
+
+**範例設定 - Hard10（Expert 軌道）:**
+```
+Stage Name: 深淵主宰
+Stage Index: 10
+Is Boss Stage: true
+Difficulty Track: Expert
+Auto Balance: true
+Player PDA: 3500
+Player SP: 0.2
+Reward Buff Count: 2
+Max Hp: 70000
+Shoot Interval: 0.7
+Bullet Speed: 10
+Burst Count: 5
+Use Smart Targeting: true ← Expert 模式啟用
 Enemy Icon: [拖入Boss圖片Sprite]
-Theme Color: 紫色
+Theme Color: 深紅色
 ```
 
-> **重要**：敵人圖片會在關卡開始時自動顯示在 `EnemySprite` 上，無需手動設置！
+> **重要**：
+> - 敵人圖片會在關卡開始時自動顯示在 `EnemySprite` 上，無需手動設置！
+> - 啟用 `Auto Balance` 後，數值會根據 PDA 和 SP 自動計算
+> - 詳細數值規格請參考 `Assets/Documentation/Math/11_Difficulty_Tracks_Model.md`
 
 ### 步驟 10: 建立Buff數據
 
@@ -235,7 +260,11 @@ Spawn Weight: 1.0
 
 選擇 GameManager 物件：
 
-1. **Stages**: 設置陣列大小為10，拖入所有關卡數據
+1. **關卡數據 - 三軌難度**：
+   - **Easy Stages**: 設置陣列大小為10，拖入 Easy1 ~ Easy10
+   - **Normal Stages**: 設置陣列大小為10，拖入 Normal1 ~ Normal10
+   - **Hard Stages**: 設置陣列大小為10，拖入 Hard1 ~ Hard10
+
 2. **Normal Buffs** (普通強化): 設置陣列大小為6，拖入以下Buff：
    - Salvo (齊射強化)
    - Burst (連發強化)
@@ -243,10 +272,16 @@ Spawn Weight: 1.0
    - Explosion (過載爆破)
    - SpaceExpansion (空間擴充)
    - ResourceExpansion (資源擴充)
+
 3. **Legendary Buffs** (傳奇強化): 設置陣列大小為3，拖入以下Buff：
    - Defense (裝甲強化)
    - Volley (協同火力)
    - Heal (緊急修復)
+
+**三軌難度系統說明**：
+- **Casual（Easy）**: 休閒模式，35秒目標擊殺時間，較慢的子彈速度（6格/秒）
+- **Standard（Normal）**: 標準模式，25秒目標擊殺時間，中等子彈速度（8格/秒）
+- **Expert（Hard）**: 專家模式，20秒目標擊殺時間，快速子彈（10格/秒），啟用智能瞄準
 
 **傳奇強化選擇機制說明**：
 - 當有普通強化達到滿級時，會自動提供傳奇強化選擇機會
@@ -267,9 +302,27 @@ Spawn Weight: 1.0
 ```
 Canvas
 └── MenuPanel (添加 VerticalLayoutGroup)
-    ├── Title (TextMeshPro)
-    └── StartButton (Button)
+    ├── Title (TextMeshPro - "Tenronis")
+    ├── EasyButton (Button - "簡單模式")
+    ├── NormalButton (Button - "標準模式")
+    └── HardButton (Button - "專家模式")
 ```
+
+**按鈕設置**：
+1. **EasyButton**：
+   - Text: "簡單模式 (Casual)"
+   - OnClick: `GameManager.StartGameEasy()`
+   - 顏色: 綠色或淡色
+
+2. **NormalButton**：
+   - Text: "標準模式 (Standard)"
+   - OnClick: `GameManager.StartGameNormal()`
+   - 顏色: 藍色或中等色
+
+3. **HardButton**：
+   - Text: "專家模式 (Expert)"
+   - OnClick: `GameManager.StartGameHard()`
+   - 顏色: 紅色或深色
 
 #### 遊戲中UI
 ```
@@ -421,7 +474,9 @@ Canvas
 選擇Canvas，添加 `GameUI` 腳本，連接所有UI引用：
 
 - Menu Panel → MenuPanel物件
-- Start Button → StartButton
+- **Easy Button → EasyButton** ← 🎮 新增
+- **Normal Button → NormalButton** ← 🎮 新增
+- **Hard Button → HardButton** ← 🎮 新增
 - Gameplay Panel → GameplayPanel
 - Score Text → ScoreText
 - Combo Text → ComboText

@@ -1,0 +1,55 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3fe80882f65a4ff479ef1fca5ee38a6f, type: 3}
+  m_Name: Stage_19 1
+  m_EditorClassIdentifier: 
+  stageName: "\u6DF1\u6E0A\u7D42\u7D50\u8005"
+  stageIndex: 9
+  isBossStage: 0
+  difficultyTrack: 2
+  autoBalance: 1
+  playerPDA: 2000
+  playerSP: 0.25
+  rewardBuffCount: 1
+  maxHp: 40000
+  shootInterval: 0.8
+  bulletSpeed: 10
+  burstCount: 4
+  normalBullet:
+    enabled: 1
+    chance: 1
+  areaBullet:
+    enabled: 1
+    chance: 0.4
+  addBlockBullet:
+    enabled: 1
+    chance: 0.48
+  addExplosiveBlockBullet:
+    enabled: 0
+    chance: 0.32
+  addRowBullet:
+    enabled: 0
+    chance: 0.24
+  addVoidRowBullet:
+    enabled: 0
+    chance: 0.16
+  corruptExplosiveBullet:
+    enabled: 0
+    chance: 0.24
+  corruptVoidBullet:
+    enabled: 0
+    chance: 0.16
+  useSmartTargeting: 1
+  addBlockTargetsHigh: 1
+  areaDamageTargetsLow: 1
+  enemyIcon: {fileID: 57720911535580837, guid: 41384a99e92891342bdc06a0aec3de54, type: 3}
+  themeColor: {r: 1, g: 0.1, b: 0.5, a: 1}
