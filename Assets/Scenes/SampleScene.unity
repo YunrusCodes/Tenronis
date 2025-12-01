@@ -3452,7 +3452,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Tenronis.Managers.CombatManager
   missilePrefab: {fileID: -2852913641695233341, guid: a67593dc0c359c946a6f4d0ad74b5eb1, type: 3}
   bulletPrefab: {fileID: 3072015059056282605, guid: ad034013717641143be3f65fe298aaf2, type: 3}
-  explosionEffectPrefab: {fileID: 8464950693656172981, guid: e6277ce8ddb7cdc4f95449608de47b5c, type: 3}
+  explosionEffectPrefab: {fileID: 525727338045697582, guid: 1b7cafe053c344647bbfead415ab6683, type: 3}
   projectileContainer: {fileID: 462396021}
 --- !u!1 &655710070
 GameObject:
@@ -9772,7 +9772,7 @@ MonoBehaviour:
   blockPrefab: {fileID: 2386012697764751039, guid: 41c93c59eb6643d4982da3482103ebb2, type: 3}
   blockSize: 1
   gridOffset: {x: -8, y: 9}
-  explosiveBlockEffectPrefab: {fileID: 8464950693656172981, guid: e6277ce8ddb7cdc4f95449608de47b5c, type: 3}
+  explosiveBlockEffectPrefab: {fileID: 525727338045697582, guid: 1b7cafe053c344647bbfead415ab6683, type: 3}
   voidBlockEffectPrefab: {fileID: 9080140021571130472, guid: e3f7834612af29b46b7950b9f6320d41, type: 3}
 --- !u!1 &1881749706
 GameObject:
@@ -9804,7 +9804,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Tenronis.Gameplay.Enemy.EnemyController
   enemySprite: {fileID: 1518619914}
-  damageEffectPrefab: {fileID: 8464950693656172981, guid: e6277ce8ddb7cdc4f95449608de47b5c, type: 3}
+  damageEffectPrefab: {fileID: 525727338045697582, guid: 1b7cafe053c344647bbfead415ab6683, type: 3}
 --- !u!4 &1881749709
 Transform:
   m_ObjectHideFlags: 0
@@ -10883,13 +10883,13 @@ MonoBehaviour:
   defaultSprite: {fileID: -2311659948842064771, guid: 1378fdfdf2106f24fb27ba94183f844b, type: 3}
   damagedSprite: {fileID: -2311659948842064771, guid: 1378fdfdf2106f24fb27ba94183f844b, type: 3}
   lowHpSprite: {fileID: -2311659948842064771, guid: 1378fdfdf2106f24fb27ba94183f844b, type: 3}
-  damageEffectPrefab: {fileID: 8464950693656172981, guid: e6277ce8ddb7cdc4f95449608de47b5c, type: 3}
+  damageEffectPrefab: {fileID: 525727338045697582, guid: 1b7cafe053c344647bbfead415ab6683, type: 3}
   effectPoints:
   - {fileID: 1811822979}
   - {fileID: 742273065}
   - {fileID: 2035590758}
   - {fileID: 1791380891}
-  attackEffectPrefab: {fileID: 8464950693656172981, guid: e6277ce8ddb7cdc4f95449608de47b5c, type: 3}
+  attackEffectPrefab: {fileID: 525727338045697582, guid: 1b7cafe053c344647bbfead415ab6683, type: 3}
   lowHpThreshold: 0.3
 --- !u!4 &2116533697
 Transform:
