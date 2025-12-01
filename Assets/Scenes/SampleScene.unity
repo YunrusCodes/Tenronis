@@ -10551,9 +10551,39 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6a55ffb3d99c7a14fb059604313ea237, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Tenronis.Managers.GameManager
-  easyStages: []
-  normalStages: []
-  hardStages: []
+  easyStages:
+  - {fileID: 11400000, guid: 98118c52c91425d44af25a355972a1aa, type: 2}
+  - {fileID: 11400000, guid: b1e8b9c734c64c14c996905f3193b19f, type: 2}
+  - {fileID: 11400000, guid: 2a5e9c1a1f4c66f4c85571ad069ea1f9, type: 2}
+  - {fileID: 11400000, guid: 8b504cc2e32ef2a42bd964980fc2b1fb, type: 2}
+  - {fileID: 11400000, guid: 298d6cf5562ec344a96a3de3038e70d8, type: 2}
+  - {fileID: 11400000, guid: e4d25811b45a82846b9513e36898ad8c, type: 2}
+  - {fileID: 11400000, guid: f5de872d7968b054f91b5126f45685c3, type: 2}
+  - {fileID: 11400000, guid: 595322a5eec6489429ac5568374d8d86, type: 2}
+  - {fileID: 11400000, guid: faedff30b562e324bb536f789d804a89, type: 2}
+  - {fileID: 11400000, guid: ca459705eb81c5a44aa0cc4108ad637c, type: 2}
+  normalStages:
+  - {fileID: 11400000, guid: 6546d870c6e46f148a514b2a335ce8d1, type: 2}
+  - {fileID: 11400000, guid: 619707352eaed504297e99b1089a3498, type: 2}
+  - {fileID: 11400000, guid: dcf6e1efd78e6164dbb9bf401c1a194a, type: 2}
+  - {fileID: 11400000, guid: ed228bfc6ccccaa4592cd3664457fcb6, type: 2}
+  - {fileID: 11400000, guid: f14260efc927c7f45b9c98f3b95f09a0, type: 2}
+  - {fileID: 11400000, guid: 49e6b13962273c14c93810d6d8825f02, type: 2}
+  - {fileID: 11400000, guid: 01f4c30d5ce055140a532c542363f143, type: 2}
+  - {fileID: 11400000, guid: d246f76fa55ee0b48a83b638e0a2b612, type: 2}
+  - {fileID: 11400000, guid: 885744862196d224db3492cadd61be69, type: 2}
+  - {fileID: 11400000, guid: a8264052b46009f42a9e076c8c16efba, type: 2}
+  hardStages:
+  - {fileID: 11400000, guid: 6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d, type: 2}
+  - {fileID: 11400000, guid: 7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e, type: 2}
+  - {fileID: 11400000, guid: 8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f, type: 2}
+  - {fileID: 11400000, guid: 9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a, type: 2}
+  - {fileID: 11400000, guid: 0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b, type: 2}
+  - {fileID: 11400000, guid: 1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c, type: 2}
+  - {fileID: 11400000, guid: 2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d, type: 2}
+  - {fileID: 11400000, guid: 3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e, type: 2}
+  - {fileID: 11400000, guid: 4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f, type: 2}
+  - {fileID: 11400000, guid: 5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a, type: 2}
   normalBuffs:
   - {fileID: 11400000, guid: 4497b73118838884aa3ce6be33c7b165, type: 2}
   - {fileID: 11400000, guid: ff4fc4990991d954e8cd5f061b5544bd, type: 2}

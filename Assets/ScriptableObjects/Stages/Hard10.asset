@@ -17,13 +17,13 @@ MonoBehaviour:
   isBossStage: 1
   difficultyTrack: 2
   autoBalance: 1
-  playerPDA: 3500
+  playerPDA: 3000
   playerSP: 0.2
   rewardBuffCount: 2
-  maxHp: 70000
-  shootInterval: 0.7
+  maxHp: 60000
+  shootInterval: 1.74
   bulletSpeed: 10
-  burstCount: 5
+  burstCount: 3
   normalBullet:
     enabled: 1
     chance: 1
@@ -32,23 +32,23 @@ MonoBehaviour:
     chance: 0.4
   addBlockBullet:
     enabled: 1
-    chance: 0.48
+    chance: 0.48000002
   addExplosiveBlockBullet:
     enabled: 1
-    chance: 0.32
+    chance: 0.32000002
   addRowBullet:
     enabled: 0
-    chance: 0.24
+    chance: 0.24000001
   addVoidRowBullet:
     enabled: 0
-    chance: 0.16
+    chance: 0.16000001
   corruptExplosiveBullet:
     enabled: 0
-    chance: 0.24
+    chance: 0.24000001
   corruptVoidBullet:
     enabled: 0
-    chance: 0.16
-  useSmartTargeting: 1
+    chance: 0.16000001
+  useSmartTargeting: 0
   addBlockTargetsHigh: 1
   areaDamageTargetsLow: 1
   enemyIcon: {fileID: 6210062611996482124, guid: 84df50f3df845d3429c35431e459dfa4, type: 3}

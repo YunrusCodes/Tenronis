@@ -32,22 +32,22 @@ MonoBehaviour:
     chance: 0.4
   addBlockBullet:
     enabled: 0
-    chance: 0.48
+    chance: 0.48000002
   addExplosiveBlockBullet:
     enabled: 0
-    chance: 0.32
+    chance: 0.32000002
   addRowBullet:
     enabled: 0
-    chance: 0.24
+    chance: 0.24000001
   addVoidRowBullet:
     enabled: 0
-    chance: 0.16
+    chance: 0.16000001
   corruptExplosiveBullet:
     enabled: 0
-    chance: 0.24
+    chance: 0.24000001
   corruptVoidBullet:
     enabled: 0
-    chance: 0.16
+    chance: 0.16000001
   useSmartTargeting: 0
   addBlockTargetsHigh: 1
   areaDamageTargetsLow: 1

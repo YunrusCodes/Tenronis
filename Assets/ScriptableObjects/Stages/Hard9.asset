@@ -21,9 +21,9 @@ MonoBehaviour:
   playerSP: 0.25
   rewardBuffCount: 1
   maxHp: 40000
-  shootInterval: 0.8
+  shootInterval: 1.675
   bulletSpeed: 10
-  burstCount: 4
+  burstCount: 2
   normalBullet:
     enabled: 1
     chance: 1
@@ -32,23 +32,23 @@ MonoBehaviour:
     chance: 0.4
   addBlockBullet:
     enabled: 1
-    chance: 0.48
+    chance: 0.48000002
   addExplosiveBlockBullet:
     enabled: 0
-    chance: 0.32
+    chance: 0.32000002
   addRowBullet:
     enabled: 0
-    chance: 0.24
+    chance: 0.24000001
   addVoidRowBullet:
     enabled: 0
-    chance: 0.16
+    chance: 0.16000001
   corruptExplosiveBullet:
     enabled: 0
-    chance: 0.24
+    chance: 0.24000001
   corruptVoidBullet:
     enabled: 0
-    chance: 0.16
-  useSmartTargeting: 1
+    chance: 0.16000001
+  useSmartTargeting: 0
   addBlockTargetsHigh: 1
   areaDamageTargetsLow: 1
   enemyIcon: {fileID: 57720911535580837, guid: 41384a99e92891342bdc06a0aec3de54, type: 3}
