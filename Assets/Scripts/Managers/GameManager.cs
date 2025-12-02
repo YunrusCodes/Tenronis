@@ -192,6 +192,15 @@ namespace Tenronis.Managers
             
             currentStageIndex++;
             
+            // 進入下一關時恢復 50% HP（非第一關）
+            if (currentStageIndex > 0 && PlayerManager.Instance != null)
+            {
+                int healAmount = Mathf.FloorToInt(PlayerManager.Instance.Stats.maxHp * 0.5f);
+                int oldHp = PlayerManager.Instance.Stats.currentHp;
+                PlayerManager.Instance.Heal(healAmount);
+                Debug.Log($"[GameManager] 進入關卡 {currentStageIndex + 1}，恢復 {healAmount} HP（50%），HP: {oldHp} → {PlayerManager.Instance.Stats.currentHp}/{PlayerManager.Instance.Stats.maxHp}");
+            }
+            
             if (currentStages == null || currentStageIndex >= currentStages.Count)
             {
                 // 勝利

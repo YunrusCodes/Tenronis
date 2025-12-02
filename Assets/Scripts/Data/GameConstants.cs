@@ -87,8 +87,7 @@ namespace Tenronis.Data
         {
             BuffType.Defense,    // 裝甲強化：無上限
             BuffType.Volley,     // 協同火力：無上限
-            BuffType.Heal,       // 緊急修復：立即效果
-            BuffType.TacticalExpansion // ⭐ 戰術擴展：改成傳奇
+            BuffType.TacticalExpansion // ⭐ 戰術擴展：解鎖技能
         };
     }
 }

@@ -20,21 +20,20 @@ MonoBehaviour:
   playerPDA: 45
   playerSP: 0.54
   rewardBuffCount: 1
-  maxHp: 600
-  shootInterval: 1.2199999
+  maxHp: 900
+  shootInterval: 1.298
   bulletSpeed: 10
-  burstCount: 1
   normalBullet:
     enabled: 1
     chance: 1
   areaBullet:
-    enabled: 0
+    enabled: 1
     chance: 0.4
   addBlockBullet:
-    enabled: 0
+    enabled: 1
     chance: 0.48000002
   addExplosiveBlockBullet:
-    enabled: 0
+    enabled: 1
     chance: 0.32000002
   addRowBullet:
     enabled: 0

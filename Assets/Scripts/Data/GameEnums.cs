@@ -76,7 +76,7 @@ namespace Tenronis.Data
     {
         Defense,        // 防禦：增加方塊HP
         Volley,         // 協同火力：增加每個位置發射的導彈數量
-        Heal,           // 治療：恢復HP
+        Heal,           // [已廢棄] 治療：改為關卡開始時自動恢復
         Explosion,      // 爆炸：溢出時造成傷害
         Salvo,          // 齊射強化：多行消除時增加導彈傷害
         Burst,          // 連發：連擊加成

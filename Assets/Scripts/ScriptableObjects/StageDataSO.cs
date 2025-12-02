@@ -90,10 +90,10 @@ namespace Tenronis.ScriptableObjects
         [Tooltip("添加爆炸方塊：添加的方塊被擊中時對玩家造成 5 點傷害")]
         public EnemyAbility addExplosiveBlockBullet = new EnemyAbility(false, 0.2f);
         
-        [Tooltip("插入普通垃圾行：從底部插入不可摧毀的垃圾行")]
+        [Tooltip("插入普通垃圾行：從底部插入一整行普通方塊（BlockType.Normal），消除時正常發射導彈")]
         public EnemyAbility addRowBullet = new EnemyAbility(false, 0.15f);
         
-        [Tooltip("插入虛無垃圾行：插入的垃圾行消除時不產生導彈")]
+        [Tooltip("插入虛無垃圾行：從底部插入一整行虛無方塊（BlockType.Void），消除時不產生導彈")]
         public EnemyAbility addVoidRowBullet = new EnemyAbility(false, 0.1f);
         
         [Tooltip("腐化爆炸方塊：將下個方塊的隨機一格變成爆炸方塊")]

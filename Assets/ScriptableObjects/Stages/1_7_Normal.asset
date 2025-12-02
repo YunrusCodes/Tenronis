@@ -23,12 +23,11 @@ MonoBehaviour:
   maxHp: 600
   shootInterval: 1.2199999
   bulletSpeed: 10
-  burstCount: 1
   normalBullet:
     enabled: 1
     chance: 1
   areaBullet:
-    enabled: 0
+    enabled: 1
     chance: 0.4
   addBlockBullet:
     enabled: 0

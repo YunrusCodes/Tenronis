@@ -64,40 +64,47 @@
 - [ ] BuffOption預製體（Button + Icon + Texts）
 
 ### ScriptableObject資產
-- [ ] 建立10個StageData
-  - [ ] Stage 1: 偵察無人機
-  - [ ] Stage 2: 突擊機械兵
-  - [ ] Stage 3: 攻城坦克
-  - [ ] Stage 4: 精英護衛
-  - [ ] Stage 5: 末日核心
-  - [ ] Stage 6: 重裝機兵
-  - [ ] Stage 7: 虛空干擾者
-  - [ ] Stage 8: 裂變轟炸機
-  - [ ] Stage 9: 深淵巨口
-  - [ ] Stage 10: 終焉機械神
 
-- [ ] 建立9個BuffData
+- [ ] 建立主題數據（StageSetSO）
+  - [ ] 至少建立1個主題（例如：深淵主題）
+  - [ ] 每個主題需要包含三種難度軌道的關卡列表
 
-**傳奇強化（3種）**：
-  - [ ] Defense Buff（裝甲強化，起始0，無上限）
-  - [ ] Volley Buff（協同火力，起始0，無上限，增加每個位置發射的導彈數量）
-  - [ ] Heal Buff（緊急修復，立即效果）
+- [ ] 建立關卡數據（StageDataSO）
+  - [ ] 為每個主題的每個難度建立關卡
+  - [ ] 範例：Theme1 包含 Easy1~10, Normal1~10, Hard1~10（共30個關卡）
+  - [ ] 使用 Auto Balance 功能根據 PDA 和 SP 自動計算敵人屬性
+  - [ ] 設置子彈類型配置（8種子彈類型）
+  - [ ] Boss關卡設置（isBossStage = true）
+
+- [ ] 建立12個BuffData（6普通 + 4傳奇 + 2技能）
+
+**傳奇強化（4種）**：
+  - [ ] Defense Buff（裝甲強化，起始0，無上限，+1 HP/等級）
+  - [ ] Volley Buff（協同火力，起始0，無上限，每個位置+1導彈/等級）
+  - [ ] TacticalExpansion Buff（戰術擴展，起始0，上限2，解鎖技能）
+  - [ ] Heal Buff（緊急修復，立即效果，恢復50% HP）
 
 **普通強化（6種）**：
   - [ ] Salvo Buff（齊射強化，起始1，上限6，多行消除時增加導彈傷害）
-  - [ ] Burst Buff（連發強化，起始1，上限6）
-  - [ ] Counter Buff（反擊強化，起始1，上限6）
+  - [ ] Burst Buff（連發強化，起始1，上限6，Combo加成）
+  - [ ] Counter Buff（反擊強化，起始1，上限6，新方塊被擊中時反擊）
   - [ ] Explosion Buff（過載爆破，起始1，上限4，增加充能上限）
-  - [ ] SpaceExpansion Buff（空間擴充，起始1，上限4）
-  - [ ] ResourceExpansion Buff（資源擴充，起始0，上限3）
+  - [ ] SpaceExpansion Buff（空間擴充，起始1，上限4，解鎖儲存槽位）
+  - [ ] ResourceExpansion Buff（資源擴充，起始0，上限3，增加CP上限）
 
-**注意**：Execution 和 Repair 已改為消耗CP的技能，不再作為Buff
+**技能（2種，通過TacticalExpansion解鎖）**：
+  - [ ] Execution（處決技能，消耗5 CP，清除每列底部方塊）
+  - [ ] Repair（修補技能，消耗30 CP，填補封閉空洞）
+
+**注意**：
+- Execution和Repair不是獨立的Buff，而是通過TacticalExpansion解鎖的技能
+- 技能在GameEnums中定義為BuffType，但在實際升級選單中不會出現，只能通過TacticalExpansion解鎖
 
 ### 管理器連接
 - [ ] GameManager
-  - [ ] 連接Stages陣列
+  - [ ] 連接All Themes列表（StageSetSO）
   - [ ] 連接Normal Buffs陣列（6個普通強化）
-  - [ ] 連接Legendary Buffs陣列（3個傳奇強化）
+  - [ ] 連接Legendary Buffs陣列（4個傳奇強化）
 - [ ] GridManager
   - [ ] 連接Block Prefab
   - [ ] 連接Grid Container
@@ -114,17 +121,29 @@
 ### UI建立與連接
 - [ ] 建立Canvas
 - [ ] 建立MenuPanel
-  - [ ] Title Text
-  - [ ] Start Button
+  - [ ] ThemeListPanel（主題選擇面板）
+    - [ ] Title Text（選擇主題）
+    - [ ] ThemeButtonContainer（存放動態生成的主題按鈕）
+  - [ ] DifficultySelectPanel（難度選擇面板）
+    - [ ] SelectedThemeTitle（顯示選中的主題名稱）
+    - [ ] EasyButton（簡單模式 - Casual）
+    - [ ] NormalButton（標準模式 - Standard）
+    - [ ] HardButton（專家模式 - Expert）
+    - [ ] BackToThemeButton（返回按鈕）
+- [ ] 建立Theme Button Prefab（用於動態生成主題按鈕）
 - [ ] 建立GameplayPanel
   - [ ] Score Text
   - [ ] Stage Text
   - [ ] Combo Text
   - [ ] Player HP Slider + Text
+  - [ ] Player CP Slider + Text
   - [ ] Enemy HP Slider + Text
-  - [ ] **注意**：Execution 和 Repair 已改為消耗CP的技能，不再顯示次數UI
+  - [ ] Explosion Damage Text
+  - [ ] **注意**：Execution 和 Repair 已改為消耗CP的技能，需要通過TacticalExpansion解鎖
 - [ ] 建立LevelUpPanel
   - [ ] Buff Options Container
+  - [ ] LegendaryBuffText（顯示傳奇強化）
+  - [ ] CurrentStatsText（顯示當前強化狀態）
 - [ ] 建立GameOverPanel
   - [ ] Title Text
   - [ ] Final Score Text
@@ -134,6 +153,11 @@
   - [ ] Final Score Text
   - [ ] Menu Button
 - [ ] 連接GameUI腳本所有引用
+  - [ ] Theme Button Prefab
+  - [ ] Theme Button Container
+  - [ ] Easy/Normal/Hard Buttons
+  - [ ] Back To Theme Button
+  - [ ] Selected Theme Title
 - [ ] 連接RoguelikeMenu腳本引用
 
 ## 📦 可選資源（增強體驗）
@@ -209,13 +233,18 @@
 - [ ] 爆炸充能系統正常運作（反擊+5，消排+50，溢出造成傷害）
 - [ ] 強化等級限制正常運作（有上限的Buff達到上限後不再增加）
 - [ ] UI顯示正常（每行3個強化，傳奇強化單獨顯示）
-- [ ] 不可摧毀行插入正常
-- [ ] 4種子彈類型效果正確
+- [ ] InsertRow（插入普通垃圾行）正常
+- [ ] InsertVoidRow（插入虛無垃圾行）正常
+- [ ] 8種子彈類型效果正確（Normal, AreaDamage, AddBlock, AddExplosiveBlock, InsertRow, InsertVoidRow, CorruptExplosive, CorruptVoid）
 
 ### 關卡測試
-- [ ] 10個關卡順序正確
+- [ ] 主題選擇系統正常運作
+- [ ] 難度選擇系統正常運作（Casual, Standard, Expert）
+- [ ] 關卡順序正確
 - [ ] 關卡難度遞增合理
-- [ ] Boss關卡（5, 10）特殊能力正常
+- [ ] Boss關卡特殊能力正常
+- [ ] 三種難度數值差異正確（HP、射速、子彈速度）
+- [ ] Auto Balance功能正常運作
 - [ ] 通關後顯示勝利界面
 - [ ] 分數統計正確
 

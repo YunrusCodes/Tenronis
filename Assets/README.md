@@ -38,6 +38,7 @@ Assets/
 - 單例模式遊戲主管理器
 - 管理遊戲狀態（Menu, Playing, LevelUp, GameOver, Victory）
 - 處理關卡進度和Roguelike系統
+- 支援多主題系統，每個主題包含三種難度軌道（Casual, Standard, Expert）
 
 ### 📐 GridManager
 - 管理遊戲網格（10x20）
@@ -73,7 +74,8 @@ Assets/
 ### 方塊系統
 - 7種經典俄羅斯方塊形狀（I, J, L, O, S, T, Z）
 - 方塊HP系統（可升級防禦）
-- 不可摧毀方塊（Boss技能）
+- 3種方塊類型（Normal, Void, Explosive）
+  - Void方塊：不可被子彈摧毀，但可通過消行清除
 
 ### 戰鬥系統
 - **消除行 → 發射導彈**
@@ -82,25 +84,39 @@ Assets/
 - **反擊系統**：新放置方塊被擊中時反擊
 
 ### 敵人系統
-- 10個關卡，難度遞增
-- 4種子彈類型：
-  - 普通子彈
-  - 添加方塊子彈
-  - 範圍傷害子彈
-  - 插入不可摧毀行子彈
+- 支援多主題系統，每個主題包含多個關卡
+- 三種難度軌道（Casual, Standard, Expert）
+- 8種子彈類型：
+  - Normal（普通子彈）
+  - AreaDamage（範圍傷害子彈）
+  - AddBlock（添加普通方塊）
+  - AddExplosiveBlock（添加爆炸方塊）
+  - InsertRow（插入普通垃圾行）
+  - InsertVoidRow（插入虛無垃圾行）
+  - CorruptExplosive（腐化：爆炸）
+  - CorruptVoid（腐化：虛無）
 
 ### Roguelike升級
-- 關卡完成後獲得升級點數
-- 9種Buff類型（起始等級/上限等級）：
-  1. **防禦**：起始0，無上限，增加方塊HP
-  2. **齊射強化**：起始1，上限6，增加多排消除時的子彈傷害
-  3. **治療**：立即效果，恢復50% HP
-  4. **過載爆破**：起始1，上限4，增加充能上限（每次+200，最多1000）
-  5. **協同火力**：起始0，無上限，齊射加成
-  6. **連發強化**：起始1，上限6，Combo加成
-  7. **反擊強化**：起始1，上限6，新方塊被擊中時反擊
-  8. **空間擴充**：起始1，上限4，解鎖儲存槽位
-  9. **資源擴充**：起始0，上限3，增加CP上限（每次+50，最多250）
+- 關卡完成後獲得升級點數（由關卡的rewardBuffCount決定）
+- 12種Buff類型（6種普通強化 + 4種傳奇強化 + 2種技能）：
+
+**普通強化（有上限等級）**：
+  1. **齊射強化（Salvo）**：起始1，上限6，增加多排消除時的子彈傷害
+  2. **連發強化（Burst）**：起始1，上限6，Combo加成
+  3. **反擊強化（Counter）**：起始1，上限6，新方塊被擊中時反擊
+  4. **過載爆破（Explosion）**：起始1，上限4，增加充能上限（每次+200，最多1000）
+  5. **空間擴充（SpaceExpansion）**：起始1，上限4，解鎖儲存槽位
+  6. **資源擴充（ResourceExpansion）**：起始0，上限3，增加CP上限（每次+50，最多250）
+
+**傳奇強化（無上限或特殊效果）**：
+  1. **裝甲強化（Defense）**：起始0，無上限，增加方塊HP（+1 HP/等級）
+  2. **協同火力（Volley）**：起始0，無上限，每個位置發射更多導彈（+1導彈/等級）
+  3. **戰術擴展（TacticalExpansion）**：起始0，上限2，解鎖技能（Lv1解鎖處決，Lv2解鎖修補）
+  4. **緊急修復（Heal）**：立即效果，恢復50% HP
+
+**技能（需通過戰術擴展解鎖）**：
+  1. **處決（Execution）**：消耗5 CP，清除每列底部方塊
+  2. **修補（Repair）**：消耗30 CP，填補封閉空洞
 
 ### 爆炸充能系統
 - **初始上限**：200
@@ -152,33 +168,41 @@ Scene
 
 ### 3. 建立ScriptableObjects
 
-#### 關卡數據範例
-在`Assets/ScriptableObjects/Stages/`建立10個StageData：
+#### 主題數據（StageSetSO）
+在`Assets/ScriptableObjects/StageSets/`建立主題：
 
 ```
-Stage 1: 偵察無人機
-- MaxHp: 100
-- ShootInterval: 2s
-- BulletSpeed: 8
+Theme 1: 深淵
+- Easy Stages: 10個關卡（Casual難度）
+- Normal Stages: 10個關卡（Standard難度）
+- Hard Stages: 10個關卡（Expert難度）
+```
 
-Stage 5: 精英護衛
-- MaxHp: 500
-- ShootInterval: 1.2s
-- canUseAddBlock: true
+#### 關卡數據（StageDataSO）
+在`Assets/ScriptableObjects/Stages/`建立關卡數據：
 
-Stage 10: 終焉機械神
-- MaxHp: 2000
-- ShootInterval: 0.8s
-- canUseInsertRow: true
+```
+範例：Theme1_Stage1_Easy
+- Stage Name: 深淵窺視者
+- Difficulty Track: Casual
+- Auto Balance: true
+- Player PDA: 7
+- Player SP: 0.7
+- Max Hp: 245
+- Shoot Interval: 2.9s
+- Bullet Speed: 6
 ```
 
 #### Buff數據範例
-在`Assets/ScriptableObjects/Buffs/`建立9種BuffData
+在`Assets/ScriptableObjects/Buffs/`建立10種BuffData（6種普通強化 + 4種傳奇強化）
 
 ### 4. 連接引用
 
 在各管理器上設置引用：
-- **GameManager**: 關卡數據陣列、Buff數據陣列
+- **GameManager**: 
+  - All Themes（主題列表，StageSetSO）
+  - Normal Buffs（普通強化陣列）
+  - Legendary Buffs（傳奇強化陣列）
 - **GridManager**: Block預製體、Grid容器
 - **CombatManager**: Missile預製體、Bullet預製體
 - **AudioManager**: 音效Clips、BGM Clips

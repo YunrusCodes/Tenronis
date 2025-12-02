@@ -23,7 +23,6 @@ MonoBehaviour:
   maxHp: 600
   shootInterval: 1.2199999
   bulletSpeed: 10
-  burstCount: 1
   normalBullet:
     enabled: 1
     chance: 1
@@ -37,18 +36,18 @@ MonoBehaviour:
     enabled: 1
     chance: 0.32000002
   addRowBullet:
-    enabled: 0
+    enabled: 1
     chance: 0.24000001
   addVoidRowBullet:
-    enabled: 0
+    enabled: 1
     chance: 0.16000001
   corruptExplosiveBullet:
-    enabled: 0
+    enabled: 1
     chance: 0.24000001
   corruptVoidBullet:
-    enabled: 0
+    enabled: 1
     chance: 0.16000001
-  useSmartTargeting: 0
+  useSmartTargeting: 1
   addBlockTargetsHigh: 1
   areaDamageTargetsLow: 1
   enemyIcon: {fileID: -3753429730417257469, guid: a286511a5ac457d4391b92edd3569046, type: 3}

@@ -178,10 +178,6 @@ namespace Tenronis.Managers
                     Debug.Log($"[PlayerManager] 協同火力等級提升至: {stats.missileExtraCount}");
                     break;
                     
-                case BuffType.Heal:
-                    Heal(Mathf.FloorToInt(stats.maxHp * 0.5f));
-                    break;
-                    
                 case BuffType.Explosion:
                     if (stats.explosionChargeLevel < GameConstants.EXPLOSION_BUFF_MAX_LEVEL)
                     {

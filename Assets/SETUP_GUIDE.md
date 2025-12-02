@@ -155,14 +155,31 @@
    - 或使用: `vfx_Lightning_01.prefab` (閃電效果)
 8. **Low Hp Threshold**: 設置低HP閾值（默認0.3 = 30%）
 
-### 步驟 9: 建立關卡數據（三軌難度）
+### 步驟 9A: 建立主題數據（StageSetSO）
+
+1. 在Project視窗: `Assets/ScriptableObjects/StageSets`
+2. 右鍵 > `Create > Tenronis > Stage Set (Theme)`
+3. 命名為 `Theme_1_Abyss`（或你想要的主題名稱）
+4. 設置主題資訊：
+   - **Theme Name**: 深淵主題
+   - **Theme Icon**: 拖入主題圖示（可選）
+   - **Theme Color**: 選擇代表顏色（例如深藍色）
+   - **Description**: 主題描述文字
+
+**注意**：暫時不要設置關卡列表，我們將在步驟9B建立關卡後再拖入
+
+### 步驟 9B: 建立關卡數據（三軌難度）
+
+**專案現況**：已建立10個主題，每主題3種難度×10關，共300個關卡配置。關卡文件命名格式：`主題編號_關卡編號_難度.asset`（例如：`1_1_Easy.asset`、`1_1_Normal.asset`、`1_1_Hard.asset`）
+
+如需新增主題或關卡：
 
 1. 在Project視窗: `Assets/ScriptableObjects/Stages`
 2. 右鍵 > `Create > Tenronis > Stage Data`
-3. 建立30個關卡：
-   - **Easy1 ~ Easy10**（Casual 軌道）
-   - **Normal1 ~ Normal10**（Standard 軌道）
-   - **Hard1 ~ Hard10**（Expert 軌道）
+3. 為新主題建立30個關卡（例如主題11）：
+   - **11_1_Easy ~ 11_10_Easy**（Casual 軌道）
+   - **11_1_Normal ~ 11_10_Normal**（Standard 軌道）
+   - **11_1_Hard ~ 11_10_Hard**（Expert 軌道）
 
 **範例設定 - Easy1（Casual 軌道）:**
 ```
@@ -225,6 +242,19 @@ Theme Color: 深紅色
 > - 啟用 `Auto Balance` 後，數值會根據 PDA 和 SP 自動計算
 > - 詳細數值規格請參考 `Assets/Documentation/Math/11_Difficulty_Tracks_Model.md`
 
+### 步驟 9C: 連接關卡到主題
+
+1. 選擇剛建立的 `Theme_1_Abyss`
+2. 在 Inspector 中：
+   - **Easy Stages**（Casual 軌道）: 設置陣列大小為10，拖入 Theme1_Easy1 ~ Easy10
+   - **Normal Stages**（Standard 軌道）: 設置陣列大小為10，拖入 Theme1_Normal1 ~ Normal10
+   - **Hard Stages**（Expert 軌道）: 設置陣列大小為10，拖入 Theme1_Hard1 ~ Hard10
+
+**提示**：
+- 可以建立多個主題（Theme_2_Void、Theme_3_Fire等）
+- 每個主題都需要有自己的關卡集合
+- 主題系統讓遊戲內容更豐富，可以逐步擴展
+
 ### 步驟 10: 建立Buff數據
 
 1. 在Project視窗: `Assets/ScriptableObjects/Buffs`
@@ -239,12 +269,13 @@ Description: 增加方塊耐久度 +1
 Spawn Weight: 1.0
 ```
 
-建議建立的Buff：
+建議建立的Buff（共12種）：
 
-**傳奇強化（3種）**：
-- Defense (裝甲強化，起始0，無上限)
-- Volley (協同火力，起始0，無上限)
-- Heal (緊急修復，立即效果)
+**傳奇強化（4種）**：
+- Defense (裝甲強化，起始0，無上限，+1 HP/等級)
+- Volley (協同火力，起始0，無上限，每個位置+1導彈/等級)
+- TacticalExpansion (戰術擴展，起始0，上限2，解鎖技能)
+- Heal (緊急修復，立即效果，恢復50% HP)
 
 **普通強化（6種）**：
 - Salvo (齊射強化，起始1，上限6)
@@ -254,16 +285,22 @@ Spawn Weight: 1.0
 - SpaceExpansion (空間擴充，起始1，上限4)
 - ResourceExpansion (資源擴充，起始0，上限3)
 
-**注意**：Execution 和 Repair 已改為消耗CP的技能，不再作為Buff出現。
+**技能（2種，通過TacticalExpansion解鎖）**：
+- Execution (處決技能，消耗5 CP，清除每列底部方塊)
+- Repair (修補技能，消耗30 CP，填補封閉空洞)
+
+**注意**：
+- Execution和Repair不是獨立的Buff，而是通過TacticalExpansion解鎖的技能
+- 這兩個技能在升級選單中不會出現，只能通過TacticalExpansion解鎖使用
 
 ### 步驟 11: 設置GameManager
 
 選擇 GameManager 物件：
 
-1. **關卡數據 - 三軌難度**：
-   - **Easy Stages**: 設置陣列大小為10，拖入 Easy1 ~ Easy10
-   - **Normal Stages**: 設置陣列大小為10，拖入 Normal1 ~ Normal10
-   - **Hard Stages**: 設置陣列大小為10，拖入 Hard1 ~ Hard10
+1. **主題列表（All Themes）**：
+   - 設置陣列大小為1（或你建立的主題數量）
+   - 拖入 Theme_1_Abyss（和其他主題，如果有）
+   - 主題順序決定UI顯示順序
 
 2. **Normal Buffs** (普通強化): 設置陣列大小為6，拖入以下Buff：
    - Salvo (齊射強化)
@@ -273,22 +310,29 @@ Spawn Weight: 1.0
    - SpaceExpansion (空間擴充)
    - ResourceExpansion (資源擴充)
 
-3. **Legendary Buffs** (傳奇強化): 設置陣列大小為3，拖入以下Buff：
+3. **Legendary Buffs** (傳奇強化): 設置陣列大小為4，拖入以下Buff：
    - Defense (裝甲強化)
    - Volley (協同火力)
+   - TacticalExpansion (戰術擴展)
    - Heal (緊急修復)
 
+**主題系統說明**：
+- 玩家先選擇主題，再選擇難度
+- 每個主題包含三種難度軌道（Casual, Standard, Expert）
+- 支援多個主題，提供更豐富的遊戲內容
+- UI會根據 All Themes 列表自動生成主題選擇按鈕
+
 **三軌難度系統說明**：
-- **Casual（Easy）**: 休閒模式，35秒目標擊殺時間，較慢的子彈速度（6格/秒）
-- **Standard（Normal）**: 標準模式，25秒目標擊殺時間，中等子彈速度（8格/秒）
-- **Expert（Hard）**: 專家模式，20秒目標擊殺時間，快速子彈（10格/秒），啟用智能瞄準
+- **Casual（休閒）**: 35秒目標擊殺時間，較慢的子彈速度（6格/秒）
+- **Standard（標準）**: 25秒目標擊殺時間，中等子彈速度（8格/秒）
+- **Expert（專家）**: 20秒目標擊殺時間，快速子彈（10格/秒），啟用智能瞄準
 
 **傳奇強化選擇機制說明**：
 - 當有普通強化達到滿級時，會自動提供傳奇強化選擇機會
 - 傳奇強化選擇時，只從 Legendary Buffs 陣列中選擇
 - 如果傳奇強化數量 ≤ 3，直接顯示全部（不隨機選擇）
 - 如果傳奇強化數量 > 3，隨機選擇3個（根據權重）
-- 不會過濾傳奇強化（除了null），保留所有內容（包括Execution和Repair，如果它們在陣列中）
+- 不會過濾傳奇強化（除了null），保留所有內容
 
 ### 步驟 12: 建立UI
 
@@ -298,31 +342,38 @@ Spawn Weight: 1.0
    - Canvas Scaler: Scale With Screen Size
    - Reference Resolution: 1920 x 1080
 
-#### 主選單面板
+#### 主選單面板（主題選擇系統）
 ```
 Canvas
-└── MenuPanel (添加 VerticalLayoutGroup)
-    ├── Title (TextMeshPro - "Tenronis")
-    ├── EasyButton (Button - "簡單模式")
-    ├── NormalButton (Button - "標準模式")
-    └── HardButton (Button - "專家模式")
+└── MenuPanel
+    ├── ThemeListPanel (主題選擇面板)
+    │   ├── Title (TextMeshPro - "選擇主題")
+    │   └── ThemeButtonContainer (ScrollView > Content，存放動態生成的主題按鈕)
+    └── DifficultySelectPanel (難度選擇面板，初始隱藏)
+        ├── SelectedThemeTitle (TextMeshPro - 顯示選中的主題名稱)
+        ├── EasyButton (Button - "簡單模式 (Casual)")
+        ├── NormalButton (Button - "標準模式 (Standard)")
+        ├── HardButton (Button - "專家模式 (Expert)")
+        └── BackToThemeButton (Button - "返回")
 ```
 
-**按鈕設置**：
-1. **EasyButton**：
-   - Text: "簡單模式 (Casual)"
-   - OnClick: `GameManager.StartGameEasy()`
-   - 顏色: 綠色或淡色
+**Theme Button Prefab 設置**：
+1. 在 Hierarchy 創建 Button
+2. 設置為 Prefab（拖入 Assets/Prefabs/UI/）
+3. 添加 TextMeshProUGUI 子物件顯示主題名稱
+4. 調整大小和樣式
 
-2. **NormalButton**：
-   - Text: "標準模式 (Standard)"
-   - OnClick: `GameManager.StartGameNormal()`
-   - 顏色: 藍色或中等色
+**UI流程**：
+1. 遊戲啟動 → 顯示 ThemeListPanel（主題選擇）
+2. GameUI 根據 GameManager.allThemes 動態生成主題按鈕
+3. 玩家點擊主題 → 隱藏 ThemeListPanel，顯示 DifficultySelectPanel
+4. 玩家點擊難度 → 呼叫 `GameManager.StartGame(themeIndex, difficulty)`
+5. 點擊返回 → 返回 ThemeListPanel
 
-3. **HardButton**：
-   - Text: "專家模式 (Expert)"
-   - OnClick: `GameManager.StartGameHard()`
-   - 顏色: 紅色或深色
+**難度按鈕設置**：
+- EasyButton: 呼叫 `GameManager.StartGame(selectedThemeIndex, DifficultyTrack.Casual)`
+- NormalButton: 呼叫 `GameManager.StartGame(selectedThemeIndex, DifficultyTrack.Standard)`
+- HardButton: 呼叫 `GameManager.StartGame(selectedThemeIndex, DifficultyTrack.Expert)`
 
 #### 遊戲中UI
 ```

@@ -10104,6 +10104,7 @@ MonoBehaviour:
   gridOffset: {x: -8, y: 9}
   explosiveBlockEffectPrefab: {fileID: 525727338045697582, guid: 1b7cafe053c344647bbfead415ab6683, type: 3}
   voidBlockEffectPrefab: {fileID: 9080140021571130472, guid: e3f7834612af29b46b7950b9f6320d41, type: 3}
+  overflowEffectPrefab: {fileID: 1498695178116778374, guid: d91ea938c304f0940bd6272186d541ec, type: 3}
 --- !u!1 &1881749706
 GameObject:
   m_ObjectHideFlags: 0
