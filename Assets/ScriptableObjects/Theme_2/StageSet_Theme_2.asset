@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b4b436aae261119448a7d93cc922b45e, type: 3}
+  m_Name: StageSet_Theme_2
+  m_EditorClassIdentifier: 
+  themeName: Theme_2
+  themeIcon: {fileID: 0}
+  themeColor: {r: 1, g: 0, b: 0, a: 1}
+  description: 
+  stages:
+  - {fileID: 11400000, guid: 739a950af74186649830d0d045edb845, type: 2}
+  - {fileID: 11400000, guid: d3019a6c4003833458a783767235d5bf, type: 2}
+  - {fileID: 11400000, guid: ce00558526db09d4abf4efc9031ae7ca, type: 2}
+  - {fileID: 11400000, guid: 600383f863a59114290be2645d00c810, type: 2}
+  - {fileID: 11400000, guid: 97f64e26b11653b4aa4c418336977a4c, type: 2}
+  - {fileID: 11400000, guid: da08cd11e21885c499f307a47276885a, type: 2}
+  - {fileID: 11400000, guid: 51a5ef551c974244dbe884eaac1656aa, type: 2}
+  - {fileID: 11400000, guid: 0dfefe60d8615f348a3f1153321c3177, type: 2}
+  - {fileID: 11400000, guid: 9c8849e563bf0eb4686ed624ad10fedd, type: 2}
+  - {fileID: 11400000, guid: 967144beef7ec744fbdcf6943d85ca14, type: 2}

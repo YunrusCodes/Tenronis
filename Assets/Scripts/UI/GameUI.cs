@@ -18,18 +18,10 @@ namespace Tenronis.UI
         [Header("主選單")]
         [SerializeField] private GameObject menuPanel;
         [SerializeField] private GameObject themeListPanel;
-        [SerializeField] private GameObject difficultySelectPanel;
         
         [Header("按鈕與預製件")]
         [SerializeField] private Button themeButtonPrefab; // 用於生成主題按鈕
         [SerializeField] private Transform themeButtonContainer; // 主題按鈕容器
-        [SerializeField] private Button backToThemeButton; // 返回主題選擇按鈕
-        
-        [Header("難度按鈕 (在 DifficultySelectPanel 中)")]
-        [SerializeField] private Button easyButton;
-        [SerializeField] private Button normalButton;
-        [SerializeField] private Button hardButton;
-        [SerializeField] private TextMeshProUGUI selectedThemeTitle; // 顯示當前選擇的主題名稱
         
         [Header("遊戲中UI")]
         [SerializeField] private GameObject gameplayPanel;
@@ -65,9 +57,6 @@ namespace Tenronis.UI
         [SerializeField] private Button restartButton;
         [SerializeField] private Button menuButton;
         
-        // 狀態變數
-        private int selectedThemeIndex = -1;
-        
         private void Start()
         {
             Debug.Log("[GameUI] Start() - 初始化GameUI");
@@ -79,11 +68,6 @@ namespace Tenronis.UI
             }
             
             // 綁定按鈕事件
-            if (easyButton != null) easyButton.onClick.AddListener(OnStartGameEasy);
-            if (normalButton != null) normalButton.onClick.AddListener(OnStartGameNormal);
-            if (hardButton != null) hardButton.onClick.AddListener(OnStartGameHard);
-            if (backToThemeButton != null) backToThemeButton.onClick.AddListener(ShowThemeSelection);
-            
             if (restartButton != null) restartButton.onClick.AddListener(OnRestart);
             if (menuButton != null) menuButton.onClick.AddListener(OnReturnToMenu);
             
@@ -101,11 +85,6 @@ namespace Tenronis.UI
             GameEvents.OnGameStateChanged -= HandleGameStateChanged;
             GameEvents.OnRowsCleared -= HandleRowsClearedForSalvo;
             GameEvents.OnSkillUnlocked -= UpdateSkillUI;
-            
-            if (easyButton != null) easyButton.onClick.RemoveListener(OnStartGameEasy);
-            if (normalButton != null) normalButton.onClick.RemoveListener(OnStartGameNormal);
-            if (hardButton != null) hardButton.onClick.RemoveListener(OnStartGameHard);
-            if (backToThemeButton != null) backToThemeButton.onClick.RemoveListener(ShowThemeSelection);
             
             if (restartButton != null) restartButton.onClick.RemoveListener(OnRestart);
             if (menuButton != null) menuButton.onClick.RemoveListener(OnReturnToMenu);
@@ -137,7 +116,6 @@ namespace Tenronis.UI
         private void ShowThemeSelection()
         {
             SetPanelActive(themeListPanel, true);
-            SetPanelActive(difficultySelectPanel, false);
             
             // 動態生成主題按鈕
             if (themeButtonContainer != null && themeButtonPrefab != null)
@@ -165,19 +143,8 @@ namespace Tenronis.UI
         
         private void OnThemeSelected(int index)
         {
-            selectedThemeIndex = index;
-            ShowDifficultySelection();
-        }
-        
-        private void ShowDifficultySelection()
-        {
-            SetPanelActive(themeListPanel, false);
-            SetPanelActive(difficultySelectPanel, true);
-            
-            if (selectedThemeTitle != null && selectedThemeIndex >= 0 && selectedThemeIndex < GameManager.Instance.allThemes.Count)
-            {
-                selectedThemeTitle.text = GameManager.Instance.allThemes[selectedThemeIndex].themeName;
-            }
+            // 直接開始遊戲
+            GameManager.Instance.StartGame(index);
         }
         
         private void ShowGameplay()
@@ -228,24 +195,6 @@ namespace Tenronis.UI
         }
         
         // --- 遊戲邏輯 ---
-        
-        private void OnStartGameEasy()
-        {
-            if (selectedThemeIndex == -1) return;
-            GameManager.Instance.StartGame(selectedThemeIndex, DifficultyTrack.Casual);
-        }
-        
-        private void OnStartGameNormal()
-        {
-            if (selectedThemeIndex == -1) return;
-            GameManager.Instance.StartGame(selectedThemeIndex, DifficultyTrack.Standard);
-        }
-        
-        private void OnStartGameHard()
-        {
-            if (selectedThemeIndex == -1) return;
-            GameManager.Instance.StartGame(selectedThemeIndex, DifficultyTrack.Expert);
-        }
         
         private void OnRestart()
         {

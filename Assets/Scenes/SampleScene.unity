@@ -1804,7 +1804,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -500, y: -290.64203}
+  m_AnchoredPosition: {x: -300, y: -290.64203}
   m_SizeDelta: {x: 488.839, y: 91.65698}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &301947246
@@ -1829,8 +1829,8 @@ MonoBehaviour:
   m_StartAxis: 0
   m_CellSize: {x: 300, y: 90}
   m_Spacing: {x: 0, y: 0}
-  m_Constraint: 2
-  m_ConstraintCount: 2
+  m_Constraint: 1
+  m_ConstraintCount: 4
 --- !u!1 &303182725
 GameObject:
   m_ObjectHideFlags: 0
@@ -6374,7 +6374,7 @@ MonoBehaviour:
     m_Right: 0
     m_Top: 0
     m_Bottom: 0
-  m_ChildAlignment: 3
+  m_ChildAlignment: 4
   m_Spacing: 0
   m_ChildForceExpandWidth: 1
   m_ChildForceExpandHeight: 1
@@ -7463,17 +7463,6 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 7513109073397718258, guid: c9498ab58cc2ae94b8db9622199e39b1, type: 3}
   m_PrefabInstance: {fileID: 1389597268}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &1389597270 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 4482398650020830780, guid: c9498ab58cc2ae94b8db9622199e39b1, type: 3}
-  m_PrefabInstance: {fileID: 1389597268}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Button
 --- !u!1 &1389803316
 GameObject:
   m_ObjectHideFlags: 0
@@ -8515,14 +8504,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Tenronis.UI.GameUI
   menuPanel: {fileID: 291722612}
   themeListPanel: {fileID: 301947244}
-  difficultySelectPanel: {fileID: 1085872637}
   themeButtonPrefab: {fileID: 4482398650020830780, guid: c9498ab58cc2ae94b8db9622199e39b1, type: 3}
   themeButtonContainer: {fileID: 301947245}
-  backToThemeButton: {fileID: 1389597270}
-  easyButton: {fileID: 216196402}
-  normalButton: {fileID: 946387804}
-  hardButton: {fileID: 1646463883}
-  selectedThemeTitle: {fileID: 0}
   gameplayPanel: {fileID: 798388381}
   scoreText: {fileID: 1275725071}
   comboText: {fileID: 1763985162}
@@ -10339,7 +10322,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 22.833313, y: -100.98801}
+  m_AnchoredPosition: {x: 22.833252, y: -100.98804}
   m_SizeDelta: {x: 160, y: 30}
   m_Pivot: {x: 0, y: 0}
 --- !u!222 &1933218057
@@ -10883,20 +10866,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Tenronis.Managers.GameManager
   allThemes:
-  - {fileID: 11400000, guid: 255a00b61186fbc45aa0e715d7b08a5d, type: 2}
-  - {fileID: 11400000, guid: ba0c59343a2890c43bca57bf70ca2703, type: 2}
-  - {fileID: 11400000, guid: c8855fd67ec3a8d43ad3557597f99eb0, type: 2}
-  - {fileID: 11400000, guid: bdca4a845b1ba184cb1fd7c259e231b6, type: 2}
-  - {fileID: 11400000, guid: d30202a8a35c8824f8c818e00637a51c, type: 2}
-  - {fileID: 11400000, guid: 3b979775ec096234f904290b8d06b2b9, type: 2}
-  - {fileID: 11400000, guid: 689805a5329951a4d9c6d1433998343d, type: 2}
-  - {fileID: 11400000, guid: c5ee40669bf96484b85dfd08ac444a1b, type: 2}
-  - {fileID: 11400000, guid: 74c63102fd6fa7e45948eaa1b1fa073e, type: 2}
-  - {fileID: 11400000, guid: 0ee8b43b306069d4ba77ef15a86a4710, type: 2}
+  - {fileID: 11400000, guid: de49a642a0414a14f944b76d7de2d829, type: 2}
+  - {fileID: 11400000, guid: 3ec4b91305a119a4d8c4e2f9266ae91f, type: 2}
+  - {fileID: 11400000, guid: 6ff34050a75519b4684a147ac0bfe733, type: 2}
+  - {fileID: 11400000, guid: d0f9ca620a41b40428ba347961f93846, type: 2}
   normalBuffs:
   - {fileID: 11400000, guid: 4497b73118838884aa3ce6be33c7b165, type: 2}
   - {fileID: 11400000, guid: ff4fc4990991d954e8cd5f061b5544bd, type: 2}
   - {fileID: 11400000, guid: 4851e4ffa4be26b449c2ccd1e6a9c934, type: 2}
+  - {fileID: 11400000, guid: 1207cbeba2b06794da8c73c6469437c9, type: 2}
+  - {fileID: 11400000, guid: 0e24f43da417cea419780ec950989fb4, type: 2}
   - {fileID: 11400000, guid: 6d8ad6a5918fabc44b1f48a058fffbc3, type: 2}
   legendaryBuffs:
   - {fileID: 11400000, guid: 593218382254a8f4f868a161a0aa8990, type: 2}

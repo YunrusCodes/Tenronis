@@ -17,31 +17,15 @@ namespace Tenronis.ScriptableObjects
         [TextArea(3, 5)]
         public string description = "主題描述...";
 
-        [Header("關卡列表 - Easy (Casual)")]
-        public List<StageDataSO> easyStages = new List<StageDataSO>();
-
-        [Header("關卡列表 - Normal (Standard)")]
-        public List<StageDataSO> normalStages = new List<StageDataSO>();
-
-        [Header("關卡列表 - Hard (Expert)")]
-        public List<StageDataSO> hardStages = new List<StageDataSO>();
+        [Header("關卡列表")]
+        public List<StageDataSO> stages = new List<StageDataSO>();
 
         /// <summary>
-        /// 根據難度獲取關卡列表
+        /// 獲取關卡列表
         /// </summary>
-        public List<StageDataSO> GetStages(DifficultyTrack difficulty)
+        public List<StageDataSO> GetStages()
         {
-            switch (difficulty)
-            {
-                case DifficultyTrack.Casual:
-                    return easyStages;
-                case DifficultyTrack.Standard:
-                    return normalStages;
-                case DifficultyTrack.Expert:
-                    return hardStages;
-                default:
-                    return normalStages;
-            }
+            return stages;
         }
     }
 }

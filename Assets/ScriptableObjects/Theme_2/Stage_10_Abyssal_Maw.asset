@@ -1,0 +1,50 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3fe80882f65a4ff479ef1fca5ee38a6f, type: 3}
+  m_Name: Stage_10_Abyssal_Maw
+  m_EditorClassIdentifier: 
+  stageName: Abyssal Maw
+  stageIndex: 10
+  isBossStage: 1
+  rewardBuffCount: 2
+  maxHp: 1200
+  shootInterval: 1
+  bulletSpeed: 12
+  normalBullet:
+    enabled: 0
+    chance: 1
+  areaBullet:
+    enabled: 1
+    chance: 0.25
+  addBlockBullet:
+    enabled: 0
+    chance: 0.3
+  addExplosiveBlockBullet:
+    enabled: 1
+    chance: 0.2
+  addRowBullet:
+    enabled: 0
+    chance: 0.15
+  addVoidRowBullet:
+    enabled: 0
+    chance: 0.1
+  corruptExplosiveBullet:
+    enabled: 1
+    chance: 0.15
+  corruptVoidBullet:
+    enabled: 0
+    chance: 0.1
+  useSmartTargeting: 0
+  addBlockTargetsHigh: 1
+  areaDamageTargetsLow: 1
+  enemyIcon: {fileID: 0}
+  themeColor: {r: 1, g: 0, b: 0, a: 1}

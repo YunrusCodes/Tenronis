@@ -5,7 +5,6 @@ using Tenronis.ScriptableObjects;
 namespace Tenronis.Editor
 {
     /// <summary>
-    /// StageDataSO 自定义编辑器 - 显示关卡难度评分
     /// </summary>
     [CustomEditor(typeof(StageDataSO))]
     public class StageDataSOEditor : UnityEditor.Editor

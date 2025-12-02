@@ -25,7 +25,6 @@ namespace Tenronis.Managers
         
         // 遊戲狀態
         private GameState currentState = GameState.Menu;
-        private DifficultyTrack currentDifficulty = DifficultyTrack.Standard;
         private StageSetSO currentTheme = null;
         private List<StageDataSO> currentStages = null;
         private int currentStageIndex = 0;
@@ -35,7 +34,6 @@ namespace Tenronis.Managers
         
         // 屬性
         public GameState CurrentState => currentState;
-        public DifficultyTrack CurrentDifficulty => currentDifficulty;
         public StageSetSO CurrentTheme => currentTheme;
         public StageDataSO CurrentStage => currentStages != null && currentStageIndex < currentStages.Count ? currentStages[currentStageIndex] : null;
         public int CurrentStageIndex => currentStageIndex;
@@ -92,13 +90,12 @@ namespace Tenronis.Managers
         }
         
         /// <summary>
-        /// 開始遊戲 - 指定主題與難度
+        /// 開始遊戲 - 指定主題
         /// </summary>
         /// <param name="themeIndex">主題索引 (在 allThemes 中的位置)</param>
-        /// <param name="difficulty">難度</param>
-        public void StartGame(int themeIndex, DifficultyTrack difficulty)
+        public void StartGame(int themeIndex)
         {
-            Debug.Log($"=== [GameManager] StartGame(Theme: {themeIndex}, Diff: {difficulty}) 開始執行 ===");
+            Debug.Log($"=== [GameManager] StartGame(Theme: {themeIndex}) 開始執行 ===");
             
             if (themeIndex < 0 || themeIndex >= allThemes.Count)
             {
@@ -107,18 +104,17 @@ namespace Tenronis.Managers
             }
             
             currentTheme = allThemes[themeIndex];
-            currentDifficulty = difficulty;
             
-            // 根據難度從主題中獲取關卡列表
-            currentStages = currentTheme.GetStages(difficulty);
+            // 從主題中獲取關卡列表
+            currentStages = currentTheme.GetStages();
             
             if (currentStages == null || currentStages.Count == 0)
             {
-                Debug.LogError($"[GameManager] 主題 {currentTheme.themeName} 在難度 {difficulty} 下沒有設定關卡！");
+                Debug.LogError($"[GameManager] 主題 {currentTheme.themeName} 沒有設定關卡！");
                 return;
             }
             
-            Debug.Log($"[GameManager] 選擇主題：{currentTheme.themeName}，難度：{difficulty}，關卡數：{currentStages.Count}");
+            Debug.Log($"[GameManager] 選擇主題：{currentTheme.themeName}，關卡數：{currentStages.Count}");
             
             // 重置遊戲數據
             currentStageIndex = 0;
@@ -126,7 +122,7 @@ namespace Tenronis.Managers
             damageAccumulator = 0f;
             rogueRequirement = GameConstants.INITIAL_ROGUE_REQUIREMENT;
             
-            Debug.Log($"[GameManager] 遊戲數據已重置 - Difficulty: {difficulty}, Stage: {currentStageIndex}, Buffs: {pendingBuffCount}, Total Stages: {TotalStages}");
+            Debug.Log($"[GameManager] 遊戲數據已重置 - Stage: {currentStageIndex}, Buffs: {pendingBuffCount}, Total Stages: {TotalStages}");
             
             ChangeGameState(GameState.Playing);
             
@@ -134,7 +130,7 @@ namespace Tenronis.Managers
         }
         
         /// <summary>
-        /// 重新開始遊戲（使用當前主題與難度）
+        /// 重新開始遊戲（使用當前主題）
         /// </summary>
         public void RestartGame()
         {
@@ -144,7 +140,7 @@ namespace Tenronis.Managers
                 int themeIndex = allThemes.IndexOf(currentTheme);
                 if (themeIndex != -1)
                 {
-                    StartGame(themeIndex, currentDifficulty);
+                    StartGame(themeIndex);
                 }
                 else
                 {
@@ -179,7 +175,7 @@ namespace Tenronis.Managers
                 if (stageReward > 0)
                 {
                     pendingBuffCount += stageReward;
-                    Debug.Log($"[GameManager] 關卡 {currentStageIndex + 1}/{currentStages.Count} 完成！難度: {currentDifficulty}, 獲得 {stageReward} 張升級卡牌，總計: {pendingBuffCount}");
+                    Debug.Log($"[GameManager] 關卡 {currentStageIndex + 1}/{currentStages.Count} 完成！獲得 {stageReward} 張升級卡牌，總計: {pendingBuffCount}");
                 }
             }
             
@@ -204,7 +200,7 @@ namespace Tenronis.Managers
             if (currentStages == null || currentStageIndex >= currentStages.Count)
             {
                 // 勝利
-                Debug.Log($"[GameManager] 所有關卡完成！難度: {currentDifficulty}");
+                Debug.Log($"[GameManager] 所有關卡完成！");
                 ChangeGameState(GameState.Victory);
             }
             else
