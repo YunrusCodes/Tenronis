@@ -15,7 +15,7 @@ MonoBehaviour:
   stageName: Spiral Collapse
   stageIndex: 9
   isBossStage: 0
-  rewardBuffCount: 1
+  rewardBuffCount: 3
   maxHp: 900
   shootInterval: 1.15
   bulletSpeed: 11.5

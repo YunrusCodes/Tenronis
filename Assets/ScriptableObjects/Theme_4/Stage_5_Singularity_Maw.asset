@@ -15,7 +15,7 @@ MonoBehaviour:
   stageName: Singularity Maw
   stageIndex: 5
   isBossStage: 1
-  rewardBuffCount: 2
+  rewardBuffCount: 1
   maxHp: 500
   shootInterval: 1.2
   bulletSpeed: 10

@@ -15,7 +15,7 @@ MonoBehaviour:
   stageName: Multiplier
   stageIndex: 7
   isBossStage: 0
-  rewardBuffCount: 1
+  rewardBuffCount: 3
   maxHp: 620
   shootInterval: 1.45
   bulletSpeed: 10.5

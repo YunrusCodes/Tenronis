@@ -15,7 +15,7 @@ MonoBehaviour:
   stageName: Abyssal Maw
   stageIndex: 10
   isBossStage: 1
-  rewardBuffCount: 2
+  rewardBuffCount: 0
   maxHp: 1200
   shootInterval: 1
   bulletSpeed: 12

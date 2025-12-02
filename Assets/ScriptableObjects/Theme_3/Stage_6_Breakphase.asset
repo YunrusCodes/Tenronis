@@ -15,7 +15,7 @@ MonoBehaviour:
   stageName: Breakphase
   stageIndex: 6
   isBossStage: 0
-  rewardBuffCount: 1
+  rewardBuffCount: 3
   maxHp: 520
   shootInterval: 1.6
   bulletSpeed: 10

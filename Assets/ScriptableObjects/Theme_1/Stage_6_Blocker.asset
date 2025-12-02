@@ -15,7 +15,7 @@ MonoBehaviour:
   stageName: Excavator
   stageIndex: 6
   isBossStage: 0
-  rewardBuffCount: 1
+  rewardBuffCount: 2
   maxHp: 350
   shootInterval: 1.6
   bulletSpeed: 10

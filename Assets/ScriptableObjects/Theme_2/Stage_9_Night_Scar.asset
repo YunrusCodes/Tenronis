@@ -15,7 +15,7 @@ MonoBehaviour:
   stageName: Night Scar
   stageIndex: 9
   isBossStage: 1
-  rewardBuffCount: 2
+  rewardBuffCount: 3
   maxHp: 900
   shootInterval: 1.15
   bulletSpeed: 11.5

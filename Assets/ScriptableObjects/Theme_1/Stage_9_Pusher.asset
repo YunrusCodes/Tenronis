@@ -15,7 +15,7 @@ MonoBehaviour:
   stageName: Overloader
   stageIndex: 9
   isBossStage: 1
-  rewardBuffCount: 1
+  rewardBuffCount: 3
   maxHp: 600
   shootInterval: 1.15
   bulletSpeed: 11.5
