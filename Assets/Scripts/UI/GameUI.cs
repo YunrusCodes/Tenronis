@@ -269,17 +269,22 @@ namespace Tenronis.UI
             if (salvoDisplayTimer > 0)
             {
                 salvoDisplayTimer -= Time.deltaTime;
-                if (lastClearedRows >= 5)
+                if (lastClearedRows >= 4)
                 {
-                    salvoText.text = $"超級齊射 x{lastClearedRows}!";
-                    salvoText.color = new Color(1f, 0.84f, 0f);
+                    salvoText.text = "全彈齊射!";
+                    salvoText.color = new Color(1f, 0.84f, 0f); // 金色
                 }
-                else
+                else if (lastClearedRows == 3)
                 {
-                    salvoText.text = $"齊射 x{lastClearedRows}!";
-                    salvoText.color = new Color(0.13f, 0.83f, 0.93f);
+                    salvoText.text = "三連齊射!";
+                    salvoText.color = new Color(1f, 0.5f, 0f); // 橙色
                 }
-                salvoText.gameObject.SetActive(true);
+                else if (lastClearedRows == 2)
+                {
+                    salvoText.text = "雙管齊射!";
+                    salvoText.color = new Color(0.13f, 0.83f, 0.93f); // 青色
+                }
+                salvoText.gameObject.SetActive(lastClearedRows >= 2);
                 if (salvoDisplayTimer <= 0) salvoText.gameObject.SetActive(false);
             }
             else

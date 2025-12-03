@@ -96,8 +96,9 @@ namespace Tenronis.Managers
             
             var stats = PlayerManager.Instance.Stats;
             
-            // 計算傷害加成（基於非垃圾方塊行數）
-            float salvoBonus = nonGarbageRowCount > 1 ? (nonGarbageRowCount - 1) * (stats.salvoLevel * GameConstants.SALVO_DAMAGE_MULTIPLIER) : 0f;
+            // 計算傷害加成（基於非垃圾方塊行數，超過4行以4計算）
+            int effectiveRowCount = Mathf.Min(nonGarbageRowCount, 4);
+            float salvoBonus = effectiveRowCount > 1 ? (effectiveRowCount - 1) * (stats.salvoLevel * GameConstants.SALVO_DAMAGE_MULTIPLIER) : 0f;
             float burstBonus = stats.burstLevel * stats.comboCount * GameConstants.BURST_DAMAGE_MULTIPLIER;
             float totalDamage = (GameConstants.BASE_MISSILE_DAMAGE + salvoBonus + burstBonus);
             
