@@ -46,7 +46,8 @@ namespace Tenronis.UI
             
             if (GameManager.Instance == null) return;
             
-            BuffDataSO[] options = GameManager.Instance.GetRandomBuffOptions(3, isLegendaryBuffSelectionPhase);
+            int optionCount = isLegendaryBuffSelectionPhase ? 3 : 2; // 傳奇強化三選一，普通強化二選一
+            BuffDataSO[] options = GameManager.Instance.GetRandomBuffOptions(optionCount, isLegendaryBuffSelectionPhase);
             
             foreach (var buffData in options)
             {
