@@ -105,10 +105,11 @@ namespace Tenronis.Gameplay.Enemy
                     effectSpawnCoroutine = null;
                 }
                 
-                // 恢復Sprite位置
+                // 恢復Sprite位置和顏色
                 if (enemySprite != null)
                 {
                     enemySprite.transform.localPosition = originalSpritePosition;
+                    enemySprite.color = Color.white; // 恢復完全不透明
                 }
                 
                 // 自動設置敵人圖示
@@ -269,19 +270,26 @@ namespace Tenronis.Gameplay.Enemy
         /// </summary>
         private void HandleDamaged(float damage)
         {
-            // 如果已經被擊敗，不再處理傷害
+            // 視覺效果：爆炸特效（即使已擊敗也要累積，確保同一批導彈的特效都能顯示）
+            // 特效數量與傷害值成正比（至少1個）
+            if (damageEffectPrefab != null && enemySprite != null)
+            {
+                int effectCount = Mathf.Max(1, Mathf.CeilToInt(damage));
+                pendingEffectCount += effectCount;
+                
+                // 如果還沒有在生成特效，啟動協程
+                if (effectSpawnCoroutine == null)
+                {
+                    effectSpawnCoroutine = StartCoroutine(SpawnDamageEffectsSequentially());
+                }
+            }
+            
+            // 如果已經被擊敗，只累積特效，不再處理傷害和擊敗邏輯
             if (isDefeated) return;
             
             currentHp = Mathf.Max(0f, currentHp - damage);
             
             Debug.Log($"[EnemyController] 受到傷害: {damage}, 剩餘HP: {currentHp}");
-            
-            // 檢查是否被擊敗
-            if (currentHp <= 0f)
-            {
-                HandleDefeated();
-                return; // 擊敗後不再顯示受傷效果
-            }
             
             // 視覺效果：晃動
             if (enemySprite != null)
@@ -293,21 +301,15 @@ namespace Tenronis.Gameplay.Enemy
                 shakeCoroutine = StartCoroutine(ShakeSprite());
             }
             
-            // 視覺效果：爆炸特效（累積到隊列）
-            if (damageEffectPrefab != null && enemySprite != null)
+            // 檢查是否被擊敗
+            if (currentHp <= 0f)
             {
-                pendingEffectCount++;
-                
-                // 如果還沒有在生成特效，啟動協程
-                if (effectSpawnCoroutine == null)
-                {
-                    effectSpawnCoroutine = StartCoroutine(SpawnDamageEffectsSequentially());
-                }
+                HandleDefeated();
             }
         }
         
         /// <summary>
-        /// 敵人Sprite晃動效果
+        /// 敵人Sprite晃動效果（使用 unscaledDeltaTime 確保暫停時也能播放）
         /// </summary>
         private System.Collections.IEnumerator ShakeSprite()
         {
@@ -328,7 +330,7 @@ namespace Tenronis.Gameplay.Enemy
                 
                 enemySprite.transform.localPosition = originalSpritePosition + offset;
                 
-                elapsed += Time.deltaTime;
+                elapsed += Time.unscaledDeltaTime;
                 yield return null;
             }
             
@@ -342,7 +344,7 @@ namespace Tenronis.Gameplay.Enemy
         /// </summary>
         private System.Collections.IEnumerator SpawnDamageEffectsSequentially()
         {
-            while (pendingEffectCount > 0 && !isDefeated)
+            while (pendingEffectCount > 0)
             {
                 // 每次生成最多2個特效
                 int effectsThisFrame = Mathf.Min(2, pendingEffectCount);
@@ -353,14 +355,8 @@ namespace Tenronis.Gameplay.Enemy
                     pendingEffectCount--;
                 }
                 
-                // 等待一小段時間再生成下一批
-                yield return new WaitForSeconds(0.05f); // 50毫秒延遲
-            }
-            
-            // 如果敵人被擊敗，清空剩餘特效隊列
-            if (isDefeated)
-            {
-                pendingEffectCount = 0;
+                // 等待一小段時間再生成下一批（使用 Realtime 確保暫停時也能執行）
+                yield return new WaitForSecondsRealtime(0.05f);
             }
             
             effectSpawnCoroutine = null;
@@ -385,7 +381,35 @@ namespace Tenronis.Gameplay.Enemy
             
             // 實例化爆炸特效
             GameObject effect = Instantiate(damageEffectPrefab, randomPosition, Quaternion.identity);
-            Destroy(effect, 2f); // 2秒後銷毀
+            
+            // 設置特效在 Time.timeScale = 0 時也能播放
+            var animator = effect.GetComponent<Animator>();
+            if (animator != null)
+            {
+                animator.updateMode = AnimatorUpdateMode.UnscaledTime;
+            }
+            
+            var particleSystems = effect.GetComponentsInChildren<ParticleSystem>();
+            foreach (var ps in particleSystems)
+            {
+                var main = ps.main;
+                main.useUnscaledTime = true;
+            }
+            
+            // 使用協程銷毀，確保在 Time.timeScale = 0 時也能正常計時
+            StartCoroutine(DestroyAfterRealtime(effect, 2f));
+        }
+        
+        /// <summary>
+        /// 延遲銷毀物件（使用真實時間，不受 Time.timeScale 影響）
+        /// </summary>
+        private System.Collections.IEnumerator DestroyAfterRealtime(GameObject obj, float delay)
+        {
+            yield return new WaitForSecondsRealtime(delay);
+            if (obj != null)
+            {
+                Destroy(obj);
+            }
         }
         
         /// <summary>
@@ -395,29 +419,42 @@ namespace Tenronis.Gameplay.Enemy
         {
             isDefeated = true;
             
-            // 停止所有視覺效果協程
-            if (shakeCoroutine != null)
+            // 不停止晃動效果和爆炸特效，讓最後一擊的所有特效都能完整播放
+            
+            Debug.Log($"[EnemyController] 敵人被擊敗！開始淡化過渡...");
+            
+            // 啟動淡化過渡（不立即暫停，讓特效先播放）
+            StartCoroutine(DefeatTransitionCoroutine());
+        }
+        
+        /// <summary>
+        /// 擊敗過渡協程：淡化敵人圖片後進入升級畫面
+        /// </summary>
+        private System.Collections.IEnumerator DefeatTransitionCoroutine()
+        {
+            float fadeDuration = 1f;
+            float elapsed = 0f;
+            
+            Color originalColor = enemySprite != null ? enemySprite.color : Color.white;
+            
+            // 淡化敵人圖片（與特效同時進行，不暫停遊戲）
+            while (elapsed < fadeDuration)
             {
-                StopCoroutine(shakeCoroutine);
-                shakeCoroutine = null;
+                elapsed += Time.deltaTime;
+                float alpha = Mathf.Lerp(1f, 0.3f, elapsed / fadeDuration);
+                
+                if (enemySprite != null)
+                {
+                    enemySprite.color = new Color(originalColor.r, originalColor.g, originalColor.b, alpha);
+                }
+                
+                yield return null;
             }
             
-            if (effectSpawnCoroutine != null)
-            {
-                StopCoroutine(effectSpawnCoroutine);
-                effectSpawnCoroutine = null;
-            }
+            // 等待
+            yield return new WaitForSeconds(2f);
             
-            // 清空特效隊列
-            pendingEffectCount = 0;
-            
-            // 恢復Sprite位置
-            if (enemySprite != null)
-            {
-                enemySprite.transform.localPosition = originalSpritePosition;
-            }
-            
-            Debug.Log($"[EnemyController] 敵人被擊敗！");
+            Debug.Log($"[EnemyController] 淡化過渡完成，進入升級畫面");
             GameEvents.TriggerEnemyDefeated();
         }
         

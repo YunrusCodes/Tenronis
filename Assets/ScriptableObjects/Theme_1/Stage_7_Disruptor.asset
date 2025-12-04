@@ -46,5 +46,5 @@ MonoBehaviour:
   useSmartTargeting: 0
   addBlockTargetsHigh: 1
   areaDamageTargetsLow: 1
-  enemyIcon: {fileID: 0}
+  enemyIcon: {fileID: -4063794161788094979, guid: 3b09686f77eb0c84a907021705f4d578, type: 3}
   themeColor: {r: 1, g: 0, b: 0, a: 1}
