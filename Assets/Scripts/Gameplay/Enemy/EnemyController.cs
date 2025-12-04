@@ -69,6 +69,7 @@ namespace Tenronis.Gameplay.Enemy
         {
             if (GameManager.Instance.CurrentState != GameState.Playing) return;
             if (currentStageData == null) return;
+            if (isDefeated) return; // 被擊敗後立即停止射擊
             
             // 射擊計時
             shootTimer += Time.deltaTime;
@@ -429,30 +430,90 @@ namespace Tenronis.Gameplay.Enemy
         
         /// <summary>
         /// 擊敗過渡協程：淡化敵人圖片後進入升級畫面
+        /// 同時執行淡化、左右搖晃、往下移動效果
         /// </summary>
         private System.Collections.IEnumerator DefeatTransitionCoroutine()
         {
-            float fadeDuration = 1f;
-            float elapsed = 0f;
-            
             Color originalColor = enemySprite != null ? enemySprite.color : Color.white;
+            Vector3 startPosition = enemySprite != null ? enemySprite.transform.localPosition : Vector3.zero;
             
-            // 淡化敵人圖片（與特效同時進行，不暫停遊戲）
-            while (elapsed < fadeDuration)
+            // ========== 第一階段：快速搖晃 + 開始下降（1秒） ==========
+            float phase1Duration = 1f;
+            float phase1Elapsed = 0f;
+            
+            // 搖晃參數
+            float shakeFrequency = 20f;  // 搖晃頻率（每秒震動次數）
+            float shakeIntensity = 0.3f; // 搖晃強度
+            
+            // 第一階段下移距離
+            float phase1FallDistance = 2f;
+            
+            while (phase1Elapsed < phase1Duration)
             {
-                elapsed += Time.deltaTime;
-                float alpha = Mathf.Lerp(1f, 0.3f, elapsed / fadeDuration);
+                phase1Elapsed += Time.deltaTime;
+                float progress = phase1Elapsed / phase1Duration;
+                
+                // 1. 淡化效果（1.0 → 0.3）
+                float alpha = Mathf.Lerp(1f, 0.3f, progress);
+                
+                // 2. 左右搖晃效果（使用 Sin 波形，隨時間衰減）
+                float shakeAmount = Mathf.Sin(phase1Elapsed * shakeFrequency) * shakeIntensity * (1f - progress);
+                
+                // 3. 往下移動效果（使用緩出曲線）
+                float fallAmount = Mathf.Lerp(0f, phase1FallDistance, progress * progress);
                 
                 if (enemySprite != null)
                 {
+                    // 更新顏色（淡化）
                     enemySprite.color = new Color(originalColor.r, originalColor.g, originalColor.b, alpha);
+                    
+                    // 更新位置（搖晃 + 下移）
+                    enemySprite.transform.localPosition = new Vector3(
+                        startPosition.x + shakeAmount,  // X軸：左右搖晃
+                        startPosition.y - fallAmount,   // Y軸：往下移動
+                        startPosition.z
+                    );
                 }
                 
                 yield return null;
             }
             
-            // 等待
-            yield return new WaitForSeconds(2f);
+            // ========== 第二階段：繼續下降 + 完全淡出（2秒） ==========
+            float phase2Duration = 2f;
+            float phase2Elapsed = 0f;
+            
+            // 第二階段額外下移距離
+            float phase2FallDistance = 3f;
+            
+            // 記錄第一階段結束時的位置
+            Vector3 phase2StartPosition = enemySprite != null ? enemySprite.transform.localPosition : startPosition;
+            
+            while (phase2Elapsed < phase2Duration)
+            {
+                phase2Elapsed += Time.deltaTime;
+                float progress = phase2Elapsed / phase2Duration;
+                
+                // 1. 繼續淡化（0.3 → 0，完全透明）
+                float alpha = Mathf.Lerp(0.3f, 0f, progress);
+                
+                // 2. 繼續往下移動（緩慢勻速）
+                float fallAmount = Mathf.Lerp(0f, phase2FallDistance, progress);
+                
+                if (enemySprite != null)
+                {
+                    // 更新顏色（淡化）
+                    enemySprite.color = new Color(originalColor.r, originalColor.g, originalColor.b, alpha);
+                    
+                    // 更新位置（只有下移，不搖晃）
+                    enemySprite.transform.localPosition = new Vector3(
+                        phase2StartPosition.x,           // X軸：保持不動
+                        phase2StartPosition.y - fallAmount,  // Y軸：繼續往下移動
+                        phase2StartPosition.z
+                    );
+                }
+                
+                yield return null;
+            }
             
             Debug.Log($"[EnemyController] 淡化過渡完成，進入升級畫面");
             GameEvents.TriggerEnemyDefeated();
