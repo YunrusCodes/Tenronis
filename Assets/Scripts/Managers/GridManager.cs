@@ -326,8 +326,8 @@ namespace Tenronis.Managers
             {
                 ClearRows(rowsToClear, hasVoidBlocks);
                 
-                // 觸發消除事件，傳遞總行數、非垃圾方塊行數和是否包含虛無方塊的信息
-                GameEvents.TriggerRowsCleared(rowsToClear.Count, nonGarbageRowCount, hasVoidBlocks);
+                // 觸發消除事件，傳遞行號列表、非垃圾方塊行數和是否包含虛無方塊的信息
+                GameEvents.TriggerRowsCleared(rowsToClear, nonGarbageRowCount, hasVoidBlocks);
             }
             
             return rowsToClear;

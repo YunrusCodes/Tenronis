@@ -48,7 +48,7 @@ namespace Tenronis.UI
         private void OnEnable()
         {
             isLegendaryBuffSelectionPhase = false;
-            currentInfoTab = 1; // 預設顯示普通強化
+            currentInfoTab = 0; // 預設顯示敵人資訊
             
             GenerateBuffOptions();
             UpdateCurrentStats();
@@ -57,8 +57,8 @@ namespace Tenronis.UI
             // 設置分頁按鈕
             SetupTabButtons();
             
-            // 預設顯示普通強化
-            ShowInfoTab(1);
+            // 預設顯示敵人資訊
+            ShowInfoTab(0);
         }
         
         private void OnDisable()

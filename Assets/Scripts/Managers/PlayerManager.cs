@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections.Generic;
 using Tenronis.Data;
 using Tenronis.Core;
 
@@ -313,9 +314,9 @@ namespace Tenronis.Managers
         /// <summary>
         /// 處理消除行
         /// </summary>
-        private void HandleRowsCleared(int totalRowCount, int nonGarbageRowCount, bool hasVoid)
+        private void HandleRowsCleared(List<int> clearedRows, int nonGarbageRowCount, bool hasVoid)
         {
-            if (totalRowCount > 0)
+            if (clearedRows.Count > 0)
             {
                 // 增加Combo
                 stats.comboCount++;
@@ -325,7 +326,7 @@ namespace Tenronis.Managers
                 comboResetPending = false;
                 
                 // 增加分數（按總行數計算）
-                AddScore(totalRowCount * 100);
+                AddScore(clearedRows.Count * 100);
                 
                 // 增加爆炸充能（消排增加50充能）
                 AddExplosionCharge(GameConstants.EXPLOSION_ROW_CLEAR_CHARGE);

@@ -266,7 +266,7 @@ namespace Tenronis.UI
             }
         }
         
-        private void HandleRowsClearedForSalvo(int totalRowCount, int nonGarbageRowCount, bool hasVoid)
+        private void HandleRowsClearedForSalvo(List<int> clearedRows, int nonGarbageRowCount, bool hasVoid)
         {
             if (hasVoid) return;
             if (nonGarbageRowCount >= 2)
@@ -328,11 +328,11 @@ namespace Tenronis.UI
             accumulatedEnemyDamage += damage;
             damageCounterTimer = damageCounterResetTime; // 重置計時器
             
-            // 立即更新顯示（格式：0000 Hit!）
+            // 立即更新顯示（格式：<傷害>）
             if (enemyDamageCounterText != null)
             {
                 enemyDamageCounterText.gameObject.SetActive(true);
-                enemyDamageCounterText.text = $"{accumulatedEnemyDamage:0000} Hit!";
+                enemyDamageCounterText.text = $"{accumulatedEnemyDamage:0.#}";
                 enemyDamageCounterText.color = new Color(1f, 0.3f, 0.3f); // 紅色
             }
         }

@@ -79,20 +79,20 @@ namespace Tenronis.Managers
         /// <summary>
         /// 發射導彈（消除行時觸發）
         /// </summary>
-        private void HandleRowsCleared(int totalRowCount, int nonGarbageRowCount, bool hasVoid)
+        private void HandleRowsCleared(List<int> clearedRows, int nonGarbageRowCount, bool hasVoid)
         {
             if (nonGarbageRowCount <= 0) return;
             
             // 虛無抵銷：不發射導彈
             if (hasVoid)
             {
-                Debug.Log($"[CombatManager] 虛無抵銷！消除了 {totalRowCount} 行但不發射導彈");
+                Debug.Log($"[CombatManager] 虛無抵銷！消除了 {clearedRows.Count} 行但不發射導彈");
                 GameEvents.TriggerPlayVoidNullifySound();
                 return;
             }
             
             // 只為非垃圾方塊行發射導彈
-            Debug.Log($"[CombatManager] 消除了 {totalRowCount} 行（其中 {nonGarbageRowCount} 行非垃圾方塊），發射 {nonGarbageRowCount} 行導彈");
+            Debug.Log($"[CombatManager] 消除了 {clearedRows.Count} 行（其中 {nonGarbageRowCount} 行非垃圾方塊），從消除位置發射導彈");
             
             var stats = PlayerManager.Instance.Stats;
             
@@ -105,14 +105,36 @@ namespace Tenronis.Managers
             // 每個方塊位置發射導彈
             int missileCountPerBlock = 1 + stats.missileExtraCount;
             
-            // 簡化：每消除一行非垃圾方塊，在隨機列發射導彈群
-            for (int row = 0; row < nonGarbageRowCount; row++)
+            // 統計非垃圾方塊行（用於發射導彈）
+            List<int> nonGarbageRows = new List<int>();
+            foreach (int row in clearedRows)
+            {
+                bool isGarbageRow = true;
+                for (int x = 0; x < GameConstants.BOARD_WIDTH; x++)
+                {
+                    BlockData block = GridManager.Instance.GetBlock(x, row);
+                    if (block != null && block.color != BlockColor.Garbage)
+                    {
+                        isGarbageRow = false;
+                        break;
+                    }
+                }
+                
+                if (!isGarbageRow)
+                {
+                    nonGarbageRows.Add(row);
+                }
+            }
+            
+            // 從實際消除的行位置發射導彈
+            foreach (int row in nonGarbageRows)
             {
                 for (int x = 0; x < GameConstants.BOARD_WIDTH; x++)
                 {
                     for (int i = 0; i < missileCountPerBlock; i++)
                     {
-                        Vector3 spawnPos = GridManager.Instance.GridToWorldPosition(x, GameConstants.BOARD_HEIGHT - 1 - row);
+                        // ✨ 關鍵改變：從實際消除的行位置發射
+                        Vector3 spawnPos = GridManager.Instance.GridToWorldPosition(x, row);
                         spawnPos.y += i * 0.2f; // 錯開發射
                         
                         FireMissile(spawnPos, totalDamage);
