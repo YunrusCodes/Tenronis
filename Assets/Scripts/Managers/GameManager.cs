@@ -125,7 +125,21 @@ namespace Tenronis.Managers
             
             Debug.Log($"[GameManager] 遊戲數據已重置 - Stage: {currentStageIndex}, Buffs: {pendingBuffCount}, Total Stages: {TotalStages}");
             
-            ChangeGameState(GameState.Playing);
+            // ⭐ 新增：給予第一關的獎勵卡牌
+            int firstStageReward = currentStages[0].rewardBuffCount;
+            if (firstStageReward > 0)
+            {
+                pendingBuffCount += firstStageReward;
+                Debug.Log($"[GameManager] 準備挑戰第一關！獲得 {firstStageReward} 張升級卡牌");
+                
+                // 如果有獎勵，先進入升級介面
+                ChangeGameState(GameState.LevelUp);
+            }
+            else
+            {
+                // 沒有獎勵，直接開始遊戲
+                ChangeGameState(GameState.Playing);
+            }
             
             Debug.Log("=== [GameManager] StartGame() 執行完成 ===");
         }
@@ -169,17 +183,6 @@ namespace Tenronis.Managers
         /// </summary>
         private void HandleEnemyDefeated()
         {
-            // 獲取當前關卡的獎勵卡牌數量
-            if (currentStages != null && currentStageIndex < currentStages.Count)
-            {
-                int stageReward = currentStages[currentStageIndex].rewardBuffCount;
-                if (stageReward > 0)
-                {
-                    pendingBuffCount += stageReward;
-                    Debug.Log($"[GameManager] 關卡 {currentStageIndex + 1}/{currentStages.Count} 完成！獲得 {stageReward} 張升級卡牌，總計: {pendingBuffCount}");
-                }
-            }
-            
             // 恢復CP至全滿
             if (PlayerManager.Instance != null)
             {
@@ -187,6 +190,7 @@ namespace Tenronis.Managers
                 Debug.Log($"[GameManager] 關卡完成，CP已恢復至全滿");
             }
             
+            // ⭐ 關鍵改變：先增加關卡索引
             currentStageIndex++;
             
             // 進入下一關時恢復 50% HP（非第一關）
@@ -206,6 +210,14 @@ namespace Tenronis.Managers
             }
             else
             {
+                // ⭐ 關鍵改變：獲取下一關（當前索引）的獎勵卡牌
+                int stageReward = currentStages[currentStageIndex].rewardBuffCount;
+                if (stageReward > 0)
+                {
+                    pendingBuffCount += stageReward;
+                    Debug.Log($"[GameManager] 準備挑戰關卡 {currentStageIndex + 1}/{currentStages.Count}！獲得 {stageReward} 張升級卡牌，總計: {pendingBuffCount}");
+                }
+                
                 // 進入下一關
                 if (pendingBuffCount > 0)
                 {
