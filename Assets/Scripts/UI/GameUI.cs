@@ -45,9 +45,17 @@ namespace Tenronis.UI
         [SerializeField] private TextMeshProUGUI annihilationKeyLabelText;
         [SerializeField] private TextMeshProUGUI annihilationCostText;
         
+        [Header("敵人受傷計數器")]
+        [SerializeField] private TextMeshProUGUI enemyDamageCounterText;
+        [SerializeField] private float damageCounterResetTime = 3f; // 無傷害後歸零時間
+        
         // 齊射文字顯示計時
         private float salvoDisplayTimer = 0f;
         private int lastClearedRows = 0;
+        
+        // 敵人受傷計數器
+        private float accumulatedEnemyDamage = 0f;
+        private float damageCounterTimer = 0f;
         
         [Header("升級UI")]
         [SerializeField] private GameObject levelUpPanel;
@@ -77,6 +85,7 @@ namespace Tenronis.UI
             GameEvents.OnGameStateChanged += HandleGameStateChanged;
             GameEvents.OnRowsCleared += HandleRowsClearedForSalvo;
             GameEvents.OnSkillUnlocked += UpdateSkillUI;
+            GameEvents.OnEnemyDamaged += HandleEnemyDamaged;
             
             // 初始化UI
             ShowMenu();
@@ -87,6 +96,7 @@ namespace Tenronis.UI
             GameEvents.OnGameStateChanged -= HandleGameStateChanged;
             GameEvents.OnRowsCleared -= HandleRowsClearedForSalvo;
             GameEvents.OnSkillUnlocked -= UpdateSkillUI;
+            GameEvents.OnEnemyDamaged -= HandleEnemyDamaged;
             
             if (restartButton != null) restartButton.onClick.RemoveListener(OnRestart);
             if (menuButton != null) menuButton.onClick.RemoveListener(OnReturnToMenu);
@@ -98,6 +108,7 @@ namespace Tenronis.UI
             {
                 UpdateGameplayUI();
                 UpdateSalvoDisplay();
+                UpdateEnemyDamageCounter();
             }
         }
         
@@ -307,6 +318,43 @@ namespace Tenronis.UI
             // 3 -> 修補
             if (repairKeyLabelText != null) repairKeyLabelText.text = PlayerManager.Instance.IsRepairUnlocked() ? "3" : "Locked";
             if (repairCostText != null) repairCostText.text = PlayerManager.Instance.IsRepairUnlocked() ? $"CP-{GameConstants.REPAIR_CP_COST}" : "";
+        }
+        
+        /// <summary>
+        /// 處理敵人受傷事件
+        /// </summary>
+        private void HandleEnemyDamaged(float damage)
+        {
+            accumulatedEnemyDamage += damage;
+            damageCounterTimer = damageCounterResetTime; // 重置計時器
+            
+            // 立即更新顯示（格式：0000 Hit!）
+            if (enemyDamageCounterText != null)
+            {
+                enemyDamageCounterText.gameObject.SetActive(true);
+                enemyDamageCounterText.text = $"{accumulatedEnemyDamage:0000} Hit!";
+                enemyDamageCounterText.color = new Color(1f, 0.3f, 0.3f); // 紅色
+            }
+        }
+        
+        /// <summary>
+        /// 更新敵人受傷計數器（3秒無傷害後歸零隱藏）
+        /// </summary>
+        private void UpdateEnemyDamageCounter()
+        {
+            if (enemyDamageCounterText == null) return;
+            
+            if (damageCounterTimer > 0)
+            {
+                damageCounterTimer -= Time.deltaTime;
+                
+                // 計時器結束，歸零並隱藏
+                if (damageCounterTimer <= 0)
+                {
+                    accumulatedEnemyDamage = 0f;
+                    enemyDamageCounterText.gameObject.SetActive(false);
+                }
+            }
         }
     }
 }
