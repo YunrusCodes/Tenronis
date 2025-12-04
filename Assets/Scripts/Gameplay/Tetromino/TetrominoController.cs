@@ -325,6 +325,16 @@ namespace Tenronis.Gameplay.Tetromino
                 currentPosition = newPos;
                 UpdateVisual();
                 
+                // 湮滅狀態下檢查是否觸地（任何格子超出底部）
+                if (isInAnnihilationState && IsAnnihilationTouchingGround())
+                {
+                    // 觸地時往上移一格再觸發效果
+                    currentPosition += Vector2Int.down; // Unity Y軸：down = -1 = 往上移
+                    Debug.Log("[TetrominoController] 湮滅方塊觸地，往上移一格後觸發湮滅效果");
+                    ExecuteAnnihilationHardDrop();
+                    return;
+                }
+                
                 // 離開地面，重置 Lock Delay 狀態
                 if (isGrounded)
                 {
@@ -344,6 +354,31 @@ namespace Tenronis.Gameplay.Tetromino
                     Debug.Log($"[Lock Delay] 方塊觸地，開始鎖定計時（{lockDelay}秒）");
                 }
             }
+        }
+        
+        /// <summary>
+        /// 檢查湮滅狀態下方塊是否觸地（任何格子超出網格底部）
+        /// </summary>
+        private bool IsAnnihilationTouchingGround()
+        {
+            if (currentRotation == null) return false;
+            
+            for (int y = 0; y < currentRotation.GetLength(0); y++)
+            {
+                for (int x = 0; x < currentRotation.GetLength(1); x++)
+                {
+                    if (currentRotation[y, x] != 0)
+                    {
+                        int gridY = currentPosition.y + y;
+                        // 如果任何格子超出網格底部，視為觸地
+                        if (gridY >= GameConstants.BOARD_HEIGHT)
+                        {
+                            return true;
+                        }
+                    }
+                }
+            }
+            return false;
         }
         
         /// <summary>
@@ -893,22 +928,33 @@ namespace Tenronis.Gameplay.Tetromino
             Color blockColor;
             if (isAnnihilation)
             {
-                // 湮滅狀態：紫色幽靈效果
-                blockColor = new Color(0.7f, 0.3f, 1f, alpha);
+                // 湮滅狀態：黑色方塊白色外框
+                blockColor = new Color(0f, 0f, 0f, alpha); // 黑色
+                spriteRenderer.color = blockColor;
+                spriteRenderer.sortingOrder = 11; // 黑色在上層
+                
+                // 創建白色外框（稍大的白色方塊在下層）
+                CreateAnnihilationBorder(blockObj, blockSize, alpha);
             }
             else if (corruptType.HasValue && (corruptType.Value == BlockType.Explosive || corruptType.Value == BlockType.Void))
             {
                 blockColor = new Color(1f, 1f, 1f, alpha); // 白色底
+                spriteRenderer.color = blockColor;
+                spriteRenderer.sortingOrder = 10;
             }
             else
             {
                 blockColor = GetColorFromBlockColor(color);
                 blockColor.a = alpha;
+                spriteRenderer.color = blockColor;
+                spriteRenderer.sortingOrder = 10;
             }
-            spriteRenderer.color = blockColor;
             
-            // 確保方塊在正確的渲染層
-            spriteRenderer.sortingOrder = 10;
+            // 確保方塊在正確的渲染層（非湮滅狀態）
+            if (!isAnnihilation)
+            {
+                spriteRenderer.sortingOrder = 10;
+            }
             
             // 如果方塊被腐化，添加符號標記
             if (corruptType.HasValue && (corruptType.Value == BlockType.Explosive || corruptType.Value == BlockType.Void))
@@ -917,6 +963,36 @@ namespace Tenronis.Gameplay.Tetromino
             }
             
             return blockObj;
+        }
+        
+        /// <summary>
+        /// 創建湮滅方塊的白色外框
+        /// </summary>
+        private void CreateAnnihilationBorder(GameObject blockObj, float blockSize, float alpha)
+        {
+            // 創建白色外框物件（作為子物件）
+            GameObject borderObj = new GameObject("AnnihilationBorder");
+            borderObj.transform.SetParent(blockObj.transform);
+            borderObj.transform.localPosition = Vector3.zero;
+            
+            // 添加 SpriteRenderer
+            SpriteRenderer borderRenderer = borderObj.AddComponent<SpriteRenderer>();
+            
+            // 建立白色方形 Sprite
+            Texture2D tex = new Texture2D(1, 1);
+            tex.SetPixel(0, 0, Color.white);
+            tex.Apply();
+            Sprite sprite = Sprite.Create(tex, new Rect(0, 0, 1, 1), new Vector2(0.5f, 0.5f), 1f);
+            borderRenderer.sprite = sprite;
+            
+            // 設置白色外框顏色
+            borderRenderer.color = new Color(1f, 1f, 1f, alpha);
+            
+            // 外框比方塊稍大（1.15倍），形成邊框效果
+            borderObj.transform.localScale = new Vector3(1.15f, 1.15f, 1f);
+            
+            // 外框在下層
+            borderRenderer.sortingOrder = 10;
         }
         
         /// <summary>

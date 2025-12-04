@@ -67,8 +67,8 @@ namespace Tenronis.Data
         public const int SPACE_EXPANSION_MAX_LEVEL = 4;
         public const int RESOURCE_EXPANSION_MAX_LEVEL = 3;
 
-        // ⭐ 戰術擴展：保持最高等級 2（不改）
-        public const int TACTICAL_EXPANSION_MAX_LEVEL = 2;
+        // ⭐ 戰術擴展：最高等級 3
+        public const int TACTICAL_EXPANSION_MAX_LEVEL = 3;
 
         // 🚫 普通強化（有限等級）
         public static readonly BuffType[] NORMAL_BUFFS = new BuffType[]

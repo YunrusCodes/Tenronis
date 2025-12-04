@@ -85,7 +85,7 @@ namespace Tenronis.Data
         Repair,         // 修復：填補封閉空洞
         SpaceExpansion, // 空間擴充：解鎖儲存槽位
         ResourceExpansion, // 資源擴充：增加CP上限
-        TacticalExpansion // 戰術擴展：解鎖技能（Lv1解鎖處決，Lv2解鎖修補）
+        TacticalExpansion // 戰術擴展：解鎖技能（Lv1湮滅，Lv2處決，Lv3修補）
     }
 }
 

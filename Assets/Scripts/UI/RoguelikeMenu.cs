@@ -215,21 +215,22 @@ namespace Tenronis.UI
             {
                 System.Text.StringBuilder legendarySb = new System.Text.StringBuilder();
                 legendarySb.AppendLine("【傳奇強化】");
-                legendarySb.AppendLine($"裝甲強化 Defense: Lv.{stats.blockDefenseLevel} (+{stats.blockDefenseLevel} HP)");
-                legendarySb.AppendLine($"協同火力 Volley: Lv.{stats.missileExtraCount} (每個位置 +{stats.missileExtraCount} 導彈)");
+                legendarySb.AppendLine($"鞏固防禦: Lv.{stats.blockDefenseLevel} (+{stats.blockDefenseLevel} HP)");
+                legendarySb.AppendLine($"加倍火力: Lv.{stats.missileExtraCount} (每個位置 +{stats.missileExtraCount} 導彈)");
 
                 // 傳奇：戰術擴展
                 string tacticalInfo = "";
-                if (stats.tacticalExpansionLevel >= 1) tacticalInfo = "處決";
-                if (stats.tacticalExpansionLevel >= 2) tacticalInfo = "處決、修補";
+                if (stats.tacticalExpansionLevel >= 1) tacticalInfo = "湮滅";
+                if (stats.tacticalExpansionLevel >= 2) tacticalInfo = "湮滅、處決";
+                if (stats.tacticalExpansionLevel >= 3) tacticalInfo = "湮滅、處決、修補";
 
                 if (stats.tacticalExpansionLevel > 0)
                 {
-                    legendarySb.AppendLine($"戰術擴展 Tactical Expansion: Lv.{stats.tacticalExpansionLevel}/{GameConstants.TACTICAL_EXPANSION_MAX_LEVEL} (技能：{tacticalInfo})");
+                    legendarySb.AppendLine($"戰術擴展: Lv.{stats.tacticalExpansionLevel}/{GameConstants.TACTICAL_EXPANSION_MAX_LEVEL} (技能：{tacticalInfo})");
                 }
                 else
                 {
-                    legendarySb.AppendLine($"戰術擴展 Tactical Expansion: 未解鎖");
+                    legendarySb.AppendLine($"戰術擴展: 未解鎖");
                 }
                 legendaryBuffText.text = legendarySb.ToString();
             }
@@ -261,9 +262,9 @@ namespace Tenronis.UI
                 buffLines.Add($"反擊強化: Lv.{stats.counterFireLevel}/{GameConstants.COUNTER_MAX_LEVEL} ({stats.counterFireLevel} 反擊導彈)");
             
             if (stats.explosionChargeLevel >= GameConstants.EXPLOSION_BUFF_MAX_LEVEL)
-                buffLines.Add($"過載爆破: Lv.{stats.explosionChargeLevel}/{GameConstants.EXPLOSION_BUFF_MAX_LEVEL} (已達上限) (充能: {stats.explosionCharge}/{stats.explosionMaxCharge})");
+                buffLines.Add($"衝擊擴充: Lv.{stats.explosionChargeLevel}/{GameConstants.EXPLOSION_BUFF_MAX_LEVEL} (已達上限) (充能: {stats.explosionCharge}/{stats.explosionMaxCharge})");
             else
-                buffLines.Add($"過載爆破: Lv.{stats.explosionChargeLevel}/{GameConstants.EXPLOSION_BUFF_MAX_LEVEL} (充能: {stats.explosionCharge}/{stats.explosionMaxCharge})");
+                buffLines.Add($"衝擊擴充: Lv.{stats.explosionChargeLevel}/{GameConstants.EXPLOSION_BUFF_MAX_LEVEL} (充能: {stats.explosionCharge}/{stats.explosionMaxCharge})");
             
             if (stats.spaceExpansionLevel >= GameConstants.SPACE_EXPANSION_MAX_LEVEL)
                 buffLines.Add($"空間擴充: Lv.{stats.spaceExpansionLevel}/{GameConstants.SPACE_EXPANSION_MAX_LEVEL} (已達上限，{stats.spaceExpansionLevel} 槽位)");

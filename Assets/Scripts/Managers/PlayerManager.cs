@@ -273,7 +273,13 @@ namespace Tenronis.Managers
                     if (stats.tacticalExpansionLevel < GameConstants.TACTICAL_EXPANSION_MAX_LEVEL)
                     {
                         stats.tacticalExpansionLevel++;
-                        string unlockedSkill = stats.tacticalExpansionLevel == 1 ? "處決" : "修補";
+                        string unlockedSkill = stats.tacticalExpansionLevel switch
+                        {
+                            1 => "湮滅",
+                            2 => "處決",
+                            3 => "修補",
+                            _ => ""
+                        };
                         Debug.Log($"[PlayerManager] 戰術擴展等級提升至: {stats.tacticalExpansionLevel}/{GameConstants.TACTICAL_EXPANSION_MAX_LEVEL}，解鎖技能: {unlockedSkill}");
                         // 觸發UI更新事件
                         GameEvents.TriggerSkillUnlocked();
@@ -387,19 +393,19 @@ namespace Tenronis.Managers
         }
         
         /// <summary>
-        /// 檢查處決技能是否已解鎖
+        /// 檢查處決技能是否已解鎖（TacticalExpansion Lv2）
         /// </summary>
         public bool IsExecutionUnlocked()
         {
-            return stats.tacticalExpansionLevel >= 1;
+            return stats.tacticalExpansionLevel >= 2;
         }
         
         /// <summary>
-        /// 檢查修補技能是否已解鎖
+        /// 檢查修補技能是否已解鎖（TacticalExpansion Lv3）
         /// </summary>
         public bool IsRepairUnlocked()
         {
-            return stats.tacticalExpansionLevel >= 2;
+            return stats.tacticalExpansionLevel >= 3;
         }
         
         /// <summary>
@@ -448,7 +454,7 @@ namespace Tenronis.Managers
         }
         
         /// <summary>
-        /// 檢查湮滅技能是否已解鎖（與處決同階，TacticalExpansion Lv1）
+        /// 檢查湮滅技能是否已解鎖（TacticalExpansion Lv1）
         /// </summary>
         public bool IsAnnihilationUnlocked()
         {
