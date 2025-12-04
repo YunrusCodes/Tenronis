@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using System.Collections;
 using System.Collections.Generic;
 using Tenronis.Data;
 using Tenronis.Core;
@@ -18,23 +19,157 @@ namespace Tenronis.UI
         [SerializeField] private Transform buffOptionsContainer;
         [SerializeField] private GameObject buffOptionPrefab;
         
-        [Header("當前強化狀態")]
+        [Header("敵人資訊面板")]
+        [SerializeField] private GameObject enemyInfoPanel;
+        [SerializeField] private TextMeshProUGUI nextStageEnemyPreviewText;
+        [SerializeField] private Transform enemyAttackPreviewContainer;
+        [SerializeField] private GameObject enemyAttackPreviewPrefab;
+        [SerializeField] private Tenronis.Gameplay.Projectiles.Bullet bulletPrefabReference;
+        
+        [Header("普通強化面板")]
+        [SerializeField] private GameObject normalBuffPanel;
         [SerializeField] private TextMeshProUGUI currentStatsText;
+        
+        [Header("傳奇強化面板")]
+        [SerializeField] private GameObject legendaryBuffPanel;
         [SerializeField] private TextMeshProUGUI legendaryBuffText;
         
+        [Header("分頁按鈕")]
+        [SerializeField] private Button enemyInfoButton;
+        [SerializeField] private Button normalBuffButton;
+        [SerializeField] private Button legendaryBuffButton;
+        
         private List<GameObject> currentOptions = new List<GameObject>();
-        private bool isLegendaryBuffSelectionPhase = false; // 標記是否處於傳奇強化選擇階段
+        private List<GameObject> attackPreviewItems = new List<GameObject>();
+        private List<Coroutine> spriteSyncCoroutines = new List<Coroutine>();
+        private bool isLegendaryBuffSelectionPhase = false;
+        private int currentInfoTab = 0; // 0=敵人資訊, 1=普通強化, 2=傳奇強化
         
         private void OnEnable()
         {
-            isLegendaryBuffSelectionPhase = false; // 重置標記
+            isLegendaryBuffSelectionPhase = false;
+            currentInfoTab = 1; // 預設顯示普通強化
+            
             GenerateBuffOptions();
             UpdateCurrentStats();
+            UpdateNextStageEnemyPreview();
+            
+            // 設置分頁按鈕
+            SetupTabButtons();
+            
+            // 預設顯示普通強化
+            ShowInfoTab(1);
         }
         
         private void OnDisable()
         {
             ClearOptions();
+            ClearAttackPreviews();
+            
+            // 移除按鈕監聽
+            if (enemyInfoButton != null) enemyInfoButton.onClick.RemoveAllListeners();
+            if (normalBuffButton != null) normalBuffButton.onClick.RemoveAllListeners();
+            if (legendaryBuffButton != null) legendaryBuffButton.onClick.RemoveAllListeners();
+        }
+        
+        /// <summary>
+        /// 設置分頁按鈕
+        /// </summary>
+        private void SetupTabButtons()
+        {
+            if (enemyInfoButton != null)
+            {
+                enemyInfoButton.onClick.RemoveAllListeners();
+                enemyInfoButton.onClick.AddListener(() => ShowInfoTab(0));
+            }
+            
+            if (normalBuffButton != null)
+            {
+                normalBuffButton.onClick.RemoveAllListeners();
+                normalBuffButton.onClick.AddListener(() => ShowInfoTab(1));
+            }
+            
+            if (legendaryBuffButton != null)
+            {
+                legendaryBuffButton.onClick.RemoveAllListeners();
+                legendaryBuffButton.onClick.AddListener(() => ShowInfoTab(2));
+            }
+        }
+        
+        /// <summary>
+        /// 顯示指定的分頁
+        /// </summary>
+        /// <param name="tabIndex">0=敵人資訊, 1=普通強化, 2=傳奇強化</param>
+        private void ShowInfoTab(int tabIndex)
+        {
+            currentInfoTab = tabIndex;
+            
+            // 顯示/隱藏面板
+            if (enemyInfoPanel != null)
+                enemyInfoPanel.SetActive(tabIndex == 0);
+            
+            if (normalBuffPanel != null)
+                normalBuffPanel.SetActive(tabIndex == 1);
+            
+            if (legendaryBuffPanel != null)
+                legendaryBuffPanel.SetActive(tabIndex == 2);
+            
+            // 更新按鈕背景色
+            UpdateTabButtonColors();
+        }
+        
+        /// <summary>
+        /// 更新分頁按鈕樣式（選中：黃底黑字，未選中：黑底白字）
+        /// </summary>
+        private void UpdateTabButtonColors()
+        {
+            SetButtonStyle(enemyInfoButton, currentInfoTab == 0);
+            SetButtonStyle(normalBuffButton, currentInfoTab == 1);
+            SetButtonStyle(legendaryBuffButton, currentInfoTab == 2);
+        }
+        
+        /// <summary>
+        /// 設置按鈕樣式
+        /// </summary>
+        private void SetButtonStyle(Button button, bool isSelected)
+        {
+            if (button == null) return;
+            
+            // 設置背景色
+            Color bgColor = isSelected ? Color.yellow : Color.black;
+            var colors = button.colors;
+            colors.normalColor = bgColor;
+            colors.highlightedColor = bgColor;
+            colors.selectedColor = bgColor;
+            button.colors = colors;
+            
+            // 設置文字顏色
+            Color textColor = isSelected ? Color.black : Color.white;
+            var text = button.GetComponentInChildren<TextMeshProUGUI>();
+            if (text != null)
+            {
+                text.color = textColor;
+            }
+        }
+        
+        /// <summary>
+        /// 清除攻擊預覽項目
+        /// </summary>
+        private void ClearAttackPreviews()
+        {
+            // 停止所有 Sprite 同步協程
+            foreach (var coroutine in spriteSyncCoroutines)
+            {
+                if (coroutine != null) StopCoroutine(coroutine);
+            }
+            spriteSyncCoroutines.Clear();
+            
+            // 銷毀所有預覽項目
+            foreach (var item in attackPreviewItems)
+            {
+                if (item != null) Destroy(item);
+            }
+            attackPreviewItems.Clear();
         }
         
         /// <summary>
@@ -205,89 +340,240 @@ namespace Tenronis.UI
         /// </summary>
         private void UpdateCurrentStats()
         {
-            if (currentStatsText == null) return;
             if (PlayerManager.Instance == null) return;
             
             var stats = PlayerManager.Instance.Stats;
             
-            // 更新傳奇強化（裝甲強化、協同火力）
+            // 計算最大值
+            int maxSalvoPercent = GameConstants.SALVO_MAX_LEVEL * 50;
+            int maxBurstPercent = GameConstants.BURST_MAX_LEVEL * 25;
+            int maxCounter = GameConstants.COUNTER_MAX_LEVEL;
+            int maxCp = GameConstants.PLAYER_MAX_CP + GameConstants.RESOURCE_EXPANSION_MAX_LEVEL * 50;
+            int maxExplosionCharge = GameConstants.EXPLOSION_INITIAL_MAX_CHARGE + GameConstants.EXPLOSION_BUFF_MAX_LEVEL * GameConstants.EXPLOSION_BUFF_MAX_CHARGE_INCREASE;
+            int maxSpace = GameConstants.SPACE_EXPANSION_MAX_LEVEL;
+            
+            // 更新普通強化
+            if (currentStatsText != null)
+            {
+                System.Text.StringBuilder sb = new System.Text.StringBuilder();
+                sb.AppendLine("普通增益強化項目");
+                sb.AppendLine("<size=80%>(達到上限獲得一次傳奇強化)</size>");
+                sb.AppendLine();
+                
+                sb.AppendLine($"齊射 : {stats.salvoLevel * 50}%/列");
+                sb.AppendLine($"<size=80%>(上限 {maxSalvoPercent}%/列)</size>");
+                sb.AppendLine();
+                
+                sb.AppendLine($"連發 : {stats.burstLevel * 25}%/發");
+                sb.AppendLine($"<size=80%>(上限 {maxBurstPercent}%/發)</size>");
+                sb.AppendLine();
+                
+                sb.AppendLine($"反擊 : {stats.counterFireLevel}發子彈");
+                sb.AppendLine($"<size=80%>(上限 {maxCounter}發子彈)</size>");
+                sb.AppendLine();
+                
+                sb.AppendLine($"CP : {stats.maxCp}");
+                sb.AppendLine($"<size=80%>(上限 {maxCp})</size>");
+                sb.AppendLine();
+                
+                sb.AppendLine($"衝擊充能上限 : {stats.explosionMaxCharge}");
+                sb.AppendLine($"<size=80%>(上限 {maxExplosionCharge})</size>");
+                sb.AppendLine($"<size=80%>網格溢位時消耗 {GameConstants.OVERFLOW_CP_COST} CP，累積充能對敵人造成傷害 <color=red>若 CP 不足，HP 歸 1</color></size>");
+                sb.AppendLine();
+                
+                sb.AppendLine($"空間 : {stats.spaceExpansionLevel}");
+                sb.AppendLine($"<size=80%>(上限 {maxSpace})</size>");
+                sb.AppendLine("<size=80%>可儲存的方塊槽位數量</size>");
+                
+                currentStatsText.text = sb.ToString();
+            }
+            
+            // 更新傳奇強化
             if (legendaryBuffText != null)
             {
                 System.Text.StringBuilder legendarySb = new System.Text.StringBuilder();
-                legendarySb.AppendLine("【傳奇強化】");
-                legendarySb.AppendLine($"鞏固防禦: Lv.{stats.blockDefenseLevel} (+{stats.blockDefenseLevel} HP)");
-                legendarySb.AppendLine($"加倍火力: Lv.{stats.missileExtraCount} (每個位置 +{stats.missileExtraCount} 導彈)");
-
-                // 傳奇：戰術擴展
-                string tacticalInfo = "";
-                if (stats.tacticalExpansionLevel >= 1) tacticalInfo = "湮滅";
-                if (stats.tacticalExpansionLevel >= 2) tacticalInfo = "湮滅、處決";
-                if (stats.tacticalExpansionLevel >= 3) tacticalInfo = "湮滅、處決、修補";
-
-                if (stats.tacticalExpansionLevel > 0)
-                {
-                    legendarySb.AppendLine($"戰術擴展: Lv.{stats.tacticalExpansionLevel}/{GameConstants.TACTICAL_EXPANSION_MAX_LEVEL} (技能：{tacticalInfo})");
-                }
-                else
-                {
-                    legendarySb.AppendLine($"戰術擴展: 未解鎖");
-                }
+                legendarySb.AppendLine("傳奇增益強化項目");
+                legendarySb.AppendLine();
+                
+                legendarySb.AppendLine($"方塊可承受子彈次數 : {stats.blockDefenseLevel}");
+                legendarySb.AppendLine();
+                
+                legendarySb.AppendLine($"每個方塊可產生的子彈 : {1 + stats.missileExtraCount}");
+                legendarySb.AppendLine();
+                
+                // 湮滅技能
+                string annihilationStatus = PlayerManager.Instance.IsAnnihilationUnlocked() ? "按鍵1" : "未解鎖";
+                legendarySb.AppendLine($"湮滅 ({annihilationStatus}) - 消耗 {GameConstants.ANNIHILATION_CP_COST} CP");
+                legendarySb.AppendLine("<size=80%>進入幽靈穿透狀態，硬降時破壞重疊方塊並發射導彈</size>");
+                legendarySb.AppendLine();
+                
+                // 處決技能
+                string executionStatus = PlayerManager.Instance.IsExecutionUnlocked() ? "按鍵2" : "未解鎖";
+                legendarySb.AppendLine($"處決 ({executionStatus}) - 消耗 {GameConstants.EXECUTION_CP_COST} CP");
+                legendarySb.AppendLine("<size=80%>清除每列最上方的方塊並發射導彈</size>");
+                legendarySb.AppendLine();
+                
+                // 修補技能
+                string repairStatus = PlayerManager.Instance.IsRepairUnlocked() ? "按鍵3" : "未解鎖";
+                legendarySb.AppendLine($"修補 ({repairStatus}) - 消耗 {GameConstants.REPAIR_CP_COST} CP");
+                legendarySb.AppendLine("<size=80%>填補封閉空洞並檢查消除</size>");
+                
                 legendaryBuffText.text = legendarySb.ToString();
             }
+        }
+        
+        /// <summary>
+        /// 更新當前關卡敵人攻擊預覽
+        /// </summary>
+        private void UpdateNextStageEnemyPreview()
+        {
+            ClearAttackPreviews();
             
-            // 更新普通強化（其他6個，每行顯示3個）
-            System.Text.StringBuilder sb = new System.Text.StringBuilder();
-            sb.AppendLine("【當前強化狀態】");
-            sb.AppendLine();
+            if (nextStageEnemyPreviewText == null) return;
+            if (GameManager.Instance == null) return;
             
-            // 被動強化 - 每行顯示3個
-            sb.AppendLine("═══ 被動強化 ═══");
+            var currentStage = GameManager.Instance.CurrentStage;
             
-            // 收集其他強化信息（排除裝甲強化和協同火力）
-            var buffLines = new List<string>();
-            
-            if (stats.salvoLevel >= GameConstants.SALVO_MAX_LEVEL)
-                buffLines.Add($"齊射強化: Lv.{stats.salvoLevel}/{GameConstants.SALVO_MAX_LEVEL} (已達上限) ({stats.salvoLevel * 50}% 多行加成)");
-            else
-                buffLines.Add($"齊射強化: Lv.{stats.salvoLevel}/{GameConstants.SALVO_MAX_LEVEL} ({stats.salvoLevel * 50}% 多行加成)");
-            
-            if (stats.burstLevel >= GameConstants.BURST_MAX_LEVEL)
-                buffLines.Add($"連發強化: Lv.{stats.burstLevel}/{GameConstants.BURST_MAX_LEVEL} (已達上限) ({stats.burstLevel * 25}% 連擊加成)");
-            else
-                buffLines.Add($"連發強化: Lv.{stats.burstLevel}/{GameConstants.BURST_MAX_LEVEL} ({stats.burstLevel * 25}% 連擊加成)");
-            
-            if (stats.counterFireLevel >= GameConstants.COUNTER_MAX_LEVEL)
-                buffLines.Add($"反擊強化: Lv.{stats.counterFireLevel}/{GameConstants.COUNTER_MAX_LEVEL} (已達上限) ({stats.counterFireLevel} 反擊導彈)");
-            else
-                buffLines.Add($"反擊強化: Lv.{stats.counterFireLevel}/{GameConstants.COUNTER_MAX_LEVEL} ({stats.counterFireLevel} 反擊導彈)");
-            
-            if (stats.explosionChargeLevel >= GameConstants.EXPLOSION_BUFF_MAX_LEVEL)
-                buffLines.Add($"衝擊擴充: Lv.{stats.explosionChargeLevel}/{GameConstants.EXPLOSION_BUFF_MAX_LEVEL} (已達上限) (充能: {stats.explosionCharge}/{stats.explosionMaxCharge})");
-            else
-                buffLines.Add($"衝擊擴充: Lv.{stats.explosionChargeLevel}/{GameConstants.EXPLOSION_BUFF_MAX_LEVEL} (充能: {stats.explosionCharge}/{stats.explosionMaxCharge})");
-            
-            if (stats.spaceExpansionLevel >= GameConstants.SPACE_EXPANSION_MAX_LEVEL)
-                buffLines.Add($"空間擴充: Lv.{stats.spaceExpansionLevel}/{GameConstants.SPACE_EXPANSION_MAX_LEVEL} (已達上限，{stats.spaceExpansionLevel} 槽位)");
-            else
-                buffLines.Add($"空間擴充: Lv.{stats.spaceExpansionLevel}/{GameConstants.SPACE_EXPANSION_MAX_LEVEL} ({stats.spaceExpansionLevel} 槽位)");
-            
-            if (stats.cpExpansionLevel >= GameConstants.RESOURCE_EXPANSION_MAX_LEVEL)
-                buffLines.Add($"資源擴充: Lv.{stats.cpExpansionLevel}/{GameConstants.RESOURCE_EXPANSION_MAX_LEVEL} (已達上限，CP: {stats.maxCp})");
-            else
-                buffLines.Add($"資源擴充: Lv.{stats.cpExpansionLevel}/{GameConstants.RESOURCE_EXPANSION_MAX_LEVEL} (CP: {stats.maxCp})");
-            // 每行顯示3個
-            for (int i = 0; i < buffLines.Count; i += 3)
+            // 如果沒有當前關卡
+            if (currentStage == null)
             {
-                var line = new System.Text.StringBuilder();
-                for (int j = 0; j < 3 && (i + j) < buffLines.Count; j++)
-                {
-                    if (j > 0) line.Append("  |  ");
-                    line.Append(buffLines[i + j]);
-                }
-                sb.AppendLine(line.ToString());
+                nextStageEnemyPreviewText.text = "";
+                return;
             }
             
-            currentStatsText.text = sb.ToString();
+            // 顯示基本資訊
+            System.Text.StringBuilder sb = new System.Text.StringBuilder();
+            sb.AppendLine($"Stage {GameManager.Instance.CurrentStageIndex + 1}: {currentStage.stageName}");
+            sb.AppendLine($"HP: {currentStage.maxHp}  |  攻擊間隔: {currentStage.shootInterval}s");
+            
+            if (currentStage.useSmartTargeting)
+            {
+                sb.AppendLine("⚠ 智能射擊已啟用");
+            }
+            
+            nextStageEnemyPreviewText.text = sb.ToString();
+            
+            // 生成視覺攻擊預覽
+            GenerateAttackPreviews(currentStage);
+        }
+        
+        /// <summary>
+        /// 生成攻擊預覽視覺項目
+        /// </summary>
+        private void GenerateAttackPreviews(StageDataSO stageData)
+        {
+            if (enemyAttackPreviewContainer == null || enemyAttackPreviewPrefab == null) return;
+            
+            // 收集所有啟用的攻擊
+            var attacks = new List<(BulletType type, string name, string desc, float chance)>();
+            
+            if (stageData.normalBullet.enabled)
+                attacks.Add((BulletType.Normal, "普通子彈", "造成 1 點方塊傷害", stageData.normalBullet.chance));
+            
+            if (stageData.areaBullet.enabled)
+                attacks.Add((BulletType.AreaDamage, "範圍傷害", "3x3 範圍傷害", stageData.areaBullet.chance));
+            
+            if (stageData.addBlockBullet.enabled)
+                attacks.Add((BulletType.AddBlock, "添加方塊", "在擊中位置上方添加垃圾方塊", stageData.addBlockBullet.chance));
+            
+            if (stageData.addExplosiveBlockBullet.enabled)
+                attacks.Add((BulletType.AddExplosiveBlock, "爆炸方塊", "添加爆炸方塊，被擊中時傷害玩家", stageData.addExplosiveBlockBullet.chance));
+            
+            if (stageData.addRowBullet.enabled)
+                attacks.Add((BulletType.InsertRow, "插入垃圾行", "從底部插入一整行方塊", stageData.addRowBullet.chance));
+            
+            if (stageData.addVoidRowBullet.enabled)
+                attacks.Add((BulletType.InsertVoidRow, "虛無垃圾行", "插入虛無行，消除不產生導彈", stageData.addVoidRowBullet.chance));
+            
+            if (stageData.corruptExplosiveBullet.enabled)
+                attacks.Add((BulletType.CorruptExplosive, "腐化爆炸", "將下個方塊隨機一格變成爆炸方塊", stageData.corruptExplosiveBullet.chance));
+            
+            if (stageData.corruptVoidBullet.enabled)
+                attacks.Add((BulletType.CorruptVoid, "腐化虛無", "將下個方塊隨機一格變成虛無方塊", stageData.corruptVoidBullet.chance));
+            
+            // 為每個攻擊生成預覽項目
+            foreach (var attack in attacks)
+            {
+                CreateAttackPreviewItem(attack.type, attack.name, attack.desc, attack.chance);
+            }
+        }
+        
+        /// <summary>
+        /// 創建單個攻擊預覽項目
+        /// </summary>
+        private void CreateAttackPreviewItem(BulletType bulletType, string attackName, string description, float chance)
+        {
+            GameObject item = Instantiate(enemyAttackPreviewPrefab, enemyAttackPreviewContainer);
+            attackPreviewItems.Add(item);
+            
+            // 查找 ColorImage 下的 SpriteRenderer 和 Animator
+            var colorImageTransform = item.transform.Find("ColorImage");
+            if (colorImageTransform != null && bulletPrefabReference != null)
+            {
+                var spriteRenderer = colorImageTransform.GetComponent<SpriteRenderer>();
+                var animator = colorImageTransform.GetComponent<Animator>();
+                var image = colorImageTransform.GetComponent<Image>();
+                
+                // 設置顏色
+                Color bulletColor = bulletPrefabReference.GetColorByType(bulletType);
+                if (spriteRenderer != null)
+                {
+                    spriteRenderer.color = bulletColor;
+                }
+                
+                // 設置動畫控制器
+                RuntimeAnimatorController animController = bulletPrefabReference.GetAnimatorByType(bulletType);
+                if (animator != null && animController != null)
+                {
+                    animator.runtimeAnimatorController = animController;
+                }
+                
+                // 啟動協程同步 SpriteRenderer 到 Image
+                if (spriteRenderer != null && image != null)
+                {
+                    var coroutine = StartCoroutine(SyncSpriteToImage(spriteRenderer, image, bulletColor));
+                    spriteSyncCoroutines.Add(coroutine);
+                }
+                else if (image != null)
+                {
+                    // 如果沒有 SpriteRenderer，直接設置 Image 顏色
+                    image.color = bulletColor;
+                }
+            }
+            
+            // 設置攻擊名稱
+            var nameText = item.transform.Find("NameText")?.GetComponent<TextMeshProUGUI>();
+            if (nameText != null)
+            {
+                nameText.text = attackName;
+                if (bulletPrefabReference != null)
+                {
+                    nameText.color = bulletPrefabReference.GetColorByType(bulletType);
+                }
+            }
+            
+            // 設置描述文字
+            var descText = item.transform.Find("DescText")?.GetComponent<TextMeshProUGUI>();
+            if (descText != null)
+            {
+                descText.text = $"{description} ({chance * 100:F0}%)";
+            }
+        }
+        
+        /// <summary>
+        /// 協程：實時同步 SpriteRenderer 的 Sprite 到 UI Image
+        /// </summary>
+        private IEnumerator SyncSpriteToImage(SpriteRenderer spriteRenderer, Image image, Color tintColor)
+        {
+            while (spriteRenderer != null && image != null)
+                {
+                if (spriteRenderer.sprite != null)
+                {
+                    image.sprite = spriteRenderer.sprite;
+                    image.color = tintColor;
+            }
+                yield return null; // 每幀更新
+            }
         }
     }
 }

@@ -36,6 +36,7 @@ namespace Tenronis.Managers
         public GameState CurrentState => currentState;
         public StageSetSO CurrentTheme => currentTheme;
         public StageDataSO CurrentStage => currentStages != null && currentStageIndex < currentStages.Count ? currentStages[currentStageIndex] : null;
+        public StageDataSO NextStage => currentStages != null && currentStageIndex + 1 < currentStages.Count ? currentStages[currentStageIndex + 1] : null;
         public int CurrentStageIndex => currentStageIndex;
         public int TotalStages => currentStages != null ? currentStages.Count : 0;
         public BuffDataSO[] NormalBuffs => normalBuffs;

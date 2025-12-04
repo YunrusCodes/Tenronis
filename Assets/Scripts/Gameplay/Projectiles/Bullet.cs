@@ -45,6 +45,54 @@ namespace Tenronis.Gameplay.Projectiles
         public BulletType BulletType => bulletType;
         public int Damage => damage;
         
+        // 公開顏色配置供預覽使用
+        public Color NormalColor => normalColor;
+        public Color AddBlockColor => addBlockColor;
+        public Color AreaDamageColor => areaDamageColor;
+        public Color InsertRowColor => insertRowColor;
+        public Color AddExplosiveBlockColor => addExplosiveBlockColor;
+        public Color InsertVoidRowColor => insertVoidRowColor;
+        public Color CorruptExplosiveColor => corruptExplosiveColor;
+        public Color CorruptVoidColor => corruptVoidColor;
+        
+        /// <summary>
+        /// 根據子彈類型獲取對應顏色
+        /// </summary>
+        public Color GetColorByType(BulletType type)
+        {
+            return type switch
+            {
+                BulletType.Normal => normalColor,
+                BulletType.AddBlock => addBlockColor,
+                BulletType.AreaDamage => areaDamageColor,
+                BulletType.InsertRow => insertRowColor,
+                BulletType.AddExplosiveBlock => addExplosiveBlockColor,
+                BulletType.InsertVoidRow => insertVoidRowColor,
+                BulletType.CorruptExplosive => corruptExplosiveColor,
+                BulletType.CorruptVoid => corruptVoidColor,
+                _ => Color.white
+            };
+        }
+        
+        /// <summary>
+        /// 根據子彈類型獲取對應動畫控制器
+        /// </summary>
+        public RuntimeAnimatorController GetAnimatorByType(BulletType type)
+        {
+            return type switch
+            {
+                BulletType.Normal => normalController,
+                BulletType.AddBlock => addBlockController,
+                BulletType.AreaDamage => areaDamageController,
+                BulletType.InsertRow => insertRowController,
+                BulletType.AddExplosiveBlock => addExplosiveBlockController,
+                BulletType.InsertVoidRow => insertVoidRowController,
+                BulletType.CorruptExplosive => corruptExplosiveController,
+                BulletType.CorruptVoid => corruptVoidController,
+                _ => null
+            };
+        }
+        
         /// <summary>
         /// 初始化子彈
         /// </summary>
