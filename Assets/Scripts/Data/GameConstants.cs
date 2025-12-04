@@ -20,6 +20,7 @@ namespace Tenronis.Data
         // 技能CP消耗
         public const int EXECUTION_CP_COST = 5;
         public const int REPAIR_CP_COST = 30;
+        public const int ANNIHILATION_CP_COST = 5;
 
         // 導彈設定
         public const float MISSILE_SPEED = 20f;

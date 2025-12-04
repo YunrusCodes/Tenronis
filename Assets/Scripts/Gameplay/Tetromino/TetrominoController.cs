@@ -43,6 +43,9 @@ namespace Tenronis.Gameplay.Tetromino
         private float dropTimer;
         private bool isActive;
         
+        // 湮滅技能狀態
+        private bool isInAnnihilationState = false;
+        
         // Lock Delay 機制
         [Header("Lock Delay 設定")]
         [SerializeField] private float lockDelay = 0.5f;      // 鎖定延遲（秒）
@@ -59,6 +62,7 @@ namespace Tenronis.Gameplay.Tetromino
         public TetrominoShape?[] HeldPieces => heldPieces;
         public bool[] CanHoldSlot => canHoldSlot;
         public int UnlockedSlots => unlockedSlots;
+        public bool IsInAnnihilationState => isInAnnihilationState;
         
         private void Awake()
         {
@@ -155,6 +159,9 @@ namespace Tenronis.Gameplay.Tetromino
             isGrounded = false;
             lockTimer = 0f;
             lockResetCount = 0;
+            
+            // 重置湮滅狀態
+            isInAnnihilationState = false;
             
             // 新方塊生成後，所有槽位都可以使用一次
             for (int i = 0; i < 4; i++)
@@ -389,6 +396,13 @@ namespace Tenronis.Gameplay.Tetromino
         {
             if (!isActive) return;
             
+            // 湮滅狀態下的硬降：執行破壞邏輯
+            if (isInAnnihilationState)
+            {
+                ExecuteAnnihilationHardDrop();
+                return;
+            }
+            
             while (!CheckCollision(currentPosition + Vector2Int.up, currentRotation))
             {
                 currentPosition += Vector2Int.up;
@@ -396,6 +410,75 @@ namespace Tenronis.Gameplay.Tetromino
             
             // 硬降立即鎖定，不使用 Lock Delay
             LockPiece();
+        }
+        
+        /// <summary>
+        /// 湮滅狀態下的硬降：破壞重疊區域的方塊
+        /// </summary>
+        private void ExecuteAnnihilationHardDrop()
+        {
+            if (currentRotation == null) return;
+            
+            int destroyedCount = 0;
+            var stats = PlayerManager.Instance?.Stats;
+            if (stats == null) return;
+            
+            int missileCountPerBlock = 1 + stats.missileExtraCount; // Volley 影響
+            float burstBonus = stats.burstLevel * stats.comboCount * GameConstants.BURST_DAMAGE_MULTIPLIER;
+            float damage = GameConstants.BASE_MISSILE_DAMAGE + burstBonus;
+            
+            // 遍歷方塊的每個格子，檢查重疊
+            for (int y = 0; y < currentRotation.GetLength(0); y++)
+            {
+                for (int x = 0; x < currentRotation.GetLength(1); x++)
+                {
+                    if (currentRotation[y, x] != 0)
+                    {
+                        int gridX = currentPosition.x + x;
+                        int gridY = currentPosition.y + y;
+                        
+                        // 檢查是否有重疊的方塊
+                        if (GridManager.Instance.IsValidPosition(gridX, gridY) &&
+                            GridManager.Instance.IsOccupied(gridX, gridY))
+                        {
+                            // 破壞該方塊
+                            GridManager.Instance.RemoveBlock(gridX, gridY);
+                            destroyedCount++;
+                            
+                            // 發射導彈（受 Volley 影響）
+                            Vector3 pos = GridManager.Instance.GridToWorldPosition(gridX, gridY);
+                            for (int i = 0; i < missileCountPerBlock; i++)
+                            {
+                                CombatManager.Instance?.FireMissile(
+                                    pos + Vector3.up * (i * 0.2f),
+                                    damage
+                                );
+                            }
+                        }
+                    }
+                }
+            }
+            
+            // 如果破壞了至少一格，計為一次 Combo
+            if (destroyedCount > 0)
+            {
+                PlayerManager.Instance?.OnAnnihilationDestroy();
+                GameEvents.TriggerPlayMissileSound();
+                Debug.Log($"[TetrominoController] 湮滅硬降破壞了 {destroyedCount} 個方塊，發射 {destroyedCount * missileCountPerBlock} 發導彈");
+            }
+            
+            // 退出湮滅狀態
+            ExitAnnihilationState();
+            
+            // 清除視覺並生成新方塊（方塊被消耗）
+            isActive = false;
+            ClearVisual();
+            
+            // 播放特殊音效
+            GameEvents.TriggerPlayLockSound();
+            
+            // 生成下一個方塊
+            Invoke(nameof(SpawnPiece), 0.1f);
         }
         
         /// <summary>
@@ -467,6 +550,34 @@ namespace Tenronis.Gameplay.Tetromino
             GameEvents.TriggerPieceLocked();
             
             // 不生成新方塊，因為要進入選單了
+        }
+        
+        /// <summary>
+        /// 進入湮滅幽靈穿透狀態
+        /// </summary>
+        public void EnterAnnihilationState()
+        {
+            if (!isActive) return;
+            if (isInAnnihilationState) return;
+            
+            isInAnnihilationState = true;
+            
+            // 取消腐化（湮滅狀態可完全無效化下一次腐化）
+            currentCorruptedBlocks.Clear();
+            
+            Debug.Log("[TetrominoController] 進入湮滅幽靈穿透狀態");
+            
+            // 更新視覺（降低透明度）
+            UpdateVisual();
+        }
+        
+        /// <summary>
+        /// 退出湮滅狀態
+        /// </summary>
+        private void ExitAnnihilationState()
+        {
+            isInAnnihilationState = false;
+            Debug.Log("[TetrominoController] 退出湮滅狀態");
         }
         
         /// <summary>
@@ -550,6 +661,14 @@ namespace Tenronis.Gameplay.Tetromino
         /// </summary>
         private bool CheckCollision(Vector2Int position, int[,] shape)
         {
+            return CheckCollision(position, shape, false);
+        }
+        
+        /// <summary>
+        /// 檢查碰撞（可選擇是否忽略方塊碰撞，用於湮滅狀態）
+        /// </summary>
+        private bool CheckCollision(Vector2Int position, int[,] shape, bool ignoreBlocks)
+        {
             for (int y = 0; y < shape.GetLength(0); y++)
             {
                 for (int x = 0; x < shape.GetLength(1); x++)
@@ -559,15 +678,26 @@ namespace Tenronis.Gameplay.Tetromino
                         int gridX = position.x + x;
                         int gridY = position.y + y;
                         
-                        // 邊界檢查
+                        // 邊界檢查（湮滅狀態下只檢查左右邊界，允許穿透底部）
+                        if (isInAnnihilationState)
+                        {
+                            if (gridX < 0 || gridX >= GameConstants.BOARD_WIDTH)
+                            {
+                                return true;
+                            }
+                            // 湮滅狀態下不檢查底部和方塊佔用
+                            continue;
+                        }
+                        
+                        // 正常狀態：完整邊界檢查
                         if (gridX < 0 || gridX >= GameConstants.BOARD_WIDTH ||
                             gridY < 0 || gridY >= GameConstants.BOARD_HEIGHT)
                         {
                             return true;
                         }
                         
-                        // 佔用檢查
-                        if (GridManager.Instance.IsOccupied(gridX, gridY))
+                        // 佔用檢查（除非忽略）
+                        if (!ignoreBlocks && GridManager.Instance.IsOccupied(gridX, gridY))
                         {
                             return true;
                         }
@@ -655,13 +785,20 @@ namespace Tenronis.Gameplay.Tetromino
             ghostBlocks = new List<GameObject>();
             
             // 計算幽靈方塊位置（硬降落位置）
+            // 湮滅狀態下不計算幽靈位置（避免無限迴圈，且方塊本身已是幽靈形態）
             Vector2Int ghostPosition = currentPosition;
-            while (!CheckCollision(ghostPosition + Vector2Int.up, currentRotation))
+            if (!isInAnnihilationState)
             {
-                ghostPosition += Vector2Int.up;
+                while (!CheckCollision(ghostPosition + Vector2Int.up, currentRotation))
+                {
+                    ghostPosition += Vector2Int.up;
+                }
             }
             
             // 建立視覺方塊
+            // 湮滅狀態下使用較低透明度顯示幽靈形態
+            float previewAlpha = isInAnnihilationState ? 0.5f : 1f;
+            
             for (int y = 0; y < rows; y++)
             {
                 for (int x = 0; x < cols; x++)
@@ -671,30 +808,35 @@ namespace Tenronis.Gameplay.Tetromino
                         int gridX = currentPosition.x + x;
                         int gridY = currentPosition.y + y;
                         
-                        // 檢查這個格子是否被腐化
+                        // 檢查這個格子是否被腐化（湮滅狀態下不顯示腐化）
                         string key = $"{x},{y}";
                         BlockType? corruptType = null;
-                        if (currentCorruptedBlocks.ContainsKey(key))
+                        if (!isInAnnihilationState && currentCorruptedBlocks.ContainsKey(key))
                         {
                             corruptType = currentCorruptedBlocks[key];
                         }
                         
                         // 建立預覽方塊（當前位置）
-                        if (GridManager.Instance.IsValidPosition(gridX, gridY))
+                        // 湮滅狀態下可以超出邊界顯示
+                        if (isInAnnihilationState || GridManager.Instance.IsValidPosition(gridX, gridY))
                         {
-                            GameObject previewBlock = CreateBlockVisual(gridX, gridY, currentShape.color, 1f, corruptType);
+                            GameObject previewBlock = CreateBlockVisual(gridX, gridY, currentShape.color, previewAlpha, corruptType, isInAnnihilationState);
                             previewBlocks.Add(previewBlock);
                         }
                         
-                        // 建立幽靈方塊（硬降落位置）
-                        int ghostX = ghostPosition.x + x;
-                        int ghostY = ghostPosition.y + y;
-                        
-                        if (ghostPosition != currentPosition && 
-                            GridManager.Instance.IsValidPosition(ghostX, ghostY))
+                        // 湮滅狀態下不顯示幽靈方塊（因為整個方塊已經是幽靈形態）
+                        if (!isInAnnihilationState)
                         {
-                            GameObject ghostBlock = CreateBlockVisual(ghostX, ghostY, currentShape.color, 0.3f, corruptType);
-                            ghostBlocks.Add(ghostBlock);
+                            // 建立幽靈方塊（硬降落位置）
+                            int ghostX = ghostPosition.x + x;
+                            int ghostY = ghostPosition.y + y;
+                            
+                            if (ghostPosition != currentPosition && 
+                                GridManager.Instance.IsValidPosition(ghostX, ghostY))
+                            {
+                                GameObject ghostBlock = CreateBlockVisual(ghostX, ghostY, currentShape.color, 0.3f, corruptType);
+                                ghostBlocks.Add(ghostBlock);
+                            }
                         }
                     }
                 }
@@ -704,7 +846,7 @@ namespace Tenronis.Gameplay.Tetromino
         /// <summary>
         /// 建立方塊視覺
         /// </summary>
-        private GameObject CreateBlockVisual(int gridX, int gridY, BlockColor color, float alpha, BlockType? corruptType = null)
+        private GameObject CreateBlockVisual(int gridX, int gridY, BlockColor color, float alpha, BlockType? corruptType = null, bool isAnnihilation = false)
         {
             GameObject blockObj;
             SpriteRenderer spriteRenderer;
@@ -747,9 +889,14 @@ namespace Tenronis.Gameplay.Tetromino
             float blockSize = GridManager.Instance.BlockSize;
             blockObj.transform.localScale = new Vector3(blockSize * 0.95f, blockSize * 0.95f, 1f);
             
-            // 設置顏色（如果被腐化則使用白色底）
+            // 設置顏色
             Color blockColor;
-            if (corruptType.HasValue && (corruptType.Value == BlockType.Explosive || corruptType.Value == BlockType.Void))
+            if (isAnnihilation)
+            {
+                // 湮滅狀態：紫色幽靈效果
+                blockColor = new Color(0.7f, 0.3f, 1f, alpha);
+            }
+            else if (corruptType.HasValue && (corruptType.Value == BlockType.Explosive || corruptType.Value == BlockType.Void))
             {
                 blockColor = new Color(1f, 1f, 1f, alpha); // 白色底
             }

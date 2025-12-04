@@ -42,6 +42,8 @@ namespace Tenronis.UI
         [SerializeField] private TextMeshProUGUI executionCostText;
         [SerializeField] private TextMeshProUGUI repairKeyLabelText;
         [SerializeField] private TextMeshProUGUI repairCostText;
+        [SerializeField] private TextMeshProUGUI annihilationKeyLabelText;
+        [SerializeField] private TextMeshProUGUI annihilationCostText;
         
         // 齊射文字顯示計時
         private float salvoDisplayTimer = 0f;
@@ -300,6 +302,8 @@ namespace Tenronis.UI
             if (executionCostText != null) executionCostText.text = PlayerManager.Instance.IsExecutionUnlocked() ? $"CP-{GameConstants.EXECUTION_CP_COST}" : "";
             if (repairKeyLabelText != null) repairKeyLabelText.text = PlayerManager.Instance.IsRepairUnlocked() ? "2" : "Locked";
             if (repairCostText != null) repairCostText.text = PlayerManager.Instance.IsRepairUnlocked() ? $"CP-{GameConstants.REPAIR_CP_COST}" : "";
+            if (annihilationKeyLabelText != null) annihilationKeyLabelText.text = PlayerManager.Instance.IsAnnihilationUnlocked() ? "3" : "Locked";
+            if (annihilationCostText != null) annihilationCostText.text = PlayerManager.Instance.IsAnnihilationUnlocked() ? $"CP-{GameConstants.ANNIHILATION_CP_COST}" : "";
         }
     }
 }

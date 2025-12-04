@@ -81,6 +81,38 @@ namespace Tenronis.Gameplay.Player
         }
         
         /// <summary>
+        /// 執行湮滅技能
+        /// 將當前控制的方塊轉換為幽靈穿透狀態
+        /// </summary>
+        public static void ExecuteAnnihilation()
+        {
+            if (PlayerManager.Instance == null) return;
+            if (Tenronis.Gameplay.Tetromino.TetrominoController.Instance == null) return;
+            
+            // 檢查是否已經在湮滅狀態
+            if (Tenronis.Gameplay.Tetromino.TetrominoController.Instance.IsInAnnihilationState)
+            {
+                Debug.Log("[SkillExecutor] 已經處於湮滅狀態！");
+                return;
+            }
+            
+            // 檢查是否有活躍方塊
+            if (!Tenronis.Gameplay.Tetromino.TetrominoController.Instance.IsActive)
+            {
+                Debug.Log("[SkillExecutor] 沒有活躍方塊可以進入湮滅狀態！");
+                return;
+            }
+            
+            // 消耗CP
+            if (!PlayerManager.Instance.UseAnnihilation()) return;
+            
+            // 進入幽靈穿透狀態
+            Tenronis.Gameplay.Tetromino.TetrominoController.Instance.EnterAnnihilationState();
+            
+            Debug.Log("[SkillExecutor] 湮滅技能啟動！方塊進入幽靈穿透狀態");
+        }
+        
+        /// <summary>
         /// 填補封閉空洞（BFS演算法）
         /// </summary>
         private static void FillClosedHoles()

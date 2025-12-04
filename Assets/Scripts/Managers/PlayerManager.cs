@@ -448,6 +448,45 @@ namespace Tenronis.Managers
         }
         
         /// <summary>
+        /// 檢查湮滅技能是否已解鎖（與處決同階，TacticalExpansion Lv1）
+        /// </summary>
+        public bool IsAnnihilationUnlocked()
+        {
+            return stats.tacticalExpansionLevel >= 1;
+        }
+        
+        /// <summary>
+        /// 使用湮滅技能（消耗CP，進入幽靈穿透狀態）
+        /// </summary>
+        public bool UseAnnihilation()
+        {
+            if (!IsAnnihilationUnlocked())
+            {
+                Debug.Log("[PlayerManager] 湮滅技能尚未解鎖！");
+                return false;
+            }
+            
+            int cost = GameConstants.ANNIHILATION_CP_COST;
+            if (stats.currentCp < cost) return false;
+            
+            stats.currentCp -= cost;
+            GameEvents.TriggerCpChanged(stats.currentCp, stats.maxCp);
+            
+            Debug.Log($"[PlayerManager] 使用湮滅技能，消耗 {cost} CP，剩餘: {stats.currentCp}/{stats.maxCp}");
+            return true;
+        }
+        
+        /// <summary>
+        /// 湮滅破壞方塊時增加Combo（由SkillExecutor調用）
+        /// </summary>
+        public void OnAnnihilationDestroy()
+        {
+            CancelComboReset();
+            stats.comboCount++;
+            GameEvents.TriggerComboChanged(stats.comboCount);
+        }
+        
+        /// <summary>
         /// 處理遊戲狀態變更
         /// </summary>
         private void HandleGameStateChanged(GameState newState)
