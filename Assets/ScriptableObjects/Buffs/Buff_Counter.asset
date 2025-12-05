@@ -17,4 +17,4 @@ MonoBehaviour:
   description: "\u53CD\u64CA\u6642\u7522\u751F\u7684\u5C0E\u5F48\u984D\u5916\u8FFD\u52A0\u4E00\u767C"
   icon: {fileID: 10907, guid: 0000000000000000f000000000000000, type: 0}
   iconColor: {r: 0.4, g: 1, b: 0.4, a: 1}
-  spawnWeight: 0.9
+  spawnWeight: 1

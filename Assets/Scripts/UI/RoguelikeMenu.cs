@@ -232,13 +232,11 @@ namespace Tenronis.UI
             {
                 if (isLegendary)
                 {
-                    titleText.text = $"⭐ {buffData.buffName} ⭐"; // 傳奇強化標記
-                    titleText.color = new Color(1f, 0.84f, 0f); // 金色
+                    titleText.text = $"{buffData.buffName}"; // 傳奇強化標記
                 }
                 else
                 {
                     titleText.text = buffData.buffName;
-                    titleText.color = Color.white;
                 }
             }
             
@@ -249,12 +247,10 @@ namespace Tenronis.UI
                 if (isLegendary)
                 {
                     descText.text = $"[傳奇強化]\n{buffData.description}";
-                    descText.color = new Color(1f, 0.84f, 0f); // 金色
                 }
                 else
                 {
                     descText.text = buffData.description;
-                    descText.color = Color.white;
                 }
             }
             
@@ -263,7 +259,13 @@ namespace Tenronis.UI
             if (iconImage != null && buffData.icon != null)
             {
                 iconImage.sprite = buffData.icon;
-                iconImage.color = buffData.iconColor;
+            }
+            
+            // 背板顏色
+            var backgroundImage = optionObj.GetComponent<Image>();
+            if (backgroundImage != null)
+            {
+                backgroundImage.color = buffData.iconColor;
             }
             
             // 按鈕
@@ -405,6 +407,7 @@ namespace Tenronis.UI
                 if (showDetailedInfo)
                 {
                     sb.AppendLine($"  當前: {stats.counterFireLevel}發子彈 (上限 {GameConstants.COUNTER_MAX_LEVEL}發子彈)");
+                    sb.AppendLine("  <size=80%>方塊在生成後的0.2秒內受到傷害會觸發反擊</size>");
                 }
                 sb.AppendLine();
                 
@@ -413,7 +416,7 @@ namespace Tenronis.UI
                 sb.AppendLine($"衝擊擴充 {explosionProgress}");
                 if (showDetailedInfo)
                 {
-                    int maxExplosionCharge = GameConstants.EXPLOSION_INITIAL_MAX_CHARGE + GameConstants.EXPLOSION_BUFF_MAX_LEVEL * GameConstants.EXPLOSION_BUFF_MAX_CHARGE_INCREASE;
+                    int maxExplosionCharge = GameConstants.EXPLOSION_BUFF_MAX_LEVEL * GameConstants.EXPLOSION_BUFF_MAX_CHARGE_INCREASE;
                     sb.AppendLine($"  當前上限: {stats.explosionMaxCharge} (最大 {maxExplosionCharge})");
                     sb.AppendLine($"  <size=80%>網格溢位時消耗 {GameConstants.OVERFLOW_CP_COST} CP，累積充能對敵人造成傷害</size>");
                     sb.AppendLine($"  <size=80%><color=red>若 CP 不足，HP 歸 1</color></size>");
@@ -427,6 +430,7 @@ namespace Tenronis.UI
                 {
                     int maxCp = GameConstants.PLAYER_MAX_CP + GameConstants.RESOURCE_EXPANSION_MAX_LEVEL * 50;
                     sb.AppendLine($"  當前 CP: {stats.maxCp} (上限 {maxCp})");
+                    sb.AppendLine("  <size=80%>釋放衝擊炮和使用主動技能需消耗CP</size>");
                 }
                 sb.AppendLine();
                 
