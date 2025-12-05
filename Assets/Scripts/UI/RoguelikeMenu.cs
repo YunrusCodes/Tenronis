@@ -418,8 +418,8 @@ namespace Tenronis.UI
                 {
                     int maxExplosionCharge = GameConstants.EXPLOSION_BUFF_MAX_LEVEL * GameConstants.EXPLOSION_BUFF_MAX_CHARGE_INCREASE;
                     sb.AppendLine($"  當前上限: {stats.explosionMaxCharge} (最大 {maxExplosionCharge})");
-                    sb.AppendLine($"  <size=80%>網格溢位時消耗 {GameConstants.OVERFLOW_CP_COST} CP，累積充能對敵人造成傷害</size>");
-                    sb.AppendLine($"  <size=80%><color=red>若 CP 不足，HP 歸 1</color></size>");
+                    sb.AppendLine($"  <size=80%>網格溢位時消耗 {GameConstants.OVERFLOW_CP_COST} CP，釋放衝擊炮累積的充能對敵人造成傷害</size>");
+                    sb.AppendLine($"  <size=80%><color=red>若 CP 不足，自身HP 歸 1</color></size>");
                 }
                 sb.AppendLine();
                 
