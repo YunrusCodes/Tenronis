@@ -246,7 +246,7 @@ namespace Tenronis.UI
                 }
                 
                 if (playerHpSlider != null) { playerHpSlider.maxValue = stats.maxHp; playerHpSlider.value = stats.currentHp; }
-                if (playerHpText != null) playerHpText.text = $"{stats.currentHp} / {stats.maxHp}";
+                if (playerHpText != null) playerHpText.text = $"HP: {stats.currentHp} / {stats.maxHp}";
                 if (playerCpSlider != null) { playerCpSlider.maxValue = stats.maxCp; playerCpSlider.value = stats.currentCp; }
                 if (playerCpText != null) playerCpText.text = $"CP: {stats.currentCp} / {stats.maxCp}";
                 if (explosionDamageText != null) explosionDamageText.text = $"衝擊炮充能 : {stats.explosionCharge}/{stats.explosionMaxCharge}";
