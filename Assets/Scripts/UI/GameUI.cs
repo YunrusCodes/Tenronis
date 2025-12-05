@@ -51,6 +51,8 @@ namespace Tenronis.UI
         
         // 齊射文字顯示計時
         private float salvoDisplayTimer = 0f;
+        private float salvoAnimationTimer = 0f;
+        private float salvoAnimationDuration = 0.3f; // 動畫時間
         private int lastClearedRows = 0;
         
         // 敵人受傷計數器
@@ -456,6 +458,7 @@ namespace Tenronis.UI
             {
                 lastClearedRows = nonGarbageRowCount;
                 salvoDisplayTimer = 2f;
+                salvoAnimationTimer = salvoAnimationDuration; // 觸發動畫
             }
         }
         
@@ -465,21 +468,49 @@ namespace Tenronis.UI
             if (salvoDisplayTimer > 0)
             {
                 salvoDisplayTimer -= Time.deltaTime;
+                
+                // 設置文字和基礎顏色
+                Color baseColor;
                 if (lastClearedRows >= 4)
                 {
                     salvoText.text = "全彈齊射!";
-                    salvoText.color = new Color(1f, 0.84f, 0f); // 金色
+                    baseColor = new Color(1f, 0.84f, 0f); // 金色
                 }
                 else if (lastClearedRows == 3)
                 {
                     salvoText.text = "三連齊射!";
-                    salvoText.color = new Color(1f, 0.5f, 0f); // 橙色
+                    baseColor = new Color(1f, 0.5f, 0f); // 橙色
                 }
-                else if (lastClearedRows == 2)
+                else
                 {
                     salvoText.text = "雙管齊射!";
-                    salvoText.color = new Color(0.13f, 0.83f, 0.93f); // 青色
+                    baseColor = new Color(0.13f, 0.83f, 0.93f); // 青色
                 }
+                
+                // 動畫效果：從 2 倍大縮小到原始大小，同時淡入
+                if (salvoAnimationTimer > 0)
+                {
+                    salvoAnimationTimer -= Time.deltaTime;
+                    float progress = 1f - (salvoAnimationTimer / salvoAnimationDuration);
+                    progress = Mathf.Clamp01(progress);
+                    
+                    // 使用 ease-out 效果
+                    float easedProgress = 1f - Mathf.Pow(1f - progress, 3f);
+                    
+                    // 縮放：從 2 倍縮小到 1 倍
+                    float scale = Mathf.Lerp(2f, 1f, easedProgress);
+                    salvoText.transform.localScale = new Vector3(scale, scale, 1f);
+                    
+                    // 透明度：從 0 變成 1
+                    salvoText.color = new Color(baseColor.r, baseColor.g, baseColor.b, easedProgress);
+                }
+                else
+                {
+                    // 動畫結束，保持正常狀態
+                    salvoText.transform.localScale = Vector3.one;
+                    salvoText.color = baseColor;
+                }
+                
                 salvoText.gameObject.SetActive(lastClearedRows >= 2);
                 if (salvoDisplayTimer <= 0) salvoText.gameObject.SetActive(false);
             }
