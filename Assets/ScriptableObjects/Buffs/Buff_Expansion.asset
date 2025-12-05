@@ -15,6 +15,6 @@ MonoBehaviour:
   buffName: "\u7A7A\u9593\u64F4\u5145"
   buffType: 9
   description: "\u8FFD\u52A0\u4E00\u500B\u65B9\u584A\u5132\u5B58\u69FD\u4F4D"
-  icon: {fileID: 10907, guid: 0000000000000000f000000000000000, type: 0}
-  iconColor: {r: 0.8, g: 0.4, b: 1, a: 1}
+  icon: {fileID: 4620869625217419896, guid: dfe3c2864882fc94bbd8995ed843aec6, type: 3}
+  iconColor: {r: 0.50980395, g: 0.27450982, b: 0.14117648, a: 1}
   spawnWeight: 1
