@@ -89,6 +89,12 @@ namespace Tenronis.UI
         private float comboLabelBaseOffset = 50f; // 標籤與數字的基本間距
         private Color comboTextOriginalColor;
         
+        // 原始透明度值
+        private float salvoTextOriginalAlpha = 1f;
+        private float impactBlastTextOriginalAlpha = 1f;
+        private float skillTextOriginalAlpha = 1f;
+        private float comboTextOriginalAlpha = 1f;
+        
         [Header("升級UI")]
         [SerializeField] private GameObject levelUpPanel;
         
@@ -126,6 +132,7 @@ namespace Tenronis.UI
             {
                 comboTextOriginalPosition = comboText.rectTransform.anchoredPosition;
                 comboTextOriginalColor = comboText.color;
+                comboTextOriginalAlpha = comboText.color.a;
                 
                 // 創建舊文字物件（用於推動動畫的淡出效果）
                 GameObject oldTextObj = Instantiate(comboText.gameObject, comboText.transform.parent);
@@ -140,6 +147,11 @@ namespace Tenronis.UI
                 comboLabelText.text = "連發!";
                 comboLabelText.gameObject.SetActive(false);
             }
+            
+            // 保存其他UI文字的原始透明度
+            if (salvoText != null) salvoTextOriginalAlpha = salvoText.color.a;
+            if (impactBlastText != null) impactBlastTextOriginalAlpha = impactBlastText.color.a;
+            if (skillText != null) skillTextOriginalAlpha = skillText.color.a;
             
             // 初始化UI
             ShowMenu();
@@ -251,7 +263,7 @@ namespace Tenronis.UI
             float newTextOffset = comboPushOffset * (1f - easedProgress);
             comboText.rectTransform.anchoredPosition = comboTextOriginalPosition + new Vector2(0, -newTextOffset);
             Color newColor = GetComboColor(lastComboCount);
-            comboText.color = new Color(newColor.r, newColor.g, newColor.b, easedProgress);
+            comboText.color = new Color(newColor.r, newColor.g, newColor.b, easedProgress * comboTextOriginalAlpha);
             
             // 舊文字：往上移動，同時淡出（保持舊 combo 的顏色）
             if (comboOldText != null && comboOldText.gameObject.activeSelf)
@@ -410,8 +422,13 @@ namespace Tenronis.UI
                             comboSlideTimer = comboSlideDuration;
                             // 將數字和標籤都移到右邊
                             comboText.rectTransform.anchoredPosition = comboTextOriginalPosition + new Vector2(comboSlideOffset, 0);
-                            comboText.color = GetComboColor(stats.comboCount);
-                            if (comboLabelText != null) comboLabelText.color = GetComboColor(stats.comboCount);
+                            Color slideColor = GetComboColor(stats.comboCount);
+                            comboText.color = new Color(slideColor.r, slideColor.g, slideColor.b, comboTextOriginalAlpha);
+                            if (comboLabelText != null)
+                            {
+                                Color labelSlideColor = GetComboColor(stats.comboCount);
+                                comboLabelText.color = new Color(labelSlideColor.r, labelSlideColor.g, labelSlideColor.b, comboTextOriginalAlpha);
+                            }
                             UpdateComboLabelPosition(stats.comboCount, comboSlideOffset);
                         }
                         // combo 增加時觸發推動動畫（3連發以上）
@@ -431,7 +448,10 @@ namespace Tenronis.UI
                             comboText.text = $"{stats.comboCount}";
                             comboText.rectTransform.anchoredPosition = comboTextOriginalPosition + new Vector2(0, -comboPushOffset);
                             comboText.color = new Color(newComboColor.r, newComboColor.g, newComboColor.b, 0f);
-                            if (comboLabelText != null) comboLabelText.color = newComboColor;
+                            if (comboLabelText != null)
+                            {
+                                comboLabelText.color = new Color(newComboColor.r, newComboColor.g, newComboColor.b, comboTextOriginalAlpha);
+                            }
                             
                             // 更新標籤位置（根據新數字的位數）
                             UpdateComboLabelPosition(stats.comboCount, 0);
@@ -549,14 +569,14 @@ namespace Tenronis.UI
                     float scale = Mathf.Lerp(2f, 1f, easedProgress);
                     salvoText.transform.localScale = new Vector3(scale, scale, 1f);
                     
-                    // 透明度：從 0 變成 1
-                    salvoText.color = new Color(baseColor.r, baseColor.g, baseColor.b, easedProgress);
+                    // 透明度：從 0 變成原始透明度
+                    salvoText.color = new Color(baseColor.r, baseColor.g, baseColor.b, easedProgress * salvoTextOriginalAlpha);
                 }
                 else
                 {
                     // 動畫結束，保持正常狀態
                     salvoText.transform.localScale = Vector3.one;
-                    salvoText.color = baseColor;
+                    salvoText.color = new Color(baseColor.r, baseColor.g, baseColor.b, salvoTextOriginalAlpha);
                 }
                 
                 salvoText.gameObject.SetActive(lastClearedRows >= 2);
@@ -614,14 +634,14 @@ namespace Tenronis.UI
                     float scale = Mathf.Lerp(2f, 1f, easedProgress);
                     impactBlastText.transform.localScale = new Vector3(scale, scale, 1f);
                     
-                    // 透明度：從 0 變成 1
-                    impactBlastText.color = new Color(baseColor.r, baseColor.g, baseColor.b, easedProgress);
+                    // 透明度：從 0 變成原始透明度
+                    impactBlastText.color = new Color(baseColor.r, baseColor.g, baseColor.b, easedProgress * impactBlastTextOriginalAlpha);
                 }
                 else
                 {
                     // 動畫結束，保持正常狀態
                     impactBlastText.transform.localScale = Vector3.one;
-                    impactBlastText.color = baseColor;
+                    impactBlastText.color = new Color(baseColor.r, baseColor.g, baseColor.b, impactBlastTextOriginalAlpha);
                 }
                 
                 impactBlastText.gameObject.SetActive(true);
@@ -671,14 +691,14 @@ namespace Tenronis.UI
                     float scale = Mathf.Lerp(2f, 1f, easedProgress);
                     skillText.transform.localScale = new Vector3(scale, scale, 1f);
                     
-                    // 透明度：從 0 變成 1
-                    skillText.color = new Color(baseColor.r, baseColor.g, baseColor.b, easedProgress);
+                    // 透明度：從 0 變成原始透明度
+                    skillText.color = new Color(baseColor.r, baseColor.g, baseColor.b, easedProgress * skillTextOriginalAlpha);
                 }
                 else
                 {
                     // 動畫結束，保持正常狀態
                     skillText.transform.localScale = Vector3.one;
-                    skillText.color = baseColor;
+                    skillText.color = new Color(baseColor.r, baseColor.g, baseColor.b, skillTextOriginalAlpha);
                 }
                 
                 skillText.gameObject.SetActive(true);
