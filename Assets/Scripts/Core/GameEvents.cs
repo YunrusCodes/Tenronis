@@ -39,6 +39,7 @@ namespace Tenronis.Core
         public static event Action OnBuffAvailable;
         public static event Action<BuffType> OnBuffSelected;
         public static event Action OnSkillUnlocked; // 技能解鎖事件
+        public static event Action<string> OnSkillUsed; // 技能施放事件，參數：技能名稱
         
         // === UI事件 ===
         public static event Action<string, Color, Vector2> OnShowPopupText; // 文字、顏色、位置
@@ -74,6 +75,7 @@ namespace Tenronis.Core
         public static void TriggerBuffAvailable() => OnBuffAvailable?.Invoke();
         public static void TriggerBuffSelected(BuffType type) => OnBuffSelected?.Invoke(type);
         public static void TriggerSkillUnlocked() => OnSkillUnlocked?.Invoke();
+        public static void TriggerSkillUsed(string skillName) => OnSkillUsed?.Invoke(skillName);
         public static void TriggerShowPopupText(string text, Color color, Vector2 position) => OnShowPopupText?.Invoke(text, color, position);
     public static void TriggerPlayMissileSound() => OnPlayMissileSound?.Invoke();
     public static void TriggerPlayExplosionSound() => OnPlayExplosionSound?.Invoke();
@@ -109,6 +111,7 @@ namespace Tenronis.Core
             OnBuffAvailable = null;
             OnBuffSelected = null;
             OnSkillUnlocked = null;
+            OnSkillUsed = null;
             OnShowPopupText = null;
         OnPlayMissileSound = null;
         OnPlayExplosionSound = null;

@@ -29,6 +29,7 @@ namespace Tenronis.UI
         [SerializeField] private TextMeshProUGUI comboText;
         [SerializeField] private TextMeshProUGUI salvoText;  // 齊射提示文字
         [SerializeField] private TextMeshProUGUI impactBlastText; // 衝擊爆破提示文字
+        [SerializeField] private TextMeshProUGUI skillText; // 技能施放提示文字
         [SerializeField] private Slider playerHpSlider;
         [SerializeField] private TextMeshProUGUI playerHpText;
         [SerializeField] private Slider playerCpSlider;
@@ -60,6 +61,12 @@ namespace Tenronis.UI
         private float impactBlastAnimationTimer = 0f;
         private float impactBlastAnimationDuration = 0.3f;
         private float lastImpactBlastDamage = 0f;
+        
+        // 技能文字顯示計時
+        private float skillDisplayTimer = 0f;
+        private float skillAnimationTimer = 0f;
+        private float skillAnimationDuration = 0.3f;
+        private string lastSkillName = "";
         private int lastClearedRows = 0;
         
         // 敵人受傷計數器
@@ -112,6 +119,7 @@ namespace Tenronis.UI
             GameEvents.OnSkillUnlocked += UpdateSkillUI;
             GameEvents.OnEnemyDamaged += HandleEnemyDamaged;
             GameEvents.OnGridOverflow += HandleGridOverflow;
+            GameEvents.OnSkillUsed += HandleSkillUsed;
             
             // 保存連發文字原始位置和顏色，並創建相關文字物件
             if (comboText != null)
@@ -144,6 +152,7 @@ namespace Tenronis.UI
             GameEvents.OnSkillUnlocked -= UpdateSkillUI;
             GameEvents.OnEnemyDamaged -= HandleEnemyDamaged;
             GameEvents.OnGridOverflow -= HandleGridOverflow;
+            GameEvents.OnSkillUsed -= HandleSkillUsed;
             
             if (restartButton != null) restartButton.onClick.RemoveListener(OnRestart);
             if (menuButton != null) menuButton.onClick.RemoveListener(OnReturnToMenu);
@@ -156,6 +165,7 @@ namespace Tenronis.UI
                 UpdateGameplayUI();
                 UpdateSalvoDisplay();
                 UpdateImpactBlastDisplay();
+                UpdateSkillDisplay();
                 UpdateEnemyDamageCounter();
                 UpdateComboSlideAnimation();
                 UpdateComboPushAnimation();
@@ -469,6 +479,34 @@ namespace Tenronis.UI
                 lastClearedRows = nonGarbageRowCount;
                 salvoDisplayTimer = 2f;
                 salvoAnimationTimer = salvoAnimationDuration; // 觸發動畫
+                
+                // 根據齊射程度觸發螢幕搖晃
+                if (VFX.ScreenShake.Instance != null)
+                {
+                    float intensity;
+                    float duration;
+                    
+                    if (nonGarbageRowCount >= 4)
+                    {
+                        // 全彈齊射 - 最劇烈
+                        intensity = 0.4f;
+                        duration = 0.35f;
+                    }
+                    else if (nonGarbageRowCount == 3)
+                    {
+                        // 三連齊射 - 中等
+                        intensity = 0.25f;
+                        duration = 0.25f;
+                    }
+                    else
+                    {
+                        // 雙管齊射 - 輕微
+                        intensity = 0.15f;
+                        duration = 0.15f;
+                    }
+                    
+                    VFX.ScreenShake.Instance.Shake(intensity, duration);
+                }
             }
         }
         
@@ -592,6 +630,81 @@ namespace Tenronis.UI
             else
             {
                 impactBlastText.gameObject.SetActive(false);
+            }
+        }
+        
+        /// <summary>
+        /// 處理技能施放事件
+        /// </summary>
+        private void HandleSkillUsed(string skillName)
+        {
+            lastSkillName = skillName;
+            skillDisplayTimer = 1.5f;
+            skillAnimationTimer = skillAnimationDuration;
+        }
+        
+        /// <summary>
+        /// 更新技能文字顯示
+        /// </summary>
+        private void UpdateSkillDisplay()
+        {
+            if (skillText == null) return;
+            if (skillDisplayTimer > 0)
+            {
+                skillDisplayTimer -= Time.deltaTime;
+                
+                // 設置文字和顏色
+                skillText.text = lastSkillName;
+                Color baseColor = GetSkillColor(lastSkillName);
+                
+                // 動畫效果：從 2 倍大縮小到原始大小，同時淡入
+                if (skillAnimationTimer > 0)
+                {
+                    skillAnimationTimer -= Time.deltaTime;
+                    float progress = 1f - (skillAnimationTimer / skillAnimationDuration);
+                    progress = Mathf.Clamp01(progress);
+                    
+                    // 使用 ease-out 效果
+                    float easedProgress = 1f - Mathf.Pow(1f - progress, 3f);
+                    
+                    // 縮放：從 2 倍縮小到 1 倍
+                    float scale = Mathf.Lerp(2f, 1f, easedProgress);
+                    skillText.transform.localScale = new Vector3(scale, scale, 1f);
+                    
+                    // 透明度：從 0 變成 1
+                    skillText.color = new Color(baseColor.r, baseColor.g, baseColor.b, easedProgress);
+                }
+                else
+                {
+                    // 動畫結束，保持正常狀態
+                    skillText.transform.localScale = Vector3.one;
+                    skillText.color = baseColor;
+                }
+                
+                skillText.gameObject.SetActive(true);
+                if (skillDisplayTimer <= 0) skillText.gameObject.SetActive(false);
+            }
+            else
+            {
+                skillText.gameObject.SetActive(false);
+            }
+        }
+        
+        /// <summary>
+        /// 根據技能名稱獲取顏色
+        /// </summary>
+        private Color GetSkillColor(string skillName)
+        {
+            switch (skillName)
+            {
+                case "湮滅":
+                    return new Color(0.8f, 0.2f, 1f); // 紫色
+                case "處決":
+                    return new Color(1f, 0.3f, 0.3f); // 紅色
+                case "修補":
+                    return new Color(0.3f, 1f, 0.5f); // 綠色
+                default:
+                    return Color.white;
             }
         }
         

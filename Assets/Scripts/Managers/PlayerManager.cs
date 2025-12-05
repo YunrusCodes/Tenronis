@@ -428,6 +428,7 @@ namespace Tenronis.Managers
             stats.comboCount++;
             GameEvents.TriggerComboChanged(stats.comboCount);
             GameEvents.TriggerCpChanged(stats.currentCp, stats.maxCp);
+            GameEvents.TriggerSkillUsed("處決");
             
             Debug.Log($"[PlayerManager] 使用處決技能，消耗 {cost} CP，剩餘: {stats.currentCp}/{stats.maxCp}");
             return true;
@@ -449,6 +450,7 @@ namespace Tenronis.Managers
             
             stats.currentCp -= cost;
             GameEvents.TriggerCpChanged(stats.currentCp, stats.maxCp);
+            GameEvents.TriggerSkillUsed("修補");
             
             Debug.Log($"[PlayerManager] 使用修復技能，消耗 {cost} CP，剩餘: {stats.currentCp}/{stats.maxCp}");
             return true;
@@ -478,6 +480,7 @@ namespace Tenronis.Managers
             
             stats.currentCp -= cost;
             GameEvents.TriggerCpChanged(stats.currentCp, stats.maxCp);
+            GameEvents.TriggerSkillUsed("湮滅");
             
             Debug.Log($"[PlayerManager] 使用湮滅技能，消耗 {cost} CP，剩餘: {stats.currentCp}/{stats.maxCp}");
             return true;
