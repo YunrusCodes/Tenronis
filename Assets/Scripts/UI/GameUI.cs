@@ -28,6 +28,7 @@ namespace Tenronis.UI
         [SerializeField] private TextMeshProUGUI scoreText;
         [SerializeField] private TextMeshProUGUI comboText;
         [SerializeField] private TextMeshProUGUI salvoText;  // 齊射提示文字
+        [SerializeField] private TextMeshProUGUI impactBlastText; // 衝擊爆破提示文字
         [SerializeField] private Slider playerHpSlider;
         [SerializeField] private TextMeshProUGUI playerHpText;
         [SerializeField] private Slider playerCpSlider;
@@ -53,6 +54,12 @@ namespace Tenronis.UI
         private float salvoDisplayTimer = 0f;
         private float salvoAnimationTimer = 0f;
         private float salvoAnimationDuration = 0.3f; // 動畫時間
+        
+        // 衝擊爆破文字顯示計時
+        private float impactBlastDisplayTimer = 0f;
+        private float impactBlastAnimationTimer = 0f;
+        private float impactBlastAnimationDuration = 0.3f;
+        private float lastImpactBlastDamage = 0f;
         private int lastClearedRows = 0;
         
         // 敵人受傷計數器
@@ -104,6 +111,7 @@ namespace Tenronis.UI
             GameEvents.OnRowsCleared += HandleRowsClearedForSalvo;
             GameEvents.OnSkillUnlocked += UpdateSkillUI;
             GameEvents.OnEnemyDamaged += HandleEnemyDamaged;
+            GameEvents.OnGridOverflow += HandleGridOverflow;
             
             // 保存連發文字原始位置和顏色，並創建相關文字物件
             if (comboText != null)
@@ -135,6 +143,7 @@ namespace Tenronis.UI
             GameEvents.OnRowsCleared -= HandleRowsClearedForSalvo;
             GameEvents.OnSkillUnlocked -= UpdateSkillUI;
             GameEvents.OnEnemyDamaged -= HandleEnemyDamaged;
+            GameEvents.OnGridOverflow -= HandleGridOverflow;
             
             if (restartButton != null) restartButton.onClick.RemoveListener(OnRestart);
             if (menuButton != null) menuButton.onClick.RemoveListener(OnReturnToMenu);
@@ -146,6 +155,7 @@ namespace Tenronis.UI
             {
                 UpdateGameplayUI();
                 UpdateSalvoDisplay();
+                UpdateImpactBlastDisplay();
                 UpdateEnemyDamageCounter();
                 UpdateComboSlideAnimation();
                 UpdateComboPushAnimation();
@@ -517,6 +527,71 @@ namespace Tenronis.UI
             else
             {
                 salvoText.gameObject.SetActive(false);
+            }
+        }
+        
+        /// <summary>
+        /// 處理網格溢出事件（顯示衝擊爆破文字）
+        /// </summary>
+        private void HandleGridOverflow()
+        {
+            if (PlayerManager.Instance == null) return;
+            
+            // 獲取當前充能值（在溢出處理前的值）
+            lastImpactBlastDamage = PlayerManager.Instance.Stats.explosionCharge;
+            
+            // 只有有傷害時才顯示
+            if (lastImpactBlastDamage > 0)
+            {
+                impactBlastDisplayTimer = 2f;
+                impactBlastAnimationTimer = impactBlastAnimationDuration;
+            }
+        }
+        
+        /// <summary>
+        /// 更新衝擊爆破文字顯示
+        /// </summary>
+        private void UpdateImpactBlastDisplay()
+        {
+            if (impactBlastText == null) return;
+            if (impactBlastDisplayTimer > 0)
+            {
+                impactBlastDisplayTimer -= Time.deltaTime;
+                
+                // 設置文字
+                impactBlastText.text = $"衝擊爆破! {lastImpactBlastDamage:0}";
+                Color baseColor = new Color(1f, 0.3f, 0.1f); // 橙紅色
+                
+                // 動畫效果：從 2 倍大縮小到原始大小，同時淡入
+                if (impactBlastAnimationTimer > 0)
+                {
+                    impactBlastAnimationTimer -= Time.deltaTime;
+                    float progress = 1f - (impactBlastAnimationTimer / impactBlastAnimationDuration);
+                    progress = Mathf.Clamp01(progress);
+                    
+                    // 使用 ease-out 效果
+                    float easedProgress = 1f - Mathf.Pow(1f - progress, 3f);
+                    
+                    // 縮放：從 2 倍縮小到 1 倍
+                    float scale = Mathf.Lerp(2f, 1f, easedProgress);
+                    impactBlastText.transform.localScale = new Vector3(scale, scale, 1f);
+                    
+                    // 透明度：從 0 變成 1
+                    impactBlastText.color = new Color(baseColor.r, baseColor.g, baseColor.b, easedProgress);
+                }
+                else
+                {
+                    // 動畫結束，保持正常狀態
+                    impactBlastText.transform.localScale = Vector3.one;
+                    impactBlastText.color = baseColor;
+                }
+                
+                impactBlastText.gameObject.SetActive(true);
+                if (impactBlastDisplayTimer <= 0) impactBlastText.gameObject.SetActive(false);
+            }
+            else
+            {
+                impactBlastText.gameObject.SetActive(false);
             }
         }
         
