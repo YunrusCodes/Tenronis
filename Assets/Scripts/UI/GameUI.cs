@@ -57,6 +57,22 @@ namespace Tenronis.UI
         private float accumulatedEnemyDamage = 0f;
         private float damageCounterTimer = 0f;
         
+        // 連發文字動畫
+        private Vector2 comboTextOriginalPosition;
+        private int lastComboCount = 0;
+        private float comboSlideTimer = 0f;
+        private float comboSlideDuration = 0.2f; // 滑入動畫時間
+        private float comboSlideOffset = 100f; // 從右邊偏移的距離
+        
+        // 連發數字推動動畫
+        private float comboPushTimer = 0f;
+        private float comboPushDuration = 0.15f; // 推動動畫時間
+        private float comboPushOffset = 30f; // 垂直偏移距離
+        private TextMeshProUGUI comboOldText; // 舊數字文字（用於淡出）
+        private TextMeshProUGUI comboLabelText; // 「連發!」標籤
+        private float comboLabelBaseOffset = 50f; // 標籤與數字的基本間距
+        private Color comboTextOriginalColor;
+        
         [Header("升級UI")]
         [SerializeField] private GameObject levelUpPanel;
         
@@ -87,6 +103,26 @@ namespace Tenronis.UI
             GameEvents.OnSkillUnlocked += UpdateSkillUI;
             GameEvents.OnEnemyDamaged += HandleEnemyDamaged;
             
+            // 保存連發文字原始位置和顏色，並創建相關文字物件
+            if (comboText != null)
+            {
+                comboTextOriginalPosition = comboText.rectTransform.anchoredPosition;
+                comboTextOriginalColor = comboText.color;
+                
+                // 創建舊文字物件（用於推動動畫的淡出效果）
+                GameObject oldTextObj = Instantiate(comboText.gameObject, comboText.transform.parent);
+                oldTextObj.name = "ComboOldText";
+                comboOldText = oldTextObj.GetComponent<TextMeshProUGUI>();
+                comboOldText.gameObject.SetActive(false);
+                
+                // 創建「連發!」標籤（只參與滑入動畫，不參與推動動畫）
+                GameObject labelObj = Instantiate(comboText.gameObject, comboText.transform.parent);
+                labelObj.name = "ComboLabelText";
+                comboLabelText = labelObj.GetComponent<TextMeshProUGUI>();
+                comboLabelText.text = "連發!";
+                comboLabelText.gameObject.SetActive(false);
+            }
+            
             // 初始化UI
             ShowMenu();
         }
@@ -109,6 +145,105 @@ namespace Tenronis.UI
                 UpdateGameplayUI();
                 UpdateSalvoDisplay();
                 UpdateEnemyDamageCounter();
+                UpdateComboSlideAnimation();
+                UpdateComboPushAnimation();
+            }
+        }
+        
+        /// <summary>
+        /// 更新連發文字滑入動畫（數字和「連發!」一起滑入）
+        /// </summary>
+        private void UpdateComboSlideAnimation()
+        {
+            if (comboText == null) return;
+            if (comboSlideTimer <= 0) return;
+            
+            comboSlideTimer -= Time.deltaTime;
+            
+            // 計算動畫進度 (0 -> 1)
+            float progress = 1f - (comboSlideTimer / comboSlideDuration);
+            progress = Mathf.Clamp01(progress);
+            
+            // 使用 ease-out 效果
+            float easedProgress = 1f - Mathf.Pow(1f - progress, 3f);
+            
+            // 從右邊滑入到原始位置
+            float currentOffset = comboSlideOffset * (1f - easedProgress);
+            comboText.rectTransform.anchoredPosition = comboTextOriginalPosition + new Vector2(currentOffset, 0);
+            
+            // 「連發!」標籤也一起滑入
+            if (comboLabelText != null && lastComboCount > 0)
+            {
+                UpdateComboLabelPosition(lastComboCount, currentOffset);
+            }
+        }
+        
+        /// <summary>
+        /// 根據數字位數更新「連發!」標籤位置
+        /// </summary>
+        private void UpdateComboLabelPosition(int comboCount, float additionalOffset)
+        {
+            if (comboLabelText == null || comboText == null) return;
+            
+            // 根據數字位數計算偏移量（每多一位數增加約 25 像素）
+            int digitCount = comboCount.ToString().Length;
+            float digitOffset = digitCount * 25f;
+            
+            Vector2 labelPosition = comboTextOriginalPosition + new Vector2(digitOffset + comboLabelBaseOffset + additionalOffset, 0);
+            comboLabelText.rectTransform.anchoredPosition = labelPosition;
+        }
+        
+        /// <summary>
+        /// 根據 Combo 數量獲取對應顏色
+        /// </summary>
+        private Color GetComboColor(int comboCount)
+        {
+            if (comboCount >= 20)
+                return new Color(1f, 0.2f, 0.2f); // 紅色 (20+)
+            else if (comboCount >= 10)
+                return new Color(1f, 0.5f, 0f); // 橙色 (10-19)
+            else if (comboCount >= 5)
+                return new Color(1f, 0.9f, 0.2f); // 黃色 (5-9)
+            else
+                return comboTextOriginalColor; // 原始顏色 (2-4)
+        }
+        
+        /// <summary>
+        /// 更新連發數字推動動畫（新數字從下往上推舊數字）
+        /// </summary>
+        private void UpdateComboPushAnimation()
+        {
+            if (comboText == null) return;
+            if (comboPushTimer <= 0) return;
+            
+            comboPushTimer -= Time.deltaTime;
+            
+            // 計算動畫進度 (0 -> 1)
+            float progress = 1f - (comboPushTimer / comboPushDuration);
+            progress = Mathf.Clamp01(progress);
+            
+            // 使用 ease-out 效果
+            float easedProgress = 1f - Mathf.Pow(1f - progress, 3f);
+            
+            // 新文字：從下面往上移動到原始位置，同時淡入（使用新 combo 的顏色）
+            float newTextOffset = comboPushOffset * (1f - easedProgress);
+            comboText.rectTransform.anchoredPosition = comboTextOriginalPosition + new Vector2(0, -newTextOffset);
+            Color newColor = GetComboColor(lastComboCount);
+            comboText.color = new Color(newColor.r, newColor.g, newColor.b, easedProgress);
+            
+            // 舊文字：往上移動，同時淡出（保持舊 combo 的顏色）
+            if (comboOldText != null && comboOldText.gameObject.activeSelf)
+            {
+                float oldTextOffset = comboPushOffset * easedProgress;
+                comboOldText.rectTransform.anchoredPosition = comboTextOriginalPosition + new Vector2(0, oldTextOffset);
+                Color oldColor = comboOldText.color;
+                comboOldText.color = new Color(oldColor.r, oldColor.g, oldColor.b, 1f - easedProgress);
+                
+                // 動畫結束後隱藏舊文字
+                if (progress >= 1f)
+                {
+                    comboOldText.gameObject.SetActive(false);
+                }
             }
         }
         
@@ -241,8 +376,56 @@ namespace Tenronis.UI
                 if (scoreText != null) scoreText.text = stats.score.ToString("N0");
                 if (comboText != null)
                 {
-                    comboText.text = stats.comboCount > 1 ? $"{stats.comboCount}連發!" : "";
-                    comboText.gameObject.SetActive(stats.comboCount > 1);
+                    if (stats.comboCount > 1)
+                    {
+                        comboText.gameObject.SetActive(true);
+                        if (comboLabelText != null) comboLabelText.gameObject.SetActive(true);
+                        
+                        // 只有第二個 Combo（從 1 變成 2）時觸發滑入動畫
+                        if (stats.comboCount == 2 && lastComboCount < 2)
+                        {
+                            comboText.text = $"{stats.comboCount}";
+                            comboSlideTimer = comboSlideDuration;
+                            // 將數字和標籤都移到右邊
+                            comboText.rectTransform.anchoredPosition = comboTextOriginalPosition + new Vector2(comboSlideOffset, 0);
+                            comboText.color = GetComboColor(stats.comboCount);
+                            if (comboLabelText != null) comboLabelText.color = GetComboColor(stats.comboCount);
+                            UpdateComboLabelPosition(stats.comboCount, comboSlideOffset);
+                        }
+                        // combo 增加時觸發推動動畫（3連發以上）
+                        else if (stats.comboCount > lastComboCount && lastComboCount >= 2)
+                        {
+                            // 設置舊數字（準備往上淡出）
+                            if (comboOldText != null)
+                            {
+                                comboOldText.text = $"{lastComboCount}";
+                                comboOldText.gameObject.SetActive(true);
+                                comboOldText.rectTransform.anchoredPosition = comboTextOriginalPosition;
+                                comboOldText.color = GetComboColor(lastComboCount);
+                            }
+                            
+                            // 設置新數字（從下面往上淡入）
+                            Color newComboColor = GetComboColor(stats.comboCount);
+                            comboText.text = $"{stats.comboCount}";
+                            comboText.rectTransform.anchoredPosition = comboTextOriginalPosition + new Vector2(0, -comboPushOffset);
+                            comboText.color = new Color(newComboColor.r, newComboColor.g, newComboColor.b, 0f);
+                            if (comboLabelText != null) comboLabelText.color = newComboColor;
+                            
+                            // 更新標籤位置（根據新數字的位數）
+                            UpdateComboLabelPosition(stats.comboCount, 0);
+                            
+                            comboPushTimer = comboPushDuration;
+                        }
+                        
+                        lastComboCount = stats.comboCount;
+                    }
+                    else
+                    {
+                        comboText.gameObject.SetActive(false);
+                        if (comboOldText != null) comboOldText.gameObject.SetActive(false);
+                        if (comboLabelText != null) comboLabelText.gameObject.SetActive(false);
+                        lastComboCount = 0;
+                    }
                 }
                 
                 if (playerHpSlider != null) { playerHpSlider.maxValue = stats.maxHp; playerHpSlider.value = stats.currentHp; }
