@@ -20,6 +20,9 @@ namespace Tenronis.Gameplay.Tetromino
         [SerializeField] private Sprite explosiveSymbol; // 爆炸型符紋
         [SerializeField] private Sprite voidSymbol; // 虛無型符紋
         
+        [Header("湮滅方塊貼圖")]
+        [SerializeField] private Sprite annihilationBlockSprite; // 湮滅狀態專用貼圖
+        
         // 當前方塊
         private TetrominoShape currentShape;
         private Vector2Int currentPosition;
@@ -836,7 +839,7 @@ namespace Tenronis.Gameplay.Tetromino
             
             // 建立視覺方塊
             // 湮滅狀態下使用較低透明度顯示幽靈形態
-            float previewAlpha = isInAnnihilationState ? 0.5f : 1f;
+            float previewAlpha = isInAnnihilationState ? 0.50f : 1f;
             
             for (int y = 0; y < rows; y++)
             {
@@ -932,13 +935,25 @@ namespace Tenronis.Gameplay.Tetromino
             Color blockColor;
             if (isAnnihilation)
             {
-                // 湮滅狀態：黑色方塊白色外框
-                blockColor = new Color(0f, 0f, 0f, alpha); // 黑色
-                spriteRenderer.color = blockColor;
-                spriteRenderer.sortingOrder = 11; // 黑色在上層
-                
-                // 創建白色外框（稍大的白色方塊在下層）
-                CreateAnnihilationBorder(blockObj, blockSize, alpha);
+                // 湮滅狀態：使用專用貼圖或黑色方塊白色外框
+                if (annihilationBlockSprite != null)
+                {
+                    // 使用自定義貼圖
+                    spriteRenderer.sprite = annihilationBlockSprite;
+                    blockColor = new Color(1f, 1f, 1f, alpha); // 白色（不改變貼圖顏色）
+                    spriteRenderer.color = blockColor;
+                    spriteRenderer.sortingOrder = 11;
+                }
+                else
+                {
+                    // 預設：黑色方塊白色外框
+                    blockColor = new Color(0f, 0f, 0f, alpha); // 黑色
+                    spriteRenderer.color = blockColor;
+                    spriteRenderer.sortingOrder = 11; // 黑色在上層
+                    
+                    // 創建白色外框（稍大的白色方塊在下層）
+                    CreateAnnihilationBorder(blockObj, blockSize, alpha);
+                }
             }
             else
             {

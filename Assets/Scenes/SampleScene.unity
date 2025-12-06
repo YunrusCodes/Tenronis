@@ -775,6 +775,7 @@ MonoBehaviour:
   blockPreviewPrefab: {fileID: 2386012697764751039, guid: 41c93c59eb6643d4982da3482103ebb2, type: 3}
   explosiveSymbol: {fileID: 7398636155586864381, guid: 511f807d50519814a8690d7b5e6e3181, type: 3}
   voidSymbol: {fileID: -512970205519636337, guid: 88d37b2de1c976146b15c88cc9fbd56c, type: 3}
+  annihilationBlockSprite: {fileID: 21300000, guid: 3e5a57af643c7f145819b048322c1b47, type: 3}
   lockDelay: 0.5
   maxLockResets: 15
 --- !u!4 &206945817
