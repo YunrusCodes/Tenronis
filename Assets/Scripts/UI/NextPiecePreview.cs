@@ -3,7 +3,6 @@ using UnityEngine.UI;
 using System.Collections.Generic;
 using Tenronis.Data;
 using Tenronis.Gameplay.Tetromino;
-using TMPro;
 
 namespace Tenronis.UI
 {
@@ -22,7 +21,8 @@ namespace Tenronis.UI
         [SerializeField] private Sprite blockSprite; // 方塊 Sprite（可選）
         
         [Header("腐化符號設定")]
-        [SerializeField] private float symbolFontSize = 8f; // 符號字體大小
+        [SerializeField] private Sprite explosiveSymbol; // 爆炸型符紋
+        [SerializeField] private Sprite voidSymbol; // 虛無型符紋
         
         private List<GameObject> previewBlocks = new List<GameObject>();
         
@@ -150,13 +150,8 @@ namespace Tenronis.UI
             rectTransform.anchoredPosition = new Vector2(posX, posY);
             
             // 添加視覺組件
+            // 所有方塊（包括腐蝕方塊）都使用原本的顏色
             Color blockColor = color;
-            
-            // 如果方塊被腐化，使用白色底
-            if (corruptType.HasValue && (corruptType.Value == BlockType.Explosive || corruptType.Value == BlockType.Void))
-            {
-                blockColor = Color.white;
-            }
             
             if (useSprite && blockSprite != null)
             {
@@ -185,7 +180,7 @@ namespace Tenronis.UI
         /// </summary>
         private void AddCorruptionSymbol(GameObject blockObj, BlockType corruptType)
         {
-            // 創建符號文字物件
+            // 創建符號圖片物件
             GameObject symbolObj = new GameObject("CorruptionSymbol");
             symbolObj.transform.SetParent(blockObj.transform, false);
             
@@ -196,26 +191,21 @@ namespace Tenronis.UI
             symbolRect.sizeDelta = Vector2.zero;
             symbolRect.anchoredPosition = Vector2.zero;
             
-            // 添加 TextMeshProUGUI 組件
-            TextMeshProUGUI symbolText = symbolObj.AddComponent<TextMeshProUGUI>();
+            // 添加 Image 組件
+            Image symbolImage = symbolObj.AddComponent<Image>();
             
-            // 設置符號和顏色
+            // 設置符號 Sprite
             if (corruptType == BlockType.Explosive)
             {
-                symbolText.text = "!";
-                symbolText.color = Color.red; // 紅色
+                symbolImage.sprite = explosiveSymbol;
             }
             else // Void
             {
-                symbolText.text = "X";
-                symbolText.color = Color.black; // 黑色
+                symbolImage.sprite = voidSymbol;
             }
             
-            // 設置文字屬性
-            symbolText.fontSize = symbolFontSize;
-            symbolText.fontStyle = FontStyles.Bold;
-            symbolText.alignment = TextAlignmentOptions.Center;
-            symbolText.overflowMode = TextOverflowModes.Overflow;
+            // 設置圖片屬性
+            symbolImage.preserveAspect = true;
         }
         
         /// <summary>

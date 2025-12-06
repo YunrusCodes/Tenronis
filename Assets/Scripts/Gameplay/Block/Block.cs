@@ -1,5 +1,4 @@
 using UnityEngine;
-using TMPro;
 using Tenronis.Data;
 
 namespace Tenronis.Gameplay.Block
@@ -13,7 +12,11 @@ namespace Tenronis.Gameplay.Block
         [Header("視覺設定")]
         [SerializeField] private SpriteRenderer spriteRenderer;
         [SerializeField] private Color[] colorPalette;
-        [SerializeField] private TextMeshPro symbolText; // 方塊標記文字（!或?）
+        [SerializeField] private SpriteRenderer symbolRenderer; // 方塊標記圖片
+        
+        [Header("腐蝕符號圖片")]
+        [SerializeField] private Sprite explosiveSymbol; // 爆炸型符紋
+        [SerializeField] private Sprite voidSymbol; // 虛無型符紋
         
         private BlockData blockData;
         
@@ -101,30 +104,24 @@ namespace Tenronis.Gameplay.Block
         private void UpdateSymbol()
         {
             Debug.Log($"[Block] 更新方塊標記符號 - 方塊類型: {blockData.blockType}");
-            if (symbolText == null || blockData == null) return;
+            if (symbolRenderer == null || blockData == null) return;
             
             // 根據方塊類型顯示符號
             switch (blockData.blockType)
             {
                 case BlockType.Explosive:
-                    symbolText.text = "!";
-                    symbolText.color = Color.red;
-                    symbolText.fontSize = 8;
-                    symbolText.fontStyle = FontStyles.Bold;
-                    symbolText.gameObject.SetActive(true);
+                    symbolRenderer.sprite = explosiveSymbol;
+                    symbolRenderer.gameObject.SetActive(true);
                     break;
                     
                 case BlockType.Void:
-                    symbolText.text = "X";
-                    symbolText.color = Color.black; // 黑色
-                    symbolText.fontSize = 8;
-                    symbolText.fontStyle = FontStyles.Bold;
-                    symbolText.gameObject.SetActive(true);
+                    symbolRenderer.sprite = voidSymbol;
+                    symbolRenderer.gameObject.SetActive(true);
                     break;
                     
                 case BlockType.Normal:
                 default:
-                    symbolText.gameObject.SetActive(false);
+                    symbolRenderer.gameObject.SetActive(false);
                     break;
             }
         }
@@ -132,4 +129,3 @@ namespace Tenronis.Gameplay.Block
         public BlockData GetBlockData() => blockData;
     }
 }
-

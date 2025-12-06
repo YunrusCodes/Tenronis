@@ -16,6 +16,10 @@ namespace Tenronis.Gameplay.Tetromino
         [Header("設定")]
         [SerializeField] private GameObject blockPreviewPrefab;
         
+        [Header("腐蝕符號圖片")]
+        [SerializeField] private Sprite explosiveSymbol; // 爆炸型符紋
+        [SerializeField] private Sprite voidSymbol; // 虛無型符紋
+        
         // 當前方塊
         private TetrominoShape currentShape;
         private Vector2Int currentPosition;
@@ -936,14 +940,9 @@ namespace Tenronis.Gameplay.Tetromino
                 // 創建白色外框（稍大的白色方塊在下層）
                 CreateAnnihilationBorder(blockObj, blockSize, alpha);
             }
-            else if (corruptType.HasValue && (corruptType.Value == BlockType.Explosive || corruptType.Value == BlockType.Void))
-            {
-                blockColor = new Color(1f, 1f, 1f, alpha); // 白色底
-                spriteRenderer.color = blockColor;
-                spriteRenderer.sortingOrder = 10;
-            }
             else
             {
+                // 所有方塊（包括腐蝕方塊）都使用原本的顏色
                 blockColor = GetColorFromBlockColor(color);
                 blockColor.a = alpha;
                 spriteRenderer.color = blockColor;
@@ -1000,36 +999,32 @@ namespace Tenronis.Gameplay.Tetromino
         /// </summary>
         private void AddCorruptionSymbol(GameObject blockObj, BlockType corruptType, float blockSize, float alpha)
         {
-            // 創建符號文字物件
+            // 創建符號圖片物件
             GameObject symbolObj = new GameObject("CorruptionSymbol");
             symbolObj.transform.SetParent(blockObj.transform);
             symbolObj.transform.localPosition = Vector3.zero;
-            symbolObj.transform.localScale = Vector3.one;
             
-            // 添加 TextMeshPro 組件
-            TMPro.TextMeshPro symbolText = symbolObj.AddComponent<TMPro.TextMeshPro>();
+            // 添加 SpriteRenderer 組件
+            SpriteRenderer symbolRenderer = symbolObj.AddComponent<SpriteRenderer>();
             
-            // 設置符號和顏色
+            // 設置符號 Sprite
             if (corruptType == BlockType.Explosive)
             {
-                symbolText.text = "!";
-                symbolText.color = new Color(1f, 0f, 0f, alpha); // 紅色
+                symbolRenderer.sprite = explosiveSymbol;
             }
             else // Void
             {
-                symbolText.text = "X";
-                symbolText.color = new Color(0f, 0f, 0f, alpha); // 黑色
+                symbolRenderer.sprite = voidSymbol;
             }
             
-            // 設置文字屬性
-            symbolText.fontSize = 8;
-            symbolText.fontStyle = TMPro.FontStyles.Bold;
-            symbolText.alignment = TMPro.TextAlignmentOptions.Center;
-            symbolText.sortingOrder = 11; // 確保在方塊上方
+            // 設置透明度
+            Color color = Color.white;
+            color.a = alpha;
+            symbolRenderer.color = color;
             
-            // 設置 RectTransform
-            RectTransform rectTransform = symbolObj.GetComponent<RectTransform>();
-            rectTransform.sizeDelta = new Vector2(blockSize, blockSize);
+            // 設置渲染順序和大小
+            symbolRenderer.sortingOrder = 11; // 確保在方塊上方
+            symbolObj.transform.localScale = new Vector3(0.8f, 0.8f, 1f); // 符號稍小於方塊
         }
         
         /// <summary>
