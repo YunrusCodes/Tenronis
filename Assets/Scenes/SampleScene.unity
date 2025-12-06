@@ -772,7 +772,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 786722eae11306048899a307b55c5d96, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Tenronis.Gameplay.Tetromino.TetrominoController
-  blockPreviewPrefab: {fileID: 0}
+  blockPreviewPrefab: {fileID: 2386012697764751039, guid: 41c93c59eb6643d4982da3482103ebb2, type: 3}
   lockDelay: 0.5
   maxLockResets: 15
 --- !u!4 &206945817

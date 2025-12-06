@@ -368,6 +368,14 @@ namespace Tenronis.UI
             if (currentStatsText == null) return;
             
             var stats = PlayerManager.Instance.Stats;
+            
+            // 檢查 stats 是否已初始化（避免在 Start() 之前調用時出錯）
+            if (stats == null)
+            {
+                Debug.LogWarning("[RoguelikeMenu] PlayerStats is null, skipping update");
+                return;
+            }
+            
             System.Text.StringBuilder sb = new System.Text.StringBuilder();
             
             // 根據當前分頁顯示不同內容
