@@ -423,8 +423,13 @@ namespace Tenronis.Managers
             BlockData block = grid[y, x];
             if (block == null) return false;
             
-            // 不可摧毀方塊不受傷害
-            if (block.isIndestructible) return false;
+            // 不可摧毀方塊（垃圾方塊）受到攻擊時，反傷玩家 10 HP
+            if (block.isIndestructible)
+            {
+                Debug.Log($"[GridManager] 垃圾方塊在 ({x}, {y}) 受到攻擊！玩家受到 10 點反傷");
+                GameEvents.TriggerPlayerDamaged(10);
+                return false;
+            }
             
             block.hp -= damage;
             
