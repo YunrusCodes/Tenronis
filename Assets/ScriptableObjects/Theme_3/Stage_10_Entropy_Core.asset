@@ -15,7 +15,7 @@ MonoBehaviour:
   stageName: Entropy Core
   stageIndex: 10
   isBossStage: 1
-  rewardBuffCount: 0
+  rewardBuffCount: 1
   maxHp: 1300
   shootInterval: 1
   bulletSpeed: 12
