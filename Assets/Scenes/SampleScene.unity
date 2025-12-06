@@ -1685,7 +1685,7 @@ MonoBehaviour:
   blockSize: 30
   spacing: 2
   useSprite: 1
-  blockSprite: {fileID: 0}
+  blockSprite: {fileID: 4429161312555119788, guid: 1e8b2430f7c1df5438bd50e756da91b9, type: 3}
   symbolFontSize: 24
 --- !u!1 &322218120
 GameObject:
@@ -3593,7 +3593,7 @@ MonoBehaviour:
     m_Top: 0
     m_Bottom: 0
   m_ChildAlignment: 4
-  m_Spacing: 60
+  m_Spacing: -9
   m_ChildForceExpandWidth: 1
   m_ChildForceExpandHeight: 1
   m_ChildControlWidth: 0
@@ -5684,8 +5684,8 @@ MonoBehaviour:
   - {fileID: 1315515583}
   blockSize: 25
   spacing: 2
-  useSprite: 0
-  blockSprite: {fileID: 0}
+  useSprite: 1
+  blockSprite: {fileID: 4429161312555119788, guid: 1e8b2430f7c1df5438bd50e756da91b9, type: 3}
   emptySlotColor: {r: 0.3, g: 0.3, b: 0.3, a: 0.5}
 --- !u!114 &983342140
 MonoBehaviour:
