@@ -23,6 +23,9 @@ namespace Tenronis.Gameplay.Player
             var stats = PlayerManager.Instance.Stats;
             float volleyMultiplier = 1 + stats.missileExtraCount; // Volley 傷害倍率
             
+            // 計算處決的程度等級（不包含消除行數加成）
+            int intensityLevel = Mathf.Min(stats.missileExtraCount + Mathf.Min(stats.comboCount / 10, 3), 8);
+            
             // 清除每列最上面的方塊（削平表面）
             for (int x = 0; x < GameConstants.BOARD_WIDTH; x++)
             {
@@ -37,7 +40,7 @@ namespace Tenronis.Gameplay.Player
                         Vector3 pos = GridManager.Instance.GridToWorldPosition(x, y);
                         float damage = GameConstants.EXECUTION_DAMAGE * volleyMultiplier;
                         
-                        CombatManager.Instance?.FireMissile(pos, damage);
+                        CombatManager.Instance?.FireMissile(pos, damage, intensityLevel);
                         
                         break; // 只清除最上面的一個
                     }

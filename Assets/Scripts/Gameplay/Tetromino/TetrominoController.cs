@@ -469,6 +469,9 @@ namespace Tenronis.Gameplay.Tetromino
             float burstBonus = stats.burstLevel * stats.comboCount * GameConstants.BURST_DAMAGE_MULTIPLIER;
             float damage = (GameConstants.BASE_MISSILE_DAMAGE + burstBonus) * volleyMultiplier;
             
+            // 計算湮滅的程度等級（不包含消除行數加成）
+            int intensityLevel = Mathf.Min(stats.missileExtraCount + Mathf.Min(stats.comboCount / 10, 3), 8);
+            
             // 遍歷方塊的每個格子，檢查重疊
             for (int y = 0; y < currentRotation.GetLength(0); y++)
             {
@@ -489,7 +492,7 @@ namespace Tenronis.Gameplay.Tetromino
                             
                             // 發射導彈（受 Volley 傷害倍率影響）
                             Vector3 pos = GridManager.Instance.GridToWorldPosition(gridX, gridY);
-                            CombatManager.Instance?.FireMissile(pos, damage);
+                            CombatManager.Instance?.FireMissile(pos, damage, intensityLevel);
                         }
                     }
                 }
@@ -500,7 +503,7 @@ namespace Tenronis.Gameplay.Tetromino
             {
                 PlayerManager.Instance?.OnAnnihilationDestroy();
                 GameEvents.TriggerPlayMissileSound();
-                Debug.Log($"[TetrominoController] 湮滅硬降破壞了 {destroyedCount} 個方塊，發射 {destroyedCount} 發導彈（傷害倍率 x{volleyMultiplier}）");
+                Debug.Log($"[TetrominoController] 湮滅硬降破壞了 {destroyedCount} 個方塊，發射 {destroyedCount} 發導彈（傷害倍率 x{volleyMultiplier}，程度={intensityLevel}）");
             }
             
             // 退出湮滅狀態

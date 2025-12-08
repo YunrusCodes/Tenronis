@@ -24,7 +24,7 @@ namespace Tenronis.Core
         
         // === 戰鬥事件 ===
         public static event Action<float> OnMissileFired; // 參數：傷害
-        public static event Action<float> OnEnemyDamaged; // 參數：傷害
+        public static event Action<float, int> OnEnemyDamaged; // 參數：傷害, 程度等級(0-8)
         public static event Action OnEnemyDefeated;
         public static event Action<int> OnPlayerDamaged; // 參數：傷害
         
@@ -66,7 +66,7 @@ namespace Tenronis.Core
         public static void TriggerGridOverflow() => OnGridOverflow?.Invoke();
         public static void TriggerGridChanged() => OnGridChanged?.Invoke();
         public static void TriggerMissileFired(float damage) => OnMissileFired?.Invoke(damage);
-        public static void TriggerEnemyDamaged(float damage) => OnEnemyDamaged?.Invoke(damage);
+        public static void TriggerEnemyDamaged(float damage, int intensityLevel) => OnEnemyDamaged?.Invoke(damage, intensityLevel);
         public static void TriggerEnemyDefeated() => OnEnemyDefeated?.Invoke();
         public static void TriggerPlayerDamaged(int damage) => OnPlayerDamaged?.Invoke(damage);
         public static void TriggerCpChanged(int currentCp, int maxCp) => OnCpChanged?.Invoke(currentCp, maxCp);

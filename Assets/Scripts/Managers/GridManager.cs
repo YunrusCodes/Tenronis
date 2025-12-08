@@ -618,7 +618,7 @@ namespace Tenronis.Managers
                 if (stats.explosionCharge > 0)
                 {
                     float explosionDamage = stats.explosionCharge;
-                    GameEvents.TriggerEnemyDamaged(explosionDamage);
+                    GameEvents.TriggerEnemyDamaged(explosionDamage, 0);
                     PlayerManager.Instance.ConsumeExplosionCharge();
                     Debug.Log($"[GridManager] 溢出觸發爆炸充能傷害: {explosionDamage} (上限: {stats.explosionMaxCharge})");
                 }

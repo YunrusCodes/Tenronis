@@ -103,6 +103,9 @@ namespace Tenronis.Managers
             float volleyMultiplier = 1 + stats.missileExtraCount; // Volley 傷害倍率
             float totalDamage = (GameConstants.BASE_MISSILE_DAMAGE + salvoBonus + burstBonus) * volleyMultiplier;
             
+            // 計算程度等級（0-8）
+            int intensityLevel = CalculateIntensityLevel(stats.missileExtraCount, nonGarbageRowCount, stats.comboCount);
+            
             // 統計非垃圾方塊行（用於發射導彈）
             List<int> nonGarbageRows = new List<int>();
             foreach (int row in clearedRows)
@@ -130,7 +133,7 @@ namespace Tenronis.Managers
                 for (int x = 0; x < GameConstants.BOARD_WIDTH; x++)
                 {
                     Vector3 spawnPos = GridManager.Instance.GridToWorldPosition(x, row);
-                    FireMissile(spawnPos, totalDamage);
+                    FireMissile(spawnPos, totalDamage, intensityLevel);
                 }
             }
             
@@ -140,15 +143,39 @@ namespace Tenronis.Managers
         /// <summary>
         /// 發射單個導彈
         /// </summary>
-        public void FireMissile(Vector3 position, float damage, int pierce = 0)
+        public void FireMissile(Vector3 position, float damage, int intensityLevel = 0, int pierce = 0)
         {
             if (missilePool == null) return;
             
             Missile missile = missilePool.Get();
-            missile.Initialize(position, damage, pierce);
+            missile.Initialize(position, damage, intensityLevel, pierce);
             activeMissiles.Add(missile);
             
             GameEvents.TriggerMissileFired(damage);
+        }
+        
+        /// <summary>
+        /// 計算程度等級（0-8）
+        /// </summary>
+        private int CalculateIntensityLevel(int volleyLevel, int clearedRows, int comboCount)
+        {
+            // Volley 等級：每級 +1 程度
+            int intensity = volleyLevel;
+            
+            // 消除行數加成：n < 4 時 +n，n >= 4 時 +4（封頂）
+            int rowBonus = Mathf.Min(clearedRows, 4);
+            intensity += rowBonus;
+            
+            // 連擊加成：每10連擊 +1 程度，最多 +3
+            int comboBonus = Mathf.Min(comboCount / 10, 3);
+            intensity += comboBonus;
+            
+            // 最終程度上限：8
+            intensity = Mathf.Min(intensity, 8);
+            
+            Debug.Log($"[CombatManager] 程度計算: Volley={volleyLevel}, 行數={clearedRows}(+{rowBonus}), 連擊={comboCount}(+{comboBonus}) → 程度={intensity}");
+            
+            return intensity;
         }
         
         /// <summary>
@@ -303,8 +330,8 @@ namespace Tenronis.Managers
                 // 超出 Grid 頂部代表擊中敵人
                 if (missile.transform.position.y > gridTop)
                 {
-                    Debug.Log($"[CombatManager] 導彈擊中敵人！傷害: {missile.Damage}");
-                    GameEvents.TriggerEnemyDamaged(missile.Damage);
+                    Debug.Log($"[CombatManager] 導彈擊中敵人！傷害: {missile.Damage}, 程度: {missile.IntensityLevel}");
+                    GameEvents.TriggerEnemyDamaged(missile.Damage, missile.IntensityLevel);
                     missilesToRemove.Add(missile);
                 }
             }
@@ -527,11 +554,14 @@ namespace Tenronis.Managers
                 float burstBonus = stats.burstLevel * stats.comboCount * GameConstants.BURST_DAMAGE_MULTIPLIER;
                 float damage = (GameConstants.BASE_MISSILE_DAMAGE + burstBonus);
                 
+                // 計算反擊的程度等級（不包含消除行數加成）
+                int intensityLevel = CalculateIntensityLevel(stats.missileExtraCount, 0, stats.comboCount);
+                
                 for (int i = 0; i < stats.counterFireLevel; i++)
                 {
                     Vector3 firePos = GridManager.Instance.GridToWorldPosition(hitPos.x, hitPos.y);
                     firePos.y -= i * 0.2f;
-                    FireMissile(firePos, damage);
+                    FireMissile(firePos, damage, intensityLevel);
                 }
                 
                 // 播放反擊音效

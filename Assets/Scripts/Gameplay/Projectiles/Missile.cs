@@ -15,18 +15,21 @@ namespace Tenronis.Gameplay.Projectiles
         // 導彈數據
         private float damage;
         private int pierce; // 穿透次數
+        private int intensityLevel; // 程度等級（影響特效數量）
         private Vector2 velocity;
         
         public float Damage => damage;
         public int Pierce => pierce;
+        public int IntensityLevel => intensityLevel;
         
         /// <summary>
         /// 初始化導彈
         /// </summary>
-        public void Initialize(Vector3 position, float damage, int pierce = 0)
+        public void Initialize(Vector3 position, float damage, int intensityLevel, int pierce = 0)
         {
             transform.position = position;
             this.damage = damage;
+            this.intensityLevel = intensityLevel;
             this.pierce = pierce;
             
             // 向上飛行

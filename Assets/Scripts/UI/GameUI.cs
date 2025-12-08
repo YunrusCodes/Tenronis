@@ -745,7 +745,7 @@ namespace Tenronis.UI
         /// <summary>
         /// 處理敵人受傷事件
         /// </summary>
-        private void HandleEnemyDamaged(float damage)
+        private void HandleEnemyDamaged(float damage, int intensityLevel)
         {
             accumulatedEnemyDamage += damage;
             damageCounterTimer = damageCounterResetTime; // 重置計時器

@@ -3,6 +3,8 @@ using Tenronis.Data;
 using Tenronis.Core;
 using Tenronis.Managers;
 using Tenronis.ScriptableObjects;
+using System.Collections;
+using System.Collections.Generic;
 
 namespace Tenronis.Gameplay.Enemy
 {
@@ -28,6 +30,10 @@ namespace Tenronis.Gameplay.Enemy
         // 視覺效果
         private Vector3 originalSpritePosition;
         private Coroutine shakeCoroutine;
+        
+        // 特效排隊系統
+        private Queue<Vector2Int> effectQueue = new Queue<Vector2Int>();
+        private int activeProcessors = 0;
         private Coroutine effectSpawnCoroutine;
         private int pendingEffectCount = 0; // 待生成的特效數量
         
@@ -269,18 +275,39 @@ namespace Tenronis.Gameplay.Enemy
         /// <summary>
         /// 處理受傷
         /// </summary>
-        private void HandleDamaged(float damage)
+        private void HandleDamaged(float damage, int intensityLevel)
         {
             // 視覺效果：爆炸特效（即使已擊敗也要累積，確保同一批導彈的特效都能顯示）
-            // 每發導彈產生 1 個特效（不受傷害加成影響）
+            // 特效數量 = int(程度/2) × (傷害/基礎傷害)
             if (damageEffectPrefab != null && enemySprite != null)
             {
-                pendingEffectCount += 1;
-                
-                // 如果還沒有在生成特效，啟動協程
-                if (effectSpawnCoroutine == null)
+                // 如果程度為 0，不產生任何特效
+                if (intensityLevel == 0)
                 {
-                    effectSpawnCoroutine = StartCoroutine(SpawnDamageEffectsSequentially());
+                   Debug.Log($"[EnemyController] 程度=0，不產生特效");
+                }
+                else
+                {
+                    // 新公式：每0.2秒產生 n 個特效，持續 m 秒
+                    // n = 等級 (若 n > 4 則 n = 4)
+                    // m = int(等級 / 4) + 1
+                    
+                    int n = Mathf.Min(intensityLevel, 4);
+                    
+                    // 根據需求：只需要一波即可 (m=1)
+                    int m = 1; 
+                    
+                    // 加入隊列
+                    effectQueue.Enqueue(new Vector2Int(n, m));
+                    
+                    // 動態調整處理器數量
+                    // 基礎為1，每超過40個增加1個並行處理
+                    int requiredProcessors = 1 + (effectQueue.Count / 40);
+                    
+                    if (activeProcessors < requiredProcessors)
+                    {
+                        StartCoroutine(ProcessEffectQueue());
+                    }
                 }
             }
             
@@ -289,7 +316,7 @@ namespace Tenronis.Gameplay.Enemy
             
             currentHp = Mathf.Max(0f, currentHp - damage);
             
-            Debug.Log($"[EnemyController] 受到傷害: {damage}, 剩餘HP: {currentHp}");
+            Debug.Log($"[EnemyController] 受到傷害: {damage}, 剩餘HP: {currentHp}, 隊列: {effectQueue.Count}, 處理器: {activeProcessors}");
             
             // 視覺效果：晃動
             if (enemySprite != null)
@@ -306,6 +333,29 @@ namespace Tenronis.Gameplay.Enemy
             {
                 HandleDefeated();
             }
+        }
+        
+        /// <summary>
+        /// 處理特效隊列（每0.1秒處理一個請求）
+        /// 多個處理器可以並行運作
+        /// </summary>
+        private IEnumerator ProcessEffectQueue()
+        {
+            activeProcessors++;
+            
+            while (effectQueue.Count > 0)
+            {
+                // 因為是單線程，Dequeue是安全的
+                Vector2Int request = effectQueue.Dequeue();
+                
+                // 啟動實際的特效生成協程 (n, m)
+                StartCoroutine(SpawnTimedEffects(request.x, request.y));
+                
+                // 等待 0.1 秒再處理下一個請求
+                yield return new WaitForSeconds(0.1f);
+            }
+            
+            activeProcessors--;
         }
         
         /// <summary>
@@ -338,29 +388,7 @@ namespace Tenronis.Gameplay.Enemy
             shakeCoroutine = null;
         }
         
-        /// <summary>
-        /// 依序生成多個受傷特效（協程）
-        /// 每幀最多生成2個特效
-        /// </summary>
-        private System.Collections.IEnumerator SpawnDamageEffectsSequentially()
-        {
-            while (pendingEffectCount > 0)
-            {
-                // 每次生成最多2個特效
-                int effectsThisFrame = Mathf.Min(2, pendingEffectCount);
-                
-                for (int i = 0; i < effectsThisFrame; i++)
-                {
-                    SpawnSingleDamageEffect();
-                    pendingEffectCount--;
-                }
-                
-                // 等待一小段時間再生成下一批（使用 Realtime 確保暫停時也能執行）
-                yield return new WaitForSecondsRealtime(0.05f);
-            }
-            
-            effectSpawnCoroutine = null;
-        }
+
         
         /// <summary>
         /// 在敵人Sprite隨機位置生成單個受傷特效
@@ -518,6 +546,36 @@ namespace Tenronis.Gameplay.Enemy
             GameEvents.TriggerEnemyDefeated();
         }
         
+        /// <summary>
+        /// 生成時序特效（新邏輯）
+        /// </summary>
+        /// <param name="countPerInterval">每個間隔產生的特效數量 (n)</param>
+        /// <param name="repeatCount">重複次數 (m)</param>
+        private IEnumerator SpawnTimedEffects(int countPerInterval, int repeatCount)
+        {
+            float interval = 0.2f;
+            
+            for (int r = 0; r < repeatCount; r++)
+            {
+                // 生成一波特效
+                for (int i = 0; i < countPerInterval; i++)
+                {
+                    SpawnSingleDamageEffect();
+                }
+                
+                // 如果還有下一次，等待間隔
+                if (r < repeatCount - 1)
+                {
+                    yield return new WaitForSeconds(interval);
+                }
+            }
+        }
+
+        private IEnumerator SpawnDamageEffectsSequentially()
+        {
+            yield break; // 已棄用
+        }
+
         /// <summary>
         /// 處理遊戲狀態變更
         /// </summary>
