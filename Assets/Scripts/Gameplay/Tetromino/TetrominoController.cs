@@ -465,9 +465,9 @@ namespace Tenronis.Gameplay.Tetromino
             var stats = PlayerManager.Instance?.Stats;
             if (stats == null) return;
             
-            int missileCountPerBlock = 1 + stats.missileExtraCount; // Volley 影響
+            float volleyMultiplier = 1 + stats.missileExtraCount; // Volley 傷害倍率
             float burstBonus = stats.burstLevel * stats.comboCount * GameConstants.BURST_DAMAGE_MULTIPLIER;
-            float damage = GameConstants.BASE_MISSILE_DAMAGE + burstBonus;
+            float damage = (GameConstants.BASE_MISSILE_DAMAGE + burstBonus) * volleyMultiplier;
             
             // 遍歷方塊的每個格子，檢查重疊
             for (int y = 0; y < currentRotation.GetLength(0); y++)
@@ -487,15 +487,9 @@ namespace Tenronis.Gameplay.Tetromino
                             GridManager.Instance.RemoveBlock(gridX, gridY);
                             destroyedCount++;
                             
-                            // 發射導彈（受 Volley 影響）
+                            // 發射導彈（受 Volley 傷害倍率影響）
                             Vector3 pos = GridManager.Instance.GridToWorldPosition(gridX, gridY);
-                            for (int i = 0; i < missileCountPerBlock; i++)
-                            {
-                                CombatManager.Instance?.FireMissile(
-                                    pos + Vector3.up * (i * 0.2f),
-                                    damage
-                                );
-                            }
+                            CombatManager.Instance?.FireMissile(pos, damage);
                         }
                     }
                 }
@@ -506,7 +500,7 @@ namespace Tenronis.Gameplay.Tetromino
             {
                 PlayerManager.Instance?.OnAnnihilationDestroy();
                 GameEvents.TriggerPlayMissileSound();
-                Debug.Log($"[TetrominoController] 湮滅硬降破壞了 {destroyedCount} 個方塊，發射 {destroyedCount * missileCountPerBlock} 發導彈");
+                Debug.Log($"[TetrominoController] 湮滅硬降破壞了 {destroyedCount} 個方塊，發射 {destroyedCount} 發導彈（傷害倍率 x{volleyMultiplier}）");
             }
             
             // 退出湮滅狀態

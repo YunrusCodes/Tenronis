@@ -459,7 +459,7 @@ namespace Tenronis.UI
                 sb.AppendLine($"方塊可承受子彈次數 : {stats.blockDefenseLevel}");
                 sb.AppendLine();
                 
-                sb.AppendLine($"每個方塊可產生的子彈 : {1 + stats.missileExtraCount}");
+                sb.AppendLine($"導彈傷害倍率 : x{1 + stats.missileExtraCount}");
                 sb.AppendLine();
                 
                 // 湮滅技能

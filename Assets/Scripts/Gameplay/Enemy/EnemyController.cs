@@ -272,11 +272,10 @@ namespace Tenronis.Gameplay.Enemy
         private void HandleDamaged(float damage)
         {
             // 視覺效果：爆炸特效（即使已擊敗也要累積，確保同一批導彈的特效都能顯示）
-            // 特效數量與傷害值成正比（至少1個）
+            // 每發導彈產生 1 個特效（不受傷害加成影響）
             if (damageEffectPrefab != null && enemySprite != null)
             {
-                int effectCount = Mathf.Max(1, Mathf.CeilToInt(damage));
-                pendingEffectCount += effectCount;
+                pendingEffectCount += 1;
                 
                 // 如果還沒有在生成特效，啟動協程
                 if (effectSpawnCoroutine == null)

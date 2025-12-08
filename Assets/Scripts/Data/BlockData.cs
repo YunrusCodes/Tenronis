@@ -49,7 +49,7 @@ namespace Tenronis.Data
         
         // 升級數據
         public int blockDefenseLevel;      // 方塊防禦等級（增加方塊HP）
-        public int missileExtraCount;      // 額外導彈數量（協同火力）
+        public int missileExtraCount;      // 協同火力等級（傷害倍率 = 等級+1）
         public int explosionCharge;        // 當前爆炸充能
         public int explosionMaxCharge;     // 爆炸充能上限
         public int explosionChargeLevel;   // 爆炸充能等級（Explosion Buff等級）

@@ -100,10 +100,8 @@ namespace Tenronis.Managers
             int effectiveRowCount = Mathf.Min(nonGarbageRowCount, 4);
             float salvoBonus = effectiveRowCount > 1 ? (effectiveRowCount - 1) * (stats.salvoLevel * GameConstants.SALVO_DAMAGE_MULTIPLIER) : 0f;
             float burstBonus = stats.burstLevel * stats.comboCount * GameConstants.BURST_DAMAGE_MULTIPLIER;
-            float totalDamage = (GameConstants.BASE_MISSILE_DAMAGE + salvoBonus + burstBonus);
-            
-            // 每個方塊位置發射導彈
-            int missileCountPerBlock = 1 + stats.missileExtraCount;
+            float volleyMultiplier = 1 + stats.missileExtraCount; // Volley 傷害倍率
+            float totalDamage = (GameConstants.BASE_MISSILE_DAMAGE + salvoBonus + burstBonus) * volleyMultiplier;
             
             // 統計非垃圾方塊行（用於發射導彈）
             List<int> nonGarbageRows = new List<int>();
@@ -126,19 +124,13 @@ namespace Tenronis.Managers
                 }
             }
             
-            // 從實際消除的行位置發射導彈
+            // 從實際消除的行位置發射導彈（每格一發）
             foreach (int row in nonGarbageRows)
             {
                 for (int x = 0; x < GameConstants.BOARD_WIDTH; x++)
                 {
-                    for (int i = 0; i < missileCountPerBlock; i++)
-                    {
-                        // ✨ 關鍵改變：從實際消除的行位置發射
-                        Vector3 spawnPos = GridManager.Instance.GridToWorldPosition(x, row);
-                        spawnPos.y += i * 0.2f; // 錯開發射
-                        
-                        FireMissile(spawnPos, totalDamage);
-                    }
+                    Vector3 spawnPos = GridManager.Instance.GridToWorldPosition(x, row);
+                    FireMissile(spawnPos, totalDamage);
                 }
             }
             
