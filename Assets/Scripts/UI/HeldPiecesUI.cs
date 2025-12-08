@@ -16,10 +16,7 @@ namespace Tenronis.UI
         [SerializeField] private RectTransform[] slotContainers = new RectTransform[4]; // 4個儲存位置
         
         [Header("按鍵提示")]
-        [SerializeField] private TextMeshProUGUI[] keyLabels = new TextMeshProUGUI[4]; // 顯示 A、S、D、F
-        
-        [Header("鎖定圖示")]
-        [SerializeField] private GameObject[] lockIcons = new GameObject[4]; // 鎖定圖示（Image或TextMeshProUGUI）
+        [SerializeField] private TextMeshProUGUI[] keyLabels = new TextMeshProUGUI[4]; // 顯示 A、S、D、F 或 Locked
         
         [Header("預覽設定")]
         [SerializeField] private float blockSize = 25f; // UI 方塊大小（像素）
@@ -39,13 +36,6 @@ namespace Tenronis.UI
             for (int i = 0; i < 4; i++)
             {
                 slotPreviews[i] = new List<GameObject>();
-                
-                // 設置按鍵提示（A、S、D、F）
-                if (keyLabels[i] != null)
-                {
-                    string[] keys = { "A", "S", "D", "F" };
-                    keyLabels[i].text = keys[i];
-                }
             }
             
             // 訂閱事件
@@ -59,7 +49,7 @@ namespace Tenronis.UI
                 ShowEmptySlot(i);
             }
             
-            // 初始化鎖定狀態（根據實際解鎖數量）
+            // 初始化按鍵標籤（根據解鎖狀態顯示按鍵或 Locked）
             UpdateLockIcons();
         }
         
@@ -103,27 +93,25 @@ namespace Tenronis.UI
             if (TetrominoController.Instance == null) return;
             
             int unlockedSlots = TetrominoController.Instance.UnlockedSlots;
-            bool[] canUseSlots = TetrominoController.Instance.CanHoldSlot;
+            string[] keys = { "A", "S", "D", "F" };
             
             for (int i = 0; i < 4; i++)
             {
-                // 如果槽位未解鎖，永遠顯示鎖定
-                // 如果槽位已解鎖，根據當前回合使用狀態顯示
-                bool isLocked = (i >= unlockedSlots) || !canUseSlots[i];
-                UpdateLockIcon(i, isLocked);
+                // 如果槽位未解鎖，顯示 Locked；否則顯示按鍵
+                bool isUnlocked = i < unlockedSlots;
+                UpdateKeyLabel(i, isUnlocked ? keys[i] : "Locked");
             }
         }
         
         /// <summary>
-        /// 更新特定槽位的鎖定圖示
+        /// 更新特定槽位的按鍵標籤
         /// </summary>
-        private void UpdateLockIcon(int slotIndex, bool isLocked)
+        private void UpdateKeyLabel(int slotIndex, string text)
         {
             if (slotIndex < 0 || slotIndex >= 4) return;
-            if (lockIcons[slotIndex] == null) return;
+            if (keyLabels[slotIndex] == null) return;
             
-            // isLocked = true 時顯示鎖定圖示
-            lockIcons[slotIndex].SetActive(isLocked);
+            keyLabels[slotIndex].text = text;
         }
         
         /// <summary>

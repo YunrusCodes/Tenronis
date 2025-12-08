@@ -20,9 +20,10 @@ namespace Tenronis.Managers
         [SerializeField] private float blockSize = 1f;
         [SerializeField] private Vector2 gridOffset = Vector2.zero;
         
-        [Header("腐化方塊特效")]
+        [Header("方塊特效")]
         [SerializeField] private GameObject explosiveBlockEffectPrefab; // 爆炸方塊被摧毀的特效
         [SerializeField] private GameObject voidBlockEffectPrefab; // 虛無方塊消除的特效
+        [SerializeField] private GameObject overflowEffectPrefab; // 溢出時的大爆炸特效
         
         // 網格數據（二維陣列）
         private BlockData[,] grid;
@@ -325,8 +326,8 @@ namespace Tenronis.Managers
             {
                 ClearRows(rowsToClear, hasVoidBlocks);
                 
-                // 觸發消除事件，傳遞總行數、非垃圾方塊行數和是否包含虛無方塊的信息
-                GameEvents.TriggerRowsCleared(rowsToClear.Count, nonGarbageRowCount, hasVoidBlocks);
+                // 觸發消除事件，傳遞行號列表、非垃圾方塊行數和是否包含虛無方塊的信息
+                GameEvents.TriggerRowsCleared(rowsToClear, nonGarbageRowCount, hasVoidBlocks);
             }
             
             return rowsToClear;
@@ -422,8 +423,13 @@ namespace Tenronis.Managers
             BlockData block = grid[y, x];
             if (block == null) return false;
             
-            // 不可摧毀方塊不受傷害
-            if (block.isIndestructible) return false;
+            // 不可摧毀方塊（垃圾方塊）受到攻擊時，反傷玩家 10 HP
+            if (block.isIndestructible)
+            {
+                Debug.Log($"[GridManager] 垃圾方塊在 ({x}, {y}) 受到攻擊！玩家受到 10 點反傷");
+                GameEvents.TriggerPlayerDamaged(10);
+                return false;
+            }
             
             block.hp -= damage;
             
@@ -572,6 +578,19 @@ namespace Tenronis.Managers
             // 觸發溢出事件
             GameEvents.TriggerGridOverflow();
             GameEvents.TriggerPlayExplosionSound();
+            
+            // 生成大爆炸特效（網格中央）
+            if (overflowEffectPrefab != null)
+            {
+                // 計算網格中央位置
+                Vector3 centerPos = GridToWorldPosition(
+                    GameConstants.BOARD_WIDTH / 2, 
+                    GameConstants.BOARD_HEIGHT / 2
+                );
+                GameObject effect = Instantiate(overflowEffectPrefab, centerPos, Quaternion.identity);
+                Destroy(effect, 3f); // 3秒後銷毀（大爆炸持續較久）
+                Debug.Log($"[GridManager] 溢出大爆炸特效已生成，位置: {centerPos}");
+            }
             
             // 清空網格
             ClearGrid();

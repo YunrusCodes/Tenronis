@@ -75,8 +75,8 @@ namespace Tenronis.Data
     public enum BuffType
     {
         Defense,        // 防禦：增加方塊HP
-        Volley,         // 協同火力：增加每個位置發射的導彈數量
-        Heal,           // 治療：恢復HP
+        Volley,         // 協同火力：增加導彈傷害倍率（*Volley等級+1）
+        Heal,           // [已廢棄] 治療：改為關卡開始時自動恢復
         Explosion,      // 爆炸：溢出時造成傷害
         Salvo,          // 齊射強化：多行消除時增加導彈傷害
         Burst,          // 連發：連擊加成
@@ -85,7 +85,7 @@ namespace Tenronis.Data
         Repair,         // 修復：填補封閉空洞
         SpaceExpansion, // 空間擴充：解鎖儲存槽位
         ResourceExpansion, // 資源擴充：增加CP上限
-        TacticalExpansion // 戰術擴展：解鎖技能（Lv1解鎖處決，Lv2解鎖修補）
+        TacticalExpansion // 戰術擴展：解鎖技能（Lv1湮滅，Lv2處決，Lv3修補）
     }
 }
 

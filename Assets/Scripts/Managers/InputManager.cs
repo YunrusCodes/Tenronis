@@ -237,18 +237,24 @@ namespace Tenronis.Managers
         }
         
         /// <summary>
-        /// 處理技能 (1、2)
+        /// 處理技能 (1、2、3)
         /// </summary>
         private void HandleSkills()
         {
-            // 處決技能 (1)
+            // 湮滅技能 (1)
             if (Input.GetKeyDown(KeyCode.Alpha1))
+            {
+                SkillExecutor.ExecuteAnnihilation();
+            }
+            
+            // 處決技能 (2)
+            if (Input.GetKeyDown(KeyCode.Alpha2))
             {
                 SkillExecutor.ExecuteExecution();
             }
             
-            // 修復技能 (2)
-            if (Input.GetKeyDown(KeyCode.Alpha2))
+            // 修補技能 (3)
+            if (Input.GetKeyDown(KeyCode.Alpha3))
             {
                 SkillExecutor.ExecuteRepair();
             }

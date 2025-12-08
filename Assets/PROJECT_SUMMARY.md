@@ -91,16 +91,17 @@
 - 維持Combo不中斷
 
 ### Roguelike系統
-- 關卡完成後獲得升級點數（由關卡配置決定）
-- 9種Buff可選擇，各有不同的起始等級和上限等級
+- 關卡完成後獲得升級點數（由關卡的rewardBuffCount決定）
+- 12種Buff可選擇（6普通強化 + 4傳奇強化 + 2技能）
 - **Buff分類**：
   - 普通強化（6種）：有上限等級的強化（Salvo, Burst, Counter, Explosion, SpaceExpansion, ResourceExpansion）
-  - 傳奇強化（3種）：無上限或特殊效果的強化（Defense, Volley, Heal）
+  - 傳奇強化（4種）：無上限或特殊效果的強化（Defense, Volley, TacticalExpansion, Heal）
+  - 技能（2種）：需通過TacticalExpansion解鎖（Execution, Repair）
 - **傳奇強化選擇機制**：
   - 當有普通強化達到滿級時，會自動提供傳奇強化選擇機會
   - 傳奇強化選擇時，只從傳奇強化陣列中選擇
   - 如果傳奇強化數量 ≤ 3，直接顯示全部；如果 > 3，隨機選擇3個
-- 技能系統：Execution和Repair改為消耗CP使用（5 CP和30 CP）
+- 技能系統：Execution和Repair需通過TacticalExpansion解鎖，使用時消耗CP（5 CP和30 CP）
 - 爆炸充能系統：反擊+5充能，消排+50充能，Explosion Buff增加上限（起始1級，最高4級）
 
 ## 性能優化
@@ -214,13 +215,14 @@
 - ✅ Bullet預製體
 
 ### 完整版本額外需要
-- ⚪ 10個關卡數據（完整配置）
-- ⚪ 9個Buff數據（完整配置）
+- ⚪ 主題數據（StageSetSO）
+- ⚪ 關卡數據（每個主題包含三種難度的關卡列表）
+- ⚪ 10個Buff數據（6種普通強化 + 4種傳奇強化）
 - ⚪ 音效資源（8+ clips）
 - ⚪ 音樂資源（2+ tracks）
 - ⚪ 粒子特效
 - ⚪ 自訂材質和Shader
-- ⚪ UI美術資源
+- ⚪ UI美術資源（包括主題選擇界面）
 
 ## 授權與致謝
 

@@ -24,6 +24,7 @@ namespace Tenronis.ScriptableObjects
     
     /// <summary>
     /// 關卡數據 ScriptableObject
+    /// 基於數學平衡模型：01_Core_Variables, 02_Combat_Formulas, 04_Difficulty_Model, 05_Player_Model, 06_Balance_Analysis
     /// </summary>
     [CreateAssetMenu(fileName = "StageData", menuName = "Tenronis/Stage Data", order = 1)]
     public class StageDataSO : ScriptableObject
@@ -47,10 +48,6 @@ namespace Tenronis.ScriptableObjects
         public float shootInterval = 2f;      // 射擊間隔（秒）
         public float bulletSpeed = 8f;        // 子彈速度（格子/秒）
         
-        [Tooltip("連發數量（1 = 單發，3 = 三聯發）")]
-        [Range(1, 5)]
-        public int burstCount = 1;
-        
         [Header("=== 敵人技能配置 ===")]
         [Space(10)]
         
@@ -66,10 +63,10 @@ namespace Tenronis.ScriptableObjects
         [Tooltip("添加爆炸方塊：添加的方塊被擊中時對玩家造成 5 點傷害")]
         public EnemyAbility addExplosiveBlockBullet = new EnemyAbility(false, 0.2f);
         
-        [Tooltip("插入普通垃圾行：從底部插入不可摧毀的垃圾行")]
+        [Tooltip("插入普通垃圾行：從底部插入一整行普通方塊（BlockType.Normal），消除時正常發射導彈")]
         public EnemyAbility addRowBullet = new EnemyAbility(false, 0.15f);
         
-        [Tooltip("插入虛無垃圾行：插入的垃圾行消除時不產生導彈")]
+        [Tooltip("插入虛無垃圾行：從底部插入一整行虛無方塊（BlockType.Void），消除時不產生導彈")]
         public EnemyAbility addVoidRowBullet = new EnemyAbility(false, 0.1f);
         
         [Tooltip("腐化爆炸方塊：將下個方塊的隨機一格變成爆炸方塊")]
@@ -93,4 +90,3 @@ namespace Tenronis.ScriptableObjects
         public Color themeColor = Color.red;
     }
 }
-

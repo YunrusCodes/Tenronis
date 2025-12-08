@@ -20,6 +20,7 @@ namespace Tenronis.Data
         // 技能CP消耗
         public const int EXECUTION_CP_COST = 5;
         public const int REPAIR_CP_COST = 30;
+        public const int ANNIHILATION_CP_COST = 5;
 
         // 導彈設定
         public const float MISSILE_SPEED = 20f;
@@ -66,8 +67,8 @@ namespace Tenronis.Data
         public const int SPACE_EXPANSION_MAX_LEVEL = 4;
         public const int RESOURCE_EXPANSION_MAX_LEVEL = 3;
 
-        // ⭐ 戰術擴展：保持最高等級 2（不改）
-        public const int TACTICAL_EXPANSION_MAX_LEVEL = 2;
+        // ⭐ 戰術擴展：最高等級 3
+        public const int TACTICAL_EXPANSION_MAX_LEVEL = 3;
 
         // 🚫 普通強化（有限等級）
         public static readonly BuffType[] NORMAL_BUFFS = new BuffType[]
@@ -87,8 +88,7 @@ namespace Tenronis.Data
         {
             BuffType.Defense,    // 裝甲強化：無上限
             BuffType.Volley,     // 協同火力：無上限
-            BuffType.Heal,       // 緊急修復：立即效果
-            BuffType.TacticalExpansion // ⭐ 戰術擴展：改成傳奇
+            BuffType.TacticalExpansion // ⭐ 戰術擴展：解鎖技能
         };
     }
 }

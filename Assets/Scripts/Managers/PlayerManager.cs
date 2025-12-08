@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections.Generic;
 using Tenronis.Data;
 using Tenronis.Core;
 
@@ -178,10 +179,6 @@ namespace Tenronis.Managers
                     Debug.Log($"[PlayerManager] 協同火力等級提升至: {stats.missileExtraCount}");
                     break;
                     
-                case BuffType.Heal:
-                    Heal(Mathf.FloorToInt(stats.maxHp * 0.5f));
-                    break;
-                    
                 case BuffType.Explosion:
                     if (stats.explosionChargeLevel < GameConstants.EXPLOSION_BUFF_MAX_LEVEL)
                     {
@@ -277,7 +274,13 @@ namespace Tenronis.Managers
                     if (stats.tacticalExpansionLevel < GameConstants.TACTICAL_EXPANSION_MAX_LEVEL)
                     {
                         stats.tacticalExpansionLevel++;
-                        string unlockedSkill = stats.tacticalExpansionLevel == 1 ? "處決" : "修補";
+                        string unlockedSkill = stats.tacticalExpansionLevel switch
+                        {
+                            1 => "湮滅",
+                            2 => "處決",
+                            3 => "修補",
+                            _ => ""
+                        };
                         Debug.Log($"[PlayerManager] 戰術擴展等級提升至: {stats.tacticalExpansionLevel}/{GameConstants.TACTICAL_EXPANSION_MAX_LEVEL}，解鎖技能: {unlockedSkill}");
                         // 觸發UI更新事件
                         GameEvents.TriggerSkillUnlocked();
@@ -311,9 +314,9 @@ namespace Tenronis.Managers
         /// <summary>
         /// 處理消除行
         /// </summary>
-        private void HandleRowsCleared(int totalRowCount, int nonGarbageRowCount, bool hasVoid)
+        private void HandleRowsCleared(List<int> clearedRows, int nonGarbageRowCount, bool hasVoid)
         {
-            if (totalRowCount > 0)
+            if (clearedRows.Count > 0)
             {
                 // 增加Combo
                 stats.comboCount++;
@@ -323,7 +326,7 @@ namespace Tenronis.Managers
                 comboResetPending = false;
                 
                 // 增加分數（按總行數計算）
-                AddScore(totalRowCount * 100);
+                AddScore(clearedRows.Count * 100);
                 
                 // 增加爆炸充能（消排增加50充能）
                 AddExplosionCharge(GameConstants.EXPLOSION_ROW_CLEAR_CHARGE);
@@ -391,19 +394,19 @@ namespace Tenronis.Managers
         }
         
         /// <summary>
-        /// 檢查處決技能是否已解鎖
+        /// 檢查處決技能是否已解鎖（TacticalExpansion Lv2）
         /// </summary>
         public bool IsExecutionUnlocked()
         {
-            return stats.tacticalExpansionLevel >= 1;
+            return stats.tacticalExpansionLevel >= 2;
         }
         
         /// <summary>
-        /// 檢查修補技能是否已解鎖
+        /// 檢查修補技能是否已解鎖（TacticalExpansion Lv3）
         /// </summary>
         public bool IsRepairUnlocked()
         {
-            return stats.tacticalExpansionLevel >= 2;
+            return stats.tacticalExpansionLevel >= 3;
         }
         
         /// <summary>
@@ -425,6 +428,7 @@ namespace Tenronis.Managers
             stats.comboCount++;
             GameEvents.TriggerComboChanged(stats.comboCount);
             GameEvents.TriggerCpChanged(stats.currentCp, stats.maxCp);
+            GameEvents.TriggerSkillUsed("處決");
             
             Debug.Log($"[PlayerManager] 使用處決技能，消耗 {cost} CP，剩餘: {stats.currentCp}/{stats.maxCp}");
             return true;
@@ -446,9 +450,50 @@ namespace Tenronis.Managers
             
             stats.currentCp -= cost;
             GameEvents.TriggerCpChanged(stats.currentCp, stats.maxCp);
+            GameEvents.TriggerSkillUsed("修補");
             
             Debug.Log($"[PlayerManager] 使用修復技能，消耗 {cost} CP，剩餘: {stats.currentCp}/{stats.maxCp}");
             return true;
+        }
+        
+        /// <summary>
+        /// 檢查湮滅技能是否已解鎖（TacticalExpansion Lv1）
+        /// </summary>
+        public bool IsAnnihilationUnlocked()
+        {
+            return stats.tacticalExpansionLevel >= 1;
+        }
+        
+        /// <summary>
+        /// 使用湮滅技能（消耗CP，進入幽靈穿透狀態）
+        /// </summary>
+        public bool UseAnnihilation()
+        {
+            if (!IsAnnihilationUnlocked())
+            {
+                Debug.Log("[PlayerManager] 湮滅技能尚未解鎖！");
+                return false;
+            }
+            
+            int cost = GameConstants.ANNIHILATION_CP_COST;
+            if (stats.currentCp < cost) return false;
+            
+            stats.currentCp -= cost;
+            GameEvents.TriggerCpChanged(stats.currentCp, stats.maxCp);
+            GameEvents.TriggerSkillUsed("湮滅");
+            
+            Debug.Log($"[PlayerManager] 使用湮滅技能，消耗 {cost} CP，剩餘: {stats.currentCp}/{stats.maxCp}");
+            return true;
+        }
+        
+        /// <summary>
+        /// 湮滅破壞方塊時增加Combo（由SkillExecutor調用）
+        /// </summary>
+        public void OnAnnihilationDestroy()
+        {
+            CancelComboReset();
+            stats.comboCount++;
+            GameEvents.TriggerComboChanged(stats.comboCount);
         }
         
         /// <summary>

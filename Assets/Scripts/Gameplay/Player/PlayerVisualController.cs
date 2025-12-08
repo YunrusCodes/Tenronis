@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections.Generic;
 using Tenronis.Data;
 using Tenronis.Core;
 using Tenronis.Managers;
@@ -360,7 +361,7 @@ namespace Tenronis.Gameplay.Player
         /// <summary>
         /// 處理消除行事件
         /// </summary>
-        private void HandleRowsCleared(int totalRowCount, int nonGarbageRowCount, bool hasVoid)
+        private void HandleRowsCleared(List<int> clearedRows, int nonGarbageRowCount, bool hasVoid)
         {
             if (isGameOver) return;
             if (attackEffectPrefab == null) return;

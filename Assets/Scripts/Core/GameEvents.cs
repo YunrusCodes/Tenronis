@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using Tenronis.Data;
 
@@ -17,7 +18,7 @@ namespace Tenronis.Core
         public static event Action OnNextPieceChanged; // 下一個方塊已更新
         public static event Action<int> OnHeldPieceChanged; // 儲存方塊已更新，參數：儲存位置索引
         public static event Action OnHeldSlotStateChanged; // 儲存槽位狀態改變（可用/鎖定）
-        public static event Action<int, int, bool> OnRowsCleared; // 參數：消除的總行數, 非垃圾方塊行數, 是否包含虛無方塊
+        public static event Action<List<int>, int, bool> OnRowsCleared; // 參數：消除的行號列表, 非垃圾方塊行數, 是否包含虛無方塊
         public static event Action OnGridOverflow;
         public static event Action OnGridChanged; // 地形改變（方塊被移除、傷害等）
         
@@ -38,6 +39,7 @@ namespace Tenronis.Core
         public static event Action OnBuffAvailable;
         public static event Action<BuffType> OnBuffSelected;
         public static event Action OnSkillUnlocked; // 技能解鎖事件
+        public static event Action<string> OnSkillUsed; // 技能施放事件，參數：技能名稱
         
         // === UI事件 ===
         public static event Action<string, Color, Vector2> OnShowPopupText; // 文字、顏色、位置
@@ -60,7 +62,7 @@ namespace Tenronis.Core
         public static void TriggerNextPieceChanged() => OnNextPieceChanged?.Invoke();
         public static void TriggerHeldPieceChanged(int slotIndex) => OnHeldPieceChanged?.Invoke(slotIndex);
         public static void TriggerHeldSlotStateChanged() => OnHeldSlotStateChanged?.Invoke();
-        public static void TriggerRowsCleared(int totalCount, int nonGarbageCount, bool hasVoid = false) => OnRowsCleared?.Invoke(totalCount, nonGarbageCount, hasVoid);
+        public static void TriggerRowsCleared(List<int> clearedRows, int nonGarbageCount, bool hasVoid = false) => OnRowsCleared?.Invoke(clearedRows, nonGarbageCount, hasVoid);
         public static void TriggerGridOverflow() => OnGridOverflow?.Invoke();
         public static void TriggerGridChanged() => OnGridChanged?.Invoke();
         public static void TriggerMissileFired(float damage) => OnMissileFired?.Invoke(damage);
@@ -73,6 +75,7 @@ namespace Tenronis.Core
         public static void TriggerBuffAvailable() => OnBuffAvailable?.Invoke();
         public static void TriggerBuffSelected(BuffType type) => OnBuffSelected?.Invoke(type);
         public static void TriggerSkillUnlocked() => OnSkillUnlocked?.Invoke();
+        public static void TriggerSkillUsed(string skillName) => OnSkillUsed?.Invoke(skillName);
         public static void TriggerShowPopupText(string text, Color color, Vector2 position) => OnShowPopupText?.Invoke(text, color, position);
     public static void TriggerPlayMissileSound() => OnPlayMissileSound?.Invoke();
     public static void TriggerPlayExplosionSound() => OnPlayExplosionSound?.Invoke();
@@ -108,6 +111,7 @@ namespace Tenronis.Core
             OnBuffAvailable = null;
             OnBuffSelected = null;
             OnSkillUnlocked = null;
+            OnSkillUsed = null;
             OnShowPopupText = null;
         OnPlayMissileSound = null;
         OnPlayExplosionSound = null;

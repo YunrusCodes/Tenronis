@@ -5,6 +5,8 @@ using Tenronis.Data;
 using Tenronis.Core;
 using Tenronis.Managers;
 using Tenronis.Gameplay.Enemy;
+using Tenronis.ScriptableObjects;
+using System.Collections.Generic;
 
 namespace Tenronis.UI
 {
@@ -15,13 +17,19 @@ namespace Tenronis.UI
     {
         [Header("主選單")]
         [SerializeField] private GameObject menuPanel;
-        [SerializeField] private Button startButton;
+        [SerializeField] private GameObject themeListPanel;
+        
+        [Header("按鈕與預製件")]
+        [SerializeField] private Button themeButtonPrefab; // 用於生成主題按鈕
+        [SerializeField] private Transform themeButtonContainer; // 主題按鈕容器
         
         [Header("遊戲中UI")]
         [SerializeField] private GameObject gameplayPanel;
         [SerializeField] private TextMeshProUGUI scoreText;
         [SerializeField] private TextMeshProUGUI comboText;
         [SerializeField] private TextMeshProUGUI salvoText;  // 齊射提示文字
+        [SerializeField] private TextMeshProUGUI impactBlastText; // 衝擊爆破提示文字
+        [SerializeField] private TextMeshProUGUI skillText; // 技能施放提示文字
         [SerializeField] private Slider playerHpSlider;
         [SerializeField] private TextMeshProUGUI playerHpText;
         [SerializeField] private Slider playerCpSlider;
@@ -32,14 +40,60 @@ namespace Tenronis.UI
         
         [Header("技能UI")]
         [SerializeField] private TextMeshProUGUI explosionDamageText;
-        [SerializeField] private TextMeshProUGUI executionKeyLabelText; // 處決技能按鍵標籤（顯示"1"或"Locked"）
-        [SerializeField] private TextMeshProUGUI executionCostText; // 處決技能CP消耗顯示
-        [SerializeField] private TextMeshProUGUI repairKeyLabelText; // 修補技能按鍵標籤（顯示"2"或"Locked"）
-        [SerializeField] private TextMeshProUGUI repairCostText; // 修補技能CP消耗顯示
+        [SerializeField] private TextMeshProUGUI executionKeyLabelText;
+        [SerializeField] private TextMeshProUGUI executionCostText;
+        [SerializeField] private TextMeshProUGUI repairKeyLabelText;
+        [SerializeField] private TextMeshProUGUI repairCostText;
+        [SerializeField] private TextMeshProUGUI annihilationKeyLabelText;
+        [SerializeField] private TextMeshProUGUI annihilationCostText;
+        
+        [Header("敵人受傷計數器")]
+        [SerializeField] private TextMeshProUGUI enemyDamageCounterText;
+        [SerializeField] private float damageCounterResetTime = 3f; // 無傷害後歸零時間
         
         // 齊射文字顯示計時
         private float salvoDisplayTimer = 0f;
+        private float salvoAnimationTimer = 0f;
+        private float salvoAnimationDuration = 0.3f; // 動畫時間
+        
+        // 衝擊爆破文字顯示計時
+        private float impactBlastDisplayTimer = 0f;
+        private float impactBlastAnimationTimer = 0f;
+        private float impactBlastAnimationDuration = 0.3f;
+        private float lastImpactBlastDamage = 0f;
+        
+        // 技能文字顯示計時
+        private float skillDisplayTimer = 0f;
+        private float skillAnimationTimer = 0f;
+        private float skillAnimationDuration = 0.3f;
+        private string lastSkillName = "";
         private int lastClearedRows = 0;
+        
+        // 敵人受傷計數器
+        private float accumulatedEnemyDamage = 0f;
+        private float damageCounterTimer = 0f;
+        
+        // 連發文字動畫
+        private Vector2 comboTextOriginalPosition;
+        private int lastComboCount = 0;
+        private float comboSlideTimer = 0f;
+        private float comboSlideDuration = 0.2f; // 滑入動畫時間
+        private float comboSlideOffset = 100f; // 從右邊偏移的距離
+        
+        // 連發數字推動動畫
+        private float comboPushTimer = 0f;
+        private float comboPushDuration = 0.15f; // 推動動畫時間
+        private float comboPushOffset = 30f; // 垂直偏移距離
+        private TextMeshProUGUI comboOldText; // 舊數字文字（用於淡出）
+        private TextMeshProUGUI comboLabelText; // 「連發!」標籤
+        private float comboLabelBaseOffset = 50f; // 標籤與數字的基本間距
+        private Color comboTextOriginalColor;
+        
+        // 原始透明度值
+        private float salvoTextOriginalAlpha = 1f;
+        private float impactBlastTextOriginalAlpha = 1f;
+        private float skillTextOriginalAlpha = 1f;
+        private float comboTextOriginalAlpha = 1f;
         
         [Header("升級UI")]
         [SerializeField] private GameObject levelUpPanel;
@@ -55,49 +109,52 @@ namespace Tenronis.UI
         {
             Debug.Log("[GameUI] Start() - 初始化GameUI");
             
-            // 檢查GameManager是否存在（重要！）
             if (GameManager.Instance == null)
             {
-                Debug.LogError("❌ [GameUI] 場景中找不到GameManager！遊戲無法運行！");
-                Debug.LogError("   解決方法：在Hierarchy中建立GameManager物件並添加GameManager腳本");
-                Debug.LogError("   參考文件：Assets/快速設置管理器.md");
-            }
-            else
-            {
-                Debug.Log("✅ [GameUI] GameManager已找到");
+                Debug.LogError("❌ [GameUI] 場景中找不到GameManager！");
+                return;
             }
             
             // 綁定按鈕事件
-            if (startButton != null)
-            {
-                startButton.onClick.AddListener(OnStartGame);
-                Debug.Log("[GameUI] StartButton已綁定事件");
-            }
-            else
-            {
-                Debug.LogError("[GameUI] StartButton參考為空！請在Inspector中設置");
-            }
-            
-            if (restartButton != null)
-            {
-                restartButton.onClick.AddListener(OnRestart);
-                Debug.Log("[GameUI] RestartButton已綁定事件");
-            }
-            
-            if (menuButton != null)
-            {
-                menuButton.onClick.AddListener(OnReturnToMenu);
-                Debug.Log("[GameUI] MenuButton已綁定事件");
-            }
+            if (restartButton != null) restartButton.onClick.AddListener(OnRestart);
+            if (menuButton != null) menuButton.onClick.AddListener(OnReturnToMenu);
             
             // 訂閱遊戲事件
             GameEvents.OnGameStateChanged += HandleGameStateChanged;
             GameEvents.OnRowsCleared += HandleRowsClearedForSalvo;
             GameEvents.OnSkillUnlocked += UpdateSkillUI;
+            GameEvents.OnEnemyDamaged += HandleEnemyDamaged;
+            GameEvents.OnGridOverflow += HandleGridOverflow;
+            GameEvents.OnSkillUsed += HandleSkillUsed;
+            
+            // 保存連發文字原始位置和顏色，並創建相關文字物件
+            if (comboText != null)
+            {
+                comboTextOriginalPosition = comboText.rectTransform.anchoredPosition;
+                comboTextOriginalColor = comboText.color;
+                comboTextOriginalAlpha = comboText.color.a;
+                
+                // 創建舊文字物件（用於推動動畫的淡出效果）
+                GameObject oldTextObj = Instantiate(comboText.gameObject, comboText.transform.parent);
+                oldTextObj.name = "ComboOldText";
+                comboOldText = oldTextObj.GetComponent<TextMeshProUGUI>();
+                comboOldText.gameObject.SetActive(false);
+                
+                // 創建「連發!」標籤（只參與滑入動畫，不參與推動動畫）
+                GameObject labelObj = Instantiate(comboText.gameObject, comboText.transform.parent);
+                labelObj.name = "ComboLabelText";
+                comboLabelText = labelObj.GetComponent<TextMeshProUGUI>();
+                comboLabelText.text = "連發!";
+                comboLabelText.gameObject.SetActive(false);
+            }
+            
+            // 保存其他UI文字的原始透明度
+            if (salvoText != null) salvoTextOriginalAlpha = salvoText.color.a;
+            if (impactBlastText != null) impactBlastTextOriginalAlpha = impactBlastText.color.a;
+            if (skillText != null) skillTextOriginalAlpha = skillText.color.a;
             
             // 初始化UI
             ShowMenu();
-            Debug.Log("[GameUI] 初始化完成，顯示主選單");
         }
         
         private void OnDestroy()
@@ -105,15 +162,12 @@ namespace Tenronis.UI
             GameEvents.OnGameStateChanged -= HandleGameStateChanged;
             GameEvents.OnRowsCleared -= HandleRowsClearedForSalvo;
             GameEvents.OnSkillUnlocked -= UpdateSkillUI;
+            GameEvents.OnEnemyDamaged -= HandleEnemyDamaged;
+            GameEvents.OnGridOverflow -= HandleGridOverflow;
+            GameEvents.OnSkillUsed -= HandleSkillUsed;
             
-            if (startButton != null)
-                startButton.onClick.RemoveListener(OnStartGame);
-            
-            if (restartButton != null)
-                restartButton.onClick.RemoveListener(OnRestart);
-            
-            if (menuButton != null)
-                menuButton.onClick.RemoveListener(OnReturnToMenu);
+            if (restartButton != null) restartButton.onClick.RemoveListener(OnRestart);
+            if (menuButton != null) menuButton.onClick.RemoveListener(OnReturnToMenu);
         }
         
         private void Update()
@@ -122,91 +176,113 @@ namespace Tenronis.UI
             {
                 UpdateGameplayUI();
                 UpdateSalvoDisplay();
+                UpdateImpactBlastDisplay();
+                UpdateSkillDisplay();
+                UpdateEnemyDamageCounter();
+                UpdateComboSlideAnimation();
+                UpdateComboPushAnimation();
             }
         }
         
         /// <summary>
-        /// 更新遊戲中UI
+        /// 更新連發文字滑入動畫（數字和「連發!」一起滑入）
         /// </summary>
-        private void UpdateGameplayUI()
+        private void UpdateComboSlideAnimation()
         {
-            if (PlayerManager.Instance != null)
-            {
-                var stats = PlayerManager.Instance.Stats;
-                
-                // 分數
-                if (scoreText != null)
-                    scoreText.text = stats.score.ToString("N0");
-                
-                // Combo
-                if (comboText != null)
-                {
-                    if (stats.comboCount > 1)
-                    {
-                        comboText.text = $"{stats.comboCount}連發!";
-                        comboText.gameObject.SetActive(true);
-                    }
-                    else
-                    {
-                        comboText.gameObject.SetActive(false);
-                    }
-                }
-                
-                // 齊射顯示由 UpdateSalvoDisplay() 處理
-                
-                // 玩家HP
-                if (playerHpSlider != null)
-                {
-                    playerHpSlider.maxValue = stats.maxHp;
-                    playerHpSlider.value = stats.currentHp;
-                }
-                
-                if (playerHpText != null)
-                    playerHpText.text = $"{stats.currentHp} / {stats.maxHp}";
-                
-                // 玩家CP (Castle Point)
-                if (playerCpSlider != null)
-                {
-                    playerCpSlider.maxValue = stats.maxCp;
-                    playerCpSlider.value = stats.currentCp;
-                }
-                
-                if (playerCpText != null)
-                    playerCpText.text = $"CP: {stats.currentCp} / {stats.maxCp}";
-                
-                // 爆炸充能
-                if (explosionDamageText != null)
-                {
-                    explosionDamageText.text = $"{stats.explosionCharge}/{stats.explosionMaxCharge}";
-                }
-                
-                // 更新技能UI
-                UpdateSkillUI();
-            }
+            if (comboText == null) return;
+            if (comboSlideTimer <= 0) return;
             
-            // 敵人HP
-            if (EnemyController.Instance != null)
-            {
-                if (enemyHpSlider != null)
-                {
-                    enemyHpSlider.maxValue = EnemyController.Instance.MaxHp;
-                    enemyHpSlider.value = EnemyController.Instance.CurrentHp;
-                }
-                
-                if (enemyHpText != null)
-                    enemyHpText.text = $"{Mathf.Ceil(EnemyController.Instance.CurrentHp)} / {EnemyController.Instance.MaxHp}";
-            }
+            comboSlideTimer -= Time.deltaTime;
             
-            // 關卡
-            if (stageText != null && GameManager.Instance != null)
+            // 計算動畫進度 (0 -> 1)
+            float progress = 1f - (comboSlideTimer / comboSlideDuration);
+            progress = Mathf.Clamp01(progress);
+            
+            // 使用 ease-out 效果
+            float easedProgress = 1f - Mathf.Pow(1f - progress, 3f);
+            
+            // 從右邊滑入到原始位置
+            float currentOffset = comboSlideOffset * (1f - easedProgress);
+            comboText.rectTransform.anchoredPosition = comboTextOriginalPosition + new Vector2(currentOffset, 0);
+            
+            // 「連發!」標籤也一起滑入
+            if (comboLabelText != null && lastComboCount > 0)
             {
-                stageText.text = $"STAGE {GameManager.Instance.CurrentStageIndex + 1} / {GameManager.Instance.TotalStages}";
+                UpdateComboLabelPosition(lastComboCount, currentOffset);
             }
         }
         
         /// <summary>
-        /// 顯示主選單
+        /// 根據數字位數更新「連發!」標籤位置
         /// </summary>
+        private void UpdateComboLabelPosition(int comboCount, float additionalOffset)
+        {
+            if (comboLabelText == null || comboText == null) return;
+            
+            // 根據數字位數計算偏移量（每多一位數增加約 25 像素）
+            int digitCount = comboCount.ToString().Length;
+            float digitOffset = digitCount * 25f;
+            
+            Vector2 labelPosition = comboTextOriginalPosition + new Vector2(digitOffset + comboLabelBaseOffset + additionalOffset, 0);
+            comboLabelText.rectTransform.anchoredPosition = labelPosition;
+        }
+        
+        /// <summary>
+        /// 根據 Combo 數量獲取對應顏色
+        /// </summary>
+        private Color GetComboColor(int comboCount)
+        {
+            if (comboCount >= 20)
+                return new Color(1f, 0.2f, 0.2f); // 紅色 (20+)
+            else if (comboCount >= 10)
+                return new Color(1f, 0.5f, 0f); // 橙色 (10-19)
+            else if (comboCount >= 5)
+                return new Color(1f, 0.9f, 0.2f); // 黃色 (5-9)
+            else
+                return comboTextOriginalColor; // 原始顏色 (2-4)
+        }
+        
+        /// <summary>
+        /// 更新連發數字推動動畫（新數字從下往上推舊數字）
+        /// </summary>
+        private void UpdateComboPushAnimation()
+        {
+            if (comboText == null) return;
+            if (comboPushTimer <= 0) return;
+            
+            comboPushTimer -= Time.deltaTime;
+            
+            // 計算動畫進度 (0 -> 1)
+            float progress = 1f - (comboPushTimer / comboPushDuration);
+            progress = Mathf.Clamp01(progress);
+            
+            // 使用 ease-out 效果
+            float easedProgress = 1f - Mathf.Pow(1f - progress, 3f);
+            
+            // 新文字：從下面往上移動到原始位置，同時淡入（使用新 combo 的顏色）
+            float newTextOffset = comboPushOffset * (1f - easedProgress);
+            comboText.rectTransform.anchoredPosition = comboTextOriginalPosition + new Vector2(0, -newTextOffset);
+            Color newColor = GetComboColor(lastComboCount);
+            comboText.color = new Color(newColor.r, newColor.g, newColor.b, easedProgress * comboTextOriginalAlpha);
+            
+            // 舊文字：往上移動，同時淡出（保持舊 combo 的顏色）
+            if (comboOldText != null && comboOldText.gameObject.activeSelf)
+            {
+                float oldTextOffset = comboPushOffset * easedProgress;
+                comboOldText.rectTransform.anchoredPosition = comboTextOriginalPosition + new Vector2(0, oldTextOffset);
+                Color oldColor = comboOldText.color;
+                comboOldText.color = new Color(oldColor.r, oldColor.g, oldColor.b, 1f - easedProgress);
+                
+                // 動畫結束後隱藏舊文字
+                if (progress >= 1f)
+                {
+                    comboOldText.gameObject.SetActive(false);
+                }
+            }
+        }
+        
+        // --- UI 狀態控制 ---
+        
         private void ShowMenu()
         {
             SetPanelActive(menuPanel, true);
@@ -214,11 +290,45 @@ namespace Tenronis.UI
             SetPanelActive(levelUpPanel, false);
             SetPanelActive(gameOverPanel, false);
             SetPanelActive(victoryPanel, false);
+            
+            // 預設顯示主題選擇
+            ShowThemeSelection();
         }
         
-        /// <summary>
-        /// 顯示遊戲中UI
-        /// </summary>
+        private void ShowThemeSelection()
+        {
+            SetPanelActive(themeListPanel, true);
+            
+            // 動態生成主題按鈕
+            if (themeButtonContainer != null && themeButtonPrefab != null)
+            {
+                // 清除舊按鈕
+                foreach (Transform child in themeButtonContainer)
+                {
+                    Destroy(child.gameObject);
+                }
+                
+                // 生成新按鈕
+                var themes = GameManager.Instance.allThemes;
+                for (int i = 0; i < themes.Count; i++)
+                {
+                    int index = i; // 閉包捕獲
+                    var theme = themes[i];
+                    var btn = Instantiate(themeButtonPrefab, themeButtonContainer);
+                    var btnText = btn.GetComponentInChildren<TextMeshProUGUI>();
+                    if (btnText != null) btnText.text = theme.themeName;
+                    
+                    btn.onClick.AddListener(() => OnThemeSelected(index));
+                }
+            }
+        }
+        
+        private void OnThemeSelected(int index)
+        {
+            // 直接開始遊戲
+            GameManager.Instance.StartGame(index);
+        }
+        
         private void ShowGameplay()
         {
             SetPanelActive(menuPanel, false);
@@ -228,9 +338,6 @@ namespace Tenronis.UI
             SetPanelActive(victoryPanel, false);
         }
         
-        /// <summary>
-        /// 顯示升級選單
-        /// </summary>
         private void ShowLevelUp()
         {
             SetPanelActive(menuPanel, false);
@@ -240,9 +347,6 @@ namespace Tenronis.UI
             SetPanelActive(victoryPanel, false);
         }
         
-        /// <summary>
-        /// 顯示遊戲結束
-        /// </summary>
         private void ShowGameOver()
         {
             SetPanelActive(menuPanel, false);
@@ -255,9 +359,6 @@ namespace Tenronis.UI
                 finalScoreText.text = $"最終分數: {PlayerManager.Instance.Stats.score:N0}";
         }
         
-        /// <summary>
-        /// 顯示勝利
-        /// </summary>
         private void ShowVictory()
         {
             SetPanelActive(menuPanel, false);
@@ -270,139 +371,216 @@ namespace Tenronis.UI
                 finalScoreText.text = $"最終分數: {PlayerManager.Instance.Stats.score:N0}";
         }
         
-        /// <summary>
-        /// 設置面板活躍狀態
-        /// </summary>
         private void SetPanelActive(GameObject panel, bool active)
         {
-            if (panel != null)
-                panel.SetActive(active);
+            if (panel != null) panel.SetActive(active);
         }
         
-        /// <summary>
-        /// 處理遊戲狀態變更
-        /// </summary>
-        private void HandleGameStateChanged(GameState newState)
-        {
-            switch (newState)
-            {
-                case GameState.Menu:
-                    ShowMenu();
-                    break;
-                    
-                case GameState.Playing:
-                    ShowGameplay();
-                    break;
-                    
-                case GameState.LevelUp:
-                    ShowLevelUp();
-                    break;
-                    
-                case GameState.GameOver:
-                    ShowGameOver();
-                    break;
-                    
-                case GameState.Victory:
-                    ShowVictory();
-                    break;
-            }
-        }
-        
-        // 按鈕回調
-        private void OnStartGame()
-        {
-            Debug.Log("=== [GameUI] OnStartGame() 被觸發！===");
-            
-            if (GameManager.Instance != null)
-            {
-                Debug.Log("[GameUI] 調用 GameManager.StartGame()");
-                GameManager.Instance.StartGame();
-            }
-            else
-            {
-                Debug.LogError("[GameUI] GameManager.Instance 為空！無法開始遊戲");
-            }
-        }
+        // --- 遊戲邏輯 ---
         
         private void OnRestart()
         {
-            Debug.Log("=== [GameUI] OnRestart() 被觸發！===");
-            
-            if (GameManager.Instance != null)
-            {
-                GameManager.Instance.RestartGame();
-            }
-            else
-            {
-                Debug.LogError("[GameUI] GameManager.Instance 為空！");
-            }
+            GameManager.Instance.RestartGame();
         }
         
         private void OnReturnToMenu()
         {
-            Debug.Log("=== [GameUI] OnReturnToMenu() 被觸發！===");
-            
-            if (GameManager.Instance != null)
+            GameManager.Instance.ReturnToMenu();
+        }
+        
+        private void HandleGameStateChanged(GameState newState)
+        {
+            switch (newState)
             {
-                GameManager.Instance.ReturnToMenu();
-            }
-            else
-            {
-                Debug.LogError("[GameUI] GameManager.Instance 為空！");
+                case GameState.Menu: ShowMenu(); break;
+                case GameState.Playing: ShowGameplay(); break;
+                case GameState.LevelUp: ShowLevelUp(); break;
+                case GameState.GameOver: ShowGameOver(); break;
+                case GameState.Victory: ShowVictory(); break;
             }
         }
         
-        /// <summary>
-        /// 處理消除行事件（用於齊射顯示）
-        /// </summary>
-        private void HandleRowsClearedForSalvo(int totalRowCount, int nonGarbageRowCount, bool hasVoid)
+        // --- UI 更新 (保持原有邏輯) ---
+        
+        private void UpdateGameplayUI()
         {
-            // 虛無抵銷：不顯示齊射文字
-            // （"虛無抵銷!"會由 PlayerManager 的 pop-up text 顯示）
-            if (hasVoid)
+            if (PlayerManager.Instance != null)
             {
-                return;
+                var stats = PlayerManager.Instance.Stats;
+                if (scoreText != null) scoreText.text = stats.score.ToString("N0");
+                if (comboText != null)
+                {
+                    if (stats.comboCount > 1)
+                    {
+                        comboText.gameObject.SetActive(true);
+                        if (comboLabelText != null) comboLabelText.gameObject.SetActive(true);
+                        
+                        // 只有第二個 Combo（從 1 變成 2）時觸發滑入動畫
+                        if (stats.comboCount == 2 && lastComboCount < 2)
+                        {
+                            comboText.text = $"{stats.comboCount}";
+                            comboSlideTimer = comboSlideDuration;
+                            // 將數字和標籤都移到右邊
+                            comboText.rectTransform.anchoredPosition = comboTextOriginalPosition + new Vector2(comboSlideOffset, 0);
+                            Color slideColor = GetComboColor(stats.comboCount);
+                            comboText.color = new Color(slideColor.r, slideColor.g, slideColor.b, comboTextOriginalAlpha);
+                            if (comboLabelText != null)
+                            {
+                                Color labelSlideColor = GetComboColor(stats.comboCount);
+                                comboLabelText.color = new Color(labelSlideColor.r, labelSlideColor.g, labelSlideColor.b, comboTextOriginalAlpha);
+                            }
+                            UpdateComboLabelPosition(stats.comboCount, comboSlideOffset);
+                        }
+                        // combo 增加時觸發推動動畫（3連發以上）
+                        else if (stats.comboCount > lastComboCount && lastComboCount >= 2)
+                        {
+                            // 設置舊數字（準備往上淡出）
+                            if (comboOldText != null)
+                            {
+                                comboOldText.text = $"{lastComboCount}";
+                                comboOldText.gameObject.SetActive(true);
+                                comboOldText.rectTransform.anchoredPosition = comboTextOriginalPosition;
+                                comboOldText.color = GetComboColor(lastComboCount);
+                            }
+                            
+                            // 設置新數字（從下面往上淡入）
+                            Color newComboColor = GetComboColor(stats.comboCount);
+                            comboText.text = $"{stats.comboCount}";
+                            comboText.rectTransform.anchoredPosition = comboTextOriginalPosition + new Vector2(0, -comboPushOffset);
+                            comboText.color = new Color(newComboColor.r, newComboColor.g, newComboColor.b, 0f);
+                            if (comboLabelText != null)
+                            {
+                                comboLabelText.color = new Color(newComboColor.r, newComboColor.g, newComboColor.b, comboTextOriginalAlpha);
+                            }
+                            
+                            // 更新標籤位置（根據新數字的位數）
+                            UpdateComboLabelPosition(stats.comboCount, 0);
+                            
+                            comboPushTimer = comboPushDuration;
+                        }
+                        
+                        lastComboCount = stats.comboCount;
+                    }
+                    else
+                    {
+                        comboText.gameObject.SetActive(false);
+                        if (comboOldText != null) comboOldText.gameObject.SetActive(false);
+                        if (comboLabelText != null) comboLabelText.gameObject.SetActive(false);
+                        lastComboCount = 0;
+                    }
+                }
+                
+                if (playerHpSlider != null) { playerHpSlider.maxValue = stats.maxHp; playerHpSlider.value = stats.currentHp; }
+                if (playerHpText != null) playerHpText.text = $"HP: {stats.currentHp} / {stats.maxHp}";
+                if (playerCpSlider != null) { playerCpSlider.maxValue = stats.maxCp; playerCpSlider.value = stats.currentCp; }
+                if (playerCpText != null) playerCpText.text = $"CP: {stats.currentCp} / {stats.maxCp}";
+                if (explosionDamageText != null) explosionDamageText.text = $"衝擊炮充能 : {stats.explosionCharge}/{stats.explosionMaxCharge}";
+                
+                UpdateSkillUI();
             }
             
-            // 正常齊射顯示（2 排非垃圾方塊以上）
+            if (EnemyController.Instance != null)
+            {
+                if (enemyHpSlider != null) { enemyHpSlider.maxValue = EnemyController.Instance.MaxHp; enemyHpSlider.value = EnemyController.Instance.CurrentHp; }
+                if (enemyHpText != null) enemyHpText.text = $"{Mathf.Ceil(EnemyController.Instance.CurrentHp)} / {EnemyController.Instance.MaxHp}";
+            }
+            
+            if (stageText != null && GameManager.Instance != null)
+            {
+                stageText.text = $"STAGE {GameManager.Instance.CurrentStageIndex + 1} / {GameManager.Instance.TotalStages}";
+            }
+        }
+        
+        private void HandleRowsClearedForSalvo(List<int> clearedRows, int nonGarbageRowCount, bool hasVoid)
+        {
+            if (hasVoid) return;
             if (nonGarbageRowCount >= 2)
             {
                 lastClearedRows = nonGarbageRowCount;
-                salvoDisplayTimer = 2f; // 顯示 2 秒
+                salvoDisplayTimer = 2f;
+                salvoAnimationTimer = salvoAnimationDuration; // 觸發動畫
+                
+                // 根據齊射程度觸發螢幕搖晃
+                if (VFX.ScreenShake.Instance != null)
+                {
+                    float intensity;
+                    float duration;
+                    
+                    if (nonGarbageRowCount >= 4)
+                    {
+                        // 全彈齊射 - 最劇烈
+                        intensity = 0.4f;
+                        duration = 0.35f;
+                    }
+                    else if (nonGarbageRowCount == 3)
+                    {
+                        // 三連齊射 - 中等
+                        intensity = 0.25f;
+                        duration = 0.25f;
+                    }
+                    else
+                    {
+                        // 雙管齊射 - 輕微
+                        intensity = 0.15f;
+                        duration = 0.15f;
+                    }
+                    
+                    VFX.ScreenShake.Instance.Shake(intensity, duration);
+                }
             }
         }
         
-        /// <summary>
-        /// 更新齊射文字顯示
-        /// </summary>
         private void UpdateSalvoDisplay()
         {
             if (salvoText == null) return;
-            
-            // 如果有顯示計時器
             if (salvoDisplayTimer > 0)
             {
                 salvoDisplayTimer -= Time.deltaTime;
                 
-                // 根據消除行數顯示不同文字和顏色
-                if (lastClearedRows >= 5)
+                // 設置文字和基礎顏色
+                Color baseColor;
+                if (lastClearedRows >= 4)
                 {
-                    salvoText.text = $"超級齊射 x{lastClearedRows}!";
-                    salvoText.color = new Color(1f, 0.84f, 0f); // 金色
+                    salvoText.text = "全彈齊射!";
+                    baseColor = new Color(1f, 0.84f, 0f); // 金色
+                }
+                else if (lastClearedRows == 3)
+                {
+                    salvoText.text = "三連齊射!";
+                    baseColor = new Color(1f, 0.5f, 0f); // 橙色
                 }
                 else
                 {
-                    salvoText.text = $"齊射 x{lastClearedRows}!";
-                    salvoText.color = new Color(0.13f, 0.83f, 0.93f); // 青色
+                    salvoText.text = "雙管齊射!";
+                    baseColor = new Color(0.13f, 0.83f, 0.93f); // 青色
                 }
                 
-                salvoText.gameObject.SetActive(true);
-                
-                // 時間到了就隱藏
-                if (salvoDisplayTimer <= 0)
+                // 動畫效果：從 2 倍大縮小到原始大小，同時淡入
+                if (salvoAnimationTimer > 0)
                 {
-                    salvoText.gameObject.SetActive(false);
+                    salvoAnimationTimer -= Time.deltaTime;
+                    float progress = 1f - (salvoAnimationTimer / salvoAnimationDuration);
+                    progress = Mathf.Clamp01(progress);
+                    
+                    // 使用 ease-out 效果
+                    float easedProgress = 1f - Mathf.Pow(1f - progress, 3f);
+                    
+                    // 縮放：從 2 倍縮小到 1 倍
+                    float scale = Mathf.Lerp(2f, 1f, easedProgress);
+                    salvoText.transform.localScale = new Vector3(scale, scale, 1f);
+                    
+                    // 透明度：從 0 變成原始透明度
+                    salvoText.color = new Color(baseColor.r, baseColor.g, baseColor.b, easedProgress * salvoTextOriginalAlpha);
                 }
+                else
+                {
+                    // 動畫結束，保持正常狀態
+                    salvoText.transform.localScale = Vector3.one;
+                    salvoText.color = new Color(baseColor.r, baseColor.g, baseColor.b, salvoTextOriginalAlpha);
+                }
+                
+                salvoText.gameObject.SetActive(lastClearedRows >= 2);
+                if (salvoDisplayTimer <= 0) salvoText.gameObject.SetActive(false);
             }
             else
             {
@@ -411,61 +589,192 @@ namespace Tenronis.UI
         }
         
         /// <summary>
-        /// 更新技能UI顯示
+        /// 處理網格溢出事件（顯示衝擊爆破文字）
         /// </summary>
-        private void UpdateSkillUI()
+        private void HandleGridOverflow()
         {
             if (PlayerManager.Instance == null) return;
             
-            var stats = PlayerManager.Instance.Stats;
+            // 獲取當前充能值（在溢出處理前的值）
+            lastImpactBlastDamage = PlayerManager.Instance.Stats.explosionCharge;
             
-            // 處決技能UI
-            if (executionKeyLabelText != null)
+            // 只有有傷害時才顯示
+            if (lastImpactBlastDamage > 0)
             {
-                if (PlayerManager.Instance.IsExecutionUnlocked())
-                {
-                    executionKeyLabelText.text = "1";
-                }
-                else
-                {
-                    executionKeyLabelText.text = "Locked";
-                }
+                impactBlastDisplayTimer = 2f;
+                impactBlastAnimationTimer = impactBlastAnimationDuration;
             }
-            
-            if (executionCostText != null)
+        }
+        
+        /// <summary>
+        /// 更新衝擊爆破文字顯示
+        /// </summary>
+        private void UpdateImpactBlastDisplay()
+        {
+            if (impactBlastText == null) return;
+            if (impactBlastDisplayTimer > 0)
             {
-                if (PlayerManager.Instance.IsExecutionUnlocked())
+                impactBlastDisplayTimer -= Time.deltaTime;
+                
+                // 設置文字
+                impactBlastText.text = $"衝擊爆破! {lastImpactBlastDamage:0}";
+                Color baseColor = new Color(1f, 0.3f, 0.1f); // 橙紅色
+                
+                // 動畫效果：從 2 倍大縮小到原始大小，同時淡入
+                if (impactBlastAnimationTimer > 0)
                 {
-                    executionCostText.text = $"CP-{GameConstants.EXECUTION_CP_COST}";
+                    impactBlastAnimationTimer -= Time.deltaTime;
+                    float progress = 1f - (impactBlastAnimationTimer / impactBlastAnimationDuration);
+                    progress = Mathf.Clamp01(progress);
+                    
+                    // 使用 ease-out 效果
+                    float easedProgress = 1f - Mathf.Pow(1f - progress, 3f);
+                    
+                    // 縮放：從 2 倍縮小到 1 倍
+                    float scale = Mathf.Lerp(2f, 1f, easedProgress);
+                    impactBlastText.transform.localScale = new Vector3(scale, scale, 1f);
+                    
+                    // 透明度：從 0 變成原始透明度
+                    impactBlastText.color = new Color(baseColor.r, baseColor.g, baseColor.b, easedProgress * impactBlastTextOriginalAlpha);
                 }
                 else
                 {
-                    executionCostText.text = "";
+                    // 動畫結束，保持正常狀態
+                    impactBlastText.transform.localScale = Vector3.one;
+                    impactBlastText.color = new Color(baseColor.r, baseColor.g, baseColor.b, impactBlastTextOriginalAlpha);
                 }
+                
+                impactBlastText.gameObject.SetActive(true);
+                if (impactBlastDisplayTimer <= 0) impactBlastText.gameObject.SetActive(false);
             }
-            
-            // 修補技能UI
-            if (repairKeyLabelText != null)
+            else
             {
-                if (PlayerManager.Instance.IsRepairUnlocked())
-                {
-                    repairKeyLabelText.text = "2";
-                }
-                else
-                {
-                    repairKeyLabelText.text = "Locked";
-                }
+                impactBlastText.gameObject.SetActive(false);
             }
-            
-            if (repairCostText != null)
+        }
+        
+        /// <summary>
+        /// 處理技能施放事件
+        /// </summary>
+        private void HandleSkillUsed(string skillName)
+        {
+            lastSkillName = skillName;
+            skillDisplayTimer = 1.5f;
+            skillAnimationTimer = skillAnimationDuration;
+        }
+        
+        /// <summary>
+        /// 更新技能文字顯示
+        /// </summary>
+        private void UpdateSkillDisplay()
+        {
+            if (skillText == null) return;
+            if (skillDisplayTimer > 0)
             {
-                if (PlayerManager.Instance.IsRepairUnlocked())
+                skillDisplayTimer -= Time.deltaTime;
+                
+                // 設置文字和顏色
+                skillText.text = lastSkillName;
+                Color baseColor = GetSkillColor(lastSkillName);
+                
+                // 動畫效果：從 2 倍大縮小到原始大小，同時淡入
+                if (skillAnimationTimer > 0)
                 {
-                    repairCostText.text = $"CP-{GameConstants.REPAIR_CP_COST}";
+                    skillAnimationTimer -= Time.deltaTime;
+                    float progress = 1f - (skillAnimationTimer / skillAnimationDuration);
+                    progress = Mathf.Clamp01(progress);
+                    
+                    // 使用 ease-out 效果
+                    float easedProgress = 1f - Mathf.Pow(1f - progress, 3f);
+                    
+                    // 縮放：從 2 倍縮小到 1 倍
+                    float scale = Mathf.Lerp(2f, 1f, easedProgress);
+                    skillText.transform.localScale = new Vector3(scale, scale, 1f);
+                    
+                    // 透明度：從 0 變成原始透明度
+                    skillText.color = new Color(baseColor.r, baseColor.g, baseColor.b, easedProgress * skillTextOriginalAlpha);
                 }
                 else
                 {
-                    repairCostText.text = "";
+                    // 動畫結束，保持正常狀態
+                    skillText.transform.localScale = Vector3.one;
+                    skillText.color = new Color(baseColor.r, baseColor.g, baseColor.b, skillTextOriginalAlpha);
+                }
+                
+                skillText.gameObject.SetActive(true);
+                if (skillDisplayTimer <= 0) skillText.gameObject.SetActive(false);
+            }
+            else
+            {
+                skillText.gameObject.SetActive(false);
+            }
+        }
+        
+        /// <summary>
+        /// 根據技能名稱獲取顏色
+        /// </summary>
+        private Color GetSkillColor(string skillName)
+        {
+            switch (skillName)
+            {
+                case "湮滅":
+                    return new Color(0.8f, 0.2f, 1f); // 紫色
+                case "處決":
+                    return new Color(1f, 0.3f, 0.3f); // 紅色
+                case "修補":
+                    return new Color(0.3f, 1f, 0.5f); // 綠色
+                default:
+                    return Color.white;
+            }
+        }
+        
+        private void UpdateSkillUI()
+        {
+            if (PlayerManager.Instance == null) return;
+            // 1 -> 湮滅
+            if (annihilationKeyLabelText != null) annihilationKeyLabelText.text = PlayerManager.Instance.IsAnnihilationUnlocked() ? "1" : "Locked";
+            if (annihilationCostText != null) annihilationCostText.text = PlayerManager.Instance.IsAnnihilationUnlocked() ? $"CP-{GameConstants.ANNIHILATION_CP_COST}" : "";
+            // 2 -> 處決
+            if (executionKeyLabelText != null) executionKeyLabelText.text = PlayerManager.Instance.IsExecutionUnlocked() ? "2" : "Locked";
+            if (executionCostText != null) executionCostText.text = PlayerManager.Instance.IsExecutionUnlocked() ? $"CP-{GameConstants.EXECUTION_CP_COST}" : "";
+            // 3 -> 修補
+            if (repairKeyLabelText != null) repairKeyLabelText.text = PlayerManager.Instance.IsRepairUnlocked() ? "3" : "Locked";
+            if (repairCostText != null) repairCostText.text = PlayerManager.Instance.IsRepairUnlocked() ? $"CP-{GameConstants.REPAIR_CP_COST}" : "";
+        }
+        
+        /// <summary>
+        /// 處理敵人受傷事件
+        /// </summary>
+        private void HandleEnemyDamaged(float damage)
+        {
+            accumulatedEnemyDamage += damage;
+            damageCounterTimer = damageCounterResetTime; // 重置計時器
+            
+            // 立即更新顯示（格式：<傷害>）
+            if (enemyDamageCounterText != null)
+            {
+                enemyDamageCounterText.gameObject.SetActive(true);
+                enemyDamageCounterText.text = $"{accumulatedEnemyDamage:0.#}";
+                enemyDamageCounterText.color = new Color(1f, 0.3f, 0.3f); // 紅色
+            }
+        }
+        
+        /// <summary>
+        /// 更新敵人受傷計數器（3秒無傷害後歸零隱藏）
+        /// </summary>
+        private void UpdateEnemyDamageCounter()
+        {
+            if (enemyDamageCounterText == null) return;
+            
+            if (damageCounterTimer > 0)
+            {
+                damageCounterTimer -= Time.deltaTime;
+                
+                // 計時器結束，歸零並隱藏
+                if (damageCounterTimer <= 0)
+                {
+                    accumulatedEnemyDamage = 0f;
+                    enemyDamageCounterText.gameObject.SetActive(false);
                 }
             }
         }

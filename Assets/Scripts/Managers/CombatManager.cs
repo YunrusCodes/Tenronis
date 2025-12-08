@@ -79,43 +79,58 @@ namespace Tenronis.Managers
         /// <summary>
         /// 發射導彈（消除行時觸發）
         /// </summary>
-        private void HandleRowsCleared(int totalRowCount, int nonGarbageRowCount, bool hasVoid)
+        private void HandleRowsCleared(List<int> clearedRows, int nonGarbageRowCount, bool hasVoid)
         {
             if (nonGarbageRowCount <= 0) return;
             
             // 虛無抵銷：不發射導彈
             if (hasVoid)
             {
-                Debug.Log($"[CombatManager] 虛無抵銷！消除了 {totalRowCount} 行但不發射導彈");
+                Debug.Log($"[CombatManager] 虛無抵銷！消除了 {clearedRows.Count} 行但不發射導彈");
                 GameEvents.TriggerPlayVoidNullifySound();
                 return;
             }
             
             // 只為非垃圾方塊行發射導彈
-            Debug.Log($"[CombatManager] 消除了 {totalRowCount} 行（其中 {nonGarbageRowCount} 行非垃圾方塊），發射 {nonGarbageRowCount} 行導彈");
+            Debug.Log($"[CombatManager] 消除了 {clearedRows.Count} 行（其中 {nonGarbageRowCount} 行非垃圾方塊），從消除位置發射導彈");
             
             var stats = PlayerManager.Instance.Stats;
             
-            // 計算傷害加成（基於非垃圾方塊行數）
-            float salvoBonus = nonGarbageRowCount > 1 ? (nonGarbageRowCount - 1) * (stats.salvoLevel * GameConstants.SALVO_DAMAGE_MULTIPLIER) : 0f;
+            // 計算傷害加成（基於非垃圾方塊行數，超過4行以4計算）
+            int effectiveRowCount = Mathf.Min(nonGarbageRowCount, 4);
+            float salvoBonus = effectiveRowCount > 1 ? (effectiveRowCount - 1) * (stats.salvoLevel * GameConstants.SALVO_DAMAGE_MULTIPLIER) : 0f;
             float burstBonus = stats.burstLevel * stats.comboCount * GameConstants.BURST_DAMAGE_MULTIPLIER;
-            float totalDamage = (GameConstants.BASE_MISSILE_DAMAGE + salvoBonus + burstBonus);
+            float volleyMultiplier = 1 + stats.missileExtraCount; // Volley 傷害倍率
+            float totalDamage = (GameConstants.BASE_MISSILE_DAMAGE + salvoBonus + burstBonus) * volleyMultiplier;
             
-            // 每個方塊位置發射導彈
-            int missileCountPerBlock = 1 + stats.missileExtraCount;
+            // 統計非垃圾方塊行（用於發射導彈）
+            List<int> nonGarbageRows = new List<int>();
+            foreach (int row in clearedRows)
+            {
+                bool isGarbageRow = true;
+                for (int x = 0; x < GameConstants.BOARD_WIDTH; x++)
+                {
+                    BlockData block = GridManager.Instance.GetBlock(x, row);
+                    if (block != null && block.color != BlockColor.Garbage)
+                    {
+                        isGarbageRow = false;
+                        break;
+                    }
+                }
+                
+                if (!isGarbageRow)
+                {
+                    nonGarbageRows.Add(row);
+                }
+            }
             
-            // 簡化：每消除一行非垃圾方塊，在隨機列發射導彈群
-            for (int row = 0; row < nonGarbageRowCount; row++)
+            // 從實際消除的行位置發射導彈（每格一發）
+            foreach (int row in nonGarbageRows)
             {
                 for (int x = 0; x < GameConstants.BOARD_WIDTH; x++)
                 {
-                    for (int i = 0; i < missileCountPerBlock; i++)
-                    {
-                        Vector3 spawnPos = GridManager.Instance.GridToWorldPosition(x, GameConstants.BOARD_HEIGHT - 1 - row);
-                        spawnPos.y += i * 0.2f; // 錯開發射
-                        
-                        FireMissile(spawnPos, totalDamage);
-                    }
+                    Vector3 spawnPos = GridManager.Instance.GridToWorldPosition(x, row);
+                    FireMissile(spawnPos, totalDamage);
                 }
             }
             
@@ -137,37 +152,25 @@ namespace Tenronis.Managers
         }
         
         /// <summary>
-        /// 發射子彈（敵人攻擊）
+        /// 發射子彈(敵人攻擊)
         /// </summary>
-        public void FireBullet(int column, BulletType type, int damage, float speed, int burstCount = 1, float spreadOffset = 0.3f)
+        public void FireBullet(int column, BulletType type, int damage, float speed)
         {
             if (bulletPool == null) return;
             
             // 在 Grid 頂部（y=0）上方 2 個單位生成子彈
-            Vector3 baseSpawnPos = GridManager.Instance.GridToWorldPosition(column, 0);
-            baseSpawnPos.y += 2f;
+            Vector3 spawnPos = GridManager.Instance.GridToWorldPosition(column, 0);
+            spawnPos.y += 2f;
             
-        Debug.Log($"[CombatManager] 發射子彈 - 列: {column}, 類型: {type}, 連發數: {burstCount}, 位置: {baseSpawnPos}, 速度: {speed}");
-        
-        // 播放敵人射擊音效
-        GameEvents.TriggerPlayEnemyShootSound(type);
-        
-        // 如果是三聯發，稍微錯開位置
-        for (int i = 0; i < burstCount; i++)
-        {
-            Vector3 spawnPos = baseSpawnPos;
+            Debug.Log($"[CombatManager] 發射子彈 - 列: {column}, 類型: {type}, 位置: {spawnPos}, 速度: {speed}");
             
-            // 橫向錯開（如果是多發）
-            if (burstCount > 1)
-            {
-                float offset = (i - (burstCount - 1) * 0.5f) * spreadOffset;
-                spawnPos.x += offset;
-            }
+            // 播放敵人射擊音效
+            GameEvents.TriggerPlayEnemyShootSound(type);
             
+            // 發射單發子彈
             Bullet bullet = bulletPool.Get();
             bullet.Initialize(spawnPos, type, damage, speed);
             activeBullets.Add(bullet);
-        }
         }
         
         /// <summary>

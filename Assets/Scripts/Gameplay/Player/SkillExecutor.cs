@@ -21,7 +21,7 @@ namespace Tenronis.Gameplay.Player
             if (!PlayerManager.Instance.UseExecution()) return;
             
             var stats = PlayerManager.Instance.Stats;
-            int missileCount = 1 + stats.missileExtraCount;
+            float volleyMultiplier = 1 + stats.missileExtraCount; // Volley 傷害倍率
             
             // 清除每列最上面的方塊（削平表面）
             for (int x = 0; x < GameConstants.BOARD_WIDTH; x++)
@@ -33,17 +33,11 @@ namespace Tenronis.Gameplay.Player
                     {
                         GridManager.Instance.RemoveBlock(x, y);
                         
-                        // 發射導彈
+                        // 發射導彈（受 Volley 傷害倍率影響）
                         Vector3 pos = GridManager.Instance.GridToWorldPosition(x, y);
-                        float damage = GameConstants.EXECUTION_DAMAGE;
+                        float damage = GameConstants.EXECUTION_DAMAGE * volleyMultiplier;
                         
-                        for (int i = 0; i < missileCount; i++)
-                        {
-                            CombatManager.Instance?.FireMissile(
-                                pos + Vector3.up * (i * 0.2f), 
-                                damage
-                            );
-                        }
+                        CombatManager.Instance?.FireMissile(pos, damage);
                         
                         break; // 只清除最上面的一個
                     }
@@ -78,6 +72,38 @@ namespace Tenronis.Gameplay.Player
             {
                 GameEvents.TriggerPlayImpactSound();
             }
+        }
+        
+        /// <summary>
+        /// 執行湮滅技能
+        /// 將當前控制的方塊轉換為幽靈穿透狀態
+        /// </summary>
+        public static void ExecuteAnnihilation()
+        {
+            if (PlayerManager.Instance == null) return;
+            if (Tenronis.Gameplay.Tetromino.TetrominoController.Instance == null) return;
+            
+            // 檢查是否已經在湮滅狀態
+            if (Tenronis.Gameplay.Tetromino.TetrominoController.Instance.IsInAnnihilationState)
+            {
+                Debug.Log("[SkillExecutor] 已經處於湮滅狀態！");
+                return;
+            }
+            
+            // 檢查是否有活躍方塊
+            if (!Tenronis.Gameplay.Tetromino.TetrominoController.Instance.IsActive)
+            {
+                Debug.Log("[SkillExecutor] 沒有活躍方塊可以進入湮滅狀態！");
+                return;
+            }
+            
+            // 消耗CP
+            if (!PlayerManager.Instance.UseAnnihilation()) return;
+            
+            // 進入幽靈穿透狀態
+            Tenronis.Gameplay.Tetromino.TetrominoController.Instance.EnterAnnihilationState();
+            
+            Debug.Log("[SkillExecutor] 湮滅技能啟動！方塊進入幽靈穿透狀態");
         }
         
         /// <summary>

@@ -155,50 +155,105 @@
    - 或使用: `vfx_Lightning_01.prefab` (閃電效果)
 8. **Low Hp Threshold**: 設置低HP閾值（默認0.3 = 30%）
 
-### 步驟 9: 建立關卡數據
+### 步驟 9A: 建立主題數據（StageSetSO）
+
+1. 在Project視窗: `Assets/ScriptableObjects/StageSets`
+2. 右鍵 > `Create > Tenronis > Stage Set (Theme)`
+3. 命名為 `Theme_1_Abyss`（或你想要的主題名稱）
+4. 設置主題資訊：
+   - **Theme Name**: 深淵主題
+   - **Theme Icon**: 拖入主題圖示（可選）
+   - **Theme Color**: 選擇代表顏色（例如深藍色）
+   - **Description**: 主題描述文字
+
+**注意**：暫時不要設置關卡列表，我們將在步驟9B建立關卡後再拖入
+
+### 步驟 9B: 建立關卡數據（三軌難度）
+
+**專案現況**：已建立10個主題，每主題3種難度×10關，共300個關卡配置。關卡文件命名格式：`主題編號_關卡編號_難度.asset`（例如：`1_1_Easy.asset`、`1_1_Normal.asset`、`1_1_Hard.asset`）
+
+如需新增主題或關卡：
 
 1. 在Project視窗: `Assets/ScriptableObjects/Stages`
 2. 右鍵 > `Create > Tenronis > Stage Data`
-3. 建立10個關卡，命名為 `Stage_01` 到 `Stage_10`
+3. 為新主題建立30個關卡（例如主題11）：
+   - **11_1_Easy ~ 11_10_Easy**（Casual 軌道）
+   - **11_1_Normal ~ 11_10_Normal**（Standard 軌道）
+   - **11_1_Hard ~ 11_10_Hard**（Expert 軌道）
 
-**範例設定 - Stage_01:**
+**範例設定 - Easy1（Casual 軌道）:**
 ```
-Stage Name: 偵察無人機
-Stage Index: 0
+Stage Name: 深淵窺視者
+Stage Index: 1
+Is Boss Stage: false
+Difficulty Track: Casual
+Auto Balance: true ← 啟用自動平衡
+Player PDA: 7
+Player SP: 0.7
 Reward Buff Count: 1
-Max Hp: 100
-Shoot Interval: 2
-Bullet Speed: 8
-Can Use Add Block: false
-Can Use Area Damage: false
-Can Use Insert Row: false
-Use Explosive Blocks: false
-Use Void Row: false
+Max Hp: 245
+Shoot Interval: 2.9
+Bullet Speed: 6
+Burst Count: 1
+[技能設置會由 Auto Balance 自動計算]
 Enemy Icon: [拖入敵人圖片Sprite]
-Theme Color: 紅色
+Theme Color: 淡藍色
 ```
 
-**範例設定 - Stage_10:**
+**範例設定 - Normal1（Standard 軌道）:**
 ```
-Stage Name: 終焉機械神
-Stage Index: 9
-Reward Buff Count: 3
-Max Hp: 2000
-Shoot Interval: 0.8
-Bullet Speed: 12
-Can Use Add Block: true
-Can Use Area Damage: true
-Can Use Insert Row: true
-Add Block Chance: 0.35
-Area Damage Chance: 0.25
-Insert Row Chance: 0.15
-Use Explosive Blocks: true
-Use Void Row: true
+Stage Name: 深淵全能者
+Stage Index: 1
+Is Boss Stage: false
+Difficulty Track: Standard
+Auto Balance: true
+Player PDA: 7
+Player SP: 0.6
+Reward Buff Count: 1
+Max Hp: 175
+Shoot Interval: 1.9
+Bullet Speed: 8
+Burst Count: 1
+Enemy Icon: [拖入敵人圖片Sprite]
+Theme Color: 藍色
+```
+
+**範例設定 - Hard10（Expert 軌道）:**
+```
+Stage Name: 深淵主宰
+Stage Index: 10
+Is Boss Stage: true
+Difficulty Track: Expert
+Auto Balance: true
+Player PDA: 3500
+Player SP: 0.2
+Reward Buff Count: 2
+Max Hp: 70000
+Shoot Interval: 0.7
+Bullet Speed: 10
+Burst Count: 5
+Use Smart Targeting: true ← Expert 模式啟用
 Enemy Icon: [拖入Boss圖片Sprite]
-Theme Color: 紫色
+Theme Color: 深紅色
 ```
 
-> **重要**：敵人圖片會在關卡開始時自動顯示在 `EnemySprite` 上，無需手動設置！
+> **重要**：
+> - 敵人圖片會在關卡開始時自動顯示在 `EnemySprite` 上，無需手動設置！
+> - 啟用 `Auto Balance` 後，數值會根據 PDA 和 SP 自動計算
+> - 詳細數值規格請參考 `Assets/Documentation/Math/11_Difficulty_Tracks_Model.md`
+
+### 步驟 9C: 連接關卡到主題
+
+1. 選擇剛建立的 `Theme_1_Abyss`
+2. 在 Inspector 中：
+   - **Easy Stages**（Casual 軌道）: 設置陣列大小為10，拖入 Theme1_Easy1 ~ Easy10
+   - **Normal Stages**（Standard 軌道）: 設置陣列大小為10，拖入 Theme1_Normal1 ~ Normal10
+   - **Hard Stages**（Expert 軌道）: 設置陣列大小為10，拖入 Theme1_Hard1 ~ Hard10
+
+**提示**：
+- 可以建立多個主題（Theme_2_Void、Theme_3_Fire等）
+- 每個主題都需要有自己的關卡集合
+- 主題系統讓遊戲內容更豐富，可以逐步擴展
 
 ### 步驟 10: 建立Buff數據
 
@@ -214,12 +269,13 @@ Description: 增加方塊耐久度 +1
 Spawn Weight: 1.0
 ```
 
-建議建立的Buff：
+建議建立的Buff（共12種）：
 
-**傳奇強化（3種）**：
-- Defense (裝甲強化，起始0，無上限)
-- Volley (協同火力，起始0，無上限)
-- Heal (緊急修復，立即效果)
+**傳奇強化（4種）**：
+- Defense (裝甲強化，起始0，無上限，+1 HP/等級)
+- Volley (協同火力，起始0，無上限，每個位置+1導彈/等級)
+- TacticalExpansion (戰術擴展，起始0，上限2，解鎖技能)
+- Heal (緊急修復，立即效果，恢復50% HP)
 
 **普通強化（6種）**：
 - Salvo (齊射強化，起始1，上限6)
@@ -229,13 +285,23 @@ Spawn Weight: 1.0
 - SpaceExpansion (空間擴充，起始1，上限4)
 - ResourceExpansion (資源擴充，起始0，上限3)
 
-**注意**：Execution 和 Repair 已改為消耗CP的技能，不再作為Buff出現。
+**技能（2種，通過TacticalExpansion解鎖）**：
+- Execution (處決技能，消耗5 CP，清除每列底部方塊)
+- Repair (修補技能，消耗30 CP，填補封閉空洞)
+
+**注意**：
+- Execution和Repair不是獨立的Buff，而是通過TacticalExpansion解鎖的技能
+- 這兩個技能在升級選單中不會出現，只能通過TacticalExpansion解鎖使用
 
 ### 步驟 11: 設置GameManager
 
 選擇 GameManager 物件：
 
-1. **Stages**: 設置陣列大小為10，拖入所有關卡數據
+1. **主題列表（All Themes）**：
+   - 設置陣列大小為1（或你建立的主題數量）
+   - 拖入 Theme_1_Abyss（和其他主題，如果有）
+   - 主題順序決定UI顯示順序
+
 2. **Normal Buffs** (普通強化): 設置陣列大小為6，拖入以下Buff：
    - Salvo (齊射強化)
    - Burst (連發強化)
@@ -243,17 +309,30 @@ Spawn Weight: 1.0
    - Explosion (過載爆破)
    - SpaceExpansion (空間擴充)
    - ResourceExpansion (資源擴充)
-3. **Legendary Buffs** (傳奇強化): 設置陣列大小為3，拖入以下Buff：
+
+3. **Legendary Buffs** (傳奇強化): 設置陣列大小為4，拖入以下Buff：
    - Defense (裝甲強化)
    - Volley (協同火力)
+   - TacticalExpansion (戰術擴展)
    - Heal (緊急修復)
+
+**主題系統說明**：
+- 玩家先選擇主題，再選擇難度
+- 每個主題包含三種難度軌道（Casual, Standard, Expert）
+- 支援多個主題，提供更豐富的遊戲內容
+- UI會根據 All Themes 列表自動生成主題選擇按鈕
+
+**三軌難度系統說明**：
+- **Casual（休閒）**: 35秒目標擊殺時間，較慢的子彈速度（6格/秒）
+- **Standard（標準）**: 25秒目標擊殺時間，中等子彈速度（8格/秒）
+- **Expert（專家）**: 20秒目標擊殺時間，快速子彈（10格/秒），啟用智能瞄準
 
 **傳奇強化選擇機制說明**：
 - 當有普通強化達到滿級時，會自動提供傳奇強化選擇機會
 - 傳奇強化選擇時，只從 Legendary Buffs 陣列中選擇
 - 如果傳奇強化數量 ≤ 3，直接顯示全部（不隨機選擇）
 - 如果傳奇強化數量 > 3，隨機選擇3個（根據權重）
-- 不會過濾傳奇強化（除了null），保留所有內容（包括Execution和Repair，如果它們在陣列中）
+- 不會過濾傳奇強化（除了null），保留所有內容
 
 ### 步驟 12: 建立UI
 
@@ -263,13 +342,38 @@ Spawn Weight: 1.0
    - Canvas Scaler: Scale With Screen Size
    - Reference Resolution: 1920 x 1080
 
-#### 主選單面板
+#### 主選單面板（主題選擇系統）
 ```
 Canvas
-└── MenuPanel (添加 VerticalLayoutGroup)
-    ├── Title (TextMeshPro)
-    └── StartButton (Button)
+└── MenuPanel
+    ├── ThemeListPanel (主題選擇面板)
+    │   ├── Title (TextMeshPro - "選擇主題")
+    │   └── ThemeButtonContainer (ScrollView > Content，存放動態生成的主題按鈕)
+    └── DifficultySelectPanel (難度選擇面板，初始隱藏)
+        ├── SelectedThemeTitle (TextMeshPro - 顯示選中的主題名稱)
+        ├── EasyButton (Button - "簡單模式 (Casual)")
+        ├── NormalButton (Button - "標準模式 (Standard)")
+        ├── HardButton (Button - "專家模式 (Expert)")
+        └── BackToThemeButton (Button - "返回")
 ```
+
+**Theme Button Prefab 設置**：
+1. 在 Hierarchy 創建 Button
+2. 設置為 Prefab（拖入 Assets/Prefabs/UI/）
+3. 添加 TextMeshProUGUI 子物件顯示主題名稱
+4. 調整大小和樣式
+
+**UI流程**：
+1. 遊戲啟動 → 顯示 ThemeListPanel（主題選擇）
+2. GameUI 根據 GameManager.allThemes 動態生成主題按鈕
+3. 玩家點擊主題 → 隱藏 ThemeListPanel，顯示 DifficultySelectPanel
+4. 玩家點擊難度 → 呼叫 `GameManager.StartGame(themeIndex, difficulty)`
+5. 點擊返回 → 返回 ThemeListPanel
+
+**難度按鈕設置**：
+- EasyButton: 呼叫 `GameManager.StartGame(selectedThemeIndex, DifficultyTrack.Casual)`
+- NormalButton: 呼叫 `GameManager.StartGame(selectedThemeIndex, DifficultyTrack.Standard)`
+- HardButton: 呼叫 `GameManager.StartGame(selectedThemeIndex, DifficultyTrack.Expert)`
 
 #### 遊戲中UI
 ```
@@ -421,7 +525,9 @@ Canvas
 選擇Canvas，添加 `GameUI` 腳本，連接所有UI引用：
 
 - Menu Panel → MenuPanel物件
-- Start Button → StartButton
+- **Easy Button → EasyButton** ← 🎮 新增
+- **Normal Button → NormalButton** ← 🎮 新增
+- **Hard Button → HardButton** ← 🎮 新增
 - Gameplay Panel → GameplayPanel
 - Score Text → ScoreText
 - Combo Text → ComboText
@@ -710,3 +816,76 @@ ScreenShake (Script)
 - 建立更多關卡
 - 添加音效和音樂
 
+
+
+# Tenronis Setup Guide
+
+## 1. 關卡與主題設置 (Themes & Stages)
+
+### 1.1 建立關卡數據 (StageDataSO)
+1. 在 Project 視窗中，右鍵點擊 `Create -> Tenronis -> Stage Data`。
+2. 命名為 `T_S_Difficulty` (例如 `1_1_Easy`)。
+3. 設定關卡參數：
+   - **Stage Name**: 顯示名稱 (例如 "Theme 1 - Stage 1")
+   - **Difficulty Track**: Casual / Standard / Expert
+   - **Bullet Config**: 設定子彈生成機率
+
+### 1.2 建立主題套組 (StageSetSO)
+1. 在 Project 視窗中，右鍵點擊 `Create -> Tenronis -> Stage Set (Theme)`。
+2. 命名為 `Theme_X` (例如 `Theme_1`)。
+3. 在 Inspector 中設定：
+   - **Theme Name**: 主題名稱 (例如 "Basic Shooter")
+   - **Easy Stages**: 拖入該主題的 5 個 Easy 關卡
+   - **Normal Stages**: 拖入該主題的 5 個 Normal 關卡
+   - **Hard Stages**: 拖入該主題的 5 個 Hard 關卡
+
+### 1.3 註冊主題到 GameManager
+1. 選擇場景中的 `GameManager` 物件。
+2. 找到 `All Themes` 列表。
+3. 將建立好的 `StageSetSO` 拖入列表中。
+4. 列表順序決定了 UI 顯示順序。
+
+## 2. UI 設置流程
+
+### 2.1 設置 GameUI
+1. 確保場景中有 `GameUI` 物件。
+2. 檢查 `GameUI` Inspector 中的參考：
+   - **Menu Panel**: 主選單容器
+   - **Theme List Panel**: 主題選擇頁面 (需包含 ScrollView 或 Grid)
+   - **Difficulty Select Panel**: 難度選擇頁面
+   - **Theme Button Prefab**: 用於生成主題按鈕的 Prefab
+   - **Theme Button Container**: 主題按鈕的父物件 (Content)
+
+### 2.2 設置按鈕事件
+- **Theme Button Prefab**: 需包含 `Button` 組件和 `TextMeshProUGUI` 子物件。
+- **Difficulty Buttons**: 在 `Difficulty Select Panel` 中，分別對應 `Easy`, `Normal`, `Hard` 按鈕。
+
+## 3. 擴充指南
+
+### 3.1 新增主題 (Theme 11+)
+1. 依照 1.2 步驟建立新的 `StageSetSO`。
+2. 依照 1.3 步驟將其加入 `GameManager` 的 `All Themes` 列表。
+3. UI 會自動根據列表長度生成對應按鈕。
+
+### 3.2 新增難度 (Expert+)
+1. 修改 `DifficultyTrack` enum (在 `StageDataSO.cs`)。
+2. 修改 `StageSetSO.cs` 增加對應的 List。
+3. 修改 `GameManager.StartGame` 邏輯。
+4. 修改 `GameUI` 增加對應按鈕。
+
+## 4. 遊戲流程圖
+
+```mermaid
+graph TD
+    Start[啟動遊戲] --> Menu[主選單 (Theme Selection)]
+    Menu -->|選擇主題| Difficulty[難度選擇]
+    Difficulty -->|Back| Menu
+    Difficulty -->|選擇難度| Playing[遊戲進行中]
+    Playing -->|通關| LevelUp[升級選單]
+    LevelUp -->|選擇Buff| Playing
+    Playing -->|失敗| GameOver[遊戲結束]
+    Playing -->|全部通關| Victory[勝利]
+    GameOver -->|Restart| Playing
+    GameOver -->|Menu| Menu
+    Victory -->|Menu| Menu
+```

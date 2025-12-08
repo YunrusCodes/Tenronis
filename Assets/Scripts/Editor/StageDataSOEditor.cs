@@ -5,7 +5,6 @@ using Tenronis.ScriptableObjects;
 namespace Tenronis.Editor
 {
     /// <summary>
-    /// StageDataSO 自定义编辑器 - 显示关卡难度评分
     /// </summary>
     [CustomEditor(typeof(StageDataSO))]
     public class StageDataSOEditor : UnityEditor.Editor
@@ -65,11 +64,12 @@ namespace Tenronis.Editor
             EditorGUILayout.Space(10);
             EditorGUILayout.HelpBox(
                 "难度评分公式 2.0：\n" +
-                "• 攻击密度 (0-20) = (连发 / 射击间隔) × 8 + 子弹速度 × 0.8\n" +
+                "• 攻击密度 (0-20) = (1 / 射击间隔) × 8 + 子弹速度 × 0.8\n" +
                 "• 技能压制 (0-70) = Σ(技能概率 × 危险度 × 10) + 智能瞄准(+15)\n" +
                 "  威胁度排序: 插入行(12) > 范围(10) > 爆炸块(8) > 普通块(5) > 腐化爆(4) > 腐化虚(3) > 普通(1)\n" +
                 "• 战斗长度 (0-10) = Clamp((敌人HP / 3000) × 10, 0, 10)\n" +
-                "• 总难度 (0-100) = 攻击密度 + 技能压制 + 战斗长度",
+                "• 总难度 (0-100) = 攻击密度 + 技能压制 + 战斗长度\n" +
+                "注：連發功能已移除，固定為 1",
                 MessageType.Info
             );
             
@@ -88,7 +88,8 @@ namespace Tenronis.Editor
         private float CalculateDifficulty(StageDataSO data)
         {
             // === 1. 攻击密度 (0-20分) ===
-            float attackScore = (data.burstCount / data.shootInterval) * 8f + data.bulletSpeed * 0.8f;
+            // 注意：連發功能已移除，固定為 1
+            float attackScore = (1f / data.shootInterval) * 8f + data.bulletSpeed * 0.8f;
             attackScore = Mathf.Clamp(attackScore, 0f, 20f);
 
             // === 2. 技能压制 (0-70分) ===
@@ -204,7 +205,8 @@ namespace Tenronis.Editor
             // === 重新计算各个组成部分（与 CalculateDifficulty 保持一致）===
             
             // 1. 攻击密度 (0-20)
-            float attack = (data.burstCount / data.shootInterval) * 8f + data.bulletSpeed * 0.8f;
+            // 注意：連發功能已移除，固定為 1
+            float attack = (1f / data.shootInterval) * 8f + data.bulletSpeed * 0.8f;
             attack = Mathf.Clamp(attack, 0f, 20f);
             
             // 2. 技能压制 (0-70)

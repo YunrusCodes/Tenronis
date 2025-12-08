@@ -16,6 +16,13 @@ namespace Tenronis.Gameplay.Tetromino
         [Header("設定")]
         [SerializeField] private GameObject blockPreviewPrefab;
         
+        [Header("腐蝕符號圖片")]
+        [SerializeField] private Sprite explosiveSymbol; // 爆炸型符紋
+        [SerializeField] private Sprite voidSymbol; // 虛無型符紋
+        
+        [Header("湮滅方塊貼圖")]
+        [SerializeField] private Sprite annihilationBlockSprite; // 湮滅狀態專用貼圖
+        
         // 當前方塊
         private TetrominoShape currentShape;
         private Vector2Int currentPosition;
@@ -43,6 +50,9 @@ namespace Tenronis.Gameplay.Tetromino
         private float dropTimer;
         private bool isActive;
         
+        // 湮滅技能狀態
+        private bool isInAnnihilationState = false;
+        
         // Lock Delay 機制
         [Header("Lock Delay 設定")]
         [SerializeField] private float lockDelay = 0.5f;      // 鎖定延遲（秒）
@@ -59,6 +69,7 @@ namespace Tenronis.Gameplay.Tetromino
         public TetrominoShape?[] HeldPieces => heldPieces;
         public bool[] CanHoldSlot => canHoldSlot;
         public int UnlockedSlots => unlockedSlots;
+        public bool IsInAnnihilationState => isInAnnihilationState;
         
         private void Awake()
         {
@@ -155,6 +166,9 @@ namespace Tenronis.Gameplay.Tetromino
             isGrounded = false;
             lockTimer = 0f;
             lockResetCount = 0;
+            
+            // 重置湮滅狀態
+            isInAnnihilationState = false;
             
             // 新方塊生成後，所有槽位都可以使用一次
             for (int i = 0; i < 4; i++)
@@ -318,6 +332,16 @@ namespace Tenronis.Gameplay.Tetromino
                 currentPosition = newPos;
                 UpdateVisual();
                 
+                // 湮滅狀態下檢查是否觸地（任何格子超出底部）
+                if (isInAnnihilationState && IsAnnihilationTouchingGround())
+                {
+                    // 觸地時往上移一格再觸發效果
+                    currentPosition += Vector2Int.down; // Unity Y軸：down = -1 = 往上移
+                    Debug.Log("[TetrominoController] 湮滅方塊觸地，往上移一格後觸發湮滅效果");
+                    ExecuteAnnihilationHardDrop();
+                    return;
+                }
+                
                 // 離開地面，重置 Lock Delay 狀態
                 if (isGrounded)
                 {
@@ -337,6 +361,31 @@ namespace Tenronis.Gameplay.Tetromino
                     Debug.Log($"[Lock Delay] 方塊觸地，開始鎖定計時（{lockDelay}秒）");
                 }
             }
+        }
+        
+        /// <summary>
+        /// 檢查湮滅狀態下方塊是否觸地（任何格子超出網格底部）
+        /// </summary>
+        private bool IsAnnihilationTouchingGround()
+        {
+            if (currentRotation == null) return false;
+            
+            for (int y = 0; y < currentRotation.GetLength(0); y++)
+            {
+                for (int x = 0; x < currentRotation.GetLength(1); x++)
+                {
+                    if (currentRotation[y, x] != 0)
+                    {
+                        int gridY = currentPosition.y + y;
+                        // 如果任何格子超出網格底部，視為觸地
+                        if (gridY >= GameConstants.BOARD_HEIGHT)
+                        {
+                            return true;
+                        }
+                    }
+                }
+            }
+            return false;
         }
         
         /// <summary>
@@ -389,6 +438,13 @@ namespace Tenronis.Gameplay.Tetromino
         {
             if (!isActive) return;
             
+            // 湮滅狀態下的硬降：執行破壞邏輯
+            if (isInAnnihilationState)
+            {
+                ExecuteAnnihilationHardDrop();
+                return;
+            }
+            
             while (!CheckCollision(currentPosition + Vector2Int.up, currentRotation))
             {
                 currentPosition += Vector2Int.up;
@@ -396,6 +452,69 @@ namespace Tenronis.Gameplay.Tetromino
             
             // 硬降立即鎖定，不使用 Lock Delay
             LockPiece();
+        }
+        
+        /// <summary>
+        /// 湮滅狀態下的硬降：破壞重疊區域的方塊
+        /// </summary>
+        private void ExecuteAnnihilationHardDrop()
+        {
+            if (currentRotation == null) return;
+            
+            int destroyedCount = 0;
+            var stats = PlayerManager.Instance?.Stats;
+            if (stats == null) return;
+            
+            float volleyMultiplier = 1 + stats.missileExtraCount; // Volley 傷害倍率
+            float burstBonus = stats.burstLevel * stats.comboCount * GameConstants.BURST_DAMAGE_MULTIPLIER;
+            float damage = (GameConstants.BASE_MISSILE_DAMAGE + burstBonus) * volleyMultiplier;
+            
+            // 遍歷方塊的每個格子，檢查重疊
+            for (int y = 0; y < currentRotation.GetLength(0); y++)
+            {
+                for (int x = 0; x < currentRotation.GetLength(1); x++)
+                {
+                    if (currentRotation[y, x] != 0)
+                    {
+                        int gridX = currentPosition.x + x;
+                        int gridY = currentPosition.y + y;
+                        
+                        // 檢查是否有重疊的方塊
+                        if (GridManager.Instance.IsValidPosition(gridX, gridY) &&
+                            GridManager.Instance.IsOccupied(gridX, gridY))
+                        {
+                            // 破壞該方塊
+                            GridManager.Instance.RemoveBlock(gridX, gridY);
+                            destroyedCount++;
+                            
+                            // 發射導彈（受 Volley 傷害倍率影響）
+                            Vector3 pos = GridManager.Instance.GridToWorldPosition(gridX, gridY);
+                            CombatManager.Instance?.FireMissile(pos, damage);
+                        }
+                    }
+                }
+            }
+            
+            // 如果破壞了至少一格，計為一次 Combo
+            if (destroyedCount > 0)
+            {
+                PlayerManager.Instance?.OnAnnihilationDestroy();
+                GameEvents.TriggerPlayMissileSound();
+                Debug.Log($"[TetrominoController] 湮滅硬降破壞了 {destroyedCount} 個方塊，發射 {destroyedCount} 發導彈（傷害倍率 x{volleyMultiplier}）");
+            }
+            
+            // 退出湮滅狀態
+            ExitAnnihilationState();
+            
+            // 清除視覺並生成新方塊（方塊被消耗）
+            isActive = false;
+            ClearVisual();
+            
+            // 播放特殊音效
+            GameEvents.TriggerPlayLockSound();
+            
+            // 生成下一個方塊
+            Invoke(nameof(SpawnPiece), 0.1f);
         }
         
         /// <summary>
@@ -467,6 +586,34 @@ namespace Tenronis.Gameplay.Tetromino
             GameEvents.TriggerPieceLocked();
             
             // 不生成新方塊，因為要進入選單了
+        }
+        
+        /// <summary>
+        /// 進入湮滅幽靈穿透狀態
+        /// </summary>
+        public void EnterAnnihilationState()
+        {
+            if (!isActive) return;
+            if (isInAnnihilationState) return;
+            
+            isInAnnihilationState = true;
+            
+            // 取消腐化（湮滅狀態可完全無效化下一次腐化）
+            currentCorruptedBlocks.Clear();
+            
+            Debug.Log("[TetrominoController] 進入湮滅幽靈穿透狀態");
+            
+            // 更新視覺（降低透明度）
+            UpdateVisual();
+        }
+        
+        /// <summary>
+        /// 退出湮滅狀態
+        /// </summary>
+        private void ExitAnnihilationState()
+        {
+            isInAnnihilationState = false;
+            Debug.Log("[TetrominoController] 退出湮滅狀態");
         }
         
         /// <summary>
@@ -550,6 +697,14 @@ namespace Tenronis.Gameplay.Tetromino
         /// </summary>
         private bool CheckCollision(Vector2Int position, int[,] shape)
         {
+            return CheckCollision(position, shape, false);
+        }
+        
+        /// <summary>
+        /// 檢查碰撞（可選擇是否忽略方塊碰撞，用於湮滅狀態）
+        /// </summary>
+        private bool CheckCollision(Vector2Int position, int[,] shape, bool ignoreBlocks)
+        {
             for (int y = 0; y < shape.GetLength(0); y++)
             {
                 for (int x = 0; x < shape.GetLength(1); x++)
@@ -559,15 +714,26 @@ namespace Tenronis.Gameplay.Tetromino
                         int gridX = position.x + x;
                         int gridY = position.y + y;
                         
-                        // 邊界檢查
+                        // 邊界檢查（湮滅狀態下只檢查左右邊界，允許穿透底部）
+                        if (isInAnnihilationState)
+                        {
+                            if (gridX < 0 || gridX >= GameConstants.BOARD_WIDTH)
+                            {
+                                return true;
+                            }
+                            // 湮滅狀態下不檢查底部和方塊佔用
+                            continue;
+                        }
+                        
+                        // 正常狀態：完整邊界檢查
                         if (gridX < 0 || gridX >= GameConstants.BOARD_WIDTH ||
                             gridY < 0 || gridY >= GameConstants.BOARD_HEIGHT)
                         {
                             return true;
                         }
                         
-                        // 佔用檢查
-                        if (GridManager.Instance.IsOccupied(gridX, gridY))
+                        // 佔用檢查（除非忽略）
+                        if (!ignoreBlocks && GridManager.Instance.IsOccupied(gridX, gridY))
                         {
                             return true;
                         }
@@ -655,13 +821,20 @@ namespace Tenronis.Gameplay.Tetromino
             ghostBlocks = new List<GameObject>();
             
             // 計算幽靈方塊位置（硬降落位置）
+            // 湮滅狀態下不計算幽靈位置（避免無限迴圈，且方塊本身已是幽靈形態）
             Vector2Int ghostPosition = currentPosition;
-            while (!CheckCollision(ghostPosition + Vector2Int.up, currentRotation))
+            if (!isInAnnihilationState)
             {
-                ghostPosition += Vector2Int.up;
+                while (!CheckCollision(ghostPosition + Vector2Int.up, currentRotation))
+                {
+                    ghostPosition += Vector2Int.up;
+                }
             }
             
             // 建立視覺方塊
+            // 湮滅狀態下使用較低透明度顯示幽靈形態
+            float previewAlpha = isInAnnihilationState ? 0.50f : 1f;
+            
             for (int y = 0; y < rows; y++)
             {
                 for (int x = 0; x < cols; x++)
@@ -671,30 +844,35 @@ namespace Tenronis.Gameplay.Tetromino
                         int gridX = currentPosition.x + x;
                         int gridY = currentPosition.y + y;
                         
-                        // 檢查這個格子是否被腐化
+                        // 檢查這個格子是否被腐化（湮滅狀態下不顯示腐化）
                         string key = $"{x},{y}";
                         BlockType? corruptType = null;
-                        if (currentCorruptedBlocks.ContainsKey(key))
+                        if (!isInAnnihilationState && currentCorruptedBlocks.ContainsKey(key))
                         {
                             corruptType = currentCorruptedBlocks[key];
                         }
                         
                         // 建立預覽方塊（當前位置）
-                        if (GridManager.Instance.IsValidPosition(gridX, gridY))
+                        // 湮滅狀態下可以超出邊界顯示
+                        if (isInAnnihilationState || GridManager.Instance.IsValidPosition(gridX, gridY))
                         {
-                            GameObject previewBlock = CreateBlockVisual(gridX, gridY, currentShape.color, 1f, corruptType);
+                            GameObject previewBlock = CreateBlockVisual(gridX, gridY, currentShape.color, previewAlpha, corruptType, isInAnnihilationState);
                             previewBlocks.Add(previewBlock);
                         }
                         
-                        // 建立幽靈方塊（硬降落位置）
-                        int ghostX = ghostPosition.x + x;
-                        int ghostY = ghostPosition.y + y;
-                        
-                        if (ghostPosition != currentPosition && 
-                            GridManager.Instance.IsValidPosition(ghostX, ghostY))
+                        // 湮滅狀態下不顯示幽靈方塊（因為整個方塊已經是幽靈形態）
+                        if (!isInAnnihilationState)
                         {
-                            GameObject ghostBlock = CreateBlockVisual(ghostX, ghostY, currentShape.color, 0.3f, corruptType);
-                            ghostBlocks.Add(ghostBlock);
+                            // 建立幽靈方塊（硬降落位置）
+                            int ghostX = ghostPosition.x + x;
+                            int ghostY = ghostPosition.y + y;
+                            
+                            if (ghostPosition != currentPosition && 
+                                GridManager.Instance.IsValidPosition(ghostX, ghostY))
+                            {
+                                GameObject ghostBlock = CreateBlockVisual(ghostX, ghostY, currentShape.color, 0.3f, corruptType);
+                                ghostBlocks.Add(ghostBlock);
+                            }
                         }
                     }
                 }
@@ -704,7 +882,7 @@ namespace Tenronis.Gameplay.Tetromino
         /// <summary>
         /// 建立方塊視覺
         /// </summary>
-        private GameObject CreateBlockVisual(int gridX, int gridY, BlockColor color, float alpha, BlockType? corruptType = null)
+        private GameObject CreateBlockVisual(int gridX, int gridY, BlockColor color, float alpha, BlockType? corruptType = null, bool isAnnihilation = false)
         {
             GameObject blockObj;
             SpriteRenderer spriteRenderer;
@@ -747,21 +925,44 @@ namespace Tenronis.Gameplay.Tetromino
             float blockSize = GridManager.Instance.BlockSize;
             blockObj.transform.localScale = new Vector3(blockSize * 0.95f, blockSize * 0.95f, 1f);
             
-            // 設置顏色（如果被腐化則使用白色底）
+            // 設置顏色
             Color blockColor;
-            if (corruptType.HasValue && (corruptType.Value == BlockType.Explosive || corruptType.Value == BlockType.Void))
+            if (isAnnihilation)
             {
-                blockColor = new Color(1f, 1f, 1f, alpha); // 白色底
+                // 湮滅狀態：使用專用貼圖或黑色方塊白色外框
+                if (annihilationBlockSprite != null)
+                {
+                    // 使用自定義貼圖
+                    spriteRenderer.sprite = annihilationBlockSprite;
+                    blockColor = new Color(1f, 1f, 1f, alpha); // 白色（不改變貼圖顏色）
+                    spriteRenderer.color = blockColor;
+                    spriteRenderer.sortingOrder = 11;
+                }
+                else
+                {
+                    // 預設：黑色方塊白色外框
+                    blockColor = new Color(0f, 0f, 0f, alpha); // 黑色
+                    spriteRenderer.color = blockColor;
+                    spriteRenderer.sortingOrder = 11; // 黑色在上層
+                    
+                    // 創建白色外框（稍大的白色方塊在下層）
+                    CreateAnnihilationBorder(blockObj, blockSize, alpha);
+                }
             }
             else
             {
+                // 所有方塊（包括腐蝕方塊）都使用原本的顏色
                 blockColor = GetColorFromBlockColor(color);
                 blockColor.a = alpha;
+                spriteRenderer.color = blockColor;
+                spriteRenderer.sortingOrder = 10;
             }
-            spriteRenderer.color = blockColor;
             
-            // 確保方塊在正確的渲染層
-            spriteRenderer.sortingOrder = 10;
+            // 確保方塊在正確的渲染層（非湮滅狀態）
+            if (!isAnnihilation)
+            {
+                spriteRenderer.sortingOrder = 10;
+            }
             
             // 如果方塊被腐化，添加符號標記
             if (corruptType.HasValue && (corruptType.Value == BlockType.Explosive || corruptType.Value == BlockType.Void))
@@ -773,40 +974,66 @@ namespace Tenronis.Gameplay.Tetromino
         }
         
         /// <summary>
+        /// 創建湮滅方塊的白色外框
+        /// </summary>
+        private void CreateAnnihilationBorder(GameObject blockObj, float blockSize, float alpha)
+        {
+            // 創建白色外框物件（作為子物件）
+            GameObject borderObj = new GameObject("AnnihilationBorder");
+            borderObj.transform.SetParent(blockObj.transform);
+            borderObj.transform.localPosition = Vector3.zero;
+            
+            // 添加 SpriteRenderer
+            SpriteRenderer borderRenderer = borderObj.AddComponent<SpriteRenderer>();
+            
+            // 建立白色方形 Sprite
+            Texture2D tex = new Texture2D(1, 1);
+            tex.SetPixel(0, 0, Color.white);
+            tex.Apply();
+            Sprite sprite = Sprite.Create(tex, new Rect(0, 0, 1, 1), new Vector2(0.5f, 0.5f), 1f);
+            borderRenderer.sprite = sprite;
+            
+            // 設置白色外框顏色
+            borderRenderer.color = new Color(1f, 1f, 1f, alpha);
+            
+            // 外框比方塊稍大（1.15倍），形成邊框效果
+            borderObj.transform.localScale = new Vector3(1.15f, 1.15f, 1f);
+            
+            // 外框在下層
+            borderRenderer.sortingOrder = 10;
+        }
+        
+        /// <summary>
         /// 添加腐化符號標記
         /// </summary>
         private void AddCorruptionSymbol(GameObject blockObj, BlockType corruptType, float blockSize, float alpha)
         {
-            // 創建符號文字物件
+            // 創建符號圖片物件
             GameObject symbolObj = new GameObject("CorruptionSymbol");
             symbolObj.transform.SetParent(blockObj.transform);
             symbolObj.transform.localPosition = Vector3.zero;
-            symbolObj.transform.localScale = Vector3.one;
             
-            // 添加 TextMeshPro 組件
-            TMPro.TextMeshPro symbolText = symbolObj.AddComponent<TMPro.TextMeshPro>();
+            // 添加 SpriteRenderer 組件
+            SpriteRenderer symbolRenderer = symbolObj.AddComponent<SpriteRenderer>();
             
-            // 設置符號和顏色
+            // 設置符號 Sprite
             if (corruptType == BlockType.Explosive)
             {
-                symbolText.text = "!";
-                symbolText.color = new Color(1f, 0f, 0f, alpha); // 紅色
+                symbolRenderer.sprite = explosiveSymbol;
             }
             else // Void
             {
-                symbolText.text = "X";
-                symbolText.color = new Color(0f, 0f, 0f, alpha); // 黑色
+                symbolRenderer.sprite = voidSymbol;
             }
             
-            // 設置文字屬性
-            symbolText.fontSize = 8;
-            symbolText.fontStyle = TMPro.FontStyles.Bold;
-            symbolText.alignment = TMPro.TextAlignmentOptions.Center;
-            symbolText.sortingOrder = 11; // 確保在方塊上方
+            // 設置透明度
+            Color color = Color.white;
+            color.a = alpha;
+            symbolRenderer.color = color;
             
-            // 設置 RectTransform
-            RectTransform rectTransform = symbolObj.GetComponent<RectTransform>();
-            rectTransform.sizeDelta = new Vector2(blockSize, blockSize);
+            // 設置渲染順序和大小
+            symbolRenderer.sortingOrder = 11; // 確保在方塊上方
+            symbolObj.transform.localScale = new Vector3(0.8f, 0.8f, 1f); // 符號稍小於方塊
         }
         
         /// <summary>
