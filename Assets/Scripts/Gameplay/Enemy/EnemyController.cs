@@ -3,6 +3,7 @@ using Tenronis.Data;
 using Tenronis.Core;
 using Tenronis.Managers;
 using Tenronis.ScriptableObjects;
+using Tenronis.Gameplay.Projectiles;
 
 namespace Tenronis.Gameplay.Enemy
 {
@@ -382,7 +383,11 @@ namespace Tenronis.Gameplay.Enemy
             // 實例化爆炸特效
             GameObject effect = Instantiate(damageEffectPrefab, randomPosition, Quaternion.identity);
             
-            // 設置特效在 Time.timeScale = 0 時也能播放
+            // 根據 Volley 等級設置特效顏色
+            int volleyLevel = PlayerManager.Instance != null ? PlayerManager.Instance.Stats.missileExtraCount : 0;
+            Color volleyColor = Missile.GetVolleyColor(volleyLevel);
+            
+            // 設置特效在 Time.timeScale = 0 時也能播放，並設置顏色
             var animator = effect.GetComponent<Animator>();
             if (animator != null)
             {
@@ -394,6 +399,14 @@ namespace Tenronis.Gameplay.Enemy
             {
                 var main = ps.main;
                 main.useUnscaledTime = true;
+                main.startColor = volleyColor;
+            }
+            
+            // 設置 SpriteRenderer 顏色（如果有的話）
+            var spriteRenderers = effect.GetComponentsInChildren<SpriteRenderer>();
+            foreach (var sr in spriteRenderers)
+            {
+                sr.color = volleyColor;
             }
             
             // 使用協程銷毀，確保在 Time.timeScale = 0 時也能正常計時

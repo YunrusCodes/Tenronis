@@ -140,12 +140,18 @@ namespace Tenronis.Managers
         /// <summary>
         /// 發射單個導彈
         /// </summary>
-        public void FireMissile(Vector3 position, float damage, int pierce = 0)
+        public void FireMissile(Vector3 position, float damage, int pierce = 0, int volleyLevel = -1)
         {
             if (missilePool == null) return;
             
+            // 如果沒有指定 volleyLevel，從 PlayerManager 獲取
+            if (volleyLevel < 0 && PlayerManager.Instance != null)
+            {
+                volleyLevel = PlayerManager.Instance.Stats.missileExtraCount;
+            }
+            
             Missile missile = missilePool.Get();
-            missile.Initialize(position, damage, pierce);
+            missile.Initialize(position, damage, pierce, volleyLevel);
             activeMissiles.Add(missile);
             
             GameEvents.TriggerMissileFired(damage);

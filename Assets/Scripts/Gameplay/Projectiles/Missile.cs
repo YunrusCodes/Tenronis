@@ -10,7 +10,6 @@ namespace Tenronis.Gameplay.Projectiles
     {
         [Header("視覺")]
         [SerializeField] private SpriteRenderer spriteRenderer;
-        [SerializeField] private TrailRenderer trailRenderer;
         
         // 導彈數據
         private float damage;
@@ -23,7 +22,7 @@ namespace Tenronis.Gameplay.Projectiles
         /// <summary>
         /// 初始化導彈
         /// </summary>
-        public void Initialize(Vector3 position, float damage, int pierce = 0)
+        public void Initialize(Vector3 position, float damage, int pierce = 0, int volleyLevel = 0)
         {
             transform.position = position;
             this.damage = damage;
@@ -32,10 +31,28 @@ namespace Tenronis.Gameplay.Projectiles
             // 向上飛行
             velocity = Vector2.up * GameConstants.MISSILE_SPEED;
             
+            // 根據 Volley 等級設置顏色
+            Color missileColor = GetVolleyColor(volleyLevel);
+            
             if (spriteRenderer != null)
             {
-                spriteRenderer.color = new Color(0.13f, 0.83f, 0.93f); // 青色
+                spriteRenderer.color = missileColor;
             }
+        }
+        
+        /// <summary>
+        /// 根據 Volley 等級獲取顏色
+        /// </summary>
+        public static Color GetVolleyColor(int volleyLevel)
+        {
+            if (volleyLevel <= 0)
+                return Color.white;                              // Lv0: 白色
+            else if (volleyLevel == 1)
+                return new Color(1f, 0.5f, 0f);                  // Lv1: 橘色
+            else if (volleyLevel == 2)
+                return new Color(1f, 0.2f, 0.2f);                // Lv2: 紅色
+            else
+                return new Color(0.3f, 0.5f, 1f);                // Lv3+: 藍色
         }
         
         private void Update()
