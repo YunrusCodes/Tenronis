@@ -361,7 +361,7 @@ namespace Tenronis.Gameplay.Player
         /// <summary>
         /// 處理消除行事件
         /// </summary>
-        private void HandleRowsCleared(List<int> clearedRows, int nonGarbageRowCount, bool hasVoid)
+        private void HandleRowsCleared(List<int> clearedRows, List<int> nonGarbageRows, bool hasVoid)
         {
             if (isGameOver) return;
             if (attackEffectPrefab == null) return;
@@ -374,7 +374,7 @@ namespace Tenronis.Gameplay.Player
             }
             
             // 根據非垃圾方塊行數生成攻擊特效
-            StartCoroutine(SpawnAttackEffectsForRows(nonGarbageRowCount));
+            StartCoroutine(SpawnAttackEffectsForRows(nonGarbageRows.Count));
         }
         
         /// <summary>

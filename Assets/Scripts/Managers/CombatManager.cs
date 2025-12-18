@@ -79,9 +79,9 @@ namespace Tenronis.Managers
         /// <summary>
         /// 發射導彈（消除行時觸發）
         /// </summary>
-        private void HandleRowsCleared(List<int> clearedRows, int nonGarbageRowCount, bool hasVoid)
+        private void HandleRowsCleared(List<int> clearedRows, List<int> nonGarbageRows, bool hasVoid)
         {
-            if (nonGarbageRowCount <= 0) return;
+            if (nonGarbageRows.Count <= 0) return;
             
             // 虛無抵銷：不發射導彈
             if (hasVoid)
@@ -92,49 +92,114 @@ namespace Tenronis.Managers
             }
             
             // 只為非垃圾方塊行發射導彈
-            Debug.Log($"[CombatManager] 消除了 {clearedRows.Count} 行（其中 {nonGarbageRowCount} 行非垃圾方塊），從消除位置發射導彈");
+            Debug.Log($"[CombatManager] 消除了 {clearedRows.Count} 行（其中 {nonGarbageRows.Count} 行非垃圾方塊），從消除位置發射導彈");
             
             var stats = PlayerManager.Instance.Stats;
             
             // 計算傷害加成（基於非垃圾方塊行數，超過4行以4計算）
-            int effectiveRowCount = Mathf.Min(nonGarbageRowCount, 4);
+            int effectiveRowCount = Mathf.Min(nonGarbageRows.Count, 4);
             float salvoBonus = effectiveRowCount > 1 ? (effectiveRowCount - 1) * (stats.salvoLevel * GameConstants.SALVO_DAMAGE_MULTIPLIER) : 0f;
             float burstBonus = stats.burstLevel * stats.comboCount * GameConstants.BURST_DAMAGE_MULTIPLIER;
-            float volleyMultiplier = 1 + stats.missileExtraCount; // Volley 傷害倍率
-            float totalDamage = (GameConstants.BASE_MISSILE_DAMAGE + salvoBonus + burstBonus) * volleyMultiplier;
+            int volleyExtraMissiles = stats.missileExtraCount; // Volley 額外導彈數量
+            float totalDamage = GameConstants.BASE_MISSILE_DAMAGE + salvoBonus + burstBonus;
             
-            // 統計非垃圾方塊行（用於發射導彈）
-            List<int> nonGarbageRows = new List<int>();
-            foreach (int row in clearedRows)
-            {
-                bool isGarbageRow = true;
-                for (int x = 0; x < GameConstants.BOARD_WIDTH; x++)
-                {
-                    BlockData block = GridManager.Instance.GetBlock(x, row);
-                    if (block != null && block.color != BlockColor.Garbage)
-                    {
-                        isGarbageRow = false;
-                        break;
-                    }
-                }
-                
-                if (!isGarbageRow)
-                {
-                    nonGarbageRows.Add(row);
-                }
-            }
-            
-            // 從實際消除的行位置發射導彈（每格一發）
+            // 從非垃圾方塊行位置發射導彈（每格發射 1 + volleyExtraMissiles 發）
             foreach (int row in nonGarbageRows)
             {
                 for (int x = 0; x < GameConstants.BOARD_WIDTH; x++)
                 {
                     Vector3 spawnPos = GridManager.Instance.GridToWorldPosition(x, row);
-                    FireMissile(spawnPos, totalDamage);
+                    
+                    // 發射基礎 1 發 + 額外導彈，以骰子點數方式排列
+                    int totalMissiles = 1 + volleyExtraMissiles;
+                    Vector2[] dicePattern = CombatManager.GetDicePattern(totalMissiles);
+                    
+                    for (int i = 0; i < dicePattern.Length; i++)
+                    {
+                        Vector3 offsetPos = spawnPos + new Vector3(dicePattern[i].x, dicePattern[i].y, 0);
+                        FireMissile(offsetPos, totalDamage);
+                    }
                 }
             }
             
             GameEvents.TriggerPlayMissileSound();
+        }
+        
+        /// <summary>
+        /// 獲取骰子點數排列模式
+        /// </summary>
+        public static Vector2[] GetDicePattern(int count)
+        {
+            const float spacing = 0.25f; // 網格間距（格子寬度的 25%）
+            
+            switch (count)
+            {
+                case 1: // 骰子 1：中心
+                    return new Vector2[]
+                    {
+                        new Vector2(0, 0)
+                    };
+                
+                case 2: // 骰子 2：對角（左下、右上）
+                    return new Vector2[]
+                    {
+                        new Vector2(-spacing, -spacing),
+                        new Vector2(spacing, spacing)
+                    };
+                
+                case 3: // 骰子 3：對角線（左下、中心、右上）
+                    return new Vector2[]
+                    {
+                        new Vector2(-spacing, -spacing),
+                        new Vector2(0, 0),
+                        new Vector2(spacing, spacing)
+                    };
+                
+                case 4: // 骰子 4：四個角
+                    return new Vector2[]
+                    {
+                        new Vector2(-spacing, -spacing),
+                        new Vector2(spacing, -spacing),
+                        new Vector2(-spacing, spacing),
+                        new Vector2(spacing, spacing)
+                    };
+                
+                case 5: // 骰子 5：四個角 + 中心
+                    return new Vector2[]
+                    {
+                        new Vector2(-spacing, -spacing),
+                        new Vector2(spacing, -spacing),
+                        new Vector2(0, 0),
+                        new Vector2(-spacing, spacing),
+                        new Vector2(spacing, spacing)
+                    };
+                
+                case 6: // 骰子 6：左右兩列各三個
+                    return new Vector2[]
+                    {
+                        new Vector2(-spacing, -spacing),
+                        new Vector2(-spacing, 0),
+                        new Vector2(-spacing, spacing),
+                        new Vector2(spacing, -spacing),
+                        new Vector2(spacing, 0),
+                        new Vector2(spacing, spacing)
+                    };
+                
+                default: // 超過 6 發：環形排列
+                    Vector2[] pattern = new Vector2[count];
+                    float angleStep = 360f / count;
+                    float radius = spacing * 1.5f;
+                    
+                    for (int i = 0; i < count; i++)
+                    {
+                        float angle = i * angleStep * Mathf.Deg2Rad;
+                        pattern[i] = new Vector2(
+                            Mathf.Cos(angle) * radius,
+                            Mathf.Sin(angle) * radius
+                        );
+                    }
+                    return pattern;
+            }
         }
         
         /// <summary>
@@ -529,15 +594,17 @@ namespace Tenronis.Managers
                 stats.comboCount++;
                 GameEvents.TriggerComboChanged(stats.comboCount);
                 
-                // 發射反擊導彈
+                // 發射反擊導彈（使用骰子點數排列）
                 float burstBonus = stats.burstLevel * stats.comboCount * GameConstants.BURST_DAMAGE_MULTIPLIER;
                 float damage = (GameConstants.BASE_MISSILE_DAMAGE + burstBonus);
                 
-                for (int i = 0; i < stats.counterFireLevel; i++)
+                Vector3 firePos = GridManager.Instance.GridToWorldPosition(hitPos.x, hitPos.y);
+                Vector2[] dicePattern = GetDicePattern(stats.counterFireLevel);
+                
+                for (int i = 0; i < dicePattern.Length; i++)
                 {
-                    Vector3 firePos = GridManager.Instance.GridToWorldPosition(hitPos.x, hitPos.y);
-                    firePos.y -= i * 0.2f;
-                    FireMissile(firePos, damage);
+                    Vector3 offsetPos = firePos + new Vector3(dicePattern[i].x, dicePattern[i].y, 0);
+                    FireMissile(offsetPos, damage);
                 }
                 
                 // 播放反擊音效

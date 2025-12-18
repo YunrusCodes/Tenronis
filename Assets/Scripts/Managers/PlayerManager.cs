@@ -176,7 +176,7 @@ namespace Tenronis.Managers
                     
                 case BuffType.Volley:
                     stats.missileExtraCount++;
-                    Debug.Log($"[PlayerManager] 協同火力等級提升至: {stats.missileExtraCount}");
+                    Debug.Log($"[PlayerManager] 協同火力等級提升至: {stats.missileExtraCount}（每個位置發射 {1 + stats.missileExtraCount} 發導彈）");
                     break;
                     
                 case BuffType.Explosion:
@@ -314,7 +314,7 @@ namespace Tenronis.Managers
         /// <summary>
         /// 處理消除行
         /// </summary>
-        private void HandleRowsCleared(List<int> clearedRows, int nonGarbageRowCount, bool hasVoid)
+        private void HandleRowsCleared(List<int> clearedRows, List<int> nonGarbageRows, bool hasVoid)
         {
             if (clearedRows.Count > 0)
             {

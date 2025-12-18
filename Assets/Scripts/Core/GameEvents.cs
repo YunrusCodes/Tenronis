@@ -18,7 +18,7 @@ namespace Tenronis.Core
         public static event Action OnNextPieceChanged; // 下一個方塊已更新
         public static event Action<int> OnHeldPieceChanged; // 儲存方塊已更新，參數：儲存位置索引
         public static event Action OnHeldSlotStateChanged; // 儲存槽位狀態改變（可用/鎖定）
-        public static event Action<List<int>, int, bool> OnRowsCleared; // 參數：消除的行號列表, 非垃圾方塊行數, 是否包含虛無方塊
+        public static event Action<List<int>, List<int>, bool> OnRowsCleared; // 參數：消除的行號列表, 非垃圾方塊行號列表, 是否包含虛無方塊
         public static event Action OnGridOverflow;
         public static event Action OnGridChanged; // 地形改變（方塊被移除、傷害等）
         
@@ -62,7 +62,7 @@ namespace Tenronis.Core
         public static void TriggerNextPieceChanged() => OnNextPieceChanged?.Invoke();
         public static void TriggerHeldPieceChanged(int slotIndex) => OnHeldPieceChanged?.Invoke(slotIndex);
         public static void TriggerHeldSlotStateChanged() => OnHeldSlotStateChanged?.Invoke();
-        public static void TriggerRowsCleared(List<int> clearedRows, int nonGarbageCount, bool hasVoid = false) => OnRowsCleared?.Invoke(clearedRows, nonGarbageCount, hasVoid);
+        public static void TriggerRowsCleared(List<int> clearedRows, List<int> nonGarbageRows, bool hasVoid = false) => OnRowsCleared?.Invoke(clearedRows, nonGarbageRows, hasVoid);
         public static void TriggerGridOverflow() => OnGridOverflow?.Invoke();
         public static void TriggerGridChanged() => OnGridChanged?.Invoke();
         public static void TriggerMissileFired(float damage) => OnMissileFired?.Invoke(damage);

@@ -491,12 +491,12 @@ namespace Tenronis.UI
             }
         }
         
-        private void HandleRowsClearedForSalvo(List<int> clearedRows, int nonGarbageRowCount, bool hasVoid)
+        private void HandleRowsClearedForSalvo(List<int> clearedRows, List<int> nonGarbageRows, bool hasVoid)
         {
             if (hasVoid) return;
-            if (nonGarbageRowCount >= 2)
+            if (nonGarbageRows.Count >= 2)
             {
-                lastClearedRows = nonGarbageRowCount;
+                lastClearedRows = nonGarbageRows.Count;
                 salvoDisplayTimer = 2f;
                 salvoAnimationTimer = salvoAnimationDuration; // 觸發動畫
                 
@@ -506,13 +506,13 @@ namespace Tenronis.UI
                     float intensity;
                     float duration;
                     
-                    if (nonGarbageRowCount >= 4)
+                    if (nonGarbageRows.Count >= 4)
                     {
                         // 全彈齊射 - 最劇烈
                         intensity = 0.4f;
                         duration = 0.35f;
                     }
-                    else if (nonGarbageRowCount == 3)
+                    else if (nonGarbageRows.Count == 3)
                     {
                         // 三連齊射 - 中等
                         intensity = 0.25f;

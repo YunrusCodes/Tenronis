@@ -21,7 +21,7 @@ namespace Tenronis.Gameplay.Player
             if (!PlayerManager.Instance.UseExecution()) return;
             
             var stats = PlayerManager.Instance.Stats;
-            float volleyMultiplier = 1 + stats.missileExtraCount; // Volley 傷害倍率
+            int volleyExtraMissiles = stats.missileExtraCount; // Volley 額外導彈數量
             
             // 清除每列最上面的方塊（削平表面）
             for (int x = 0; x < GameConstants.BOARD_WIDTH; x++)
@@ -33,11 +33,18 @@ namespace Tenronis.Gameplay.Player
                     {
                         GridManager.Instance.RemoveBlock(x, y);
                         
-                        // 發射導彈（受 Volley 傷害倍率影響）
+                        // 發射導彈（發射 1 + volleyExtraMissiles 發），以骰子點數方式排列
                         Vector3 pos = GridManager.Instance.GridToWorldPosition(x, y);
-                        float damage = GameConstants.EXECUTION_DAMAGE * volleyMultiplier;
+                        float damage = GameConstants.EXECUTION_DAMAGE;
                         
-                        CombatManager.Instance?.FireMissile(pos, damage);
+                        int totalMissiles = 1 + volleyExtraMissiles;
+                        Vector2[] dicePattern = CombatManager.GetDicePattern(totalMissiles);
+                        
+                        for (int i = 0; i < dicePattern.Length; i++)
+                        {
+                            Vector3 offsetPos = pos + new Vector3(dicePattern[i].x, dicePattern[i].y, 0);
+                            CombatManager.Instance?.FireMissile(offsetPos, damage);
+                        }
                         
                         break; // 只清除最上面的一個
                     }

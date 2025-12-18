@@ -31,28 +31,11 @@ namespace Tenronis.Gameplay.Projectiles
             // 向上飛行
             velocity = Vector2.up * GameConstants.MISSILE_SPEED;
             
-            // 根據 Volley 等級設置顏色
-            Color missileColor = GetVolleyColor(volleyLevel);
-            
+            // 統一使用白色
             if (spriteRenderer != null)
             {
-                spriteRenderer.color = missileColor;
+                spriteRenderer.color = Color.white;
             }
-        }
-        
-        /// <summary>
-        /// 根據 Volley 等級獲取顏色
-        /// </summary>
-        public static Color GetVolleyColor(int volleyLevel)
-        {
-            if (volleyLevel <= 0)
-                return Color.white;                              // Lv0: 白色
-            else if (volleyLevel == 1)
-                return new Color(1f, 0.5f, 0f);                  // Lv1: 橘色
-            else if (volleyLevel == 2)
-                return new Color(1f, 0.2f, 0.2f);                // Lv2: 紅色
-            else
-                return new Color(0.3f, 0.5f, 1f);                // Lv3+: 藍色
         }
         
         private void Update()
