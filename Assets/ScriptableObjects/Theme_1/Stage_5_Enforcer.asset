@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   stageName: Assassin
   stageIndex: 5
-  isBossStage: 0
+  isBossStage: 1
   rewardBuffCount: 3
   maxHp: 320
   shootInterval: 1

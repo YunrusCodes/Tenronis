@@ -76,6 +76,22 @@ PrefabInstance:
       propertyPath: m_Size.y
       value: 0.64
       objectReference: {fileID: 0}
+    - target: {fileID: 5584758894084079982, guid: 1b7cafe053c344647bbfead415ab6683, type: 3}
+      propertyPath: m_Color.b
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5584758894084079982, guid: 1b7cafe053c344647bbfead415ab6683, type: 3}
+      propertyPath: m_Color.g
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5584758894084079982, guid: 1b7cafe053c344647bbfead415ab6683, type: 3}
+      propertyPath: m_Color.r
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5584758894084079982, guid: 1b7cafe053c344647bbfead415ab6683, type: 3}
+      propertyPath: m_WasSpriteAssigned
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 6118039291683937824, guid: 1b7cafe053c344647bbfead415ab6683, type: 3}
       propertyPath: m_Controller
       value: 

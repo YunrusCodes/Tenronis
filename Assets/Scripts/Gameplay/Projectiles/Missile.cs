@@ -35,9 +35,10 @@ namespace Tenronis.Gameplay.Projectiles
             // 向上飛行
             velocity = Vector2.up * GameConstants.MISSILE_SPEED;
             
+            // 統一使用白色
             if (spriteRenderer != null)
             {
-                spriteRenderer.color = new Color(0.13f, 0.83f, 0.93f); // 青色
+                spriteRenderer.color = Color.white;
             }
         }
         

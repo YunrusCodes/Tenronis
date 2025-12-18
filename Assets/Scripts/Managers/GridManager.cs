@@ -283,12 +283,13 @@ namespace Tenronis.Managers
                 }
             }
             
-            // 統計非垃圾方塊的行數
+            // 統計非垃圾方塊的行數並記錄每行是否為垃圾行
             List<int> allRowsToClear = new List<int>();
             allRowsToClear.AddRange(normalRows);
             allRowsToClear.AddRange(indestructibleRows);
             
             int nonGarbageRowCount = 0;
+            List<int> nonGarbageRowsList = new List<int>(); // 記錄非垃圾行的行號
             foreach (int row in allRowsToClear)
             {
                 bool isGarbageRow = true;
@@ -304,6 +305,7 @@ namespace Tenronis.Managers
                 if (!isGarbageRow)
                 {
                     nonGarbageRowCount++;
+                    nonGarbageRowsList.Add(row); // 記錄非垃圾行
                 }
             }
             
@@ -324,10 +326,11 @@ namespace Tenronis.Managers
             // 消除行
             if (rowsToClear.Count > 0)
             {
-                ClearRows(rowsToClear, hasVoidBlocks);
+                // ⚠️ 先觸發事件（在清除之前），傳遞非垃圾行列表
+                GameEvents.TriggerRowsCleared(rowsToClear, nonGarbageRowsList, hasVoidBlocks);
                 
-                // 觸發消除事件，傳遞行號列表、非垃圾方塊行數和是否包含虛無方塊的信息
-                GameEvents.TriggerRowsCleared(rowsToClear, nonGarbageRowCount, hasVoidBlocks);
+                // 然後清除方塊
+                ClearRows(rowsToClear, hasVoidBlocks);
             }
             
             return rowsToClear;

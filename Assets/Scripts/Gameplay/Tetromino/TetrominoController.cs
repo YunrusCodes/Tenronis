@@ -465,12 +465,9 @@ namespace Tenronis.Gameplay.Tetromino
             var stats = PlayerManager.Instance?.Stats;
             if (stats == null) return;
             
-            float volleyMultiplier = 1 + stats.missileExtraCount; // Volley 傷害倍率
+            int volleyExtraMissiles = stats.missileExtraCount; // Volley 額外導彈數量
             float burstBonus = stats.burstLevel * stats.comboCount * GameConstants.BURST_DAMAGE_MULTIPLIER;
-            float damage = (GameConstants.BASE_MISSILE_DAMAGE + burstBonus) * volleyMultiplier;
-            
-            // 計算湮滅的程度等級（不包含消除行數加成）
-            int intensityLevel = Mathf.Min(stats.missileExtraCount + Mathf.Min(stats.comboCount / 10, 3), 8);
+            float damage = GameConstants.BASE_MISSILE_DAMAGE + burstBonus;
             
             // 遍歷方塊的每個格子，檢查重疊
             for (int y = 0; y < currentRotation.GetLength(0); y++)
@@ -490,9 +487,16 @@ namespace Tenronis.Gameplay.Tetromino
                             GridManager.Instance.RemoveBlock(gridX, gridY);
                             destroyedCount++;
                             
-                            // 發射導彈（受 Volley 傷害倍率影響）
+                            // 發射導彈（發射 1 + volleyExtraMissiles 發），以骰子點數方式排列
                             Vector3 pos = GridManager.Instance.GridToWorldPosition(gridX, gridY);
-                            CombatManager.Instance?.FireMissile(pos, damage, intensityLevel);
+                            int totalMissiles = 1 + volleyExtraMissiles;
+                            Vector2[] dicePattern = CombatManager.GetDicePattern(totalMissiles);
+                            
+                            for (int missile = 0; missile < dicePattern.Length; missile++)
+                            {
+                                Vector3 offsetPos = pos + new Vector3(dicePattern[missile].x, dicePattern[missile].y, 0);
+                                CombatManager.Instance?.FireMissile(offsetPos, damage);
+                            }
                         }
                     }
                 }
@@ -503,7 +507,8 @@ namespace Tenronis.Gameplay.Tetromino
             {
                 PlayerManager.Instance?.OnAnnihilationDestroy();
                 GameEvents.TriggerPlayMissileSound();
-                Debug.Log($"[TetrominoController] 湮滅硬降破壞了 {destroyedCount} 個方塊，發射 {destroyedCount} 發導彈（傷害倍率 x{volleyMultiplier}，程度={intensityLevel}）");
+                int totalMissiles = destroyedCount * (1 + volleyExtraMissiles);
+                Debug.Log($"[TetrominoController] 湮滅硬降破壞了 {destroyedCount} 個方塊，發射 {totalMissiles} 發導彈（每格 {1 + volleyExtraMissiles} 發）");
             }
             
             // 退出湮滅狀態
