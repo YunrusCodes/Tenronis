@@ -73,6 +73,11 @@ namespace Tenronis.Data
         // ⭐ 協同火力：最高等級 5
         public const int VOLLEY_MAX_LEVEL = 5;
 
+        // Buff 起始等級
+        public const int DEFENSE_START_LEVEL = 1;
+        public const int VOLLEY_START_LEVEL = 5;
+        public const int TACTICAL_EXPANSION_START_LEVEL = 3;
+
         // 🚫 普通強化（有限等級）
         public static readonly BuffType[] NORMAL_BUFFS = new BuffType[]
         {

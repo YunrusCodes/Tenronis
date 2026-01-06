@@ -15,7 +15,7 @@ MonoBehaviour:
   stageName: Rookie
   stageIndex: 1
   isBossStage: 0
-  rewardBuffCount: 5
+  rewardBuffCount: 1
   maxHp: 120
   shootInterval: 1.8
   bulletSpeed: 8

@@ -15,7 +15,7 @@ MonoBehaviour:
   stageName: Scout
   stageIndex: 2
   isBossStage: 0
-  rewardBuffCount: 5
+  rewardBuffCount: 1
   maxHp: 160
   shootInterval: 1.6
   bulletSpeed: 8.5

@@ -70,8 +70,8 @@ namespace Tenronis.Data
             maxCp = GameConstants.PLAYER_MAX_CP;
             currentCp = GameConstants.PLAYER_MAX_CP;
             score = 0;
-            blockDefenseLevel = 0;
-            missileExtraCount = 0; // Volley（協同火力）起始等級 0（基礎發射 1 發）
+            blockDefenseLevel = GameConstants.DEFENSE_START_LEVEL;
+            missileExtraCount = GameConstants.VOLLEY_START_LEVEL; // Volley（協同火力）起始等級（基礎發射 1 發對應為 0）
             explosionCharge = 0;
             explosionMaxCharge = GameConstants.EXPLOSION_INITIAL_MAX_CHARGE;
             explosionChargeLevel = 1; // Explosion 起始等級 1
@@ -80,7 +80,7 @@ namespace Tenronis.Data
             counterFireLevel = 1;
             spaceExpansionLevel = 1; // 初始解鎖 1 個槽位（A 鍵）
             cpExpansionLevel = 0;
-            tacticalExpansionLevel = 0; // 戰術擴展起始等級 0
+            tacticalExpansionLevel = GameConstants.TACTICAL_EXPANSION_START_LEVEL; // 戰術擴展起始等級
             comboCount = 0;
         }
     }
