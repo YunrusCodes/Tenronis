@@ -69,6 +69,9 @@ namespace Tenronis.Data
 
         // ⭐ 戰術擴展：最高等級 3
         public const int TACTICAL_EXPANSION_MAX_LEVEL = 3;
+        
+        // ⭐ 協同火力：最高等級 5
+        public const int VOLLEY_MAX_LEVEL = 5;
 
         // 🚫 普通強化（有限等級）
         public static readonly BuffType[] NORMAL_BUFFS = new BuffType[]
@@ -87,7 +90,7 @@ namespace Tenronis.Data
         public static readonly BuffType[] LEGENDARY_BUFFS = new BuffType[]
         {
             BuffType.Defense,    // 裝甲強化：無上限
-            BuffType.Volley,     // 協同火力：無上限
+            BuffType.Volley,     // 協同火力：上限5級
             BuffType.TacticalExpansion // ⭐ 戰術擴展：解鎖技能
         };
     }

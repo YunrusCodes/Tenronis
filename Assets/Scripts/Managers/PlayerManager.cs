@@ -63,6 +63,10 @@ namespace Tenronis.Managers
                 // ⭐ TacticalExpansion 是傳奇強化，但有等級上限
                 case BuffType.TacticalExpansion:
                     return stats.tacticalExpansionLevel >= GameConstants.TACTICAL_EXPANSION_MAX_LEVEL;
+                
+                // ⭐ Volley 是傳奇強化，但有等級上限
+                case BuffType.Volley:
+                    return stats.missileExtraCount >= GameConstants.VOLLEY_MAX_LEVEL;
 
                 default:
                     return false; 
@@ -175,8 +179,15 @@ namespace Tenronis.Managers
                     break;
                     
                 case BuffType.Volley:
-                    stats.missileExtraCount++;
-                    Debug.Log($"[PlayerManager] 協同火力等級提升至: {stats.missileExtraCount}（每個位置發射 {1 + stats.missileExtraCount} 發導彈）");
+                    if (stats.missileExtraCount < GameConstants.VOLLEY_MAX_LEVEL)
+                    {
+                        stats.missileExtraCount++;
+                        Debug.Log($"[PlayerManager] 協同火力等級提升至: {stats.missileExtraCount}/{GameConstants.VOLLEY_MAX_LEVEL}（每個位置發射 {1 + stats.missileExtraCount} 發導彈）");
+                    }
+                    else
+                    {
+                        Debug.Log($"[PlayerManager] 協同火力已達最高等級 {GameConstants.VOLLEY_MAX_LEVEL}");
+                    }
                     break;
                     
                 case BuffType.Explosion:
