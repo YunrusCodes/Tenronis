@@ -246,40 +246,9 @@ namespace Tenronis.Managers
             pendingBuffCount--;
             Debug.Log($"[GameManager] 選擇Buff: {buffType}，剩餘: {pendingBuffCount}");
             
-            if (pendingBuffCount <= 0)
-            {
-                // 檢查是否需要提供傳奇強化選擇
-                bool shouldWaitForLegendaryBuff = false;
-                
-                if (PlayerManager.Instance != null)
-                {
-                    // 檢查選擇的Buff是否為普通強化
-                    bool isNormalBuff = System.Array.IndexOf(GameConstants.NORMAL_BUFFS, buffType) >= 0;
-                    
-                    if (isNormalBuff)
-                    {
-                        // 檢查是否使普通強化達到滿級
-                        bool isNowMaxed = PlayerManager.Instance.IsBuffMaxed(buffType);
-                        
-                        if (isNowMaxed)
-                        {
-                            // 只要普通強化達到滿級，就提供傳奇強化選擇
-                            shouldWaitForLegendaryBuff = true;
-                        }
-                    }
-                }
-                
-                if (!shouldWaitForLegendaryBuff)
-                {
-                    // 恢復遊戲
-                    ChangeGameState(GameState.Playing);
-                }
-                else
-                {
-                    Debug.Log("[GameManager] 檢測到普通強化達到滿級，等待傳奇強化選擇...");
-                    // 不改變狀態，讓RoguelikeMenu處理傳奇強化選擇
-                }
-            }
+            // 傳奇強化現在是自動獎勵，說明頁面會由 RoguelikeMenu 控制
+            // 不要在這裡立即改變遊戲狀態，讓 RoguelikeMenu 在說明頁面確認後再處理
+            // 這樣可以確保玩家看到說明頁面後才開始遊戲
         }
         
         /// <summary>
@@ -405,6 +374,42 @@ namespace Tenronis.Managers
             }
             
             return selected;
+        }
+        
+        /// <summary>
+        /// 自動選擇一個傳奇強化作為獎勵（當普通強化達到滿級時）
+        /// </summary>
+        public BuffDataSO GetRandomLegendaryBuffReward()
+        {
+            if (legendaryBuffs == null || legendaryBuffs.Length == 0)
+            {
+                Debug.LogWarning("[GameManager] 沒有可用的傳奇強化！");
+                return null;
+            }
+            
+            // 過濾出可用的傳奇強化（排除已滿級和null）
+            var availableLegendaryBuffs = new List<BuffDataSO>();
+            foreach (var buff in legendaryBuffs)
+            {
+                if (buff != null)
+                {
+                    // 檢查是否已達滿級（對於有上限的傳奇強化）
+                    if (PlayerManager.Instance != null && PlayerManager.Instance.IsBuffMaxed(buff.buffType))
+                        continue;
+                        
+                    availableLegendaryBuffs.Add(buff);
+                }
+            }
+            
+            if (availableLegendaryBuffs.Count == 0)
+            {
+                Debug.LogWarning("[GameManager] 所有傳奇強化都已達滿級！");
+                return null;
+            }
+            
+            // 基於權重隨機選擇一個
+            var selected = SelectRandomBuff(availableLegendaryBuffs, 1);
+            return selected.Count > 0 ? selected[0] : null;
         }
     }
 }

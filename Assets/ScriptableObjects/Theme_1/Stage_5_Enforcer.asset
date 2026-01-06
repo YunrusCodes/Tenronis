@@ -15,7 +15,7 @@ MonoBehaviour:
   stageName: Assassin
   stageIndex: 5
   isBossStage: 1
-  rewardBuffCount: 3
+  rewardBuffCount: 5
   maxHp: 320
   shootInterval: 1
   bulletSpeed: 10

@@ -15,7 +15,7 @@ MonoBehaviour:
   stageName: Breaker
   stageIndex: 7
   isBossStage: 0
-  rewardBuffCount: 3
+  rewardBuffCount: 5
   maxHp: 420
   shootInterval: 1.45
   bulletSpeed: 10.5

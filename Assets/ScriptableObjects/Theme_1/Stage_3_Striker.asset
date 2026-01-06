@@ -15,7 +15,7 @@ MonoBehaviour:
   stageName: Hunter
   stageIndex: 3
   isBossStage: 0
-  rewardBuffCount: 1
+  rewardBuffCount: 5
   maxHp: 200
   shootInterval: 1.4
   bulletSpeed: 9

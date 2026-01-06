@@ -15,7 +15,7 @@ MonoBehaviour:
   stageName: Obliterator
   stageIndex: 10
   isBossStage: 1
-  rewardBuffCount: 1
+  rewardBuffCount: 5
   maxHp: 900
   shootInterval: 1
   bulletSpeed: 12

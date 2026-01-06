@@ -16,6 +16,7 @@ namespace Tenronis.UI
     public class RoguelikeMenu : MonoBehaviour
     {
         [Header("Buff選項")]
+        [SerializeField] private GameObject selectPanel; // SelectPanel (包含 BuffOptionsContainer)
         [SerializeField] private Transform buffOptionsContainer;
         [SerializeField] private GameObject buffOptionPrefab;
         
@@ -35,18 +36,28 @@ namespace Tenronis.UI
         [SerializeField] private Button normalBuffButton;
         [SerializeField] private Button legendaryBuffButton;
         
+        [Header("傳奇強化說明頁面")]
+        [SerializeField] private GameObject bonusPanel;
+        [SerializeField] private Image bonusImage;
+        [SerializeField] private TextMeshProUGUI bonusText;
+        [SerializeField] private Button bonusConfirmButton;
+        
         private List<GameObject> currentOptions = new List<GameObject>();
         private List<GameObject> attackPreviewItems = new List<GameObject>();
         private List<Coroutine> spriteSyncCoroutines = new List<Coroutine>();
-        private bool isLegendaryBuffSelectionPhase = false;
         private bool showDetailedInfo = false; // 是否顯示詳細資訊
         private int currentInfoTab = 0; // 0=敵人資訊, 1=普通強化, 2=傳奇強化
+        private bool waitingForBonusConfirm = false; // 是否正在等待說明頁面確認
         
         private void OnEnable()
         {
-            isLegendaryBuffSelectionPhase = false;
             currentInfoTab = 0; // 0=普通強化, 1=傳奇強化（不再有敵人資訊分頁）
             showDetailedInfo = false; // 默認不顯示詳細資訊
+            waitingForBonusConfirm = false;
+            
+            // 確保說明頁面初始為關閉狀態
+            if (bonusPanel != null)
+                bonusPanel.SetActive(false);
             
             GenerateBuffOptions();
             UpdateCurrentStats();
@@ -57,6 +68,9 @@ namespace Tenronis.UI
             
             // 設置 Toggle
             SetupDetailToggle();
+            
+            // 設置說明頁面確認按鈕
+            SetupBonusConfirmButton();
             
             // 預設顯示普通強化
             ShowInfoTab(0);
@@ -70,6 +84,19 @@ namespace Tenronis.UI
             // 移除按鈕監聽
             if (normalBuffButton != null) normalBuffButton.onClick.RemoveAllListeners();
             if (legendaryBuffButton != null) legendaryBuffButton.onClick.RemoveAllListeners();
+            if (bonusConfirmButton != null) bonusConfirmButton.onClick.RemoveAllListeners();
+        }
+        
+        /// <summary>
+        /// 設置說明頁面確認按鈕
+        /// </summary>
+        private void SetupBonusConfirmButton()
+        {
+            if (bonusConfirmButton != null)
+            {
+                bonusConfirmButton.onClick.RemoveAllListeners();
+                bonusConfirmButton.onClick.AddListener(OnBonusConfirmClicked);
+            }
         }
         
         /// <summary>
@@ -203,8 +230,9 @@ namespace Tenronis.UI
             
             if (GameManager.Instance == null) return;
             
-            int optionCount = isLegendaryBuffSelectionPhase ? 3 : 2; // 傳奇強化三選一，普通強化二選一
-            BuffDataSO[] options = GameManager.Instance.GetRandomBuffOptions(optionCount, isLegendaryBuffSelectionPhase);
+            // 普通強化固定為二選一（不再有傳奇強化選擇階段）
+            int optionCount = 2;
+            BuffDataSO[] options = GameManager.Instance.GetRandomBuffOptions(optionCount, false);
             
             foreach (var buffData in options)
             {
@@ -294,14 +322,13 @@ namespace Tenronis.UI
         /// </summary>
         private void OnSelectBuff(BuffType buffType)
         {
-            // 記錄選擇前的狀態（是否有普通強化已滿級）
-            bool hadMaxedNormalBuffBefore = PlayerManager.Instance != null && PlayerManager.Instance.HasMaxedNormalBuff();
-            
             // 檢查選擇的Buff是否為普通強化
             bool isNormalBuff = System.Array.IndexOf(GameConstants.NORMAL_BUFFS, buffType) >= 0;
             
-            // 檢查這是否會是最後一個Buff（在觸發事件前檢查）
-            bool isLastBuff = GameManager.Instance.PendingBuffCount <= 1;
+            // 記錄選擇前的狀態（用於檢測技能解鎖）
+            bool wasAnnihilationUnlocked = PlayerManager.Instance != null && PlayerManager.Instance.IsAnnihilationUnlocked();
+            bool wasExecutionUnlocked = PlayerManager.Instance != null && PlayerManager.Instance.IsExecutionUnlocked();
+            bool wasRepairUnlocked = PlayerManager.Instance != null && PlayerManager.Instance.IsRepairUnlocked();
             
             // 觸發Buff選擇事件（這會應用Buff效果）
             GameEvents.TriggerBuffSelected(buffType);
@@ -313,31 +340,193 @@ namespace Tenronis.UI
                 isSelectedBuffMaxed = PlayerManager.Instance.IsBuffMaxed(buffType);
             }
             
-            // 如果選擇的普通強化使其達到滿級，則提供一次傳奇強化選擇
-            bool shouldOfferLegendaryBuff = isNormalBuff && isSelectedBuffMaxed;
+            // 檢查是否解鎖了新技能
+            bool unlockedAnnihilation = PlayerManager.Instance != null && !wasAnnihilationUnlocked && PlayerManager.Instance.IsAnnihilationUnlocked();
+            bool unlockedExecution = PlayerManager.Instance != null && !wasExecutionUnlocked && PlayerManager.Instance.IsExecutionUnlocked();
+            bool unlockedRepair = PlayerManager.Instance != null && !wasRepairUnlocked && PlayerManager.Instance.IsRepairUnlocked();
             
-            // 如果應該提供傳奇強化（Bonus Pick）
-            if (shouldOfferLegendaryBuff)
+            // 如果選擇的普通強化使其達到滿級，則自動給予傳奇強化獎勵
+            if (isSelectedBuffMaxed)
             {
-                Debug.Log("[RoguelikeMenu] 普通強化已達滿級，提供額外傳奇強化選擇機會！");
+                Debug.Log("[RoguelikeMenu] 普通強化已達滿級，自動給予傳奇強化獎勵！");
                 
-                // 標記進入傳奇強化選擇階段
-                isLegendaryBuffSelectionPhase = true;
-                
-                // 增加一次待選次數（因為這是額外的獎勵）
-                GameManager.Instance.AddPendingBuffs(1);
-                
-                // 刷新選項（會顯示傳奇強化）
-                GenerateBuffOptions();
-                UpdateCurrentStats();
-                
-                // 保持選單打開，不關閉
+                // 自動選擇一個傳奇強化作為獎勵
+                var legendaryBuff = GameManager.Instance.GetRandomLegendaryBuffReward();
+                if (legendaryBuff != null)
+                {
+                    // 記錄選擇前的傳奇強化等級和技能解鎖狀態
+                    int volleyLevelBefore = PlayerManager.Instance != null ? PlayerManager.Instance.Stats.missileExtraCount : 0;
+                    int defenseLevelBefore = PlayerManager.Instance != null ? PlayerManager.Instance.Stats.blockDefenseLevel : 0;
+                    bool wasAnnihilationUnlockedAfter = PlayerManager.Instance != null && PlayerManager.Instance.IsAnnihilationUnlocked();
+                    bool wasExecutionUnlockedAfter = PlayerManager.Instance != null && PlayerManager.Instance.IsExecutionUnlocked();
+                    bool wasRepairUnlockedAfter = PlayerManager.Instance != null && PlayerManager.Instance.IsRepairUnlocked();
+                    
+                    // 應用傳奇強化
+                    GameManager.Instance.AddPendingBuffs(1);
+                    GameEvents.TriggerBuffSelected(legendaryBuff.buffType);
+                    
+                    // 重新檢查技能解鎖狀態（因為 TacticalExpansion 可能會解鎖技能）
+                    bool unlockedAnnihilationAfter = PlayerManager.Instance != null && !wasAnnihilationUnlockedAfter && PlayerManager.Instance.IsAnnihilationUnlocked();
+                    bool unlockedExecutionAfter = PlayerManager.Instance != null && !wasExecutionUnlockedAfter && PlayerManager.Instance.IsExecutionUnlocked();
+                    bool unlockedRepairAfter = PlayerManager.Instance != null && !wasRepairUnlockedAfter && PlayerManager.Instance.IsRepairUnlocked();
+                    
+                    // 檢查是否升級了 Volley 或 Defense
+                    bool volleyUpgraded = legendaryBuff.buffType == BuffType.Volley && 
+                                         PlayerManager.Instance != null && 
+                                         PlayerManager.Instance.Stats.missileExtraCount > volleyLevelBefore;
+                    bool defenseUpgraded = legendaryBuff.buffType == BuffType.Defense && 
+                                          PlayerManager.Instance != null && 
+                                          PlayerManager.Instance.Stats.blockDefenseLevel > defenseLevelBefore;
+                    
+                    // 如果升級了 Volley、Defense 或解鎖了技能，顯示說明頁面
+                    if (volleyUpgraded || defenseUpgraded || unlockedAnnihilationAfter || unlockedExecutionAfter || unlockedRepairAfter)
+                    {
+                        ShowBonusPanel(legendaryBuff, volleyUpgraded, defenseUpgraded, unlockedAnnihilationAfter, unlockedExecutionAfter, unlockedRepairAfter);
+                        waitingForBonusConfirm = true;
+                        return; // 等待確認按鈕，不繼續下一步
+                    }
+                }
+                else
+                {
+                    Debug.LogWarning("[RoguelikeMenu] 無法獲得傳奇強化獎勵（所有傳奇強化已達滿級或無可用選項）");
+                }
+            }
+            // 如果只是解鎖了技能（沒有獲得傳奇強化），也顯示說明頁面
+            else if (unlockedAnnihilation || unlockedExecution || unlockedRepair)
+            {
+                ShowBonusPanel(null, false, false, unlockedAnnihilation, unlockedExecution, unlockedRepair);
+                waitingForBonusConfirm = true;
+                return; // 等待確認按鈕，不繼續下一步
+            }
+            
+            // 如果沒有需要顯示說明頁面的情況，繼續正常流程
+            ContinueAfterBuffSelection();
+        }
+        
+        /// <summary>
+        /// 顯示傳奇強化說明頁面
+        /// </summary>
+        private void ShowBonusPanel(BuffDataSO legendaryBuff, bool volleyUpgraded, bool defenseUpgraded, 
+                                    bool unlockedAnnihilation, bool unlockedExecution, bool unlockedRepair)
+        {
+            if (bonusPanel == null)
+            {
+                Debug.LogError("[RoguelikeMenu] BonusPanel 未設置！");
                 return;
             }
             
-            // 如果不是 Bonus Pick，或者 Bonus Pick 已經選完了
-            // 重置傳奇強化選擇階段標記（這樣下次刷新就會回到普通池，除非所有普通強化都滿了）
-            isLegendaryBuffSelectionPhase = false;
+            // 關閉選擇界面
+            if (selectPanel != null)
+                selectPanel.SetActive(false);
+            
+            // 設置圖片和文字
+            string descriptionText = "";
+            Sprite iconSprite = null;
+            
+            if (volleyUpgraded && PlayerManager.Instance != null)
+            {
+                int volleyLevel = PlayerManager.Instance.Stats.missileExtraCount;
+                descriptionText = $"現在消除方塊，會額外生成 {1 + volleyLevel} 發飛彈";
+                if (legendaryBuff != null)
+                    iconSprite = legendaryBuff.icon;
+            }
+            else if (defenseUpgraded && PlayerManager.Instance != null)
+            {
+                int defenseLevel = PlayerManager.Instance.Stats.blockDefenseLevel;
+                descriptionText = $"方塊現在可以承受 {1 + defenseLevel} 發飛彈";
+                if (legendaryBuff != null)
+                    iconSprite = legendaryBuff.icon;
+            }
+            else if (unlockedAnnihilation)
+            {
+                descriptionText = "現在按 1 能使用湮滅";
+                // 可以從 GameManager 獲取 TacticalExpansion 的圖標
+                if (GameManager.Instance != null && GameManager.Instance.LegendaryBuffs != null)
+                {
+                    foreach (var buff in GameManager.Instance.LegendaryBuffs)
+                    {
+                        if (buff != null && buff.buffType == BuffType.TacticalExpansion)
+                        {
+                            iconSprite = buff.icon;
+                            break;
+                        }
+                    }
+                }
+            }
+            else if (unlockedExecution)
+            {
+                descriptionText = "現在按 2 能使用處決";
+                if (GameManager.Instance != null && GameManager.Instance.LegendaryBuffs != null)
+                {
+                    foreach (var buff in GameManager.Instance.LegendaryBuffs)
+                    {
+                        if (buff != null && buff.buffType == BuffType.TacticalExpansion)
+                        {
+                            iconSprite = buff.icon;
+                            break;
+                        }
+                    }
+                }
+            }
+            else if (unlockedRepair)
+            {
+                descriptionText = "現在按 3 能使用修補";
+                if (GameManager.Instance != null && GameManager.Instance.LegendaryBuffs != null)
+                {
+                    foreach (var buff in GameManager.Instance.LegendaryBuffs)
+                    {
+                        if (buff != null && buff.buffType == BuffType.TacticalExpansion)
+                        {
+                            iconSprite = buff.icon;
+                            break;
+                        }
+                    }
+                }
+            }
+            
+            // 設置圖片
+            if (bonusImage != null && iconSprite != null)
+            {
+                bonusImage.sprite = iconSprite;
+                bonusImage.gameObject.SetActive(true);
+            }
+            else if (bonusImage != null)
+            {
+                bonusImage.gameObject.SetActive(false);
+            }
+            
+            // 設置文字
+            if (bonusText != null)
+            {
+                bonusText.text = descriptionText;
+            }
+            
+            // 顯示說明頁面
+            bonusPanel.SetActive(true);
+        }
+        
+        /// <summary>
+        /// 說明頁面確認按鈕點擊
+        /// </summary>
+        private void OnBonusConfirmClicked()
+        {
+            if (bonusPanel != null)
+                bonusPanel.SetActive(false);
+            
+            waitingForBonusConfirm = false;
+            
+            // 繼續正常流程
+            ContinueAfterBuffSelection();
+        }
+        
+        /// <summary>
+        /// 繼續Buff選擇後的流程
+        /// </summary>
+        private void ContinueAfterBuffSelection()
+        {
+            // 恢復選擇界面
+            if (selectPanel != null)
+                selectPanel.SetActive(true);
             
             // 檢查是否還有待選Buff
             if (GameManager.Instance.PendingBuffCount > 0)
