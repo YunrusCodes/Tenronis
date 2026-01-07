@@ -12,10 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3fe80882f65a4ff479ef1fca5ee38a6f, type: 3}
   m_Name: Stage_2_Scout
   m_EditorClassIdentifier: 
-  stageName: Scout
+  stageName: "\u7A7A\u9AA8"
   stageIndex: 2
   isBossStage: 0
-  rewardBuffCount: 5
+  description: "\u6C92\u6709\u4EBA\u77E5\u9053\u4ED6\u662F\u5426\u66FE\u7D93\u6D3B\u8457\uFF0C\u4E5F\u6C92\u6709\u4EBA\u80FD\u8B49\u660E\u4ED6\u5DF2\u7D93\u6B7B\u53BB\u3002\r\n\u6709\u4EBA\u8AAA\uFF0C\u4ED6\u662F\u88AB\u907A\u5FD8\u4E4B\u4EBA\u7684\u6B98\u5F71\uFF0C\u7A7A\u6BBC\u88E1\u53EA\u5269\u4E0B\u57F7\u5FF5\u5728\u56DE\u97FF\u3002\r\n\u7576\u4ED6\u73FE\u8EAB\uFF0C\u8033\u908A\u6703\u50B3\u4F86\u4E0D\u5C6C\u65BC\u81EA\u5DF1\u7684\u4F4E\u8A9E\uFF0C\u610F\u5FD7\u88AB\u4E00\u7BC0\u4E00\u7BC0\u525D\u96E2\uFF0C\u76F4\u5230\u53EA\u5269\u4E0B\u670D\u5F9E\u3002"
+  rewardBuffCount: 1
   maxHp: 160
   shootInterval: 1.6
   bulletSpeed: 8.5
@@ -46,5 +47,5 @@ MonoBehaviour:
   useSmartTargeting: 0
   addBlockTargetsHigh: 1
   areaDamageTargetsLow: 1
-  enemyIcon: {fileID: 4254376627341140762, guid: 9706af6aa4ed2364e98db91e2307a06b, type: 3}
+  enemyIcon: {fileID: 7288877541288611578, guid: 60e29cfc17a02e545af89c8767e49ef2, type: 3}
   themeColor: {r: 1, g: 0, b: 0, a: 1}

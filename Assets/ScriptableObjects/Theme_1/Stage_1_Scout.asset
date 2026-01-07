@@ -12,10 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3fe80882f65a4ff479ef1fca5ee38a6f, type: 3}
   m_Name: Stage_1_Rookie
   m_EditorClassIdentifier: 
-  stageName: Rookie
+  stageName: "\u5922\u5F71"
   stageIndex: 1
   isBossStage: 0
-  rewardBuffCount: 5
+  description: "\u6C92\u6709\u4EBA\u77E5\u9053\u4ED6\u70BA\u4F55\u51FA\u73FE\uFF0C\u6709\u4EBA\u8A8D\u70BA\u662F\u4EBA\u985E\u60E1\u5922\u7684\u5316\u8EAB\u3002\n\u4F46\u53EA\u8981\u4ED6\u9032\u5230\u57CE\u93AE\uFF0C\u6240\u6709\u4EBA\u90FD\u6703\u5728\u540C\u4E00\u591C\u9677\u5165\u60E1\u5922\u4E4B\u4E2D\u3002\n\u9019\u5C31\u662F\u70BA\u4EC0\u9EBC\u6211\u5011\u57F7\u70AE\u4EBA\u5B58\u5728\u7684\u76EE\u7684\uFF0C\u8209\u8D77\u4F60\u7684\u52A0\u8FB2\u70AE\u6253\u5230\u4ED6!"
+  rewardBuffCount: 1
   maxHp: 120
   shootInterval: 1.8
   bulletSpeed: 8
@@ -46,5 +47,5 @@ MonoBehaviour:
   useSmartTargeting: 0
   addBlockTargetsHigh: 1
   areaDamageTargetsLow: 1
-  enemyIcon: {fileID: -4139713317945113219, guid: cf6e8e19ce66acb40985c5f6cd52783d, type: 3}
+  enemyIcon: {fileID: -8867952745241724321, guid: 5c639cd6726d86d43aa2fd83d0c192cc, type: 3}
   themeColor: {r: 1, g: 0, b: 0, a: 1}

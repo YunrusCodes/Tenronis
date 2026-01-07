@@ -15,6 +15,7 @@ MonoBehaviour:
   stageName: Obliterator
   stageIndex: 10
   isBossStage: 1
+  description: 
   rewardBuffCount: 5
   maxHp: 900
   shootInterval: 1
@@ -46,5 +47,5 @@ MonoBehaviour:
   useSmartTargeting: 0
   addBlockTargetsHigh: 1
   areaDamageTargetsLow: 1
-  enemyIcon: {fileID: -3378323441471933534, guid: 5c1a98e1ea5612648bff07e114e43965, type: 3}
+  enemyIcon: {fileID: -2331995777406380252, guid: 8bbafaf17a4db184dab34adb751f6a32, type: 3}
   themeColor: {r: 1, g: 0, b: 0, a: 1}

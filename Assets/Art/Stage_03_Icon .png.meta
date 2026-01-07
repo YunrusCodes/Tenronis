@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 5c639cd6726d86d43aa2fd83d0c192cc
+guid: 939cf8db763c12143976c5f01479c732
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -8867952745241724321
-    second: gost_0
+      213: 1528591960984123227
+    second: Stage_03_Icon _0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -96,37 +96,11 @@ TextureImporter:
     ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
-  - serializedVersion: 4
-    buildTarget: Android
-    maxTextureSize: 2048
-    resizeAlgorithm: 0
-    textureFormat: -1
-    textureCompression: 1
-    compressionQuality: 50
-    crunchedCompression: 0
-    allowsAlphaSplitting: 0
-    overridden: 0
-    ignorePlatformSupport: 0
-    androidETC2FallbackOverride: 0
-    forceMaximumCompressionQuality_BC6H_BC7: 0
-  - serializedVersion: 4
-    buildTarget: iOS
-    maxTextureSize: 2048
-    resizeAlgorithm: 0
-    textureFormat: -1
-    textureCompression: 1
-    compressionQuality: 50
-    crunchedCompression: 0
-    allowsAlphaSplitting: 0
-    overridden: 0
-    ignorePlatformSupport: 0
-    androidETC2FallbackOverride: 0
-    forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: gost_0
+      name: Stage_03_Icon _0
       rect:
         serializedVersion: 2
         x: 0
@@ -141,8 +115,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: f5abaee66f3bee480800000000000000
-      internalID: -8867952745241724321
+      spriteID: b57f9f82a46a63510800000000000000
+      internalID: 1528591960984123227
       vertices: []
       indices: 
       edges: []
@@ -161,7 +135,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      gost_0: -8867952745241724321
+      Stage_03_Icon _0: 1528591960984123227
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

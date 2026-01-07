@@ -12,9 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3fe80882f65a4ff479ef1fca5ee38a6f, type: 3}
   m_Name: Stage_5_Assassin
   m_EditorClassIdentifier: 
-  stageName: Assassin
+  stageName: "\u6DF1\u6DF5\u4F7F\u8005"
   stageIndex: 5
   isBossStage: 1
+  description: "\u6C92\u6709\u4EBA\u77E5\u9053\u4ED6\u662F\u5728\u547C\u559A\uFF0C\u9084\u662F\u5728\u56DE\u61C9\u67D0\u500B\u65E9\u5DF2\u5B58\u5728\u7684\u8072\u97F3\u3002\n\u6709\u4EBA\u8AAA\uFF0C\u4ED6\u662F\u60E1\u5922\u5F7C\u7AEF\u7684\u9580\u6249\u672C\u8EAB\uFF0C\u90A3\u4E9B\u5982\u86DB\u7DB2\u822C\u5F35\u958B\u7684\u89F8\u5F71\uFF0C\u6B63\u662F\u5728\u62C9\u626F\u73FE\u5BE6\u7684\u908A\u754C\u3002\n\u7576\u4ED6\u73FE\u8EAB\uFF0C\u7A7A\u6C23\u6703\u958B\u59CB\u9707\u986B\uFF0C\u4F4E\u6C89\u7684\u5462\u5583\u6EF2\u5165\u8166\u6D77\uFF0C\u5F77\u5F7F\u6709\u7121\u6578\u540D\u5B57\u5728\u540C\u6642\u88AB\u547C\u558A\u3002\n\u90A3\u96D9\u523A\u76EE\u7684\u5149\u773C\u8207\u5F35\u958B\u7684\u5229\u9F52\uFF0C\u4E0D\u662F\u5A01\u8105\u2014\u2014\u800C\u662F\u9080\u8ACB\uFF0C\u9080\u8ACB\u4F60\u6210\u70BA\u4E0B\u4E00\u500B\u56DE\u61C9\u8005\u3002"
   rewardBuffCount: 3
   maxHp: 320
   shootInterval: 1
@@ -46,5 +47,5 @@ MonoBehaviour:
   useSmartTargeting: 0
   addBlockTargetsHigh: 1
   areaDamageTargetsLow: 1
-  enemyIcon: {fileID: -8319106212689766494, guid: e11ee39df00f6204fac6998fdd92eba5, type: 3}
+  enemyIcon: {fileID: 8842818194810351109, guid: 7dcab9c60155c2544a2e56fe2e204802, type: 3}
   themeColor: {r: 1, g: 0, b: 0, a: 1}

@@ -12,10 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3fe80882f65a4ff479ef1fca5ee38a6f, type: 3}
   m_Name: Stage_3_Hunter
   m_EditorClassIdentifier: 
-  stageName: Hunter
+  stageName: "\u566C\u591C\u9B54"
   stageIndex: 3
   isBossStage: 0
-  rewardBuffCount: 5
+  description: "\u6C92\u6709\u4EBA\u8A18\u5F97\u4ED6\u6700\u521D\u7684\u5F62\u614B\uFF0C\u6709\u4EBA\u8AAA\u4ED6\u662F\u9ED1\u6697\u672C\u8EAB\u5B78\u6703\u4E86\u98E2\u9913\u3002\n\u51E1\u662F\u4ED6\u5F98\u5F8A\u4E4B\u5730\uFF0C\u71C8\u706B\u6703\u9010\u4E00\u7184\u6EC5\uFF0C\u52C7\u6C23\u6703\u5728\u4F4E\u8A9E\u4E2D\u88AB\u5543\u566C\u6B86\u76E1\u3002\n\u5016\u5B58\u8005\u53EA\u8A18\u5F97\u90A3\u5C0D\u767C\u5149\u7684\u96D9\u773C\uFF0C\u8207\u9ED1\u6697\u4E2D\u50B3\u4F86\u7684\u6495\u88C2\u8072\u3002"
+  rewardBuffCount: 1
   maxHp: 200
   shootInterval: 1.4
   bulletSpeed: 9
@@ -46,5 +47,5 @@ MonoBehaviour:
   useSmartTargeting: 0
   addBlockTargetsHigh: 1
   areaDamageTargetsLow: 1
-  enemyIcon: {fileID: 7288877541288611578, guid: 60e29cfc17a02e545af89c8767e49ef2, type: 3}
+  enemyIcon: {fileID: 1528591960984123227, guid: 939cf8db763c12143976c5f01479c732, type: 3}
   themeColor: {r: 1, g: 0, b: 0, a: 1}

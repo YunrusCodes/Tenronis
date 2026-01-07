@@ -23,7 +23,10 @@ namespace Tenronis.UI
         
         [Header("敵人資訊面板")]
         [SerializeField] private GameObject enemyInfoPanel;
+        [SerializeField] private Image enemyIconImage; // 敵人頭像
+        [SerializeField] private Button closeEnemyPanelButton; // 關閉敵人面板按鈕
         [SerializeField] private TextMeshProUGUI nextStageEnemyPreviewText;
+        [SerializeField] private TextMeshProUGUI previewDescriptionText; // 關卡描述文字
         [SerializeField] private Transform enemyAttackPreviewContainer;
         [SerializeField] private GameObject enemyAttackPreviewPrefab;
         [SerializeField] private Tenronis.Gameplay.Projectiles.Bullet bulletPrefabReference;
@@ -82,6 +85,9 @@ namespace Tenronis.UI
             // 設置說明頁面確認按鈕
             SetupBonusConfirmButton();
             
+            // 設置關閉敵人面板按鈕
+            SetupCloseEnemyPanelButton();
+            
             // 預設顯示普通強化
             ShowInfoTab(0);
         }
@@ -95,6 +101,30 @@ namespace Tenronis.UI
             if (normalBuffButton != null) normalBuffButton.onClick.RemoveAllListeners();
             if (legendaryBuffButton != null) legendaryBuffButton.onClick.RemoveAllListeners();
             if (bonusConfirmButton != null) bonusConfirmButton.onClick.RemoveAllListeners();
+            if (closeEnemyPanelButton != null) closeEnemyPanelButton.onClick.RemoveAllListeners();
+        }
+        
+        /// <summary>
+        /// 設置關閉敵人面板按鈕
+        /// </summary>
+        private void SetupCloseEnemyPanelButton()
+        {
+            if (closeEnemyPanelButton != null)
+            {
+                closeEnemyPanelButton.onClick.RemoveAllListeners();
+                closeEnemyPanelButton.onClick.AddListener(OnCloseEnemyPanelClicked);
+            }
+        }
+        
+        /// <summary>
+        /// 關閉敵人面板按鈕點擊
+        /// </summary>
+        private void OnCloseEnemyPanelClicked()
+        {
+            if (enemyInfoPanel != null)
+            {
+                enemyInfoPanel.SetActive(false);
+            }
         }
         
         /// <summary>
@@ -370,9 +400,9 @@ namespace Tenronis.UI
                     bool wasAnnihilationUnlockedAfter = PlayerManager.Instance != null && PlayerManager.Instance.IsAnnihilationUnlocked();
                     bool wasExecutionUnlockedAfter = PlayerManager.Instance != null && PlayerManager.Instance.IsExecutionUnlocked();
                     bool wasRepairUnlockedAfter = PlayerManager.Instance != null && PlayerManager.Instance.IsRepairUnlocked();
-                    
+                
                     // 應用傳奇強化
-                    GameManager.Instance.AddPendingBuffs(1);
+                GameManager.Instance.AddPendingBuffs(1);
                     GameEvents.TriggerBuffSelected(legendaryBuff.buffType);
                     
                     // 重新檢查技能解鎖狀態（因為 TacticalExpansion 可能會解鎖技能）
@@ -807,6 +837,20 @@ namespace Tenronis.UI
                 return;
             }
             
+            // 設置敵人頭像
+            if (enemyIconImage != null)
+            {
+                if (currentStage.enemyIcon != null)
+                {
+                    enemyIconImage.sprite = currentStage.enemyIcon;
+                    enemyIconImage.gameObject.SetActive(true);
+                }
+                else
+                {
+                    enemyIconImage.gameObject.SetActive(false);
+                }
+            }
+            
             // 顯示基本資訊
             System.Text.StringBuilder sb = new System.Text.StringBuilder();
             sb.AppendLine($"Stage {GameManager.Instance.CurrentStageIndex + 1}: {currentStage.stageName}");
@@ -818,6 +862,21 @@ namespace Tenronis.UI
             }
             
             nextStageEnemyPreviewText.text = sb.ToString();
+            
+            // 顯示關卡描述
+            if (previewDescriptionText != null)
+            {
+                if (!string.IsNullOrEmpty(currentStage.description))
+                {
+                    previewDescriptionText.text = currentStage.description;
+                    previewDescriptionText.gameObject.SetActive(true);
+                }
+                else
+                {
+                    previewDescriptionText.text = "";
+                    previewDescriptionText.gameObject.SetActive(false);
+                }
+            }
             
             // 生成視覺攻擊預覽
             GenerateAttackPreviews(currentStage);

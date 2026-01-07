@@ -36,6 +36,10 @@ namespace Tenronis.ScriptableObjects
         [Tooltip("是否為Boss關卡（影響BGM和特殊效果）")]
         public bool isBossStage = false;
         
+        [Tooltip("關卡描述文字（顯示在敵人預覽面板中）")]
+        [TextArea(3, 10)]
+        public string description = "";
+        
         [Header("過關獎勵")]
         [Tooltip("過關後獲得的升級卡牌數量")]
         [Range(0, 5)]

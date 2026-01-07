@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: c2c29148cb2ba15489a4e201f5be88ce
+guid: 37e26aae11618b6428c12eb40aac1367
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -5859874403322326207
-    second: Stage_03_Icon_0
+      213: -1882423614924535890
+    second: nouse_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -100,7 +100,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Stage_03_Icon_0
+      name: nouse_0
       rect:
         serializedVersion: 2
         x: 0
@@ -115,8 +115,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 1439191f64b8daea0800000000000000
-      internalID: -5859874403322326207
+      spriteID: ea7cd9b12b940e5e0800000000000000
+      internalID: -1882423614924535890
       vertices: []
       indices: 
       edges: []
@@ -135,7 +135,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Stage_03_Icon_0: -5859874403322326207
+      nouse_0: -1882423614924535890
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

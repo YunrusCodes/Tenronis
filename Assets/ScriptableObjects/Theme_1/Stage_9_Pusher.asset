@@ -15,6 +15,7 @@ MonoBehaviour:
   stageName: Overloader
   stageIndex: 9
   isBossStage: 0
+  description: 
   rewardBuffCount: 1
   maxHp: 600
   shootInterval: 1.15
@@ -46,5 +47,5 @@ MonoBehaviour:
   useSmartTargeting: 0
   addBlockTargetsHigh: 1
   areaDamageTargetsLow: 1
-  enemyIcon: {fileID: -3753429730417257469, guid: a286511a5ac457d4391b92edd3569046, type: 3}
+  enemyIcon: {fileID: 7290534143388966982, guid: 7e62cf63b1232d040a086e4a53194726, type: 3}
   themeColor: {r: 1, g: 0, b: 0, a: 1}
