@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.Video;
 using TMPro;
 using System.Collections;
 using System.Collections.Generic;
@@ -38,9 +39,18 @@ namespace Tenronis.UI
         
         [Header("傳奇強化說明頁面")]
         [SerializeField] private GameObject bonusPanel;
-        [SerializeField] private Image bonusImage;
+        [SerializeField] private RawImage bonusVideoImage; // 從 Image 改成 RawImage
+        [SerializeField] private VideoPlayer bonusVideoPlayer; // VideoPlayer 組件
+        [SerializeField] private UnityEngine.UI.AspectRatioFitter bonusAspectRatioFitter; // AspectRatioFilter 組件
         [SerializeField] private TextMeshProUGUI bonusText;
         [SerializeField] private Button bonusConfirmButton;
+        
+        [Header("說明影片資源")]
+        [SerializeField] private VideoClip defenseVideo; // 防禦強化.mp4
+        [SerializeField] private VideoClip[] volleyVideos = new VideoClip[5]; // 火力強化1-5.mp4
+        [SerializeField] private VideoClip annihilationVideo; // 湮滅.mp4
+        [SerializeField] private VideoClip executionVideo; // 處決.mp4
+        [SerializeField] private VideoClip repairVideo; // 修補.mp4
         
         private List<GameObject> currentOptions = new List<GameObject>();
         private List<GameObject> attackPreviewItems = new List<GameObject>();
@@ -419,80 +429,119 @@ namespace Tenronis.UI
             if (selectPanel != null)
                 selectPanel.SetActive(false);
             
-            // 設置圖片和文字
+            // 設置文字和影片
             string descriptionText = "";
-            Sprite iconSprite = null;
+            VideoClip videoClip = null;
             
             if (volleyUpgraded && PlayerManager.Instance != null)
             {
                 int volleyLevel = PlayerManager.Instance.Stats.missileExtraCount;
                 descriptionText = $"現在消除方塊，會額外生成 {1 + volleyLevel} 發飛彈";
-                if (legendaryBuff != null)
-                    iconSprite = legendaryBuff.icon;
+                
+                // 根據等級選擇對應的影片（等級 1-5 對應索引 0-4）
+                int videoIndex = Mathf.Clamp(volleyLevel - 1, 0, volleyVideos.Length - 1);
+                if (videoIndex >= 0 && videoIndex < volleyVideos.Length && volleyVideos[videoIndex] != null)
+                {
+                    videoClip = volleyVideos[videoIndex];
+                }
             }
             else if (defenseUpgraded && PlayerManager.Instance != null)
             {
                 int defenseLevel = PlayerManager.Instance.Stats.blockDefenseLevel;
                 descriptionText = $"方塊現在可以承受 {1 + defenseLevel} 發飛彈";
-                if (legendaryBuff != null)
-                    iconSprite = legendaryBuff.icon;
+                
+                if (defenseVideo != null)
+                {
+                    videoClip = defenseVideo;
+                }
             }
             else if (unlockedAnnihilation)
             {
                 descriptionText = "現在按 1 能使用湮滅";
-                // 可以從 GameManager 獲取 TacticalExpansion 的圖標
-                if (GameManager.Instance != null && GameManager.Instance.LegendaryBuffs != null)
+                
+                if (annihilationVideo != null)
                 {
-                    foreach (var buff in GameManager.Instance.LegendaryBuffs)
-                    {
-                        if (buff != null && buff.buffType == BuffType.TacticalExpansion)
-                        {
-                            iconSprite = buff.icon;
-                            break;
-                        }
-                    }
+                    videoClip = annihilationVideo;
                 }
             }
             else if (unlockedExecution)
             {
                 descriptionText = "現在按 2 能使用處決";
-                if (GameManager.Instance != null && GameManager.Instance.LegendaryBuffs != null)
+                
+                if (executionVideo != null)
                 {
-                    foreach (var buff in GameManager.Instance.LegendaryBuffs)
-                    {
-                        if (buff != null && buff.buffType == BuffType.TacticalExpansion)
-                        {
-                            iconSprite = buff.icon;
-                            break;
-                        }
-                    }
+                    videoClip = executionVideo;
                 }
             }
             else if (unlockedRepair)
             {
                 descriptionText = "現在按 3 能使用修補";
-                if (GameManager.Instance != null && GameManager.Instance.LegendaryBuffs != null)
+                
+                if (repairVideo != null)
                 {
-                    foreach (var buff in GameManager.Instance.LegendaryBuffs)
-                    {
-                        if (buff != null && buff.buffType == BuffType.TacticalExpansion)
-                        {
-                            iconSprite = buff.icon;
-                            break;
-                        }
-                    }
+                    videoClip = repairVideo;
                 }
             }
             
-            // 設置圖片
-            if (bonusImage != null && iconSprite != null)
+            // 設置影片
+            if (bonusVideoPlayer != null && bonusVideoImage != null)
             {
-                bonusImage.sprite = iconSprite;
-                bonusImage.gameObject.SetActive(true);
-            }
-            else if (bonusImage != null)
-            {
-                bonusImage.gameObject.SetActive(false);
+                if (videoClip != null)
+                {
+                    // 設置 VideoPlayer
+                    bonusVideoPlayer.clip = videoClip;
+                    bonusVideoPlayer.renderMode = VideoRenderMode.RenderTexture;
+                    
+                    // 獲取影片的寬高比
+                    uint videoWidth = videoClip.width;
+                    uint videoHeight = videoClip.height;
+                    float aspectRatio = (float)videoWidth / (float)videoHeight;
+                    
+                    // 根據影片寬高比調整 AspectRatioFilter
+                    if (bonusAspectRatioFitter != null)
+                    {
+                        bonusAspectRatioFitter.aspectRatio = aspectRatio;
+                        bonusAspectRatioFitter.aspectMode = UnityEngine.UI.AspectRatioFitter.AspectMode.FitInParent;
+                    }
+                    
+                    // 創建 RenderTexture（根據影片實際尺寸）
+                    int videoWidthInt = (int)videoWidth;
+                    int videoHeightInt = (int)videoHeight;
+                    if (bonusVideoPlayer.targetTexture == null || 
+                        bonusVideoPlayer.targetTexture.width != videoWidthInt || 
+                        bonusVideoPlayer.targetTexture.height != videoHeightInt)
+                    {
+                        // 釋放舊的 RenderTexture（如果存在）
+                        if (bonusVideoPlayer.targetTexture != null)
+                        {
+                            bonusVideoPlayer.targetTexture.Release();
+                            Destroy(bonusVideoPlayer.targetTexture);
+                        }
+                        
+                        // 創建新的 RenderTexture（使用影片的實際尺寸）
+                        RenderTexture renderTexture = new RenderTexture(videoWidthInt, videoHeightInt, 0);
+                        bonusVideoPlayer.targetTexture = renderTexture;
+                    }
+                    
+                    // 設置 RawImage 的 texture
+                    bonusVideoImage.texture = bonusVideoPlayer.targetTexture;
+                    bonusVideoImage.gameObject.SetActive(true);
+                    
+                    // 播放影片
+                    bonusVideoPlayer.Play();
+                }
+                else
+                {
+                    // 如果沒有影片，隱藏 RawImage
+                    bonusVideoImage.gameObject.SetActive(false);
+                    bonusVideoPlayer.Stop();
+                    
+                    // 重置 AspectRatioFilter（可選）
+                    if (bonusAspectRatioFitter != null)
+                    {
+                        bonusAspectRatioFitter.aspectRatio = 1f; // 重置為 1:1
+                    }
+                }
             }
             
             // 設置文字
@@ -510,6 +559,12 @@ namespace Tenronis.UI
         /// </summary>
         private void OnBonusConfirmClicked()
         {
+            // 停止影片播放
+            if (bonusVideoPlayer != null)
+            {
+                bonusVideoPlayer.Stop();
+            }
+            
             if (bonusPanel != null)
                 bonusPanel.SetActive(false);
             
