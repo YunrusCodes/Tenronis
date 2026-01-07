@@ -123,6 +123,20 @@ namespace Tenronis.Managers
             damageAccumulator = 0f;
             rogueRequirement = GameConstants.INITIAL_ROGUE_REQUIREMENT;
             
+            // 重置玩家數據
+            if (PlayerManager.Instance != null)
+            {
+                PlayerManager.Instance.ResetStats();
+                Debug.Log("[GameManager] 玩家數據已重置");
+            }
+            
+            // 清空網格
+            if (GridManager.Instance != null)
+            {
+                GridManager.Instance.ClearGrid();
+                Debug.Log("[GameManager] 網格已清空");
+            }
+            
             Debug.Log($"[GameManager] 遊戲數據已重置 - Stage: {currentStageIndex}, Buffs: {pendingBuffCount}, Total Stages: {TotalStages}");
             
             // ⭐ 新增：給予第一關的獎勵卡牌
