@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b4b436aae261119448a7d93cc922b45e, type: 3}
   m_Name: StageSet_Theme_2
   m_EditorClassIdentifier: 
-  themeName: Theme_2
+  themeName: "\u96E3\u5EA6\u4E8C \u95BB\u8755\u738B"
   themeIcon: {fileID: 0}
   themeColor: {r: 1, g: 0, b: 0, a: 1}
   description: 

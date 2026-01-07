@@ -12,16 +12,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3fe80882f65a4ff479ef1fca5ee38a6f, type: 3}
   m_Name: Stage_6_Corrupter
   m_EditorClassIdentifier: 
-  stageName: Corrupter
+  stageName: "\u7344\u5F71\u8005"
   stageIndex: 6
   isBossStage: 0
+  description: "\u4ED6\u662F\u5F9E\u7149\u7344\u4E2D\u8A95\u751F?\u9084\u662F\u7149\u7344\u672C\u8EAB\u6295\u5C04\u5230\u73FE\u5BE6\u7684\u5F71\u5B50?\n\u7576\u4ED6\u73FE\u8EAB\uFF0C\u7A7A\u6C23\u6703\u88AB\u67D3\u6210\u6697\u7D05\uFF0C\u71B1\u5EA6\u4E0D\u518D\u4F86\u81EA\u706B\u7130\uFF0C\u800C\u662F\u5F9E\u5167\u5FC3\u6DF1\u8655\u88AB\u559A\u9192\u7684\u6050\u61FC\u3002\n\u90A3\u5F35\u8A6D\u7570\u800C\u904E\u65BC\u5E73\u975C\u7684\u7B11\u81C9\uFF0C\u4E26\u975E\u559C\u6085\u2014\u2014\u800C\u662F\u4E00\u7A2E\u78BA\u4FE1\uFF0C\u78BA\u4FE1\u4F60\u7D42\u5C07\u7121\u6CD5\u9003\u96E2\u3002\n\u4ED6\u4F38\u5C55\u7684\u9ED1\u5F71\u5982\u540C\u7344\u706B\u7684\u89F8\u624B\uFF0C\u7DE9\u6162\u537B\u4E0D\u53EF\u6297\u62D2\uFF0C\u5C07\u610F\u5FD7\u4E00\u5BF8\u5BF8\u62D6\u5165\u6DF1\u6DF5\u3002"
   rewardBuffCount: 2
   maxHp: 520
   shootInterval: 1.6
   bulletSpeed: 10
   normalBullet:
-    enabled: 0
-    chance: 1
+    enabled: 1
+    chance: 0.85
   areaBullet:
     enabled: 0
     chance: 0.25
@@ -46,5 +47,5 @@ MonoBehaviour:
   useSmartTargeting: 0
   addBlockTargetsHigh: 1
   areaDamageTargetsLow: 1
-  enemyIcon: {fileID: 0}
-  themeColor: {r: 1, g: 0, b: 0, a: 1}
+  enemyIcon: {fileID: 452088979629985625, guid: f29eca47ca3e07d4f91927044edc0930, type: 3}
+  themeColor: {r: 1, g: 1, b: 1, a: 1}

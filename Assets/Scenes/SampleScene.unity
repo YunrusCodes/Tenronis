@@ -12981,7 +12981,6 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 0e24f43da417cea419780ec950989fb4, type: 2}
   - {fileID: 11400000, guid: 6d8ad6a5918fabc44b1f48a058fffbc3, type: 2}
   legendaryBuffs:
-  - {fileID: 11400000, guid: 593218382254a8f4f868a161a0aa8990, type: 2}
   - {fileID: 11400000, guid: 4984fdceb682ce2449c3b18662087da4, type: 2}
   - {fileID: 11400000, guid: 48128f06871961e4b9172a811e99ca73, type: 2}
 --- !u!1 &2035590757

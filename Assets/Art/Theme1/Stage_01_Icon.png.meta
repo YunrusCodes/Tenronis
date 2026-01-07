@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: fcefd449e4103a84d8a91ecf030eff66
+guid: 5c639cd6726d86d43aa2fd83d0c192cc
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -6590189109967221198
-    second: "ChatGPT Image 2026\u5E741\u67087\u65E5 \u4E0B\u534807_32_34_0"
+      213: -8867952745241724321
+    second: gost_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -96,11 +96,37 @@ TextureImporter:
     ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: iOS
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: "ChatGPT Image 2026\u5E741\u67087\u65E5 \u4E0B\u534807_32_34_0"
+      name: gost_0
       rect:
         serializedVersion: 2
         x: 0
@@ -115,8 +141,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 23e81c9bbe1fa84a0800000000000000
-      internalID: -6590189109967221198
+      spriteID: f5abaee66f3bee480800000000000000
+      internalID: -8867952745241724321
       vertices: []
       indices: 
       edges: []
@@ -135,7 +161,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      "ChatGPT Image 2026\u5E741\u67087\u65E5 \u4E0B\u534807_32_34_0": -6590189109967221198
+      gost_0: -8867952745241724321
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

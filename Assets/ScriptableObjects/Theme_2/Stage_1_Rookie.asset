@@ -12,16 +12,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3fe80882f65a4ff479ef1fca5ee38a6f, type: 3}
   m_Name: Stage_1_Rookie
   m_EditorClassIdentifier: 
-  stageName: Rookie
+  stageName: "\u673D\u5F71"
   stageIndex: 1
   isBossStage: 0
+  description: "\u6709\u4EBA\u8AAA\uFF0C\u90A3\u662F\u5728\u4E16\u754C\u7B2C\u4E00\u6B21\u5931\u53BB\u610F\u7FA9\u6642\u7559\u4E0B\u7684\u6B98\u6E23\u3002\n\u7576\u4ED6\u9760\u8FD1\uFF0C\u4E8B\u7269\u4E26\u4E0D\u6703\u5D29\u58DE\uFF0C\u537B\u6703\u6084\u7136\u5931\u53BB\u5B58\u5728\u7684\u7406\u7531\uFF0C\u5F77\u5F7F\u65E9\u5DF2\u8150\u673D\uFF0C\u53EA\u662F\u73FE\u5728\u624D\u88AB\u5BDF\u89BA\u3002\n\u90A3\u5C0D\u523A\u773C\u7684\u767D\u5149\u4E4B\u773C\u4E0D\u662F\u5728\u6CE8\u8996\u4F60\uFF0C\u4ED6\u626D\u66F2\u7684\u8EAB\u5F71\u4E0D\u65B7\u8815\u52D5\uFF0C\u50CF\u662F\u5728\u52AA\u529B\u7DAD\u6301\u5F62\u9AD4\uFF0C\u53C8\u50CF\u662F\u5728\u6297\u62D2\u5FB9\u5E95\u6D88\u6563\u3002"
   rewardBuffCount: 1
   maxHp: 140
   shootInterval: 1.8
   bulletSpeed: 8
   normalBullet:
-    enabled: 0
-    chance: 1
+    enabled: 1
+    chance: 0.9
   areaBullet:
     enabled: 0
     chance: 0.25
@@ -46,5 +47,5 @@ MonoBehaviour:
   useSmartTargeting: 0
   addBlockTargetsHigh: 1
   areaDamageTargetsLow: 1
-  enemyIcon: {fileID: 0}
+  enemyIcon: {fileID: -6854756361699887056, guid: 239fe8bf725c22040b17860c9ea942df, type: 3}
   themeColor: {r: 1, g: 0, b: 0, a: 1}

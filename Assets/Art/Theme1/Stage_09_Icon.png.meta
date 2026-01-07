@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: a286511a5ac457d4391b92edd3569046
+guid: 7e62cf63b1232d040a086e4a53194726
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -3753429730417257469
-    second: Stage_11_Icon_0
+      213: 7290534143388966982
+    second: Stage_09_Icon_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -100,7 +100,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Stage_11_Icon_0
+      name: Stage_09_Icon_0
       rect:
         serializedVersion: 2
         x: 0
@@ -115,8 +115,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 304d615fb8329ebc0800000000000000
-      internalID: -3753429730417257469
+      spriteID: 6406e8f2d2e2d2560800000000000000
+      internalID: 7290534143388966982
       vertices: []
       indices: 
       edges: []
@@ -135,7 +135,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Stage_11_Icon_0: -3753429730417257469
+      Stage_09_Icon_0: 7290534143388966982
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

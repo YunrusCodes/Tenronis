@@ -28,13 +28,13 @@ MonoBehaviour:
     chance: 0.25
   addBlockBullet:
     enabled: 1
-    chance: 0.3
+    chance: 0.5
   addExplosiveBlockBullet:
     enabled: 0
     chance: 0.2
   addRowBullet:
     enabled: 1
-    chance: 0.15
+    chance: 0.5
   addVoidRowBullet:
     enabled: 0
     chance: 0.1

@@ -883,43 +883,65 @@ namespace Tenronis.UI
         }
         
         /// <summary>
-        /// 生成攻擊預覽視覺項目
+        /// 生成攻擊預覽視覺項目（權重系統）
+        /// 計算方式：(彈種的權重) / (所有 enable 彈種的權重和)
+        /// 所有子彈是否會發射，只看 enabled（包括普通子彈）
         /// </summary>
         private void GenerateAttackPreviews(StageDataSO stageData)
         {
             if (enemyAttackPreviewContainer == null || enemyAttackPreviewPrefab == null) return;
             
-            // 收集所有啟用的攻擊
-            var attacks = new List<(BulletType type, string name, string desc, float chance)>();
+            // 收集所有啟用的子彈類型及其權重
+            var enabledBullets = new List<(BulletType type, string name, string desc, float weight)>();
             
             if (stageData.normalBullet.enabled)
-                attacks.Add((BulletType.Normal, "普通子彈", "造成 1 點方塊傷害", stageData.normalBullet.chance));
+                enabledBullets.Add((BulletType.Normal, "普通子彈", "造成 1 點方塊傷害", stageData.normalBullet.chance));
             
             if (stageData.areaBullet.enabled)
-                attacks.Add((BulletType.AreaDamage, "範圍傷害", "3x3 範圍傷害", stageData.areaBullet.chance));
+                enabledBullets.Add((BulletType.AreaDamage, "範圍傷害", "3x3 範圍傷害", stageData.areaBullet.chance));
             
             if (stageData.addBlockBullet.enabled)
-                attacks.Add((BulletType.AddBlock, "添加方塊", "在擊中位置上方添加垃圾方塊", stageData.addBlockBullet.chance));
+                enabledBullets.Add((BulletType.AddBlock, "添加方塊", "在擊中位置上方添加垃圾方塊", stageData.addBlockBullet.chance));
             
             if (stageData.addExplosiveBlockBullet.enabled)
-                attacks.Add((BulletType.AddExplosiveBlock, "爆炸方塊", "添加爆炸方塊，被擊中時傷害玩家", stageData.addExplosiveBlockBullet.chance));
+                enabledBullets.Add((BulletType.AddExplosiveBlock, "爆炸方塊", "添加爆炸方塊，被擊中時傷害玩家", stageData.addExplosiveBlockBullet.chance));
             
             if (stageData.addRowBullet.enabled)
-                attacks.Add((BulletType.InsertRow, "插入垃圾行", "從底部插入一整行方塊", stageData.addRowBullet.chance));
+                enabledBullets.Add((BulletType.InsertRow, "插入垃圾行", "從底部插入一整行方塊", stageData.addRowBullet.chance));
             
             if (stageData.addVoidRowBullet.enabled)
-                attacks.Add((BulletType.InsertVoidRow, "虛無垃圾行", "插入虛無行，消除不產生導彈", stageData.addVoidRowBullet.chance));
+                enabledBullets.Add((BulletType.InsertVoidRow, "虛無垃圾行", "插入虛無行，消除不產生導彈", stageData.addVoidRowBullet.chance));
             
             if (stageData.corruptExplosiveBullet.enabled)
-                attacks.Add((BulletType.CorruptExplosive, "腐化爆炸", "將下個方塊隨機一格變成爆炸方塊", stageData.corruptExplosiveBullet.chance));
+                enabledBullets.Add((BulletType.CorruptExplosive, "腐化爆炸", "將下個方塊隨機一格變成爆炸方塊", stageData.corruptExplosiveBullet.chance));
             
             if (stageData.corruptVoidBullet.enabled)
-                attacks.Add((BulletType.CorruptVoid, "腐化虛無", "將下個方塊隨機一格變成虛無方塊", stageData.corruptVoidBullet.chance));
+                enabledBullets.Add((BulletType.CorruptVoid, "腐化虛無", "將下個方塊隨機一格變成虛無方塊", stageData.corruptVoidBullet.chance));
             
-            // 為每個攻擊生成預覽項目
-            foreach (var attack in attacks)
+            // 如果沒有任何啟用的子彈，不顯示任何預覽
+            if (enabledBullets.Count == 0)
             {
-                CreateAttackPreviewItem(attack.type, attack.name, attack.desc, attack.chance);
+                return;
+            }
+            
+            // 計算總權重
+            float totalWeight = 0f;
+            foreach (var bullet in enabledBullets)
+            {
+                totalWeight += bullet.weight;
+            }
+            
+            // 如果總權重為 0，不顯示任何預覽
+            if (totalWeight <= 0f)
+            {
+                return;
+            }
+            
+            // 為每個啟用的子彈生成預覽項目，顯示實際機率 = 權重 / 總權重
+            foreach (var bullet in enabledBullets)
+            {
+                float actualChance = bullet.weight / totalWeight;
+                CreateAttackPreviewItem(bullet.type, bullet.name, bullet.desc, actualChance);
             }
         }
         

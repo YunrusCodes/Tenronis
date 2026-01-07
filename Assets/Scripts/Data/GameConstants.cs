@@ -15,7 +15,7 @@ namespace Tenronis.Data
         // 玩家設定
         public const int PLAYER_MAX_HP = 100;
         public const int PLAYER_MAX_CP = 100;
-        public const int OVERFLOW_CP_COST = 25;
+        public const int OVERFLOW_CP_COST = 75;
 
         // 技能CP消耗
         public const int EXECUTION_CP_COST = 5;
@@ -36,7 +36,7 @@ namespace Tenronis.Data
         public const float COMBO_RESET_DELAY = 0.3f;
 
         // 傷害計算
-        public const float BASE_MISSILE_DAMAGE = 2f;
+        public const float BASE_MISSILE_DAMAGE = 1f;
         public const float SALVO_DAMAGE_MULTIPLIER = 0.5f;
         public const float BURST_DAMAGE_MULTIPLIER = 0.25f;
         public const float EXECUTION_DAMAGE = 4f;

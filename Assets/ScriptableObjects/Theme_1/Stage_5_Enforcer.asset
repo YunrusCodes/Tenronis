@@ -22,10 +22,10 @@ MonoBehaviour:
   bulletSpeed: 10
   normalBullet:
     enabled: 1
-    chance: 1
+    chance: 0.25
   areaBullet:
     enabled: 1
-    chance: 0.25
+    chance: 0.5
   addBlockBullet:
     enabled: 0
     chance: 0.3

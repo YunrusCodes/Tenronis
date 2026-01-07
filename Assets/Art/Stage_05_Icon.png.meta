@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 7dcab9c60155c2544a2e56fe2e204802
+guid: 8c124c90c6736024098648036f22164c
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 8842818194810351109
-    second: Stage_05_Icon_0
+      213: -6824774274654291153
+    second: "ChatGPT Image 2026\u5E741\u67087\u65E5 \u4E0B\u534805_18_28_0"
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -100,7 +100,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Stage_05_Icon_0
+      name: "ChatGPT Image 2026\u5E741\u67087\u65E5 \u4E0B\u534805_18_28_0"
       rect:
         serializedVersion: 2
         x: 0
@@ -115,8 +115,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 50e28030c4008ba70800000000000000
-      internalID: 8842818194810351109
+      spriteID: f2bb107d4f78941a0800000000000000
+      internalID: -6824774274654291153
       vertices: []
       indices: 
       edges: []
@@ -135,7 +135,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Stage_05_Icon_0: 8842818194810351109
+      "ChatGPT Image 2026\u5E741\u67087\u65E5 \u4E0B\u534805_18_28_0": -6824774274654291153
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

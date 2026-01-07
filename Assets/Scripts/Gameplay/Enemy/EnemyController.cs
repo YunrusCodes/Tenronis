@@ -191,85 +191,77 @@ namespace Tenronis.Gameplay.Enemy
         }
         
         /// <summary>
-        /// 決定子彈類型
+        /// 決定子彈類型（權重系統）
+        /// 計算方式：(彈種的權重) / (所有 enable 彈種的權重和)
+        /// 所有子彈是否會發射，只看 enabled（包括普通子彈）
         /// </summary>
         private BulletType DetermineBulletType()
         {
-            float rand = Random.value;
-            float cumulativeChance = 0f;
+            // 收集所有啟用的子彈類型及其權重
+            var enabledBullets = new List<(BulletType type, float weight)>();
             
-            // 腐化虛無方塊
-            if (currentStageData.corruptVoidBullet.enabled)
-            {
-                cumulativeChance += currentStageData.corruptVoidBullet.chance;
-                if (rand < cumulativeChance)
-                {
-                    return BulletType.CorruptVoid;
-                }
-            }
+            if (currentStageData.normalBullet.enabled)
+                enabledBullets.Add((BulletType.Normal, currentStageData.normalBullet.chance));
             
-            // 腐化爆炸方塊
-            if (currentStageData.corruptExplosiveBullet.enabled)
-            {
-                cumulativeChance += currentStageData.corruptExplosiveBullet.chance;
-                if (rand < cumulativeChance)
-                {
-                    return BulletType.CorruptExplosive;
-                }
-            }
-            
-            // 插入虛無垃圾行
-            if (currentStageData.addVoidRowBullet.enabled)
-            {
-                cumulativeChance += currentStageData.addVoidRowBullet.chance;
-                if (rand < cumulativeChance)
-                {
-                    return BulletType.InsertVoidRow;
-                }
-            }
-            
-            // 插入普通垃圾行
-            if (currentStageData.addRowBullet.enabled)
-            {
-                cumulativeChance += currentStageData.addRowBullet.chance;
-                if (rand < cumulativeChance)
-                {
-                    return BulletType.InsertRow;
-                }
-            }
-            
-            // 範圍傷害
             if (currentStageData.areaBullet.enabled)
-            {
-                cumulativeChance += currentStageData.areaBullet.chance;
-                if (rand < cumulativeChance)
-                {
-                    return BulletType.AreaDamage;
-                }
-            }
+                enabledBullets.Add((BulletType.AreaDamage, currentStageData.areaBullet.chance));
             
-            // 添加爆炸方塊
-            if (currentStageData.addExplosiveBlockBullet.enabled)
-            {
-                cumulativeChance += currentStageData.addExplosiveBlockBullet.chance;
-                if (rand < cumulativeChance)
-                {
-                    return BulletType.AddExplosiveBlock;
-                }
-            }
-            
-            // 添加普通方塊
             if (currentStageData.addBlockBullet.enabled)
+                enabledBullets.Add((BulletType.AddBlock, currentStageData.addBlockBullet.chance));
+            
+            if (currentStageData.addExplosiveBlockBullet.enabled)
+                enabledBullets.Add((BulletType.AddExplosiveBlock, currentStageData.addExplosiveBlockBullet.chance));
+            
+            if (currentStageData.addRowBullet.enabled)
+                enabledBullets.Add((BulletType.InsertRow, currentStageData.addRowBullet.chance));
+            
+            if (currentStageData.addVoidRowBullet.enabled)
+                enabledBullets.Add((BulletType.InsertVoidRow, currentStageData.addVoidRowBullet.chance));
+            
+            if (currentStageData.corruptExplosiveBullet.enabled)
+                enabledBullets.Add((BulletType.CorruptExplosive, currentStageData.corruptExplosiveBullet.chance));
+            
+            if (currentStageData.corruptVoidBullet.enabled)
+                enabledBullets.Add((BulletType.CorruptVoid, currentStageData.corruptVoidBullet.chance));
+            
+            // 如果沒有任何啟用的子彈，返回普通子彈作為預設值（理論上不應該發生）
+            if (enabledBullets.Count == 0)
             {
-                cumulativeChance += currentStageData.addBlockBullet.chance;
-                if (rand < cumulativeChance)
+                Debug.LogWarning("[EnemyController] 沒有任何啟用的子彈類型！返回普通子彈作為預設值");
+                return BulletType.Normal;
+            }
+            
+            // 計算總權重
+            float totalWeight = 0f;
+            foreach (var bullet in enabledBullets)
+            {
+                totalWeight += bullet.weight;
+            }
+            
+            // 如果總權重為 0，返回第一個啟用的子彈（理論上不應該發生）
+            if (totalWeight <= 0f)
+            {
+                Debug.LogWarning($"[EnemyController] 所有啟用子彈的權重總和為 0！返回第一個啟用的子彈類型: {enabledBullets[0].type}");
+                return enabledBullets[0].type;
+            }
+            
+            // 生成 0 到總權重之間的隨機數
+            float rand = Random.Range(0f, totalWeight);
+            
+            // 根據隨機數落在哪個區間，決定發射哪種子彈
+            float cumulativeWeight = 0f;
+            foreach (var bullet in enabledBullets)
+            {
+                cumulativeWeight += bullet.weight;
+                if (rand < cumulativeWeight)
                 {
-                    return BulletType.AddBlock;
+                    return bullet.type;
                 }
             }
             
-            // 預設：普通子彈
-            return BulletType.Normal;
+            // 理論上不會執行到這裡，但為了安全起見
+            Debug.LogWarning($"[EnemyController] 權重計算異常！rand={rand}, totalWeight={totalWeight}，返回最後一個啟用的子彈類型");
+            return enabledBullets[enabledBullets.Count - 1].type;
         }
         
         /// <summary>
