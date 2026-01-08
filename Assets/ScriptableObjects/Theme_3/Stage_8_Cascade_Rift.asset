@@ -12,9 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3fe80882f65a4ff479ef1fca5ee38a6f, type: 3}
   m_Name: Stage_8_Cascade_Rift
   m_EditorClassIdentifier: 
-  stageName: Cascade Rift
+  stageName: "\u8840\u5DEB"
   stageIndex: 8
-  isBossStage: 1
+  isBossStage: 0
+  description: "\u6709\u4EBA\u8AAA\uFF0C\u90A3\u662F\u8840\u6DB2\u5728\u7372\u5F97\u610F\u5FD7\u5F8C\uFF0C\u66FF\u81EA\u5DF1\u53D6\u7684\u540D\u5B57\u3002\n\u7576\u4ED6\u73FE\u8EAB\uFF0C\u7A7A\u6C23\u6703\u8B8A\u5F97\u9ECF\u7A20\uFF0C\u50B7\u53E3\u7121\u9700\u89F8\u78B0\u4FBF\u81EA\u884C\u88C2\u958B\uFF0C\u8840\u6DB2\u50CF\u88AB\u53EC\u559A\u822C\u6D41\u5411\u4ED6\u7684\u65B9\u5411\u3002\n\u90A3\u5C0D\u7329\u7D05\u7684\u96D9\u773C\u4E26\u4E0D\u6CE8\u8996\u8089\u9AD4\uFF0C\u800C\u662F\u5728\u8A08\u7B97\u2014\u2014\u6050\u61FC\u3001\u75DB\u695A\u8207\u72A7\u7272\uFF0C\u54EA\u4E00\u7A2E\u66F4\u503C\u5F97\u6536\u5272\u3002\n\u5F9E\u4ED6\u8EAB\u4E0A\u6EF4\u843D\u7684\u4E0D\u662F\u9BAE\u8840\uFF0C\u800C\u662F\u88AB\u596A\u8D70\u7684\u8A18\u61B6\u8207\u8A93\u8A00\uFF0C\u5728\u5730\u9762\u4E0A\u6162\u6162\u84B8\u767C\u6210\u8A5B\u5492\u3002"
   rewardBuffCount: 3
   maxHp: 780
   shootInterval: 1.3
@@ -46,5 +47,5 @@ MonoBehaviour:
   useSmartTargeting: 0
   addBlockTargetsHigh: 1
   areaDamageTargetsLow: 1
-  enemyIcon: {fileID: 0}
+  enemyIcon: {fileID: -8825603678907901491, guid: 6245c89e8d9749a4c98c5c275a655441, type: 3}
   themeColor: {r: 1, g: 0, b: 0, a: 1}

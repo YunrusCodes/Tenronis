@@ -12,9 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3fe80882f65a4ff479ef1fca5ee38a6f, type: 3}
   m_Name: Stage_9_Spiral_Collapse
   m_EditorClassIdentifier: 
-  stageName: Spiral Collapse
+  stageName: "\u8755\u7E8F\u7378"
   stageIndex: 9
-  isBossStage: 0
+  isBossStage: 1
+  description: "\u5B83\u5011\u4E0D\u770B\u5916\u754C\uFF0C\u53EA\u51DD\u8996\u81EA\u8EAB\u6DF1\u8655\u7684\u88C2\u53E3\u3002\n\u9F52\u9593\u4E0D\u65B7\u6EF4\u843D\u6DB2\u9AD4\uFF0C\u7121\u8072\u3001\u537B\u7559\u4E0B\u75D5\u8DE1\u3002\u8755\u7E8F\u7378\u4E0D\u8FFD\u9010\uFF0C\u4E5F\u4E0D\u5486\u54EE\u2014\u2014\n\u4E00\u65E6\u9760\u8FD1\uFF0C\u4FBF\u958B\u59CB\u7E8F\u7E5E\u3002\u4E0D\u662F\u541E\u566C\uFF0C\u800C\u662F\u628A\u76EE\u6A19\u62D6\u9032\u5B83\u6C38\u9060\u672A\u5B8C\u6210\u7684\u9032\u98DF\u4E4B\u4E2D\u3002"
   rewardBuffCount: 3
   maxHp: 900
   shootInterval: 1.15
@@ -43,8 +44,8 @@ MonoBehaviour:
   corruptVoidBullet:
     enabled: 0
     chance: 0.1
-  useSmartTargeting: 0
+  useSmartTargeting: 1
   addBlockTargetsHigh: 1
   areaDamageTargetsLow: 1
-  enemyIcon: {fileID: 0}
+  enemyIcon: {fileID: -7990256182814956148, guid: 961de254b0200284f87ae7cb9bbbcbd6, type: 3}
   themeColor: {r: 1, g: 0, b: 0, a: 1}

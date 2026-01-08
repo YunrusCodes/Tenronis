@@ -12,9 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3fe80882f65a4ff479ef1fca5ee38a6f, type: 3}
   m_Name: Stage_10_Entropy_Core
   m_EditorClassIdentifier: 
-  stageName: Entropy Core
+  stageName: "\u6028\u8840\u738B"
   stageIndex: 10
   isBossStage: 1
+  description: "\u7576\u6028\u8840\u738B\u964D\u81E8\uFF0C\u7A7A\u9593\u6703\u958B\u59CB\u6EF2\u8840\u3002\n\u90A3\u4E0D\u662F\u50B7\u53E3\uFF0C\u800C\u662F\u4E16\u754C\u672C\u8EAB\u88AB\u8FEB\u56DE\u61B6\u8D77\u66FE\u7D93\u6D41\u904E\u7684\u6240\u6709\u8840\u3002\n\u61F8\u6D6E\u65BC\u4ED6\u5468\u8EAB\u7684\u8D64\u8272\u5149\u6838\uFF0C\u5982\u540C\u5C1A\u672A\u51B7\u537B\u7684\u6028\u5FF5\u7D50\u6676\uFF0C\u8108\u52D5\u6642\u4FBF\u6703\u8A95\u751F\u65B0\u7684\u8840\u53E3\u3002\n\u6BCF\u4E00\u6B21\u5F35\u5408\uFF0C\u90FD\u662F\u4E00\u6B21\u96C6\u9AD4\u7684\u5C16\u562F\u2014\u2014\n\u4E0D\u662F\u70BA\u4E86\u5A01\u5687\uFF0C\u800C\u662F\u70BA\u4E86\u5BA3\u6CC4\u6C38\u9060\u7121\u6CD5\u5E73\u606F\u7684\u4EC7\u6068\u3002"
   rewardBuffCount: 1
   maxHp: 1300
   shootInterval: 1
@@ -46,5 +47,5 @@ MonoBehaviour:
   useSmartTargeting: 0
   addBlockTargetsHigh: 1
   areaDamageTargetsLow: 1
-  enemyIcon: {fileID: 0}
+  enemyIcon: {fileID: -633425364971691367, guid: 499ddf19e2bf6dc469ea1092ddd7cac4, type: 3}
   themeColor: {r: 1, g: 0, b: 0, a: 1}

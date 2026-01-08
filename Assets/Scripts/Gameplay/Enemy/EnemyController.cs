@@ -234,7 +234,7 @@ namespace Tenronis.Gameplay.Enemy
             // 計算總權重
             float totalWeight = 0f;
             foreach (var bullet in enabledBullets)
-            {
+                {
                 totalWeight += bullet.weight;
             }
             

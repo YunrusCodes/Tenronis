@@ -12,9 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3fe80882f65a4ff479ef1fca5ee38a6f, type: 3}
   m_Name: Stage_6_Breakphase
   m_EditorClassIdentifier: 
-  stageName: Breakphase
+  stageName: "\u6068\u9B3C"
   stageIndex: 6
-  isBossStage: 0
+  isBossStage: 1
+  description: "\u5B83\u66FE\u662F\u4EBA\u3002\u73FE\u5728\u53EA\u5269\u4E0B\u5F35\u958B\u7684\u5634\u8207\u4E0D\u6703\u7184\u6EC5\u7684\u6012\u610F\u3002\n\u96D9\u773C\u71C3\u71D2\uFF0C\u537B\u6C92\u6709\u8996\u7DDA...\u5B83\u4E0D\u662F\u5728\u770B\u4F60\uFF0C\u800C\u662F\u5728\u56DE\u60F3\u3002\n\u6068\u9B3C\u4E0D\u9700\u8981\u7406\u7531\u884C\u52D5\u2014\u2014
+    \u6068\uFF0C\u672C\u8EAB\u5C31\u662F\u5B83\u5B58\u5728\u7684\u5F62\u614B\u3002"
   rewardBuffCount: 3
   maxHp: 520
   shootInterval: 1.6
@@ -46,5 +48,5 @@ MonoBehaviour:
   useSmartTargeting: 0
   addBlockTargetsHigh: 1
   areaDamageTargetsLow: 1
-  enemyIcon: {fileID: 0}
+  enemyIcon: {fileID: 5467135976937808853, guid: 611a63cf91a093947b29b2236696ac84, type: 3}
   themeColor: {r: 1, g: 0, b: 0, a: 1}

@@ -5435,6 +5435,7 @@ GameObject:
   m_Component:
   - component: {fileID: 893279747}
   - component: {fileID: 893279748}
+  - component: {fileID: 893279749}
   m_Layer: 5
   m_Name: EnemyAttackPreviewContainer
   m_TagString: Untagged
@@ -5456,10 +5457,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 1683573451}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 927.7, y: 354.2755}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 455, y: -234.33487}
+  m_SizeDelta: {x: 910, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &893279748
 MonoBehaviour:
@@ -5485,6 +5486,20 @@ MonoBehaviour:
   m_Spacing: {x: 10, y: 10}
   m_Constraint: 1
   m_ConstraintCount: 2
+--- !u!114 &893279749
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 893279746}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3245ec927659c4140ac4f8d17403cc18, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.ContentSizeFitter
+  m_HorizontalFit: 1
+  m_VerticalFit: 1
 --- !u!1 &902527107
 GameObject:
   m_ObjectHideFlags: 0
@@ -5766,7 +5781,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 870.7595, y: 870.7595}
+  m_SizeDelta: {x: 600, y: 600}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &941032112
 MonoBehaviour:
@@ -6113,7 +6128,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 784.2299, y: 91.0545}
+  m_SizeDelta: {x: 784.2299, y: 122.32}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &974647163
 MonoBehaviour:
@@ -9336,8 +9351,8 @@ MonoBehaviour:
   voidNullifySound: {fileID: 8300000, guid: 7a9de5c4d998126449cf964a6b27a8b0, type: 3}
   corruptExplosiveSound: {fileID: 8300000, guid: f1cb5d83282f2904a85f73111d068616, type: 3}
   corruptVoidSound: {fileID: 8300000, guid: 83829ff414f47a048b5387e4ab33571c, type: 3}
-  normalBGM: {fileID: 8300000, guid: 15522bcc8547e6944be60b9c1a4115db, type: 3}
-  bossBGM: {fileID: 8300000, guid: fe3dfb149c6562b49840d51d18b5c47b, type: 3}
+  normalBGM: {fileID: 8300000, guid: fe3dfb149c6562b49840d51d18b5c47b, type: 3}
+  bossBGM: {fileID: 8300000, guid: 15522bcc8547e6944be60b9c1a4115db, type: 3}
   sfxSource: {fileID: 1448617235}
   musicSource: {fileID: 1448617234}
   sfxVolume: 0.7
@@ -11351,8 +11366,8 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 974647162}
-  - {fileID: 602757278}
   - {fileID: 893279747}
+  - {fileID: 602757278}
   - {fileID: 1594039765}
   m_Father: {fileID: 848139787}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -12983,6 +12998,7 @@ MonoBehaviour:
   legendaryBuffs:
   - {fileID: 11400000, guid: 4984fdceb682ce2449c3b18662087da4, type: 2}
   - {fileID: 11400000, guid: 48128f06871961e4b9172a811e99ca73, type: 2}
+  - {fileID: 11400000, guid: 593218382254a8f4f868a161a0aa8990, type: 2}
 --- !u!1 &2035590757
 GameObject:
   m_ObjectHideFlags: 0

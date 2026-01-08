@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 3fe80882f65a4ff479ef1fca5ee38a6f, type: 3}
-  m_Name: Stage_2_Scout
+  m_Name: Stage_2_Skirmisher
   m_EditorClassIdentifier: 
   stageName: "\u7A7A\u9AA8"
   stageIndex: 2

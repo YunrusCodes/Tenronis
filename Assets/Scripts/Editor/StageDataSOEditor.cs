@@ -23,9 +23,12 @@ namespace Tenronis.Editor
             // 确定难度评级
             UpdateDifficultyRating(difficulty);
             
-            // === 在顶部显示难度信息 ===
-            EditorGUILayout.Space(5);
+            // === 在顶部显示关卡信息（包含 EnemyIcon 预览）===
+            DrawStageInfoPreview(data);
             
+            EditorGUILayout.Space(10);
+            
+            // === 显示难度信息 ===
             // 显示难度信息（大标题）
             GUIStyle titleStyle = new GUIStyle(EditorStyles.boldLabel)
             {
@@ -326,6 +329,151 @@ namespace Tenronis.Editor
                     $"  • {skill.name} (机率{skill.chance:P0}, 威胁{skill.danger:F0}, 贡献{contribution:F1})", 
                     skillStyle
                 );
+            }
+            
+            EditorGUILayout.EndVertical();
+        }
+        
+        /// <summary>
+        /// 绘制关卡信息预览（包含 EnemyIcon）
+        /// </summary>
+        private void DrawStageInfoPreview(StageDataSO data)
+        {
+            EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+            
+            // 标题
+            GUIStyle headerStyle = new GUIStyle(EditorStyles.boldLabel)
+            {
+                fontSize = 14,
+                alignment = TextAnchor.MiddleLeft
+            };
+            EditorGUILayout.LabelField("📋 关卡資訊", headerStyle);
+            EditorGUILayout.Space(5);
+            
+            // 水平布局：左侧显示图标，右侧显示信息
+            EditorGUILayout.BeginHorizontal();
+            
+            // 左侧：EnemyIcon 预览
+            if (data.enemyIcon != null)
+            {
+                // 计算预览大小（80x80）
+                float iconSize = 80f;
+                Rect iconRect = GUILayoutUtility.GetRect(iconSize, iconSize, GUILayout.Width(iconSize), GUILayout.Height(iconSize));
+                
+                // 绘制图标背景
+                EditorGUI.DrawRect(iconRect, new Color(0.2f, 0.2f, 0.2f, 0.5f));
+                
+                // 获取 Sprite 的纹理（使用 AssetPreview 或直接获取 texture）
+                Texture2D spriteTexture = null;
+                if (data.enemyIcon.texture != null)
+                {
+                    spriteTexture = data.enemyIcon.texture;
+                }
+                else
+                {
+                    // 如果 texture 为 null，尝试使用 AssetPreview
+                    spriteTexture = AssetPreview.GetAssetPreview(data.enemyIcon);
+                }
+                
+                if (spriteTexture != null)
+                {
+                    // 绘制图标（保持宽高比）
+                    float iconAspect = (float)spriteTexture.width / spriteTexture.height;
+                    Rect drawRect = iconRect;
+                    if (iconAspect > 1f)
+                    {
+                        // 宽图：以高度为准
+                        float newWidth = iconRect.height * iconAspect;
+                        drawRect = new Rect(iconRect.x + (iconRect.width - newWidth) * 0.5f, iconRect.y, newWidth, iconRect.height);
+                    }
+                    else
+                    {
+                        // 高图：以宽度为准
+                        float newHeight = iconRect.width / iconAspect;
+                        drawRect = new Rect(iconRect.x, iconRect.y + (iconRect.height - newHeight) * 0.5f, iconRect.width, newHeight);
+                    }
+                    
+                    GUI.DrawTexture(drawRect, spriteTexture, ScaleMode.ScaleToFit);
+                }
+                else
+                {
+                    // 如果无法获取纹理，显示占位符
+                    GUIStyle placeholderStyle = new GUIStyle(EditorStyles.centeredGreyMiniLabel)
+                    {
+                        fontSize = 10,
+                        alignment = TextAnchor.MiddleCenter
+                    };
+                    EditorGUI.LabelField(iconRect, "載入中...", placeholderStyle);
+                }
+            }
+            else
+            {
+                // 没有图标时显示占位符
+                float iconSize = 80f;
+                Rect iconRect = GUILayoutUtility.GetRect(iconSize, iconSize, GUILayout.Width(iconSize), GUILayout.Height(iconSize));
+                EditorGUI.DrawRect(iconRect, new Color(0.3f, 0.3f, 0.3f, 0.5f));
+                
+                GUIStyle placeholderStyle = new GUIStyle(EditorStyles.centeredGreyMiniLabel)
+                {
+                    fontSize = 10,
+                    alignment = TextAnchor.MiddleCenter
+                };
+                EditorGUI.LabelField(iconRect, "無圖示", placeholderStyle);
+            }
+            
+            EditorGUILayout.Space(10);
+            
+            // 右侧：关卡信息
+            EditorGUILayout.BeginVertical();
+            
+            // 关卡名称
+            GUIStyle nameStyle = new GUIStyle(EditorStyles.boldLabel)
+            {
+                fontSize = 16
+            };
+            EditorGUILayout.LabelField(data.stageName, nameStyle);
+            
+            EditorGUILayout.Space(3);
+            
+            // 关卡索引和 Boss 标记
+            EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.LabelField($"關卡索引: {data.stageIndex}", EditorStyles.miniLabel);
+            if (data.isBossStage)
+            {
+                GUIStyle bossStyle = new GUIStyle(EditorStyles.miniLabel)
+                {
+                    normal = { textColor = new Color(1f, 0.5f, 0.2f) },
+                    fontStyle = FontStyle.Bold
+                };
+                EditorGUILayout.LabelField("👑 Boss 關卡", bossStyle);
+            }
+            EditorGUILayout.EndHorizontal();
+            
+            // 主题颜色预览（如果有）
+            if (data.themeColor != Color.red) // 如果不是默认红色
+            {
+                EditorGUILayout.BeginHorizontal();
+                EditorGUILayout.LabelField("主題顏色:", EditorStyles.miniLabel, GUILayout.Width(70));
+                Rect colorRect = EditorGUILayout.GetControlRect(GUILayout.Width(50), GUILayout.Height(18));
+                EditorGUI.DrawRect(colorRect, data.themeColor);
+                EditorGUILayout.EndHorizontal();
+            }
+            
+            EditorGUILayout.EndVertical();
+            
+            EditorGUILayout.EndHorizontal();
+            
+            // 关卡描述（如果有）
+            if (!string.IsNullOrEmpty(data.description))
+            {
+                EditorGUILayout.Space(5);
+                EditorGUILayout.BeginVertical(EditorStyles.textArea);
+                GUIStyle descStyle = new GUIStyle(EditorStyles.wordWrappedMiniLabel)
+                {
+                    fontSize = 11
+                };
+                EditorGUILayout.LabelField(data.description, descStyle);
+                EditorGUILayout.EndVertical();
             }
             
             EditorGUILayout.EndVertical();

@@ -12,9 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3fe80882f65a4ff479ef1fca5ee38a6f, type: 3}
   m_Name: Stage_7_Multiplier
   m_EditorClassIdentifier: 
-  stageName: Multiplier
+  stageName: "\u98DF\u9B3C\u87F2"
   stageIndex: 7
   isBossStage: 0
+  description: "\u5B83\u4EE5\u5C16\u53EB\u822C\u5F35\u958B\u7684\u53E3\u5B58\u5728\uFF0C\u7D30\u9577\u7684\u9F52\u5411\u5167\u5F4E\u66F2\uFF0C\u53EA\u70BA\u9632\u6B62\u7375\u7269\u9003\u96E2\u3002\n\u982D\u90E8\u5468\u570D\u61F8\u6D6E\u8457\u6578\u9846\u767C\u5149\u7684\u773C\u56CA\uFF0C\u50CF\u8A98\u990C\uFF0C\u53C8\u50CF\u76E3\u8996\u5668\uFF0C\u6EF4\u843D\u9ECF\u7A20\u5149\u6DB2\u3002\n\u5B83\u5011\u4E26\u975E\u611F\u77E5\u4E16\u754C\uFF0C\u800C\u662F\u6A19\u8A18\u7375\u7269\u7684\u4F4D\u7F6E\u3002\n\u98DF\u9B3C\u87F2\u4E0D\u541E\u566C\u8089\u9AD4\uFF0C\u5B83\u5543\u98DF\u7684\u662F\u6B98\u7559\u7684\u6028\u3001\u6068\u8207\u6050\u61FC\u3002\n\u88AB\u5B83\u76EF\u4E0A\u7684\u5B58\u5728\uFF0C\u6703\u5148\u88AB\u5403\u7A7A\uFF0C\u518D\u88AB\u7559\u4E0B\u3002"
   rewardBuffCount: 3
   maxHp: 620
   shootInterval: 1.45
@@ -46,5 +47,5 @@ MonoBehaviour:
   useSmartTargeting: 0
   addBlockTargetsHigh: 1
   areaDamageTargetsLow: 1
-  enemyIcon: {fileID: 0}
+  enemyIcon: {fileID: -8060930225221557965, guid: 26ebd36b1865075469d5ff802b990512, type: 3}
   themeColor: {r: 1, g: 0, b: 0, a: 1}

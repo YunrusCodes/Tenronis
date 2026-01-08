@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b4b436aae261119448a7d93cc922b45e, type: 3}
   m_Name: StageSet_Theme_3
   m_EditorClassIdentifier: 
-  themeName: Theme_3
+  themeName: "\u96E3\u5EA6\u4E09 \u6028\u8840\u738B"
   themeIcon: {fileID: 0}
   themeColor: {r: 1, g: 0, b: 0, a: 1}
   description: 
@@ -21,7 +21,6 @@ MonoBehaviour:
   - {fileID: 11400000, guid: bd52c7e7b40c23946ad8a9ab3275bb1e, type: 2}
   - {fileID: 11400000, guid: 0664c02081075a048b57133cc99bf7e0, type: 2}
   - {fileID: 11400000, guid: 1fb36ebe4a6afe74b84b6a6d6f3067e2, type: 2}
-  - {fileID: 11400000, guid: 9ed077c6b03c5f949a457303c6b2ca51, type: 2}
   - {fileID: 11400000, guid: ba50e5ba7ab76604c9f098cc60de470f, type: 2}
   - {fileID: 11400000, guid: 629f274711f781045b2cc441a7234f6b, type: 2}
   - {fileID: 11400000, guid: a1ea4a4d60e264440a93b4af20862fbe, type: 2}
