@@ -46,6 +46,7 @@ namespace Tenronis.UI
         [SerializeField] private VideoPlayer bonusVideoPlayer; // VideoPlayer 組件
         [SerializeField] private UnityEngine.UI.AspectRatioFitter bonusAspectRatioFitter; // AspectRatioFilter 組件
         [SerializeField] private TextMeshProUGUI bonusText;
+        [SerializeField] private TextMeshProUGUI bonusLevelText; // 顯示等級變化（例如：戰術擴張 Lv0 -> Lv1）
         [SerializeField] private Button bonusConfirmButton;
         
         [Header("說明影片資源")]
@@ -369,6 +370,7 @@ namespace Tenronis.UI
             bool wasAnnihilationUnlocked = PlayerManager.Instance != null && PlayerManager.Instance.IsAnnihilationUnlocked();
             bool wasExecutionUnlocked = PlayerManager.Instance != null && PlayerManager.Instance.IsExecutionUnlocked();
             bool wasRepairUnlocked = PlayerManager.Instance != null && PlayerManager.Instance.IsRepairUnlocked();
+            int tacticalExpansionLevelBeforeSkill = PlayerManager.Instance != null ? PlayerManager.Instance.Stats.tacticalExpansionLevel : 0;
             
             // 觸發Buff選擇事件（這會應用Buff效果）
             GameEvents.TriggerBuffSelected(buffType);
@@ -397,6 +399,7 @@ namespace Tenronis.UI
                     // 記錄選擇前的傳奇強化等級和技能解鎖狀態
                     int volleyLevelBefore = PlayerManager.Instance != null ? PlayerManager.Instance.Stats.missileExtraCount : 0;
                     int defenseLevelBefore = PlayerManager.Instance != null ? PlayerManager.Instance.Stats.blockDefenseLevel : 0;
+                    int tacticalExpansionLevelBefore = PlayerManager.Instance != null ? PlayerManager.Instance.Stats.tacticalExpansionLevel : 0;
                     bool wasAnnihilationUnlockedAfter = PlayerManager.Instance != null && PlayerManager.Instance.IsAnnihilationUnlocked();
                     bool wasExecutionUnlockedAfter = PlayerManager.Instance != null && PlayerManager.Instance.IsExecutionUnlocked();
                     bool wasRepairUnlockedAfter = PlayerManager.Instance != null && PlayerManager.Instance.IsRepairUnlocked();
@@ -410,18 +413,23 @@ namespace Tenronis.UI
                     bool unlockedExecutionAfter = PlayerManager.Instance != null && !wasExecutionUnlockedAfter && PlayerManager.Instance.IsExecutionUnlocked();
                     bool unlockedRepairAfter = PlayerManager.Instance != null && !wasRepairUnlockedAfter && PlayerManager.Instance.IsRepairUnlocked();
                     
-                    // 檢查是否升級了 Volley 或 Defense
+                    // 檢查是否升級了 Volley、Defense 或 TacticalExpansion
                     bool volleyUpgraded = legendaryBuff.buffType == BuffType.Volley && 
                                          PlayerManager.Instance != null && 
                                          PlayerManager.Instance.Stats.missileExtraCount > volleyLevelBefore;
                     bool defenseUpgraded = legendaryBuff.buffType == BuffType.Defense && 
                                           PlayerManager.Instance != null && 
                                           PlayerManager.Instance.Stats.blockDefenseLevel > defenseLevelBefore;
+                    bool tacticalExpansionUpgraded = legendaryBuff.buffType == BuffType.TacticalExpansion && 
+                                                     PlayerManager.Instance != null && 
+                                                     PlayerManager.Instance.Stats.tacticalExpansionLevel > tacticalExpansionLevelBefore;
                     
-                    // 如果升級了 Volley、Defense 或解鎖了技能，顯示說明頁面
-                    if (volleyUpgraded || defenseUpgraded || unlockedAnnihilationAfter || unlockedExecutionAfter || unlockedRepairAfter)
+                    // 如果升級了 Volley、Defense、TacticalExpansion 或解鎖了技能，顯示說明頁面
+                    if (volleyUpgraded || defenseUpgraded || tacticalExpansionUpgraded || unlockedAnnihilationAfter || unlockedExecutionAfter || unlockedRepairAfter)
                     {
-                        ShowBonusPanel(legendaryBuff, volleyUpgraded, defenseUpgraded, unlockedAnnihilationAfter, unlockedExecutionAfter, unlockedRepairAfter);
+                        ShowBonusPanel(legendaryBuff, volleyLevelBefore, defenseLevelBefore, tacticalExpansionLevelBefore, 
+                                      volleyUpgraded, defenseUpgraded, tacticalExpansionUpgraded, 
+                                      unlockedAnnihilationAfter, unlockedExecutionAfter, unlockedRepairAfter);
                         waitingForBonusConfirm = true;
                         return; // 等待確認按鈕，不繼續下一步
                     }
@@ -434,7 +442,11 @@ namespace Tenronis.UI
             // 如果只是解鎖了技能（沒有獲得傳奇強化），也顯示說明頁面
             else if (unlockedAnnihilation || unlockedExecution || unlockedRepair)
             {
-                ShowBonusPanel(null, false, false, unlockedAnnihilation, unlockedExecution, unlockedRepair);
+                // 檢查 TacticalExpansion 是否升級了
+                int tacticalExpansionLevelAfter = PlayerManager.Instance != null ? PlayerManager.Instance.Stats.tacticalExpansionLevel : 0;
+                bool tacticalExpansionUpgradedSkill = tacticalExpansionLevelAfter > tacticalExpansionLevelBeforeSkill;
+                
+                ShowBonusPanel(null, 0, 0, tacticalExpansionLevelBeforeSkill, false, false, tacticalExpansionUpgradedSkill, unlockedAnnihilation, unlockedExecution, unlockedRepair);
                 waitingForBonusConfirm = true;
                 return; // 等待確認按鈕，不繼續下一步
             }
@@ -446,7 +458,8 @@ namespace Tenronis.UI
         /// <summary>
         /// 顯示傳奇強化說明頁面
         /// </summary>
-        private void ShowBonusPanel(BuffDataSO legendaryBuff, bool volleyUpgraded, bool defenseUpgraded, 
+        private void ShowBonusPanel(BuffDataSO legendaryBuff, int volleyLevelBefore, int defenseLevelBefore, int tacticalExpansionLevelBefore,
+                                    bool volleyUpgraded, bool defenseUpgraded, bool tacticalExpansionUpgraded,
                                     bool unlockedAnnihilation, bool unlockedExecution, bool unlockedRepair)
         {
             if (bonusPanel == null)
@@ -487,7 +500,7 @@ namespace Tenronis.UI
             }
             else if (unlockedAnnihilation)
             {
-                descriptionText = "現在按 1 能使用湮滅";
+                descriptionText = "按 1 將當前方塊轉化為可穿透已存在方塊的湮滅方塊。按 空白鍵 將摧毀所有與湮滅方塊重疊的方塊，並生成飛彈。";
                 
                 if (annihilationVideo != null)
                 {
@@ -496,7 +509,7 @@ namespace Tenronis.UI
             }
             else if (unlockedExecution)
             {
-                descriptionText = "現在按 2 能使用處決";
+                descriptionText = "按 2 消除每一行最上方的方塊，並生成飛彈。";
                 
                 if (executionVideo != null)
                 {
@@ -505,7 +518,7 @@ namespace Tenronis.UI
             }
             else if (unlockedRepair)
             {
-                descriptionText = "現在按 3 能使用修補";
+                descriptionText = "按 3 將所有封閉區域填充為方塊。若形成整列，則視為有效消除。消除虛無方塊時不會產生任何飛彈。";
                 
                 if (repairVideo != null)
                 {
@@ -578,6 +591,39 @@ namespace Tenronis.UI
             if (bonusText != null)
             {
                 bonusText.text = descriptionText;
+            }
+            
+            // 設置等級變化文字
+            if (bonusLevelText != null)
+            {
+                string levelChangeText = "";
+                
+                if (tacticalExpansionUpgraded && PlayerManager.Instance != null)
+                {
+                    int tacticalExpansionLevel = PlayerManager.Instance.Stats.tacticalExpansionLevel;
+                    levelChangeText = $"戰術擴張\n Lv{tacticalExpansionLevelBefore} -> Lv{tacticalExpansionLevel}";
+                }
+                else if (unlockedAnnihilation || unlockedExecution || unlockedRepair)
+                {
+                    // 如果解鎖了技能，顯示 TacticalExpansion 的等級變化
+                    if (PlayerManager.Instance != null)
+                    {
+                        int tacticalExpansionLevel = PlayerManager.Instance.Stats.tacticalExpansionLevel;
+                        levelChangeText = $"戰術擴張\n Lv{tacticalExpansionLevelBefore} -> Lv{tacticalExpansionLevel}";
+                    }
+                }
+                else if (defenseUpgraded && PlayerManager.Instance != null)
+                {
+                    int defenseLevel = PlayerManager.Instance.Stats.blockDefenseLevel;
+                    levelChangeText = $"鞏固防禦\n Lv{defenseLevelBefore} -> Lv{defenseLevel}";
+                }
+                else if (volleyUpgraded && PlayerManager.Instance != null)
+                {
+                    int volleyLevel = PlayerManager.Instance.Stats.missileExtraCount;
+                    levelChangeText = $"加倍火力\n Lv{volleyLevelBefore} -> Lv{volleyLevel}";
+                }
+                
+                bonusLevelText.text = levelChangeText;
             }
             
             // 顯示說明頁面
