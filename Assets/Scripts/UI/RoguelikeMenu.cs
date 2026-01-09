@@ -8,6 +8,7 @@ using Tenronis.Data;
 using Tenronis.Core;
 using Tenronis.Managers;
 using Tenronis.ScriptableObjects;
+using DG.Tweening;
 
 namespace Tenronis.UI
 {
@@ -30,6 +31,16 @@ namespace Tenronis.UI
         [SerializeField] private Transform enemyAttackPreviewContainer;
         [SerializeField] private GameObject enemyAttackPreviewPrefab;
         [SerializeField] private Tenronis.Gameplay.Projectiles.Bullet bulletPrefabReference;
+        
+        [Header("Boss Battle 動畫")]
+        [SerializeField] private TextMeshProUGUI bossBattleText; // Boss Battle 文字（場景中新增的）
+        [SerializeField] private Transform bossBattleTextContainer; // 包含 Boss Battle 文字的容器（用於整體移動）
+        [SerializeField] private AudioClip bossBattleCharSound; // 字符動畫音效
+        
+        [Header("Stage 顯示動畫")]
+        [SerializeField] private TextMeshProUGUI stageText; // Stage 文字（場景中新增的，顯示 "Stage n 怪物名稱"）
+        [SerializeField] private Transform stageTextContainer; // 包含 Stage 文字的容器（用於整體移動）
+        [SerializeField] private AudioClip stageCharSound; // Stage 字符動畫音效（可選）
         
         [Header("玩家強化面板")]
         [SerializeField] private GameObject playerBuffPanel;
@@ -59,6 +70,8 @@ namespace Tenronis.UI
         private List<GameObject> currentOptions = new List<GameObject>();
         private List<GameObject> attackPreviewItems = new List<GameObject>();
         private List<Coroutine> spriteSyncCoroutines = new List<Coroutine>();
+        private List<GameObject> bossBattleCharObjects = new List<GameObject>(); // Boss Battle 字符對象列表
+        private List<GameObject> stageCharObjects = new List<GameObject>(); // Stage 字符對象列表
         private bool showDetailedInfo = false; // 是否顯示詳細資訊
         private int currentInfoTab = 0; // 0=敵人資訊, 1=普通強化, 2=傳奇強化
         private bool waitingForBonusConfirm = false; // 是否正在等待說明頁面確認
@@ -75,7 +88,7 @@ namespace Tenronis.UI
             
             GenerateBuffOptions();
             UpdateCurrentStats();
-            UpdateNextStageEnemyPreview();
+            StartCoroutine(UpdateNextStageEnemyPreviewCoroutine());
             
             // 設置分頁按鈕
             SetupTabButtons();
@@ -97,6 +110,26 @@ namespace Tenronis.UI
         {
             ClearOptions();
             ClearAttackPreviews();
+            ClearBossBattleChars();
+            ClearStageChars();
+            
+            // 停止所有 DOTween 動畫
+            if (bossBattleText != null)
+            {
+                bossBattleText.DOKill();
+            }
+            if (bossBattleTextContainer != null)
+            {
+                bossBattleTextContainer.DOKill();
+            }
+            if (stageText != null)
+            {
+                stageText.DOKill();
+            }
+            if (stageTextContainer != null)
+            {
+                stageTextContainer.DOKill();
+            }
             
             // 移除按鈕監聽
             if (normalBuffButton != null) normalBuffButton.onClick.RemoveAllListeners();
@@ -867,20 +900,23 @@ namespace Tenronis.UI
         /// <summary>
         /// 更新當前關卡敵人攻擊預覽
         /// </summary>
-        private void UpdateNextStageEnemyPreview()
+        private IEnumerator UpdateNextStageEnemyPreviewCoroutine()
         {
             ClearAttackPreviews();
             
-            if (nextStageEnemyPreviewText == null) return;
-            if (GameManager.Instance == null) return;
+            if (nextStageEnemyPreviewText == null) yield break;
+            if (GameManager.Instance == null) yield break;
             
             var currentStage = GameManager.Instance.CurrentStage;
             
             // 如果沒有當前關卡
             if (currentStage == null)
             {
-                nextStageEnemyPreviewText.text = "";
-                return;
+                if (nextStageEnemyPreviewText != null)
+                {
+                    nextStageEnemyPreviewText.text = "";
+                }
+                yield break;
             }
             
             // 設置敵人頭像
@@ -897,24 +933,23 @@ namespace Tenronis.UI
                 }
             }
             
-            // 顯示基本資訊
-            System.Text.StringBuilder sb = new System.Text.StringBuilder();
-            sb.AppendLine($"Stage {GameManager.Instance.CurrentStageIndex + 1}: {currentStage.stageName}");
-            sb.AppendLine($"HP: {currentStage.maxHp}  |  攻擊間隔: {currentStage.shootInterval}s");
+            // 構建基本資訊文字（先不顯示，等動畫完成後用打字機效果顯示）
+            string previewText = $"HP: {currentStage.maxHp}  |  攻擊間隔: {currentStage.shootInterval}s";
             
-            if (currentStage.useSmartTargeting)
+            // 先清空文字，等動畫完成後再顯示
+            if (nextStageEnemyPreviewText != null)
             {
-                sb.AppendLine("⚠ 智能射擊已啟用");
+                nextStageEnemyPreviewText.text = "";
             }
             
-            nextStageEnemyPreviewText.text = sb.ToString();
-            
-            // 顯示關卡描述
+            // 關卡描述（先不顯示，等子彈實例化完成後用打字機效果顯示）
+            string descriptionText = "";
             if (previewDescriptionText != null)
             {
                 if (!string.IsNullOrEmpty(currentStage.description))
                 {
-                    previewDescriptionText.text = currentStage.description;
+                    descriptionText = currentStage.description;
+                    previewDescriptionText.text = ""; // 先清空，等動畫完成後再顯示
                     previewDescriptionText.gameObject.SetActive(true);
                 }
                 else
@@ -924,8 +959,699 @@ namespace Tenronis.UI
                 }
             }
             
-            // 生成視覺攻擊預覽
-            GenerateAttackPreviews(currentStage);
+            // 如果是 Boss 關卡，同時顯示 Boss Battle 動畫和 Stage 動畫
+            bool bossBattleCompleted = false;
+            bool stageCompleted = false;
+            
+            if (currentStage.isBossStage && bossBattleText != null)
+            {
+                StartCoroutine(WaitForBossBattleAnimation(() => bossBattleCompleted = true));
+            }
+            else if (bossBattleText != null)
+            {
+                // 如果不是 Boss 關卡，隱藏文字
+                bossBattleText.gameObject.SetActive(false);
+                bossBattleCompleted = true; // 標記為已完成（因為不需要播放）
+            }
+            else
+            {
+                bossBattleCompleted = true; // 標記為已完成（因為沒有 bossBattleText）
+            }
+            
+            // 每關都顯示 Stage 動畫（傳遞預覽文字、關卡數據和描述文字，讓動畫完成後顯示）
+            if (stageText != null)
+            {
+                StartCoroutine(WaitForStageAnimation(currentStage, GameManager.Instance.CurrentStageIndex, previewText, descriptionText, () => stageCompleted = true));
+            }
+            else
+            {
+                // 如果沒有 Stage 動畫，在第一階段開始時禁用關閉按鈕
+                if (closeEnemyPanelButton != null)
+                {
+                    closeEnemyPanelButton.gameObject.SetActive(false);
+                }
+                
+                // 如果沒有 Stage 動畫，直接顯示文字，然後生成攻擊預覽
+                if (nextStageEnemyPreviewText != null)
+                {
+                    nextStageEnemyPreviewText.text = previewText;
+                }
+                // 沒有動畫時，直接生成攻擊預覽（傳遞描述文字）
+                GenerateAttackPreviews(currentStage, descriptionText);
+                stageCompleted = true; // 標記為已完成
+            }
+            
+            // 等待所有動畫完成
+            yield return new WaitUntil(() => bossBattleCompleted && stageCompleted);
+        }
+        
+        /// <summary>
+        /// 等待 Boss Battle 動畫完成
+        /// </summary>
+        private IEnumerator WaitForBossBattleAnimation(System.Action onComplete)
+        {
+            yield return StartCoroutine(PlayBossBattleAnimationCoroutine());
+            onComplete?.Invoke();
+        }
+        
+        /// <summary>
+        /// 等待 Stage 動畫完成
+        /// </summary>
+        private IEnumerator WaitForStageAnimation(StageDataSO stage, int stageIndex, string previewText, string descriptionText, System.Action onComplete)
+        {
+            yield return StartCoroutine(PlayStageAnimationCoroutine(stage, stageIndex, previewText, descriptionText));
+            onComplete?.Invoke();
+        }
+        
+        /// <summary>
+        /// 播放 Boss Battle 動畫（協程版本）
+        /// 每個字符從透明+大 → 不透明+正常大小，然後整句向左移出
+        /// </summary>
+        private IEnumerator PlayBossBattleAnimationCoroutine()
+        {
+            if (bossBattleText == null) yield break;
+            
+            // 清理之前的字符對象
+            ClearBossBattleChars();
+            
+            // 獲取文字內容（如果為空，使用默認值）
+            string text = bossBattleText.text;
+            if (string.IsNullOrEmpty(text))
+            {
+                text = "Boss Battle";
+            }
+            
+            // 先設置文字並強制更新，以獲取字符位置信息
+            bossBattleText.text = text;
+            bossBattleText.ForceMeshUpdate();
+            
+            // 獲取容器（如果沒有指定，使用文字本身的 Transform）
+            Transform container = bossBattleTextContainer != null ? bossBattleTextContainer : bossBattleText.transform;
+            Vector3 originalContainerPosition = container.localPosition;
+            
+            // 設置容器初始位置（從左側屏幕外 -2000，只改變 X 軸）
+            // 確保 X 軸明確為 -2000，Y 和 Z 保持原始值
+            Vector3 startPosition = originalContainerPosition;
+            container.localPosition = startPosition;
+            
+            // 顯示容器
+            container.gameObject.SetActive(true);
+            
+            // 獲取字符信息（需要先顯示文字才能獲取正確的字符信息）
+            bossBattleText.gameObject.SetActive(true);
+            TMP_TextInfo textInfo = bossBattleText.textInfo;
+            int characterCount = textInfo.characterCount;
+            
+            // 如果字符數量為 0，可能是文字還沒更新，強制更新一次
+            if (characterCount == 0)
+            {
+                bossBattleText.ForceMeshUpdate();
+                textInfo = bossBattleText.textInfo;
+                characterCount = textInfo.characterCount;
+            }
+            
+            // 如果還是沒有字符，直接返回
+            if (characterCount == 0)
+            {
+                Debug.LogWarning("[RoguelikeMenu] Boss Battle 文字沒有字符，無法播放動畫");
+                yield break;
+            }
+            
+            // 隱藏原始文字（我們將使用單獨的字符對象）
+            bossBattleText.gameObject.SetActive(false);
+            
+            // 為每個字符創建單獨的 TextMeshProUGUI 對象
+            List<GameObject> charObjects = new List<GameObject>();
+            
+            for (int i = 0; i < characterCount; i++)
+            {
+                TMP_CharacterInfo charInfo = textInfo.characterInfo[i];
+                
+                // 跳過空格和不可見字符
+                if (!charInfo.isVisible || charInfo.character == ' ') continue;
+                
+                // 創建字符對象
+                GameObject charObj = new GameObject($"BossChar_{i}");
+                charObj.transform.SetParent(container, false);
+                
+                // 添加 TextMeshProUGUI 組件
+                TextMeshProUGUI charText = charObj.AddComponent<TextMeshProUGUI>();
+                charText.text = text[i].ToString();
+                
+                // 複製字體相關屬性
+                charText.font = bossBattleText.font;
+                charText.fontSize = bossBattleText.fontSize;
+                charText.fontSizeMin = bossBattleText.fontSizeMin;
+                charText.fontSizeMax = bossBattleText.fontSizeMax;
+                charText.fontStyle = bossBattleText.fontStyle;
+                charText.fontWeight = bossBattleText.fontWeight;
+                charText.enableAutoSizing = bossBattleText.enableAutoSizing;
+                
+                // 複製顏色相關屬性
+                charText.color = bossBattleText.color;
+                charText.faceColor = bossBattleText.faceColor;
+                charText.enableVertexGradient = bossBattleText.enableVertexGradient;
+                if (bossBattleText.enableVertexGradient)
+                {
+                    charText.colorGradient = bossBattleText.colorGradient;
+                }
+                charText.colorGradientPreset = bossBattleText.colorGradientPreset;
+                
+                // 複製對齊方式
+                charText.alignment = bossBattleText.alignment;
+                charText.horizontalAlignment = bossBattleText.horizontalAlignment;
+                charText.verticalAlignment = bossBattleText.verticalAlignment;
+                
+                // 複製間距
+                charText.characterSpacing = bossBattleText.characterSpacing;
+                charText.wordSpacing = bossBattleText.wordSpacing;
+                charText.lineSpacing = bossBattleText.lineSpacing;
+                charText.paragraphSpacing = bossBattleText.paragraphSpacing;
+                
+                // 複製其他屬性
+                charText.textWrappingMode = bossBattleText.textWrappingMode;
+                charText.overflowMode = bossBattleText.overflowMode;
+                // enableKerning 已過時，使用 fontFeatures
+                // charText.enableKerning = bossBattleText.enableKerning;
+                
+                // 複製材質
+                charText.fontSharedMaterial = bossBattleText.fontSharedMaterial;
+                charText.fontMaterials = bossBattleText.fontMaterials;
+                
+                // 複製 Outline 效果（如果有的話）
+                var originalOutline = bossBattleText.GetComponent<UnityEngine.UI.Outline>();
+                if (originalOutline != null)
+                {
+                    var charOutline = charObj.AddComponent<UnityEngine.UI.Outline>();
+                    charOutline.effectColor = originalOutline.effectColor;
+                    charOutline.effectDistance = originalOutline.effectDistance;
+                    charOutline.useGraphicAlpha = originalOutline.useGraphicAlpha;
+                }
+                
+                // 複製 Shadow 效果（如果有的話）
+                var originalShadow = bossBattleText.GetComponent<UnityEngine.UI.Shadow>();
+                if (originalShadow != null)
+                {
+                    var charShadow = charObj.AddComponent<UnityEngine.UI.Shadow>();
+                    charShadow.effectColor = originalShadow.effectColor;
+                    charShadow.effectDistance = originalShadow.effectDistance;
+                    charShadow.useGraphicAlpha = originalShadow.useGraphicAlpha;
+                }
+                
+                // 複製其他 UI 屬性
+                charText.raycastTarget = bossBattleText.raycastTarget;
+                charText.maskable = bossBattleText.maskable;
+                
+                // 計算字符位置（相對於容器）
+                // 字符的中心位置（相對於文字對象）
+                Vector3 charCenterLocal = (charInfo.topLeft + charInfo.topRight + 
+                                          charInfo.bottomLeft + charInfo.bottomRight) / 4f;
+                
+                // 轉換為世界空間
+                Vector3 charCenterWorld = bossBattleText.transform.TransformPoint(charCenterLocal);
+                
+                // 轉換為容器的本地空間
+                Vector3 charCenterContainerLocal = container.InverseTransformPoint(charCenterWorld);
+                charObj.transform.localPosition = charCenterContainerLocal;
+                
+                // 初始狀態：透明+大（保留原始顏色的 RGB，只改變 alpha）
+                Color originalColor = charText.color;
+                charText.color = new Color(originalColor.r, originalColor.g, originalColor.b, 0f);
+                charObj.transform.localScale = Vector3.one * 2f;
+                
+                charObjects.Add(charObj);
+                bossBattleCharObjects.Add(charObj);
+            }
+            
+            // 如果沒有創建任何字符對象，直接返回
+            if (charObjects.Count == 0)
+            {
+                Debug.LogWarning("[RoguelikeMenu] Boss Battle 沒有可顯示的字符，無法播放動畫");
+                // 恢復原始文字顯示
+                bossBattleText.gameObject.SetActive(true);
+                yield break;
+            }
+            
+            // 創建動畫序列
+            Sequence mainSequence = DOTween.Sequence();
+            
+            // 第一階段：容器從 -2000 移動到 0（中心位置，只改變 X 軸）
+            Vector3 centerPosition = new Vector3(0f, originalContainerPosition.y, originalContainerPosition.z);
+            float containerMoveInDuration = 1f;
+            mainSequence.Append(container.DOLocalMove(centerPosition, containerMoveInDuration));
+            
+            // 第二階段：每個字符依次從透明+大 → 不透明+正常大小（在第一階段完成後才開始）
+            for (int i = 0; i < charObjects.Count; i++)
+            {
+                GameObject charObj = charObjects[i];
+                TextMeshProUGUI charText = charObj.GetComponent<TextMeshProUGUI>();
+                
+                float delay = i * 0.1f; // 每個字符延遲 0.1 秒
+                float duration = 0.4f; // 動畫持續時間
+                
+                // 字符動畫（使用 Append 確保在第一階段完成後才開始）
+                Sequence charSeq = DOTween.Sequence();
+                charSeq.AppendInterval(delay);
+                // 在動畫開始時播放音效（delay 結束後）
+                charSeq.AppendCallback(() => {
+                    PlayBossBattleCharSound();
+                });
+                charSeq.Append(charText.DOFade(1f, duration));
+                charSeq.Join(charObj.transform.DOScale(Vector3.one, duration));
+                
+                // 第一個字符動畫使用 Append，後續的字符動畫使用 Join（與第一個字符動畫同時進行）
+                if (i == 0)
+                {
+                    mainSequence.Append(charSeq);
+                }
+                else
+                {
+                    mainSequence.Join(charSeq);
+                }
+            }
+            
+            // 計算字符動畫總時間
+            float totalCharAnimationTime = charObjects.Count * 0.1f + 0.4f;
+            
+            // 確保序列等待所有字符動畫完成（如果字符動畫還沒完成）
+            if (mainSequence.Duration() < containerMoveInDuration + totalCharAnimationTime)
+            {
+                mainSequence.AppendInterval((containerMoveInDuration + totalCharAnimationTime) - mainSequence.Duration());
+            }
+            
+            // 第三階段：短暫停留
+            mainSequence.AppendInterval(0.5f);
+            
+            // 第四階段：容器向左移出到 -2000（只改變 X 軸）
+            Vector3 exitPosition = new Vector3(-2000f, originalContainerPosition.y, originalContainerPosition.z);
+            mainSequence.Append(container.DOLocalMove(exitPosition, 0.8f));
+            
+            // 等待動畫完成
+            yield return mainSequence.WaitForCompletion();
+            
+            // 動畫完成後清理
+            ClearBossBattleChars();
+            if (container != null)
+            {
+                container.localPosition = originalContainerPosition;
+                container.gameObject.SetActive(false);
+            }
+        }
+        
+        /// <summary>
+        /// 清理 Boss Battle 字符對象
+        /// </summary>
+        private void ClearBossBattleChars()
+        {
+            foreach (var charObj in bossBattleCharObjects)
+            {
+                if (charObj != null)
+                {
+                    Destroy(charObj);
+                }
+            }
+            bossBattleCharObjects.Clear();
+        }
+        
+        /// <summary>
+        /// 播放 Boss Battle 字符動畫音效
+        /// </summary>
+        private void PlayBossBattleCharSound()
+        {
+            if (bossBattleCharSound != null)
+            {
+                // 嘗試使用 AudioManager（如果存在）
+                if (Tenronis.Audio.AudioManager.Instance != null)
+                {
+                    AudioSource audioSource = Tenronis.Audio.AudioManager.Instance.GetComponent<AudioSource>();
+                    if (audioSource != null)
+                    {
+                        audioSource.PlayOneShot(bossBattleCharSound);
+                        return;
+                    }
+                }
+                
+                // 如果沒有 AudioManager，創建臨時的 AudioSource
+                GameObject tempAudio = new GameObject("TempAudio");
+                AudioSource tempSource = tempAudio.AddComponent<AudioSource>();
+                tempSource.PlayOneShot(bossBattleCharSound);
+                Destroy(tempAudio, bossBattleCharSound.length + 0.1f);
+            }
+        }
+        
+        /// <summary>
+        /// 播放 Stage 動畫（協程版本）
+        /// 顯示 "Stage n 怪物名稱"，每個字符從透明+大 → 不透明+正常大小，然後整句向左移出
+        /// </summary>
+        /// <param name="stage">關卡數據</param>
+        /// <param name="stageIndex">關卡索引</param>
+        /// <param name="previewText">敵人預覽文字（動畫完成後用打字機效果顯示）</param>
+        /// <param name="descriptionText">描述文字（子彈實例化完成後用打字機效果顯示）</param>
+        private IEnumerator PlayStageAnimationCoroutine(StageDataSO stage, int stageIndex, string previewText = "", string descriptionText = "")
+        {
+            if (stageText == null || stage == null) yield break;
+            
+            // 清理之前的字符對象
+            ClearStageChars();
+            
+            // 設置敵人頭像為透明（動畫開始時）
+            if (enemyIconImage != null && enemyIconImage.gameObject.activeSelf)
+            {
+                Color iconColor = enemyIconImage.color;
+                iconColor.a = 0f;
+                enemyIconImage.color = iconColor;
+            }
+            
+            // 構建文字內容："Stage n 怪物名稱"
+            string text = $"Stage {stageIndex + 1} {stage.stageName}";
+            
+            // 獲取容器（如果沒有指定，使用文字本身的 Transform）
+            Transform container = stageTextContainer != null ? stageTextContainer : stageText.transform;
+            Vector3 originalContainerPosition = container.localPosition;
+            
+            // 設置容器位置為中心（不需要移入移出）
+            container.localPosition = originalContainerPosition;
+            
+            // 顯示容器
+            container.gameObject.SetActive(true);
+            
+            // 實例化一個新的 TextMeshProUGUI 物件來進行操作
+            GameObject tempTextObj = new GameObject("TempStageText");
+            tempTextObj.transform.SetParent(container, false);
+            TextMeshProUGUI tempStageText = tempTextObj.AddComponent<TextMeshProUGUI>();
+            
+            // 複製 stageText 的所有屬性到新物件
+            tempStageText.text = text;
+            tempStageText.font = stageText.font;
+            tempStageText.fontSize = stageText.fontSize;
+            tempStageText.fontSizeMin = stageText.fontSizeMin;
+            tempStageText.fontSizeMax = stageText.fontSizeMax;
+            tempStageText.fontStyle = stageText.fontStyle;
+            tempStageText.fontWeight = stageText.fontWeight;
+            tempStageText.enableAutoSizing = stageText.enableAutoSizing;
+            tempStageText.color = stageText.color;
+            tempStageText.faceColor = stageText.faceColor;
+            tempStageText.enableVertexGradient = stageText.enableVertexGradient;
+            if (stageText.enableVertexGradient)
+            {
+                tempStageText.colorGradient = stageText.colorGradient;
+            }
+            tempStageText.colorGradientPreset = stageText.colorGradientPreset;
+            tempStageText.alignment = stageText.alignment;
+            tempStageText.textWrappingMode = TextWrappingModes.NoWrap;
+            tempStageText.characterSpacing = stageText.characterSpacing;
+            tempStageText.wordSpacing = stageText.wordSpacing;
+            tempStageText.lineSpacing = stageText.lineSpacing;
+            tempStageText.paragraphSpacing = stageText.paragraphSpacing;
+            if (stageText.fontMaterial != null)
+            {
+                tempStageText.fontMaterial = stageText.fontMaterial;
+            }
+            tempStageText.outlineWidth = stageText.outlineWidth;
+            tempStageText.outlineColor = stageText.outlineColor;
+            if (stageText.fontSharedMaterial != null)
+            {
+                tempStageText.fontSharedMaterial = stageText.fontSharedMaterial;
+            }
+            tempStageText.raycastTarget = stageText.raycastTarget;
+            tempStageText.maskable = stageText.maskable;
+            
+            // 設置位置與 stageText 相同（相對於容器）
+            tempTextObj.transform.localPosition = stageText.transform.localPosition;
+            tempTextObj.transform.localRotation = stageText.transform.localRotation;
+            tempTextObj.transform.localScale = stageText.transform.localScale;
+            
+            // 啟用物件並強制更新以獲取字符位置信息
+            tempTextObj.SetActive(true);
+            tempStageText.ForceMeshUpdate();
+
+            // 獲取字符信息
+            TMP_TextInfo textInfo = tempStageText.textInfo;
+            int characterCount = textInfo.characterCount;
+
+            // 如果字符數量為 0，可能是文字還沒更新，強制更新並再等待一幀
+            if (characterCount == 0)
+            {
+                tempStageText.ForceMeshUpdate();
+                yield return null;
+                textInfo = tempStageText.textInfo;
+                characterCount = textInfo.characterCount;
+            }
+
+            // 如果還是沒有字符，清理並返回
+            if (characterCount == 0)
+            {
+                Debug.LogWarning($"[RoguelikeMenu] Stage 文字沒有字符，無法播放動畫。文字內容: '{text}'");
+                Destroy(tempTextObj);
+                yield break;
+            }
+            
+            // 為每個字符創建單獨的 TextMeshProUGUI 對象
+            List<GameObject> charObjects = new List<GameObject>();
+            for (int i = 0; i < characterCount; i++)
+            {
+                TMP_CharacterInfo charInfo = textInfo.characterInfo[i];
+                
+                // 跳過空格和不可見字符
+                if (!charInfo.isVisible || charInfo.character == ' ') continue;
+                
+                // 創建字符對象
+                GameObject charObj = new GameObject($"StageChar_{i}");
+                charObj.transform.SetParent(container, false);
+                
+                // 添加 TextMeshProUGUI 組件
+                TextMeshProUGUI charText = charObj.AddComponent<TextMeshProUGUI>();
+                charText.text = charInfo.character.ToString();
+                
+                // 複製字體相關屬性
+                charText.font = tempStageText.font;
+                charText.fontSize = tempStageText.fontSize;
+                charText.fontSizeMin = tempStageText.fontSizeMin;
+                charText.fontSizeMax = tempStageText.fontSizeMax;
+                charText.fontStyle = tempStageText.fontStyle;
+                charText.fontWeight = tempStageText.fontWeight;
+                charText.enableAutoSizing = tempStageText.enableAutoSizing;
+                
+                // 複製顏色相關屬性
+                charText.color = tempStageText.color;
+                charText.faceColor = tempStageText.faceColor;
+                charText.enableVertexGradient = tempStageText.enableVertexGradient;
+                if (tempStageText.enableVertexGradient)
+                {
+                    charText.colorGradient = tempStageText.colorGradient;
+                }
+                charText.colorGradientPreset = tempStageText.colorGradientPreset;
+                
+                // 複製對齊方式
+                charText.alignment = tempStageText.alignment;
+                charText.textWrappingMode = TextWrappingModes.NoWrap;
+                
+                // 複製間距
+                charText.characterSpacing = tempStageText.characterSpacing;
+                charText.wordSpacing = tempStageText.wordSpacing;
+                charText.lineSpacing = tempStageText.lineSpacing;
+                charText.paragraphSpacing = tempStageText.paragraphSpacing;
+                
+                // 複製材質
+                if (tempStageText.fontMaterial != null)
+                {
+                    charText.fontMaterial = tempStageText.fontMaterial;
+                }
+                
+                // 複製外框和陰影
+                charText.outlineWidth = tempStageText.outlineWidth;
+                charText.outlineColor = tempStageText.outlineColor;
+                if (tempStageText.fontSharedMaterial != null)
+                {
+                    charText.fontSharedMaterial = tempStageText.fontSharedMaterial;
+                }
+                
+                // 其他屬性
+                charText.raycastTarget = tempStageText.raycastTarget;
+                charText.maskable = tempStageText.maskable;
+                
+                // 設置初始狀態：透明 + 放大
+                Color initialColor = charText.color;
+                initialColor.a = 0f; // 透明
+                charText.color = initialColor;
+                charObj.transform.localScale = Vector3.one * 2f; // 放大 2 倍
+                
+                // 字符的中心位置（相對於文字對象）
+                Vector3 charCenterLocal = (charInfo.topLeft + charInfo.topRight + 
+                                          charInfo.bottomLeft + charInfo.bottomRight) / 4f;
+                
+                // 轉換為世界空間
+                Vector3 charCenterWorld = tempStageText.transform.TransformPoint(charCenterLocal);
+                
+                // 轉換為容器的本地空間
+                Vector3 charCenterContainerLocal = container.InverseTransformPoint(charCenterWorld);
+                charObj.transform.localPosition = charCenterContainerLocal;
+                
+                charObjects.Add(charObj);
+                stageCharObjects.Add(charObj);
+            }
+            
+            // 如果沒有創建任何字符對象，清理並返回
+            if (charObjects.Count == 0)
+            {
+                Debug.LogWarning("[RoguelikeMenu] Stage 沒有可顯示的字符，無法播放動畫");
+                Destroy(tempTextObj);
+                yield break;
+            }
+            
+            // 隱藏臨時文字物件（字符對象已經創建完成）
+            tempTextObj.SetActive(false);
+            
+            // 在動畫開始時，禁用關閉按鈕
+            if (closeEnemyPanelButton != null)
+            {
+                closeEnemyPanelButton.gameObject.SetActive(false);
+            }
+            
+            // 創建動畫序列
+            Sequence mainSequence = DOTween.Sequence();
+            
+            // 延遲 0.2 秒後開始動畫
+            mainSequence.AppendInterval(0.2f);
+            
+            // 字符動畫（每個字符從透明+大 → 不透明+正常大小）
+            for (int i = 0; i < charObjects.Count; i++)
+            {
+                GameObject charObj = charObjects[i];
+                TextMeshProUGUI charText = charObj.GetComponent<TextMeshProUGUI>();
+                
+                float delay = i * 0.1f; // 每個字符延遲 0.1 秒
+                float duration = 0.4f; // 動畫持續時間
+                
+                // 字符動畫
+                Sequence charSeq = DOTween.Sequence();
+                charSeq.AppendInterval(delay);
+                // 在動畫開始時播放音效（delay 結束後）
+                if (stageCharSound != null)
+                {
+                    charSeq.AppendCallback(() => {
+                        PlayStageCharSound();
+                    });
+                }
+                charSeq.Append(charText.DOFade(1f, duration));
+                charSeq.Join(charObj.transform.DOScale(Vector3.one, duration));
+                
+                // 第一個字符動畫使用 Append，後續的字符動畫使用 Join（與第一個字符動畫同時進行）
+                if (i == 0)
+                {
+                    mainSequence.Append(charSeq);
+                }
+                else
+                {
+                    mainSequence.Join(charSeq);
+                }
+            }
+            
+            // 字符動畫結束時，讓 Enemy Icon 淡入
+            mainSequence.AppendCallback(() => {
+                if (enemyIconImage != null && enemyIconImage.gameObject.activeSelf)
+                {
+                    enemyIconImage.DOFade(1f, 0.5f);
+                }
+            });
+            
+            // 短暫停頓
+            mainSequence.AppendInterval(0.5f);
+            
+            // 等待動畫完成
+            yield return mainSequence.WaitForCompletion();
+            
+            // 清理臨時文字物件
+            if (tempTextObj != null)
+            {
+                Destroy(tempTextObj);
+            }
+            
+            // 動畫完成後，使用打字機效果顯示預覽文字
+            if (nextStageEnemyPreviewText != null && !string.IsNullOrEmpty(previewText))
+            {
+                yield return StartCoroutine(TypewriterEffectAndGeneratePreviews(nextStageEnemyPreviewText, previewText, 0.01f, stage, descriptionText));
+            }
+        }
+        
+        /// <summary>
+        /// 清理 Stage 字符對象
+        /// </summary>
+        private void ClearStageChars()
+        {
+            foreach (var charObj in stageCharObjects)
+            {
+                if (charObj != null)
+                {
+                    Destroy(charObj);
+                }
+            }
+            stageCharObjects.Clear();
+        }
+        
+        /// <summary>
+        /// 打字機效果：逐字符顯示文字
+        /// </summary>
+        /// <param name="textComponent">文字組件</param>
+        /// <param name="fullText">完整文字</param>
+        /// <param name="delayPerChar">每個字符的延遲時間（秒）</param>
+        private IEnumerator TypewriterEffect(TextMeshProUGUI textComponent, string fullText, float delayPerChar)
+        {
+            if (textComponent == null || string.IsNullOrEmpty(fullText)) yield break;
+            
+            textComponent.text = "";
+            
+            for (int i = 0; i < fullText.Length; i++)
+            {
+                textComponent.text = fullText.Substring(0, i + 1);
+                yield return new WaitForSeconds(delayPerChar);
+            }
+        }
+        
+        /// <summary>
+        /// 打字機效果並生成攻擊預覽：先顯示文字，完成後生成攻擊預覽
+        /// </summary>
+        /// <param name="textComponent">文字組件</param>
+        /// <param name="fullText">完整文字</param>
+        /// <param name="delayPerChar">每個字符的延遲時間（秒）</param>
+        /// <param name="stage">關卡數據</param>
+        /// <param name="descriptionText">描述文字（子彈實例化完成後顯示）</param>
+        private IEnumerator TypewriterEffectAndGeneratePreviews(TextMeshProUGUI textComponent, string fullText, float delayPerChar, StageDataSO stage, string descriptionText = "")
+        {
+            // 先執行打字機效果
+            yield return StartCoroutine(TypewriterEffect(textComponent, fullText, delayPerChar));
+            
+            // 打字機效果完成後，生成攻擊預覽（傳遞描述文字）
+            if (stage != null)
+            {
+                GenerateAttackPreviews(stage, descriptionText);
+            }
+        }
+        
+        /// <summary>
+        /// 播放 Stage 字符動畫音效
+        /// </summary>
+        private void PlayStageCharSound()
+        {
+            if (stageCharSound != null)
+            {
+                // 嘗試使用 AudioManager（如果存在）
+                if (Tenronis.Audio.AudioManager.Instance != null)
+                {
+                    AudioSource audioSource = Tenronis.Audio.AudioManager.Instance.GetComponent<AudioSource>();
+                    if (audioSource != null)
+                    {
+                        audioSource.PlayOneShot(stageCharSound);
+                        return;
+                    }
+                }
+                
+                // 如果沒有 AudioManager，創建臨時的 AudioSource
+                GameObject tempAudio = new GameObject("TempAudio");
+                AudioSource tempSource = tempAudio.AddComponent<AudioSource>();
+                tempSource.PlayOneShot(stageCharSound);
+                Destroy(tempAudio, stageCharSound.length + 0.1f);
+            }
         }
         
         /// <summary>
@@ -933,7 +1659,7 @@ namespace Tenronis.UI
         /// 計算方式：(彈種的權重) / (所有 enable 彈種的權重和)
         /// 所有子彈是否會發射，只看 enabled（包括普通子彈）
         /// </summary>
-        private void GenerateAttackPreviews(StageDataSO stageData)
+        private void GenerateAttackPreviews(StageDataSO stageData, string descriptionText = "")
         {
             if (enemyAttackPreviewContainer == null || enemyAttackPreviewPrefab == null) return;
             
@@ -984,28 +1710,55 @@ namespace Tenronis.UI
             }
             
             // 為每個啟用的子彈生成預覽項目，顯示實際機率 = 權重 / 總權重
-            foreach (var bullet in enabledBullets)
+            // 使用協程依序顯示動畫
+            StartCoroutine(CreateAttackPreviewItemsSequentially(enabledBullets, totalWeight, descriptionText));
+        }
+        
+        /// <summary>
+        /// 依序創建攻擊預覽項目，每個項目都有動畫效果
+        /// </summary>
+        private IEnumerator CreateAttackPreviewItemsSequentially(List<(BulletType type, string name, string desc, float weight)> bullets, float totalWeight, string descriptionText = "")
+        {
+            foreach (var bullet in bullets)
             {
                 float actualChance = bullet.weight / totalWeight;
-                CreateAttackPreviewItem(bullet.type, bullet.name, bullet.desc, actualChance);
+                yield return StartCoroutine(CreateAttackPreviewItem(bullet.type, bullet.name, bullet.desc, actualChance));
+            }
+            
+            // 所有子彈實例化完成後，顯示描述文字（如果有）
+            if (previewDescriptionText != null && !string.IsNullOrEmpty(descriptionText))
+            {
+                // 顯示描述文字
+                yield return StartCoroutine(TypewriterEffect(previewDescriptionText, descriptionText, 0.01f));
+            }
+            
+            // 描述文字顯示完成後（或沒有描述文字時），啟用關閉按鈕
+            if (closeEnemyPanelButton != null)
+            {
+                closeEnemyPanelButton.gameObject.SetActive(true);
             }
         }
         
         /// <summary>
-        /// 創建單個攻擊預覽項目
+        /// 創建單個攻擊預覽項目（協程版本，帶動畫效果）
         /// </summary>
-        private void CreateAttackPreviewItem(BulletType bulletType, string attackName, string description, float chance)
+        private IEnumerator CreateAttackPreviewItem(BulletType bulletType, string attackName, string description, float chance)
         {
             GameObject item = Instantiate(enemyAttackPreviewPrefab, enemyAttackPreviewContainer);
             attackPreviewItems.Add(item);
             
+            // 獲取背板 Image（在根 GameObject 上）
+            Image backgroundImage = item.GetComponent<Image>();
+            
             // 查找 ColorImage 下的 SpriteRenderer 和 Animator
             var colorImageTransform = item.transform.Find("ColorImage");
+            Image iconImage = null;
+            
             if (colorImageTransform != null && bulletPrefabReference != null)
             {
                 var spriteRenderer = colorImageTransform.GetComponent<SpriteRenderer>();
                 var animator = colorImageTransform.GetComponent<Animator>();
-                var image = colorImageTransform.GetComponent<Image>();
+                iconImage = colorImageTransform.GetComponent<Image>();
                 
                 // 設置顏色
                 Color bulletColor = bulletPrefabReference.GetColorByType(bulletType);
@@ -1022,34 +1775,73 @@ namespace Tenronis.UI
                 }
                 
                 // 啟動協程同步 SpriteRenderer 到 Image
-                if (spriteRenderer != null && image != null)
+                if (spriteRenderer != null && iconImage != null)
                 {
-                    var coroutine = StartCoroutine(SyncSpriteToImage(spriteRenderer, image, bulletColor));
+                    var coroutine = StartCoroutine(SyncSpriteToImage(spriteRenderer, iconImage, bulletColor));
                     spriteSyncCoroutines.Add(coroutine);
                 }
-                else if (image != null)
+                else if (iconImage != null)
                 {
                     // 如果沒有 SpriteRenderer，直接設置 Image 顏色
-                    image.color = bulletColor;
+                    iconImage.color = bulletColor;
                 }
             }
             
-            // 設置攻擊名稱
+            // 獲取文字組件
             var nameText = item.transform.Find("NameText")?.GetComponent<TextMeshProUGUI>();
+            var descText = item.transform.Find("DescText")?.GetComponent<TextMeshProUGUI>();
+            
+            // 設置初始狀態：背板和 icon 透明，文字為空
+            if (backgroundImage != null)
+            {
+                Color bgColor = backgroundImage.color;
+                bgColor.a = 0f;
+                backgroundImage.color = bgColor;
+            }
+            
+            if (iconImage != null)
+            {
+                Color iconColor = iconImage.color;
+                iconColor.a = 0f;
+                iconImage.color = iconColor;
+            }
+            
             if (nameText != null)
             {
-                nameText.text = attackName;
+                nameText.text = "";
                 if (bulletPrefabReference != null)
                 {
                     nameText.color = bulletPrefabReference.GetColorByType(bulletType);
                 }
             }
             
-            // 設置描述文字（不顯示機率）
-            var descText = item.transform.Find("DescText")?.GetComponent<TextMeshProUGUI>();
             if (descText != null)
             {
-                descText.text = description;
+                descText.text = "";
+            }
+            
+            // 第一階段：背板和 icon 一起淡入
+            Sequence fadeInSequence = DOTween.Sequence();
+            if (backgroundImage != null)
+            {
+                fadeInSequence.Join(backgroundImage.DOFade(1f, 0.5f));
+            }
+            if (iconImage != null)
+            {
+                fadeInSequence.Join(iconImage.DOFade(1f, 0.5f));
+            }
+            yield return fadeInSequence.WaitForCompletion();
+            
+            // 第二階段：子彈名稱打字機效果
+            if (nameText != null && !string.IsNullOrEmpty(attackName))
+            {
+                yield return StartCoroutine(TypewriterEffect(nameText, attackName, 0.01f));
+            }
+            
+            // 第三階段：子彈描述打字機效果
+            if (descText != null && !string.IsNullOrEmpty(description))
+            {
+                yield return StartCoroutine(TypewriterEffect(descText, description, 0.01f));
             }
         }
         
