@@ -37,6 +37,11 @@ namespace Tenronis.UI
         [SerializeField] private Transform bossBattleTextContainer; // 包含 Boss Battle 文字的容器（用於整體移動）
         [SerializeField] private AudioClip bossBattleCharSound; // 字符動畫音效
         
+        [Header("Bonus Enhance 動畫")]
+        [SerializeField] private TextMeshProUGUI bonusEnhanceText; // Bonus Enhance 文字（場景中新增的）
+        [SerializeField] private Transform bonusEnhanceTextContainer; // 包含 Bonus Enhance 文字的容器（用於整體移動）
+        [SerializeField] private AudioClip bonusEnhanceCharSound; // 字符動畫音效
+        
         [Header("Stage 顯示動畫")]
         [SerializeField] private TextMeshProUGUI stageText; // Stage 文字（場景中新增的，顯示 "Stage n 怪物名稱"）
         [SerializeField] private Transform stageTextContainer; // 包含 Stage 文字的容器（用於整體移動）
@@ -53,6 +58,7 @@ namespace Tenronis.UI
         
         [Header("傳奇強化說明頁面")]
         [SerializeField] private GameObject bonusPanel;
+        [SerializeField] private Image bonusIconImage; // 強化圖示
         [SerializeField] private RawImage bonusVideoImage; // 從 Image 改成 RawImage
         [SerializeField] private VideoPlayer bonusVideoPlayer; // VideoPlayer 組件
         [SerializeField] private UnityEngine.UI.AspectRatioFitter bonusAspectRatioFitter; // AspectRatioFilter 組件
@@ -71,6 +77,7 @@ namespace Tenronis.UI
         private List<GameObject> attackPreviewItems = new List<GameObject>();
         private List<Coroutine> spriteSyncCoroutines = new List<Coroutine>();
         private List<GameObject> bossBattleCharObjects = new List<GameObject>(); // Boss Battle 字符對象列表
+        private List<GameObject> bonusEnhanceCharObjects = new List<GameObject>(); // Bonus Enhance 字符對象列表
         private List<GameObject> stageCharObjects = new List<GameObject>(); // Stage 字符對象列表
         private bool showDetailedInfo = false; // 是否顯示詳細資訊
         private int currentInfoTab = 0; // 0=敵人資訊, 1=普通強化, 2=傳奇強化
@@ -111,6 +118,7 @@ namespace Tenronis.UI
             ClearOptions();
             ClearAttackPreviews();
             ClearBossBattleChars();
+            ClearBonusEnhanceChars();
             ClearStageChars();
             
             // 停止所有 DOTween 動畫
@@ -121,6 +129,14 @@ namespace Tenronis.UI
             if (bossBattleTextContainer != null)
             {
                 bossBattleTextContainer.DOKill();
+            }
+            if (bonusEnhanceText != null)
+            {
+                bonusEnhanceText.DOKill();
+            }
+            if (bonusEnhanceTextContainer != null)
+            {
+                bonusEnhanceTextContainer.DOKill();
             }
             if (stageText != null)
             {
@@ -460,9 +476,13 @@ namespace Tenronis.UI
                     // 如果升級了 Volley、Defense、TacticalExpansion 或解鎖了技能，顯示說明頁面
                     if (volleyUpgraded || defenseUpgraded || tacticalExpansionUpgraded || unlockedAnnihilationAfter || unlockedExecutionAfter || unlockedRepairAfter)
                     {
-                        ShowBonusPanel(legendaryBuff, volleyLevelBefore, defenseLevelBefore, tacticalExpansionLevelBefore, 
-                                      volleyUpgraded, defenseUpgraded, tacticalExpansionUpgraded, 
-                                      unlockedAnnihilationAfter, unlockedExecutionAfter, unlockedRepairAfter);
+                        // 先準備 Bonus Panel 的內容（但不顯示）
+                        PrepareBonusPanel(legendaryBuff, volleyLevelBefore, defenseLevelBefore, tacticalExpansionLevelBefore, 
+                                         volleyUpgraded, defenseUpgraded, tacticalExpansionUpgraded, 
+                                         unlockedAnnihilationAfter, unlockedExecutionAfter, unlockedRepairAfter);
+                        
+                        // 播放 Bonus Enhance 動畫，動畫結束後顯示 Bonus Panel 內容
+                        StartCoroutine(PlayBonusEnhanceAnimationAndShowPanel());
                         waitingForBonusConfirm = true;
                         return; // 等待確認按鈕，不繼續下一步
                     }
@@ -479,7 +499,11 @@ namespace Tenronis.UI
                 int tacticalExpansionLevelAfter = PlayerManager.Instance != null ? PlayerManager.Instance.Stats.tacticalExpansionLevel : 0;
                 bool tacticalExpansionUpgradedSkill = tacticalExpansionLevelAfter > tacticalExpansionLevelBeforeSkill;
                 
-                ShowBonusPanel(null, 0, 0, tacticalExpansionLevelBeforeSkill, false, false, tacticalExpansionUpgradedSkill, unlockedAnnihilation, unlockedExecution, unlockedRepair);
+                // 先準備 Bonus Panel 的內容（但不顯示）
+                PrepareBonusPanel(null, 0, 0, tacticalExpansionLevelBeforeSkill, false, false, tacticalExpansionUpgradedSkill, unlockedAnnihilation, unlockedExecution, unlockedRepair);
+                
+                // 播放 Bonus Enhance 動畫，動畫結束後顯示 Bonus Panel 內容
+                StartCoroutine(PlayBonusEnhanceAnimationAndShowPanel());
                 waitingForBonusConfirm = true;
                 return; // 等待確認按鈕，不繼續下一步
             }
@@ -488,12 +512,17 @@ namespace Tenronis.UI
             ContinueAfterBuffSelection();
         }
         
+        // 保存 Bonus Panel 的內容，用於動畫結束後顯示
+        private string savedDescriptionText = "";
+        private string savedLevelChangeText = "";
+        private VideoClip savedVideoClip = null;
+        
         /// <summary>
-        /// 顯示傳奇強化說明頁面
+        /// 準備傳奇強化說明頁面內容（但不顯示）
         /// </summary>
-        private void ShowBonusPanel(BuffDataSO legendaryBuff, int volleyLevelBefore, int defenseLevelBefore, int tacticalExpansionLevelBefore,
-                                    bool volleyUpgraded, bool defenseUpgraded, bool tacticalExpansionUpgraded,
-                                    bool unlockedAnnihilation, bool unlockedExecution, bool unlockedRepair)
+        private void PrepareBonusPanel(BuffDataSO legendaryBuff, int volleyLevelBefore, int defenseLevelBefore, int tacticalExpansionLevelBefore,
+                                      bool volleyUpgraded, bool defenseUpgraded, bool tacticalExpansionUpgraded,
+                                      bool unlockedAnnihilation, bool unlockedExecution, bool unlockedRepair)
         {
             if (bonusPanel == null)
             {
@@ -559,7 +588,116 @@ namespace Tenronis.UI
                 }
             }
             
-            // 設置影片
+            // 保存內容供後續動畫使用
+            savedDescriptionText = descriptionText;
+            savedVideoClip = videoClip;
+            
+            // 獲取並設置 Icon
+            Sprite iconSprite = null;
+            if (legendaryBuff != null)
+            {
+                iconSprite = legendaryBuff.icon;
+            }
+            else
+            {
+                // 如果 legendaryBuff 為 null，根據解鎖的技能或升級的強化來獲取對應的 BuffDataSO
+                BuffType? targetBuffType = null;
+                if (unlockedAnnihilation || unlockedExecution || unlockedRepair || tacticalExpansionUpgraded)
+                {
+                    targetBuffType = BuffType.TacticalExpansion;
+                }
+                else if (defenseUpgraded)
+                {
+                    targetBuffType = BuffType.Defense;
+                }
+                else if (volleyUpgraded)
+                {
+                    targetBuffType = BuffType.Volley;
+                }
+                
+                if (targetBuffType.HasValue && GameManager.Instance != null)
+                {
+                    // 從傳奇強化列表中查找
+                    var legendaryBuffs = GameManager.Instance.LegendaryBuffs;
+                    if (legendaryBuffs != null)
+                    {
+                        foreach (var buff in legendaryBuffs)
+                        {
+                            if (buff != null && buff.buffType == targetBuffType.Value)
+                            {
+                                iconSprite = buff.icon;
+                                break;
+                            }
+                        }
+                    }
+                    
+                    // 如果沒找到，從普通強化列表中查找
+                    if (iconSprite == null)
+                    {
+                        var normalBuffs = GameManager.Instance.NormalBuffs;
+                        if (normalBuffs != null)
+                        {
+                            foreach (var buff in normalBuffs)
+                            {
+                                if (buff != null && buff.buffType == targetBuffType.Value)
+                                {
+                                    iconSprite = buff.icon;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            
+            // 設置 IconImage（初始狀態：透明）
+            if (bonusIconImage != null)
+            {
+                if (iconSprite != null)
+                {
+                    bonusIconImage.sprite = iconSprite;
+                    Color iconColor = bonusIconImage.color;
+                    iconColor.a = 0f;
+                    bonusIconImage.color = iconColor;
+                    bonusIconImage.gameObject.SetActive(true);
+                }
+                else
+                {
+                    bonusIconImage.gameObject.SetActive(false);
+                }
+            }
+            
+            // 設置等級變化文字
+            string levelChangeText = "";
+            
+            if (tacticalExpansionUpgraded && PlayerManager.Instance != null)
+            {
+                int tacticalExpansionLevel = PlayerManager.Instance.Stats.tacticalExpansionLevel;
+                levelChangeText = $"戰術擴張\n Lv{tacticalExpansionLevelBefore} -> Lv{tacticalExpansionLevel}";
+            }
+            else if (unlockedAnnihilation || unlockedExecution || unlockedRepair)
+            {
+                // 如果解鎖了技能，顯示 TacticalExpansion 的等級變化
+                if (PlayerManager.Instance != null)
+                {
+                    int tacticalExpansionLevel = PlayerManager.Instance.Stats.tacticalExpansionLevel;
+                    levelChangeText = $"戰術擴張\n Lv{tacticalExpansionLevelBefore} -> Lv{tacticalExpansionLevel}";
+                }
+            }
+            else if (defenseUpgraded && PlayerManager.Instance != null)
+            {
+                int defenseLevel = PlayerManager.Instance.Stats.blockDefenseLevel;
+                levelChangeText = $"鞏固防禦\n Lv{defenseLevelBefore} -> Lv{defenseLevel}";
+            }
+            else if (volleyUpgraded && PlayerManager.Instance != null)
+            {
+                int volleyLevel = PlayerManager.Instance.Stats.missileExtraCount;
+                levelChangeText = $"加倍火力\n Lv{volleyLevelBefore} -> Lv{volleyLevel}";
+            }
+            
+            savedLevelChangeText = levelChangeText;
+            
+            // 設置影片（但不顯示）
             if (bonusVideoPlayer != null && bonusVideoImage != null)
             {
                 if (videoClip != null)
@@ -601,6 +739,11 @@ namespace Tenronis.UI
                     
                     // 設置 RawImage 的 texture
                     bonusVideoImage.texture = bonusVideoPlayer.targetTexture;
+                    
+                    // 設置初始狀態：透明
+                    Color imageColor = bonusVideoImage.color;
+                    imageColor.a = 0f;
+                    bonusVideoImage.color = imageColor;
                     bonusVideoImage.gameObject.SetActive(true);
                     
                     // 播放影片
@@ -620,47 +763,87 @@ namespace Tenronis.UI
                 }
             }
             
-            // 設置文字
+            // 設置文字初始狀態：不顯示
             if (bonusText != null)
             {
-                bonusText.text = descriptionText;
+                bonusText.text = "";
+                bonusText.gameObject.SetActive(false);
             }
             
-            // 設置等級變化文字
+            // 設置等級變化文字初始狀態：不顯示
             if (bonusLevelText != null)
             {
-                string levelChangeText = "";
-                
-                if (tacticalExpansionUpgraded && PlayerManager.Instance != null)
-                {
-                    int tacticalExpansionLevel = PlayerManager.Instance.Stats.tacticalExpansionLevel;
-                    levelChangeText = $"戰術擴張\n Lv{tacticalExpansionLevelBefore} -> Lv{tacticalExpansionLevel}";
-                }
-                else if (unlockedAnnihilation || unlockedExecution || unlockedRepair)
-                {
-                    // 如果解鎖了技能，顯示 TacticalExpansion 的等級變化
-                    if (PlayerManager.Instance != null)
-                    {
-                        int tacticalExpansionLevel = PlayerManager.Instance.Stats.tacticalExpansionLevel;
-                        levelChangeText = $"戰術擴張\n Lv{tacticalExpansionLevelBefore} -> Lv{tacticalExpansionLevel}";
-                    }
-                }
-                else if (defenseUpgraded && PlayerManager.Instance != null)
-                {
-                    int defenseLevel = PlayerManager.Instance.Stats.blockDefenseLevel;
-                    levelChangeText = $"鞏固防禦\n Lv{defenseLevelBefore} -> Lv{defenseLevel}";
-                }
-                else if (volleyUpgraded && PlayerManager.Instance != null)
-                {
-                    int volleyLevel = PlayerManager.Instance.Stats.missileExtraCount;
-                    levelChangeText = $"加倍火力\n Lv{volleyLevelBefore} -> Lv{volleyLevel}";
-                }
-                
-                bonusLevelText.text = levelChangeText;
+                bonusLevelText.text = "";
+                bonusLevelText.gameObject.SetActive(false);
             }
             
-            // 顯示說明頁面
+            // 隱藏確認按鈕
+            if (bonusConfirmButton != null)
+            {
+                bonusConfirmButton.gameObject.SetActive(false);
+            }
+            
+            // 設置 bonusPanel 的 Image 為透明
+            Image bonusPanelImage = bonusPanel != null ? bonusPanel.GetComponent<Image>() : null;
+            if (bonusPanelImage != null)
+            {
+                Color panelColor = bonusPanelImage.color;
+                panelColor.a = 0f;
+                bonusPanelImage.color = panelColor;
+            }
+            
+            // 顯示說明頁面（但內容還未顯示）
             bonusPanel.SetActive(true);
+        }
+        
+        /// <summary>
+        /// 播放 Bonus Enhance 動畫並顯示 Bonus Panel 內容
+        /// </summary>
+        private IEnumerator PlayBonusEnhanceAnimationAndShowPanel()
+        {
+            // 播放 Bonus Enhance 動畫
+            yield return StartCoroutine(PlayBonusEnhanceAnimationCoroutine());
+            
+            // 動畫結束後，顯示 Bonus Panel 內容
+            yield return StartCoroutine(ShowBonusPanelContent());
+        }
+        
+        /// <summary>
+        /// 顯示 Bonus Panel 內容的動畫序列
+        /// </summary>
+        private IEnumerator ShowBonusPanelContent()
+        {
+            // 第一階段：bonusIconImage 淡入
+            if (bonusIconImage != null && bonusIconImage.gameObject.activeSelf)
+            {
+                yield return bonusIconImage.DOFade(1f, 0.5f).WaitForCompletion();
+            }
+            
+            // 第二階段：bonusLevelText 用打字機顯示
+            if (bonusLevelText != null && !string.IsNullOrEmpty(savedLevelChangeText))
+            {
+                bonusLevelText.gameObject.SetActive(true);
+                yield return StartCoroutine(TypewriterEffect(bonusLevelText, savedLevelChangeText, 0.01f));
+            }
+            
+            // 第三階段：bonusText 用打字機顯示
+            if (bonusText != null && !string.IsNullOrEmpty(savedDescriptionText))
+            {
+                bonusText.gameObject.SetActive(true);
+                yield return StartCoroutine(TypewriterEffect(bonusText, savedDescriptionText, 0.01f));
+            }
+            
+            // 第四階段：bonusVideoImage 淡入
+            if (bonusVideoImage != null && bonusVideoImage.gameObject.activeSelf && savedVideoClip != null)
+            {
+                yield return bonusVideoImage.DOFade(1f, 0.5f).WaitForCompletion();
+            }
+            
+            // 第五階段：bonusConfirmButton 出現
+            if (bonusConfirmButton != null)
+            {
+                bonusConfirmButton.gameObject.SetActive(true);
+            }
         }
         
         /// <summary>
@@ -1296,6 +1479,287 @@ namespace Tenronis.UI
                 AudioSource tempSource = tempAudio.AddComponent<AudioSource>();
                 tempSource.PlayOneShot(bossBattleCharSound);
                 Destroy(tempAudio, bossBattleCharSound.length + 0.1f);
+            }
+        }
+        
+        /// <summary>
+        /// 播放 Bonus Enhance 動畫（協程版本）
+        /// 每個字符從透明+大 → 不透明+正常大小，然後整句向左移出
+        /// </summary>
+        private IEnumerator PlayBonusEnhanceAnimationCoroutine()
+        {
+            if (bonusEnhanceText == null) yield break;
+            
+            // 清理之前的字符對象
+            ClearBonusEnhanceChars();
+            
+            // 獲取文字內容（如果為空，使用默認值）
+            string text = bonusEnhanceText.text;
+            if (string.IsNullOrEmpty(text))
+            {
+                text = "Bonus Enhance";
+            }
+            
+            // 先設置文字並強制更新，以獲取字符位置信息
+            bonusEnhanceText.text = text;
+            bonusEnhanceText.ForceMeshUpdate();
+            
+            // 獲取容器（如果沒有指定，使用文字本身的 Transform）
+            Transform container = bonusEnhanceTextContainer != null ? bonusEnhanceTextContainer : bonusEnhanceText.transform;
+            Vector3 originalContainerPosition = container.localPosition;
+            
+            // 設置容器初始位置（從左側屏幕外 -2000，只改變 X 軸）
+            Vector3 startPosition = originalContainerPosition;
+            container.localPosition = startPosition;
+            
+            // 顯示容器
+            container.gameObject.SetActive(true);
+            
+            // 獲取字符信息（需要先顯示文字才能獲取正確的字符信息）
+            bonusEnhanceText.gameObject.SetActive(true);
+            TMP_TextInfo textInfo = bonusEnhanceText.textInfo;
+            int characterCount = textInfo.characterCount;
+            
+            // 如果字符數量為 0，可能是文字還沒更新，強制更新一次
+            if (characterCount == 0)
+            {
+                bonusEnhanceText.ForceMeshUpdate();
+                textInfo = bonusEnhanceText.textInfo;
+                characterCount = textInfo.characterCount;
+            }
+            
+            // 如果還是沒有字符，直接返回
+            if (characterCount == 0)
+            {
+                Debug.LogWarning("[RoguelikeMenu] Bonus Enhance 文字沒有字符，無法播放動畫");
+                yield break;
+            }
+            
+            // 隱藏原始文字（我們將使用單獨的字符對象）
+            bonusEnhanceText.gameObject.SetActive(false);
+            
+            // 為每個字符創建單獨的 TextMeshProUGUI 對象
+            List<GameObject> charObjects = new List<GameObject>();
+            
+            for (int i = 0; i < characterCount; i++)
+            {
+                TMP_CharacterInfo charInfo = textInfo.characterInfo[i];
+                
+                // 跳過空格和不可見字符
+                if (!charInfo.isVisible || charInfo.character == ' ') continue;
+                
+                // 創建字符對象
+                GameObject charObj = new GameObject($"BonusEnhanceChar_{i}");
+                charObj.transform.SetParent(container, false);
+                
+                // 添加 TextMeshProUGUI 組件
+                TextMeshProUGUI charText = charObj.AddComponent<TextMeshProUGUI>();
+                charText.text = text[i].ToString();
+                
+                // 複製字體相關屬性
+                charText.font = bonusEnhanceText.font;
+                charText.fontSize = bonusEnhanceText.fontSize;
+                charText.fontSizeMin = bonusEnhanceText.fontSizeMin;
+                charText.fontSizeMax = bonusEnhanceText.fontSizeMax;
+                charText.fontStyle = bonusEnhanceText.fontStyle;
+                charText.fontWeight = bonusEnhanceText.fontWeight;
+                charText.enableAutoSizing = bonusEnhanceText.enableAutoSizing;
+                
+                // 複製顏色相關屬性
+                charText.color = bonusEnhanceText.color;
+                charText.faceColor = bonusEnhanceText.faceColor;
+                charText.enableVertexGradient = bonusEnhanceText.enableVertexGradient;
+                if (bonusEnhanceText.enableVertexGradient)
+                {
+                    charText.colorGradient = bonusEnhanceText.colorGradient;
+                }
+                charText.colorGradientPreset = bonusEnhanceText.colorGradientPreset;
+                
+                // 複製對齊方式
+                charText.alignment = bonusEnhanceText.alignment;
+                charText.horizontalAlignment = bonusEnhanceText.horizontalAlignment;
+                charText.verticalAlignment = bonusEnhanceText.verticalAlignment;
+                
+                // 複製間距
+                charText.characterSpacing = bonusEnhanceText.characterSpacing;
+                charText.wordSpacing = bonusEnhanceText.wordSpacing;
+                charText.lineSpacing = bonusEnhanceText.lineSpacing;
+                charText.paragraphSpacing = bonusEnhanceText.paragraphSpacing;
+                
+                // 複製其他屬性
+                charText.textWrappingMode = bonusEnhanceText.textWrappingMode;
+                charText.overflowMode = bonusEnhanceText.overflowMode;
+                
+                // 複製材質
+                charText.fontSharedMaterial = bonusEnhanceText.fontSharedMaterial;
+                charText.fontMaterials = bonusEnhanceText.fontMaterials;
+                
+                // 複製 Outline 效果（如果有的話）
+                var originalOutline = bonusEnhanceText.GetComponent<UnityEngine.UI.Outline>();
+                if (originalOutline != null)
+                {
+                    var charOutline = charObj.AddComponent<UnityEngine.UI.Outline>();
+                    charOutline.effectColor = originalOutline.effectColor;
+                    charOutline.effectDistance = originalOutline.effectDistance;
+                    charOutline.useGraphicAlpha = originalOutline.useGraphicAlpha;
+                }
+                
+                // 複製 Shadow 效果（如果有的話）
+                var originalShadow = bonusEnhanceText.GetComponent<UnityEngine.UI.Shadow>();
+                if (originalShadow != null)
+                {
+                    var charShadow = charObj.AddComponent<UnityEngine.UI.Shadow>();
+                    charShadow.effectColor = originalShadow.effectColor;
+                    charShadow.effectDistance = originalShadow.effectDistance;
+                    charShadow.useGraphicAlpha = originalShadow.useGraphicAlpha;
+                }
+                
+                // 複製其他 UI 屬性
+                charText.raycastTarget = bonusEnhanceText.raycastTarget;
+                charText.maskable = bonusEnhanceText.maskable;
+                
+                // 計算字符位置（相對於容器）
+                Vector3 charCenterLocal = (charInfo.topLeft + charInfo.topRight + 
+                                          charInfo.bottomLeft + charInfo.bottomRight) / 4f;
+                
+                // 轉換為世界空間
+                Vector3 charCenterWorld = bonusEnhanceText.transform.TransformPoint(charCenterLocal);
+                
+                // 轉換為容器的本地空間
+                Vector3 charCenterContainerLocal = container.InverseTransformPoint(charCenterWorld);
+                charObj.transform.localPosition = charCenterContainerLocal;
+                
+                // 初始狀態：透明+大（保留原始顏色的 RGB，只改變 alpha）
+                Color originalColor = charText.color;
+                charText.color = new Color(originalColor.r, originalColor.g, originalColor.b, 0f);
+                charObj.transform.localScale = Vector3.one * 2f;
+                
+                charObjects.Add(charObj);
+                bonusEnhanceCharObjects.Add(charObj);
+            }
+            
+            // 如果沒有創建任何字符對象，直接返回
+            if (charObjects.Count == 0)
+            {
+                Debug.LogWarning("[RoguelikeMenu] Bonus Enhance 沒有可顯示的字符，無法播放動畫");
+                // 恢復原始文字顯示
+                bonusEnhanceText.gameObject.SetActive(true);
+                yield break;
+            }
+            
+            // 獲取 bonusPanel 的 Image 組件
+            Image bonusPanelImage = bonusPanel != null ? bonusPanel.GetComponent<Image>() : null;
+            
+            // 創建動畫序列
+            Sequence mainSequence = DOTween.Sequence();
+            
+            // 第一階段：容器從 -2000 移動到 0（中心位置，只改變 X 軸），同時 bonusPanel Image 淡入
+            Vector3 centerPosition = new Vector3(0f, originalContainerPosition.y, originalContainerPosition.z);
+            float containerMoveInDuration = 1f;
+            mainSequence.Append(container.DOLocalMove(centerPosition, containerMoveInDuration));
+            
+            // bonusPanel Image 同時淡入
+            if (bonusPanelImage != null)
+            {
+                mainSequence.Join(bonusPanelImage.DOFade(1f, containerMoveInDuration));
+            }
+            
+            // 第二階段：每個字符依次從透明+大 → 不透明+正常大小（在第一階段完成後才開始）
+            for (int i = 0; i < charObjects.Count; i++)
+            {
+                GameObject charObj = charObjects[i];
+                TextMeshProUGUI charText = charObj.GetComponent<TextMeshProUGUI>();
+                
+                float delay = i * 0.1f; // 每個字符延遲 0.1 秒
+                float duration = 0.4f; // 動畫持續時間
+                
+                // 字符動畫（使用 Append 確保在第一階段完成後才開始）
+                Sequence charSeq = DOTween.Sequence();
+                charSeq.AppendInterval(delay);
+                // 在動畫開始時播放音效（delay 結束後）
+                charSeq.AppendCallback(() => {
+                    PlayBonusEnhanceCharSound();
+                });
+                charSeq.Append(charText.DOFade(1f, duration));
+                charSeq.Join(charObj.transform.DOScale(Vector3.one, duration));
+                
+                // 第一個字符動畫使用 Append，後續的字符動畫使用 Join（與第一個字符動畫同時進行）
+                if (i == 0)
+                {
+                    mainSequence.Append(charSeq);
+                }
+                else
+                {
+                    mainSequence.Join(charSeq);
+                }
+            }
+            
+            // 計算字符動畫總時間
+            float totalCharAnimationTime = charObjects.Count * 0.1f + 0.4f;
+            
+            // 確保序列等待所有字符動畫完成（如果字符動畫還沒完成）
+            if (mainSequence.Duration() < containerMoveInDuration + totalCharAnimationTime)
+            {
+                mainSequence.AppendInterval((containerMoveInDuration + totalCharAnimationTime) - mainSequence.Duration());
+            }
+            
+            // 第三階段：短暫停留
+            mainSequence.AppendInterval(0.5f);
+            
+            // 第四階段：容器向左移出到 -2000（只改變 X 軸）
+            Vector3 exitPosition = new Vector3(-2000f, originalContainerPosition.y, originalContainerPosition.z);
+            mainSequence.Append(container.DOLocalMove(exitPosition, 0.8f));
+            
+            // 等待動畫完成
+            yield return mainSequence.WaitForCompletion();
+            
+            // 動畫完成後清理
+            ClearBonusEnhanceChars();
+            if (container != null)
+            {
+                container.localPosition = originalContainerPosition;
+                container.gameObject.SetActive(false);
+            }
+        }
+        
+        /// <summary>
+        /// 清理 Bonus Enhance 字符對象
+        /// </summary>
+        private void ClearBonusEnhanceChars()
+        {
+            foreach (var charObj in bonusEnhanceCharObjects)
+            {
+                if (charObj != null)
+                {
+                    Destroy(charObj);
+                }
+            }
+            bonusEnhanceCharObjects.Clear();
+        }
+        
+        /// <summary>
+        /// 播放 Bonus Enhance 字符動畫音效
+        /// </summary>
+        private void PlayBonusEnhanceCharSound()
+        {
+            if (bonusEnhanceCharSound != null)
+            {
+                // 嘗試使用 AudioManager（如果存在）
+                if (Tenronis.Audio.AudioManager.Instance != null)
+                {
+                    AudioSource audioSource = Tenronis.Audio.AudioManager.Instance.GetComponent<AudioSource>();
+                    if (audioSource != null)
+                    {
+                        audioSource.PlayOneShot(bonusEnhanceCharSound);
+                        return;
+                    }
+                }
+                
+                // 如果沒有 AudioManager，創建臨時的 AudioSource
+                GameObject tempAudio = new GameObject("TempAudio");
+                AudioSource tempSource = tempAudio.AddComponent<AudioSource>();
+                tempSource.PlayOneShot(bonusEnhanceCharSound);
+                Destroy(tempAudio, bonusEnhanceCharSound.length + 0.1f);
             }
         }
         
