@@ -85,6 +85,9 @@ namespace Tenronis.UI
         private List<GameObject> bonusEnhanceCharObjects = new List<GameObject>(); // Bonus Enhance 字符對象列表
         private List<GameObject> stageCharObjects = new List<GameObject>(); // Stage 字符對象列表
         private List<GameObject> projectSelectionCharObjects = new List<GameObject>(); // 工程選擇字符對象列表
+        private List<Coroutine> bonusHintBlinkCoroutines = new List<Coroutine>(); // 儲存 bonusHintText 的閃爍動畫協程
+        private List<(TextMeshProUGUI text, int currentLevel, int maxLevel)> pendingBlinkAnimations = new List<(TextMeshProUGUI, int, int)>(); // 待啟動的閃爍動畫列表
+        private bool isFirstGroup = true; // 是否為第一組選項
         private bool showDetailedInfo = false; // 是否顯示詳細資訊
         private int currentInfoTab = 0; // 0=敵人資訊, 1=普通強化, 2=傳奇強化
         private bool waitingForBonusConfirm = false; // 是否正在等待說明頁面確認
@@ -94,6 +97,8 @@ namespace Tenronis.UI
             currentInfoTab = 0; // 0=普通強化, 1=傳奇強化（不再有敵人資訊分頁）
             showDetailedInfo = false; // 默認不顯示詳細資訊
             waitingForBonusConfirm = false;
+            isFirstGroup = true; // 重置為第一組
+            pendingBlinkAnimations.Clear(); // 清空待啟動的動畫列表
             
             // 確保說明頁面初始為關閉狀態
             if (bonusPanel != null)
@@ -339,6 +344,13 @@ namespace Tenronis.UI
         {
             ClearOptions();
             
+            // 如果不是第一組，重置標記
+            bool isFirst = isFirstGroup;
+            if (isFirstGroup)
+            {
+                isFirstGroup = false; // 標記為已處理第一組
+            }
+            
             if (GameManager.Instance == null) return;
             
             // 普通強化固定為二選一（不再有傳奇強化選擇階段）
@@ -352,15 +364,15 @@ namespace Tenronis.UI
                 GameObject optionObj = Instantiate(buffOptionPrefab, buffOptionsContainer);
                 currentOptions.Add(optionObj);
                 
-                // 設置UI
-                SetupBuffOption(optionObj, buffData);
+                // 設置UI（傳入是否為第一組的標記）
+                SetupBuffOption(optionObj, buffData, isFirst);
             }
         }
         
         /// <summary>
         /// 設置Buff選項UI
         /// </summary>
-        private void SetupBuffOption(GameObject optionObj, BuffDataSO buffData)
+        private void SetupBuffOption(GameObject optionObj, BuffDataSO buffData, bool isFirstGroup = false)
         {
             // 檢查是否為傳奇強化
             bool isLegendary = System.Array.IndexOf(GameConstants.LEGENDARY_BUFFS, buffData.buffType) >= 0;
@@ -393,6 +405,55 @@ namespace Tenronis.UI
                 }
             }
             
+            // Bonus 提示文字（顯示進度條，帶閃爍動畫）
+            var bonusHintText = optionObj.transform.Find("BonusHintText")?.GetComponent<TextMeshProUGUI>();
+            if (bonusHintText != null)
+            {
+                
+                if (isLegendary)
+                {
+                    // 傳奇強化不顯示提示
+                    bonusHintText.text = "";
+                    bonusHintText.gameObject.SetActive(false);
+                }
+                else
+                {
+                    // 獲取當前等級和最大等級
+                    var (currentLevel, maxLevel) = GetBuffLevelInfo(buffData.buffType);
+                    if (maxLevel > 0 && currentLevel < maxLevel)
+                    {
+                        // 初始顯示當前狀態
+                        string currentState = GetProgressBarOnly(currentLevel, maxLevel);
+                        bonusHintText.text = currentState;
+                        bonusHintText.gameObject.SetActive(true);
+                        
+                        // 如果是第一組，延遲到工程選擇動畫結束後才啟動閃爍動畫
+                        if (isFirstGroup)
+                        {
+                            // 將動畫加入待啟動列表
+                            pendingBlinkAnimations.Add((bonusHintText, currentLevel, maxLevel));
+                        }
+                        else
+                        {
+                            // 立即啟動閃爍動畫
+                            StartBonusHintBlinkAnimation(bonusHintText, currentLevel, maxLevel);
+                        }
+                    }
+                    else if (currentLevel >= maxLevel)
+                    {
+                        // 已滿級，顯示最終狀態
+                        string progressBar = GetProgressBarOnly(maxLevel, maxLevel);
+                        bonusHintText.text = progressBar;
+                        bonusHintText.gameObject.SetActive(true);
+                    }
+                    else
+                    {
+                        bonusHintText.text = "";
+                        bonusHintText.gameObject.SetActive(false);
+                    }
+                }
+            }
+            
             // 圖示
             var iconImage = optionObj.transform.Find("Icon")?.GetComponent<Image>();
             if (iconImage != null && buffData.icon != null)
@@ -415,11 +476,191 @@ namespace Tenronis.UI
             }
         }
         
+
+        
+        /// <summary>
+        /// 獲取Buff的等級資訊（當前等級和最大等級）
+        /// </summary>
+        private (int currentLevel, int maxLevel) GetBuffLevelInfo(BuffType buffType)
+        {
+            if (PlayerManager.Instance == null) return (0, 0);
+            
+            var stats = PlayerManager.Instance.Stats;
+            if (stats == null) return (0, 0);
+            
+            int currentLevel = 0;
+            int maxLevel = 0;
+            
+            switch (buffType)
+            {
+                case BuffType.Salvo:
+                    currentLevel = stats.salvoLevel;
+                    maxLevel = GameConstants.SALVO_MAX_LEVEL;
+                    break;
+                case BuffType.Burst:
+                    currentLevel = stats.burstLevel;
+                    maxLevel = GameConstants.BURST_MAX_LEVEL;
+                    break;
+                case BuffType.Counter:
+                    currentLevel = stats.counterFireLevel;
+                    maxLevel = GameConstants.COUNTER_MAX_LEVEL;
+                    break;
+                case BuffType.Explosion:
+                    currentLevel = stats.explosionChargeLevel;
+                    maxLevel = GameConstants.EXPLOSION_BUFF_MAX_LEVEL;
+                    break;
+                case BuffType.SpaceExpansion:
+                    currentLevel = stats.spaceExpansionLevel;
+                    maxLevel = GameConstants.SPACE_EXPANSION_MAX_LEVEL;
+                    break;
+                case BuffType.ResourceExpansion:
+                    currentLevel = stats.cpExpansionLevel;
+                    maxLevel = GameConstants.RESOURCE_EXPANSION_MAX_LEVEL;
+                    break;
+                default:
+                    return (0, 0); // 傳奇強化或其他類型不顯示
+            }
+            
+            return (currentLevel, maxLevel);
+        }
+        
+        /// <summary>
+        /// 生成僅進度條符號（不包含等級標記）
+        /// </summary>
+        private string GetProgressBarOnly(int current, int max)
+        {
+            System.Text.StringBuilder progress = new System.Text.StringBuilder();
+            
+            for (int i = 0; i < max; i++)
+            {
+                bool isCompleted = i < current;
+                bool isLast = (i == max - 1);
+                
+                if (isCompleted)
+                {
+                    if (isLast)
+                    {
+                        // 最後一個已完成：★（大一點）
+                        progress.Append("<color=yellow><size=120%>★</size></color> ");
+                    }
+                    else
+                    {
+                        // 已完成：●（正常大小）
+                        progress.Append("<color=yellow>●</color> ");
+                    }
+                }
+                else
+                {
+                    if (isLast)
+                    {
+                        // 最後一個未完成：☆（大一點）
+                        progress.Append("<color=grey><size=120%>☆</size></color> ");
+                    }
+                    else
+                    {
+                        // 未完成：○（小一點）
+                        progress.Append("<color=grey><size=80%>○</size></color> ");
+                    }
+                }
+            }
+            
+            return progress.ToString().TrimEnd(); // 移除最後的空格
+        }
+        
+        /// <summary>
+        /// 生成顯示強化後等級的進度條（用於閃爍動畫）
+        /// </summary>
+        private string GetProgressBarWithBlink(int current, int max)
+        {
+            // 顯示強化後的等級（current + 1）
+            int nextLevel = current + 1;
+            System.Text.StringBuilder progress = new System.Text.StringBuilder();
+            
+            for (int i = 0; i < max; i++)
+            {
+                bool willBeCompleted = i < nextLevel;
+                bool isLast = (i == max - 1);
+                bool isBlinkPosition = (i == current); // 需要閃爍的位置
+                
+                if (willBeCompleted)
+                {
+                    if (isLast)
+                    {
+                        // 最後一個已完成：★（大一點）
+                        progress.Append("<color=yellow><size=120%>★</size></color> ");
+                    }
+                    else
+                    {
+                        // 已完成：●（正常大小）
+                        progress.Append("<color=yellow>●</color> ");
+                    }
+                }
+                else
+                {
+                    if (isLast)
+                    {
+                        // 最後一個未完成：☆（大一點）
+                        progress.Append("<color=grey><size=120%>☆</size></color> ");
+                    }
+                    else
+                    {
+                        // 未完成：○（小一點）
+                        progress.Append("<color=grey><size=80%>○</size></color> ");
+                    }
+                }
+            }
+            
+            return progress.ToString().TrimEnd();
+        }
+        
+        /// <summary>
+        /// 啟動 BonusHint 的閃爍動畫
+        /// </summary>
+        private void StartBonusHintBlinkAnimation(TextMeshProUGUI bonusHintText, int currentLevel, int maxLevel)
+        {
+            if (bonusHintText == null) return;
+            
+            // 生成兩個版本的進度條（當前和下一個狀態）
+            string currentState = GetProgressBarOnly(currentLevel, maxLevel);
+            string nextState = GetProgressBarWithBlink(currentLevel, maxLevel);
+            
+            // 使用協程實現閃爍動畫
+            Coroutine blinkCoroutine = StartCoroutine(BonusHintBlinkCoroutine(bonusHintText, currentState, nextState));
+            bonusHintBlinkCoroutines.Add(blinkCoroutine);
+        }
+        
+        /// <summary>
+        /// BonusHint 閃爍動畫協程
+        /// </summary>
+        private IEnumerator BonusHintBlinkCoroutine(TextMeshProUGUI bonusHintText, string currentState, string nextState)
+        {
+            if (bonusHintText == null) yield break;
+            
+            bool showNext = false;
+            float blinkInterval = 0.5f; // 閃爍間隔（秒）
+            
+            while (bonusHintText != null && bonusHintText.gameObject.activeInHierarchy)
+            {
+                // 交替顯示當前狀態和下一個狀態
+                bonusHintText.text = showNext ? nextState : currentState;
+                showNext = !showNext;
+                
+                yield return new WaitForSeconds(blinkInterval);
+            }
+        }
+        
         /// <summary>
         /// 清除選項
         /// </summary>
         private void ClearOptions()
         {
+            // 停止所有 BonusHint 閃爍動畫協程
+            foreach (var coroutine in bonusHintBlinkCoroutines)
+            {
+                if (coroutine != null) StopCoroutine(coroutine);
+            }
+            bonusHintBlinkCoroutines.Clear();
+            
             foreach (var option in currentOptions)
             {
                 if (option != null)
@@ -1058,13 +1299,34 @@ namespace Tenronis.UI
             
             for (int i = 0; i < max; i++)
             {
-                if (i < current)
+                bool isCompleted = i < current;
+                bool isLast = (i == max - 1);
+                
+                if (isCompleted)
                 {
-                    progress.Append("<color=yellow>■</color> ");
+                    if (isLast)
+                    {
+                        // 最後一個已完成：★（大一點）
+                        progress.Append("<color=yellow><size=120%>★</size></color> ");
+                    }
+                    else
+                    {
+                        // 已完成：●（正常大小）
+                        progress.Append("<color=yellow>●</color> ");
+                    }
                 }
                 else
                 {
-                    progress.Append("<color=grey>□</color> ");
+                    if (isLast)
+                    {
+                        // 最後一個未完成：☆（大一點）
+                        progress.Append("<color=grey><size=120%>☆</size></color> ");
+                    }
+                    else
+                    {
+                        // 未完成：○（小一點）
+                        progress.Append("<color=grey><size=80%>○</size></color> ");
+                    }
                 }
             }
             
@@ -1818,6 +2080,24 @@ namespace Tenronis.UI
             {
                 buffOptionsContainer.gameObject.SetActive(true);
             }
+            
+            // 啟動第一組的閃爍動畫
+            StartPendingBlinkAnimations();
+        }
+        
+        /// <summary>
+        /// 啟動待啟動的閃爍動畫（第一組選項）
+        /// </summary>
+        private void StartPendingBlinkAnimations()
+        {
+            foreach (var (text, currentLevel, maxLevel) in pendingBlinkAnimations)
+            {
+                if (text != null && text.gameObject.activeInHierarchy)
+                {
+                    StartBonusHintBlinkAnimation(text, currentLevel, maxLevel);
+                }
+            }
+            pendingBlinkAnimations.Clear();
         }
         
         /// <summary>
