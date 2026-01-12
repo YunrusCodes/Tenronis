@@ -47,6 +47,11 @@ namespace Tenronis.UI
         [SerializeField] private Transform stageTextContainer; // 包含 Stage 文字的容器（用於整體移動）
         [SerializeField] private AudioClip stageCharSound; // Stage 字符動畫音效（可選）
         
+        [Header("工程選擇動畫")]
+        [SerializeField] private TextMeshProUGUI projectSelectionText; // 工程選擇文字（場景中新增的）
+        [SerializeField] private Transform projectSelectionTextContainer; // 包含工程選擇文字的容器（用於整體移動）
+        [SerializeField] private AudioClip projectSelectionCharSound; // 字符動畫音效
+        
         [Header("玩家強化面板")]
         [SerializeField] private GameObject playerBuffPanel;
         [SerializeField] private TextMeshProUGUI currentStatsText;
@@ -79,6 +84,7 @@ namespace Tenronis.UI
         private List<GameObject> bossBattleCharObjects = new List<GameObject>(); // Boss Battle 字符對象列表
         private List<GameObject> bonusEnhanceCharObjects = new List<GameObject>(); // Bonus Enhance 字符對象列表
         private List<GameObject> stageCharObjects = new List<GameObject>(); // Stage 字符對象列表
+        private List<GameObject> projectSelectionCharObjects = new List<GameObject>(); // 工程選擇字符對象列表
         private bool showDetailedInfo = false; // 是否顯示詳細資訊
         private int currentInfoTab = 0; // 0=敵人資訊, 1=普通強化, 2=傳奇強化
         private bool waitingForBonusConfirm = false; // 是否正在等待說明頁面確認
@@ -120,6 +126,7 @@ namespace Tenronis.UI
             ClearBossBattleChars();
             ClearBonusEnhanceChars();
             ClearStageChars();
+            ClearProjectSelectionChars();
             
             // 停止所有 DOTween 動畫
             if (bossBattleText != null)
@@ -145,6 +152,14 @@ namespace Tenronis.UI
             if (stageTextContainer != null)
             {
                 stageTextContainer.DOKill();
+            }
+            if (projectSelectionText != null)
+            {
+                projectSelectionText.DOKill();
+            }
+            if (projectSelectionTextContainer != null)
+            {
+                projectSelectionTextContainer.DOKill();
             }
             
             // 移除按鈕監聽
@@ -174,6 +189,12 @@ namespace Tenronis.UI
             if (enemyInfoPanel != null)
             {
                 enemyInfoPanel.SetActive(false);
+            }
+            
+            // 播放工程選擇動畫
+            if (projectSelectionText != null)
+            {
+                StartCoroutine(PlayProjectSelectionAnimationCoroutine());
             }
         }
         
@@ -1232,10 +1253,26 @@ namespace Tenronis.UI
             Transform container = bossBattleTextContainer != null ? bossBattleTextContainer : bossBattleText.transform;
             Vector3 originalContainerPosition = container.localPosition;
             
-            // 設置容器初始位置（從左側屏幕外 -2000，只改變 X 軸）
-            // 確保 X 軸明確為 -2000，Y 和 Z 保持原始值
-            Vector3 startPosition = originalContainerPosition;
-            container.localPosition = startPosition;
+            // 設置容器初始位置（X=0，保持 Y 和 Z 不變）
+            Vector3 centerPosition = new Vector3(0f, originalContainerPosition.y, originalContainerPosition.z);
+            container.localPosition = centerPosition;
+            
+            // 獲取容器的 RectTransform（如果有的話）來控制高度
+            RectTransform containerRect = container as RectTransform;
+            float originalHeight = 1f;
+            if (containerRect != null)
+            {
+                originalHeight = containerRect.sizeDelta.y;
+                // 設置初始高度為 0
+                containerRect.sizeDelta = new Vector2(containerRect.sizeDelta.x, 0f);
+            }
+            else
+            {
+                // 如果不是 RectTransform，使用 scaleY
+                Vector3 originalScale = container.localScale;
+                container.localScale = new Vector3(originalScale.x, 0f, originalScale.z);
+                originalHeight = originalScale.y;
+            }
             
             // 顯示容器
             container.gameObject.SetActive(true);
@@ -1355,7 +1392,8 @@ namespace Tenronis.UI
                 
                 // 轉換為容器的本地空間
                 Vector3 charCenterContainerLocal = container.InverseTransformPoint(charCenterWorld);
-                charObj.transform.localPosition = charCenterContainerLocal;
+                // 確保 Y 位置為 0
+                charObj.transform.localPosition = new Vector3(charCenterContainerLocal.x, 0f, charCenterContainerLocal.z);
                 
                 // 初始狀態：透明+大（保留原始顏色的 RGB，只改變 alpha）
                 Color originalColor = charText.color;
@@ -1378,10 +1416,19 @@ namespace Tenronis.UI
             // 創建動畫序列
             Sequence mainSequence = DOTween.Sequence();
             
-            // 第一階段：容器從 -2000 移動到 0（中心位置，只改變 X 軸）
-            Vector3 centerPosition = new Vector3(0f, originalContainerPosition.y, originalContainerPosition.z);
-            float containerMoveInDuration = 1f;
-            mainSequence.Append(container.DOLocalMove(centerPosition, containerMoveInDuration));
+            // 第一階段：容器高度從 0 擴展到原始高度（上下擴展）
+            float containerExpandDuration = 1f;
+            if (containerRect != null)
+            {
+                // 使用 RectTransform 的 sizeDelta
+                mainSequence.Append(containerRect.DOSizeDelta(new Vector2(containerRect.sizeDelta.x, originalHeight), containerExpandDuration));
+            }
+            else
+            {
+                // 使用 scaleY
+                Vector3 originalScale = container.localScale;
+                mainSequence.Append(container.DOScaleY(originalHeight, containerExpandDuration));
+            }
             
             // 第二階段：每個字符依次從透明+大 → 不透明+正常大小（在第一階段完成後才開始）
             for (int i = 0; i < charObjects.Count; i++)
@@ -1417,9 +1464,9 @@ namespace Tenronis.UI
             float totalCharAnimationTime = charObjects.Count * 0.1f + 0.4f;
             
             // 確保序列等待所有字符動畫完成（如果字符動畫還沒完成）
-            if (mainSequence.Duration() < containerMoveInDuration + totalCharAnimationTime)
+            if (mainSequence.Duration() < containerExpandDuration + totalCharAnimationTime)
             {
-                mainSequence.AppendInterval((containerMoveInDuration + totalCharAnimationTime) - mainSequence.Duration());
+                mainSequence.AppendInterval((containerExpandDuration + totalCharAnimationTime) - mainSequence.Duration());
             }
             
             // 第三階段：短暫停留
@@ -1436,7 +1483,17 @@ namespace Tenronis.UI
             ClearBossBattleChars();
             if (container != null)
             {
+                // 恢復原始位置和大小
                 container.localPosition = originalContainerPosition;
+                if (containerRect != null)
+                {
+                    containerRect.sizeDelta = new Vector2(containerRect.sizeDelta.x, originalHeight);
+                }
+                else
+                {
+                    Vector3 originalScale = container.localScale;
+                    container.localScale = new Vector3(originalScale.x, originalHeight, originalScale.z);
+                }
                 container.gameObject.SetActive(false);
             }
         }
@@ -1483,6 +1540,328 @@ namespace Tenronis.UI
         }
         
         /// <summary>
+        /// 播放工程選擇動畫（協程版本）
+        /// 每個字符從透明+大 → 不透明+正常大小，然後整句向左移出
+        /// </summary>
+        private IEnumerator PlayProjectSelectionAnimationCoroutine()
+        {
+            if (projectSelectionText == null) yield break;
+            
+            // 在動畫開始時，隱藏 BuffOptionsContainer
+            if (buffOptionsContainer != null)
+            {
+                buffOptionsContainer.gameObject.SetActive(false);
+            }
+            
+            // 清理之前的字符對象
+            ClearProjectSelectionChars();
+            
+            // 獲取文字內容（如果為空，使用默認值）
+            string text = projectSelectionText.text;
+            if (string.IsNullOrEmpty(text))
+            {
+                text = "工程選擇";
+            }
+            
+            // 先設置文字並強制更新，以獲取字符位置信息
+            projectSelectionText.text = text;
+            projectSelectionText.ForceMeshUpdate();
+            
+            // 獲取容器（如果沒有指定，使用文字本身的 Transform）
+            Transform container = projectSelectionTextContainer != null ? projectSelectionTextContainer : projectSelectionText.transform;
+            Vector3 originalContainerPosition = container.localPosition;
+            
+            // 設置容器初始位置（X=0，保持 Y 和 Z 不變）
+            Vector3 centerPosition = new Vector3(0f, originalContainerPosition.y, originalContainerPosition.z);
+            container.localPosition = centerPosition;
+            
+            // 獲取容器的 RectTransform（如果有的話）來控制高度
+            RectTransform containerRect = container as RectTransform;
+            float originalHeight = 1f;
+            if (containerRect != null)
+            {
+                originalHeight = containerRect.sizeDelta.y;
+                // 設置初始高度為 0
+                containerRect.sizeDelta = new Vector2(containerRect.sizeDelta.x, 0f);
+            }
+            else
+            {
+                // 如果不是 RectTransform，使用 scaleY
+                Vector3 originalScale = container.localScale;
+                container.localScale = new Vector3(originalScale.x, 0f, originalScale.z);
+                originalHeight = originalScale.y;
+            }
+            
+            // 顯示容器
+            container.gameObject.SetActive(true);
+            
+            // 獲取字符信息（需要先顯示文字才能獲取正確的字符信息）
+            projectSelectionText.gameObject.SetActive(true);
+            TMP_TextInfo textInfo = projectSelectionText.textInfo;
+            int characterCount = textInfo.characterCount;
+            
+            // 如果字符數量為 0，可能是文字還沒更新，強制更新一次
+            if (characterCount == 0)
+            {
+                projectSelectionText.ForceMeshUpdate();
+                textInfo = projectSelectionText.textInfo;
+                characterCount = textInfo.characterCount;
+            }
+            
+            // 如果還是沒有字符，直接返回
+            if (characterCount == 0)
+            {
+                Debug.LogWarning("[RoguelikeMenu] 工程選擇文字沒有字符，無法播放動畫");
+                yield break;
+            }
+            
+            // 隱藏原始文字（我們將使用單獨的字符對象）
+            projectSelectionText.gameObject.SetActive(false);
+            
+            // 為每個字符創建單獨的 TextMeshProUGUI 對象
+            List<GameObject> charObjects = new List<GameObject>();
+            
+            for (int i = 0; i < characterCount; i++)
+            {
+                TMP_CharacterInfo charInfo = textInfo.characterInfo[i];
+                
+                // 跳過空格和不可見字符
+                if (!charInfo.isVisible || charInfo.character == ' ') continue;
+                
+                // 創建字符對象
+                GameObject charObj = new GameObject($"ProjectSelectionChar_{i}");
+                charObj.transform.SetParent(container, false);
+                
+                // 添加 TextMeshProUGUI 組件
+                TextMeshProUGUI charText = charObj.AddComponent<TextMeshProUGUI>();
+                charText.text = charInfo.character.ToString();
+                
+                // 複製字體相關屬性
+                charText.font = projectSelectionText.font;
+                charText.fontSize = projectSelectionText.fontSize;
+                charText.fontSizeMin = projectSelectionText.fontSizeMin;
+                charText.fontSizeMax = projectSelectionText.fontSizeMax;
+                charText.fontStyle = projectSelectionText.fontStyle;
+                charText.fontWeight = projectSelectionText.fontWeight;
+                charText.enableAutoSizing = projectSelectionText.enableAutoSizing;
+                
+                // 複製顏色相關屬性
+                charText.color = projectSelectionText.color;
+                charText.faceColor = projectSelectionText.faceColor;
+                charText.enableVertexGradient = projectSelectionText.enableVertexGradient;
+                if (projectSelectionText.enableVertexGradient)
+                {
+                    charText.colorGradient = projectSelectionText.colorGradient;
+                }
+                charText.colorGradientPreset = projectSelectionText.colorGradientPreset;
+                
+                // 複製對齊方式
+                charText.alignment = projectSelectionText.alignment;
+                charText.horizontalAlignment = projectSelectionText.horizontalAlignment;
+                charText.verticalAlignment = projectSelectionText.verticalAlignment;
+                
+                // 複製間距
+                charText.characterSpacing = projectSelectionText.characterSpacing;
+                charText.wordSpacing = projectSelectionText.wordSpacing;
+                charText.lineSpacing = projectSelectionText.lineSpacing;
+                charText.paragraphSpacing = projectSelectionText.paragraphSpacing;
+                
+                // 複製其他屬性
+                charText.textWrappingMode = projectSelectionText.textWrappingMode;
+                charText.overflowMode = projectSelectionText.overflowMode;
+                
+                // 複製材質
+                charText.fontSharedMaterial = projectSelectionText.fontSharedMaterial;
+                charText.fontMaterials = projectSelectionText.fontMaterials;
+                
+                // 複製 Outline 效果（如果有的話）
+                var originalOutline = projectSelectionText.GetComponent<UnityEngine.UI.Outline>();
+                if (originalOutline != null)
+                {
+                    var charOutline = charObj.AddComponent<UnityEngine.UI.Outline>();
+                    charOutline.effectColor = originalOutline.effectColor;
+                    charOutline.effectDistance = originalOutline.effectDistance;
+                    charOutline.useGraphicAlpha = originalOutline.useGraphicAlpha;
+                }
+                
+                // 複製 Shadow 效果（如果有的話）
+                var originalShadow = projectSelectionText.GetComponent<UnityEngine.UI.Shadow>();
+                if (originalShadow != null)
+                {
+                    var charShadow = charObj.AddComponent<UnityEngine.UI.Shadow>();
+                    charShadow.effectColor = originalShadow.effectColor;
+                    charShadow.effectDistance = originalShadow.effectDistance;
+                    charShadow.useGraphicAlpha = originalShadow.useGraphicAlpha;
+                }
+                
+                // 複製其他 UI 屬性
+                charText.raycastTarget = projectSelectionText.raycastTarget;
+                charText.maskable = projectSelectionText.maskable;
+                
+                // 計算字符位置（相對於容器）
+                // 字符的中心位置（相對於文字對象）
+                Vector3 charCenterLocal = (charInfo.topLeft + charInfo.topRight + 
+                                          charInfo.bottomLeft + charInfo.bottomRight) / 4f;
+                
+                // 轉換為世界空間
+                Vector3 charCenterWorld = projectSelectionText.transform.TransformPoint(charCenterLocal);
+                
+                // 轉換為容器的本地空間
+                Vector3 charCenterContainerLocal = container.InverseTransformPoint(charCenterWorld);
+                // 確保 Y 位置為 0
+                charObj.transform.localPosition = new Vector3(charCenterContainerLocal.x, 0f, charCenterContainerLocal.z);
+                
+                // 初始狀態：透明+大（保留原始顏色的 RGB，只改變 alpha）
+                Color originalColor = charText.color;
+                charText.color = new Color(originalColor.r, originalColor.g, originalColor.b, 0f);
+                charObj.transform.localScale = Vector3.one * 2f;
+                
+                charObjects.Add(charObj);
+                projectSelectionCharObjects.Add(charObj);
+            }
+            
+            // 如果沒有創建任何字符對象，直接返回
+            if (charObjects.Count == 0)
+            {
+                Debug.LogWarning("[RoguelikeMenu] 工程選擇沒有可顯示的字符，無法播放動畫");
+                // 恢復原始文字顯示
+                projectSelectionText.gameObject.SetActive(true);
+                yield break;
+            }
+            
+            // 創建動畫序列
+            Sequence mainSequence = DOTween.Sequence();
+            
+            // 第一階段：容器高度從 0 擴展到原始高度（上下擴展）
+            float containerExpandDuration = 1f;
+            if (containerRect != null)
+            {
+                // 使用 RectTransform 的 sizeDelta
+                mainSequence.Append(containerRect.DOSizeDelta(new Vector2(containerRect.sizeDelta.x, originalHeight), containerExpandDuration));
+            }
+            else
+            {
+                // 使用 scaleY
+                Vector3 originalScale = container.localScale;
+                mainSequence.Append(container.DOScaleY(originalHeight, containerExpandDuration));
+            }
+            
+            // 第二階段：每個字符依次從透明+大 → 不透明+正常大小（在第一階段完成後才開始）
+            for (int i = 0; i < charObjects.Count; i++)
+            {
+                GameObject charObj = charObjects[i];
+                TextMeshProUGUI charText = charObj.GetComponent<TextMeshProUGUI>();
+                
+                float delay = i * 0.1f; // 每個字符延遲 0.1 秒
+                float duration = 0.4f; // 動畫持續時間
+                
+                // 字符動畫（使用 Append 確保在第一階段完成後才開始）
+                Sequence charSeq = DOTween.Sequence();
+                charSeq.AppendInterval(delay);
+                // 在動畫開始時播放音效（delay 結束後）
+                charSeq.AppendCallback(() => {
+                    PlayProjectSelectionCharSound();
+                });
+                charSeq.Append(charText.DOFade(1f, duration));
+                charSeq.Join(charObj.transform.DOScale(Vector3.one, duration));
+                
+                // 第一個字符動畫使用 Append，後續的字符動畫使用 Join（與第一個字符動畫同時進行）
+                if (i == 0)
+                {
+                    mainSequence.Append(charSeq);
+                }
+                else
+                {
+                    mainSequence.Join(charSeq);
+                }
+            }
+            
+            // 計算字符動畫總時間
+            float totalCharAnimationTime = charObjects.Count * 0.1f + 0.4f;
+            
+            // 確保序列等待所有字符動畫完成（如果字符動畫還沒完成）
+            if (mainSequence.Duration() < containerExpandDuration + totalCharAnimationTime)
+            {
+                mainSequence.AppendInterval((containerExpandDuration + totalCharAnimationTime) - mainSequence.Duration());
+            }
+            
+            // 第三階段：短暫停留
+            mainSequence.AppendInterval(0.5f);
+            
+            // 第四階段：容器向左移出到 -2000（只改變 X 軸）
+            Vector3 exitPosition = new Vector3(-2000f, originalContainerPosition.y, originalContainerPosition.z);
+            mainSequence.Append(container.DOLocalMove(exitPosition, 0.8f));
+            
+            // 等待動畫完成
+            yield return mainSequence.WaitForCompletion();
+            
+            // 動畫完成後清理
+            ClearProjectSelectionChars();
+            if (container != null)
+            {
+                // 恢復原始位置和大小
+                container.localPosition = originalContainerPosition;
+                if (containerRect != null)
+                {
+                    containerRect.sizeDelta = new Vector2(containerRect.sizeDelta.x, originalHeight);
+                }
+                else
+                {
+                    Vector3 originalScale = container.localScale;
+                    container.localScale = new Vector3(originalScale.x, originalHeight, originalScale.z);
+                }
+                container.gameObject.SetActive(false);
+            }
+            
+            // 動畫完成後，顯示 BuffOptionsContainer
+            if (buffOptionsContainer != null)
+            {
+                buffOptionsContainer.gameObject.SetActive(true);
+            }
+        }
+        
+        /// <summary>
+        /// 清理工程選擇字符對象
+        /// </summary>
+        private void ClearProjectSelectionChars()
+        {
+            foreach (var charObj in projectSelectionCharObjects)
+            {
+                if (charObj != null)
+                {
+                    Destroy(charObj);
+                }
+            }
+            projectSelectionCharObjects.Clear();
+        }
+        
+        /// <summary>
+        /// 播放工程選擇字符動畫音效
+        /// </summary>
+        private void PlayProjectSelectionCharSound()
+        {
+            if (projectSelectionCharSound != null)
+            {
+                // 嘗試使用 AudioManager（如果存在）
+                if (Tenronis.Audio.AudioManager.Instance != null)
+                {
+                    AudioSource audioSource = Tenronis.Audio.AudioManager.Instance.GetComponent<AudioSource>();
+                    if (audioSource != null)
+                    {
+                        audioSource.PlayOneShot(projectSelectionCharSound);
+                        return;
+                    }
+                }
+                
+                // 如果沒有 AudioManager，創建臨時的 AudioSource
+                GameObject tempAudio = new GameObject("TempAudio");
+                AudioSource tempSource = tempAudio.AddComponent<AudioSource>();
+                tempSource.PlayOneShot(projectSelectionCharSound);
+                Destroy(tempAudio, projectSelectionCharSound.length + 0.1f);
+            }
+        }
+        
+        /// <summary>
         /// 播放 Bonus Enhance 動畫（協程版本）
         /// 每個字符從透明+大 → 不透明+正常大小，然後整句向左移出
         /// </summary>
@@ -1508,9 +1887,26 @@ namespace Tenronis.UI
             Transform container = bonusEnhanceTextContainer != null ? bonusEnhanceTextContainer : bonusEnhanceText.transform;
             Vector3 originalContainerPosition = container.localPosition;
             
-            // 設置容器初始位置（從左側屏幕外 -2000，只改變 X 軸）
-            Vector3 startPosition = originalContainerPosition;
-            container.localPosition = startPosition;
+            // 設置容器初始位置（X=0，保持 Y 和 Z 不變）
+            Vector3 centerPosition = new Vector3(0f, originalContainerPosition.y, originalContainerPosition.z);
+            container.localPosition = centerPosition;
+            
+            // 獲取容器的 RectTransform（如果有的話）來控制高度
+            RectTransform containerRect = container as RectTransform;
+            float originalHeight = 1f;
+            if (containerRect != null)
+            {
+                originalHeight = containerRect.sizeDelta.y;
+                // 設置初始高度為 0
+                containerRect.sizeDelta = new Vector2(containerRect.sizeDelta.x, 0f);
+            }
+            else
+            {
+                // 如果不是 RectTransform，使用 scaleY
+                Vector3 originalScale = container.localScale;
+                container.localScale = new Vector3(originalScale.x, 0f, originalScale.z);
+                originalHeight = originalScale.y;
+            }
             
             // 顯示容器
             container.gameObject.SetActive(true);
@@ -1627,7 +2023,8 @@ namespace Tenronis.UI
                 
                 // 轉換為容器的本地空間
                 Vector3 charCenterContainerLocal = container.InverseTransformPoint(charCenterWorld);
-                charObj.transform.localPosition = charCenterContainerLocal;
+                // 確保 Y 位置為 0
+                charObj.transform.localPosition = new Vector3(charCenterContainerLocal.x, 0f, charCenterContainerLocal.z);
                 
                 // 初始狀態：透明+大（保留原始顏色的 RGB，只改變 alpha）
                 Color originalColor = charText.color;
@@ -1653,15 +2050,24 @@ namespace Tenronis.UI
             // 創建動畫序列
             Sequence mainSequence = DOTween.Sequence();
             
-            // 第一階段：容器從 -2000 移動到 0（中心位置，只改變 X 軸），同時 bonusPanel Image 淡入
-            Vector3 centerPosition = new Vector3(0f, originalContainerPosition.y, originalContainerPosition.z);
-            float containerMoveInDuration = 1f;
-            mainSequence.Append(container.DOLocalMove(centerPosition, containerMoveInDuration));
+            // 第一階段：容器高度從 0 擴展到原始高度（上下擴展），同時 bonusPanel Image 淡入
+            float containerExpandDuration = 1f;
+            if (containerRect != null)
+            {
+                // 使用 RectTransform 的 sizeDelta
+                mainSequence.Append(containerRect.DOSizeDelta(new Vector2(containerRect.sizeDelta.x, originalHeight), containerExpandDuration));
+            }
+            else
+            {
+                // 使用 scaleY
+                Vector3 originalScale = container.localScale;
+                mainSequence.Append(container.DOScaleY(originalHeight, containerExpandDuration));
+            }
             
             // bonusPanel Image 同時淡入
             if (bonusPanelImage != null)
             {
-                mainSequence.Join(bonusPanelImage.DOFade(1f, containerMoveInDuration));
+                mainSequence.Join(bonusPanelImage.DOFade(1f, containerExpandDuration));
             }
             
             // 第二階段：每個字符依次從透明+大 → 不透明+正常大小（在第一階段完成後才開始）
@@ -1698,9 +2104,9 @@ namespace Tenronis.UI
             float totalCharAnimationTime = charObjects.Count * 0.1f + 0.4f;
             
             // 確保序列等待所有字符動畫完成（如果字符動畫還沒完成）
-            if (mainSequence.Duration() < containerMoveInDuration + totalCharAnimationTime)
+            if (mainSequence.Duration() < containerExpandDuration + totalCharAnimationTime)
             {
-                mainSequence.AppendInterval((containerMoveInDuration + totalCharAnimationTime) - mainSequence.Duration());
+                mainSequence.AppendInterval((containerExpandDuration + totalCharAnimationTime) - mainSequence.Duration());
             }
             
             // 第三階段：短暫停留
@@ -1717,7 +2123,17 @@ namespace Tenronis.UI
             ClearBonusEnhanceChars();
             if (container != null)
             {
+                // 恢復原始位置和大小
                 container.localPosition = originalContainerPosition;
+                if (containerRect != null)
+                {
+                    containerRect.sizeDelta = new Vector2(containerRect.sizeDelta.x, originalHeight);
+                }
+                else
+                {
+                    Vector3 originalScale = container.localScale;
+                    container.localScale = new Vector3(originalScale.x, originalHeight, originalScale.z);
+                }
                 container.gameObject.SetActive(false);
             }
         }
