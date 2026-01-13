@@ -10,13 +10,13 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 3fe80882f65a4ff479ef1fca5ee38a6f, type: 3}
-  m_Name: Stage_3_Hunter
+  m_Name: Stage_3_Striker
   m_EditorClassIdentifier: 
-  stageName: "\u566C\u591C\u9B54"
+  stageName: "\u6F14\u7FD2\u7528\u653B\u57CE\u8ECA"
   stageIndex: 3
   isBossStage: 0
-  description: "\u4ED6\u6700\u521D\u662F\u4F55\u7A2E\u5F62\u614B?\u7121\u4EBA\u77E5\u66C9\uFF0C\u6709\u4EBA\u8A8D\u70BA\u9ED1\u6697\u672C\u8EAB\u5B78\u6703\u4E86\u98E2\u9913\u3002\n\u51E1\u662F\u4ED6\u5F98\u5F8A\u4E4B\u5730\uFF0C\u71C8\u706B\u6703\u9010\u4E00\u7184\u6EC5\uFF0C\u52C7\u6C23\u6703\u5728\u4F4E\u8A9E\u4E2D\u88AB\u5543\u566C\u6B86\u76E1\u3002\n\u5016\u5B58\u8005\u53EA\u8A18\u5F97\u90A3\u5C0D\u767C\u5149\u7684\u96D9\u773C\uFF0C\u8207\u9ED1\u6697\u4E2D\u50B3\u4F86\u7684\u6495\u88C2\u8072\u3002"
-  rewardBuffCount: 5
+  description: "\u96D6\u7136\u8AAA\u662F\u6F14\u7FD2\uFF0C\u4F46\u4F60\u5982\u679C\u6C92\u64CB\u4F4F\u57CE\u5821\u662F\u771F\u7684\u6703\u57AE\u6389\u5594\uFF0C\u597D\u597D\u5728\u5099\u6230\u968E\u6BB5\u6307\u63EE\u4F60\u7684\u5DE5\u7A0B\u90E8\u968A\u5427\n\n[\u8AAA\u660E]\n\u9078\u64C7\u4E00\u500B\u5F37\u5316\u5EFA\u8A2D\u4F86\u63D0\u5347\u5DE5\u7A0B\u7B49\u7D1A\u3002\n\u6EFF\u7D1A\u7684\u5DE5\u7A0B\u80FD\u7372\u5F97\u4E00\u500B\u50B3\u5947\u5DE5\u7A0B\u3002"
+  rewardBuffCount: 3
   maxHp: 1
   shootInterval: 1.4
   bulletSpeed: 9
@@ -25,10 +25,10 @@ MonoBehaviour:
     chance: 1
   areaBullet:
     enabled: 0
-    chance: 0.25
+    chance: 0.5
   addBlockBullet:
     enabled: 0
-    chance: 0.3
+    chance: 1
   addExplosiveBlockBullet:
     enabled: 0
     chance: 0.2
@@ -47,5 +47,5 @@ MonoBehaviour:
   useSmartTargeting: 0
   addBlockTargetsHigh: 1
   areaDamageTargetsLow: 1
-  enemyIcon: {fileID: 1528591960984123227, guid: 939cf8db763c12143976c5f01479c732, type: 3}
+  enemyIcon: {fileID: 4746589398990725835, guid: 9e229b8d81848214f9611d1aa971bc5f, type: 3}
   themeColor: {r: 1, g: 0, b: 0, a: 1}

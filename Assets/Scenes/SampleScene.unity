@@ -13885,6 +13885,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Tenronis.Managers.GameManager
   allThemes:
+  - {fileID: 11400000, guid: a89bb930f12950d4b92da3c95bff22ac, type: 2}
   - {fileID: 11400000, guid: de49a642a0414a14f944b76d7de2d829, type: 2}
   - {fileID: 11400000, guid: 3ec4b91305a119a4d8c4e2f9266ae91f, type: 2}
   - {fileID: 11400000, guid: 6ff34050a75519b4684a147ac0bfe733, type: 2}

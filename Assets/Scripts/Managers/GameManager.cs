@@ -163,15 +163,14 @@ namespace Tenronis.Managers
             {
                 pendingBuffCount += firstStageReward;
                 Debug.Log($"[GameManager] 準備挑戰第一關！獲得 {firstStageReward} 張升級卡牌");
-                
-                // 如果有獎勵，先進入升級介面
-                ChangeGameState(GameState.LevelUp);
             }
             else
             {
-                // 沒有獎勵，直接開始遊戲
-                ChangeGameState(GameState.Playing);
+                Debug.Log($"[GameManager] 準備挑戰第一關！沒有獎勵卡牌");
             }
+            
+            // 不論是否有獎勵，都先進入升級介面（顯示敵人預覽）
+            ChangeGameState(GameState.LevelUp);
             
             Debug.Log("=== [GameManager] StartGame() 執行完成 ===");
         }
@@ -249,24 +248,20 @@ namespace Tenronis.Managers
                     pendingBuffCount += stageReward;
                     Debug.Log($"[GameManager] 準備挑戰關卡 {currentStageIndex + 1}/{currentStages.Count}！獲得 {stageReward} 張升級卡牌，總計: {pendingBuffCount}");
                 }
-                
-                // 進入下一關
-                if (pendingBuffCount > 0)
-                {
-                    // 先鎖定當前方塊再進入選單
-                    if (Tenronis.Gameplay.Tetromino.TetrominoController.Instance != null && 
-                        Tenronis.Gameplay.Tetromino.TetrominoController.Instance.IsActive)
-                    {
-                        Tenronis.Gameplay.Tetromino.TetrominoController.Instance.ForceLock();
-                    }
-                    
-                    ChangeGameState(GameState.LevelUp);
-                }
                 else
                 {
-                    // 直接繼續遊戲
-                    ChangeGameState(GameState.Playing);
+                    Debug.Log($"[GameManager] 準備挑戰關卡 {currentStageIndex + 1}/{currentStages.Count}！沒有獎勵卡牌，總計: {pendingBuffCount}");
                 }
+                
+                // 先鎖定當前方塊再進入選單
+                if (Tenronis.Gameplay.Tetromino.TetrominoController.Instance != null && 
+                    Tenronis.Gameplay.Tetromino.TetrominoController.Instance.IsActive)
+                {
+                    Tenronis.Gameplay.Tetromino.TetrominoController.Instance.ForceLock();
+                }
+                
+                // 不論是否有獎勵，都先進入升級介面（顯示敵人預覽）
+                ChangeGameState(GameState.LevelUp);
             }
         }
         

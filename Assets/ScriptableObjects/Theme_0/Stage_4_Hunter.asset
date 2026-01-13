@@ -10,22 +10,22 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 3fe80882f65a4ff479ef1fca5ee38a6f, type: 3}
-  m_Name: Stage_4_Striker
+  m_Name: Stage_4_Hunter
   m_EditorClassIdentifier: 
-  stageName: "\u88C2\u89D2"
+  stageName: "\u6F14\u7FD2\u7528\u7206\u7834\u6A5F"
   stageIndex: 4
   isBossStage: 0
-  description: "\u90A3\u5C0D\u626D\u66F2\u7684\u89D2\uFF0C\u770B\u4F3C\u6050\u61FC\u5177\u8C61\u5316\u5F8C\u9577\u51FA\u7684\u5F62\u72C0\u3002\n\u7576\u4ED6\u8E0F\u5165\u73FE\u5BE6\uFF0C\u7A7A\u6C23\u6703\u8B8A\u5F97\u6C89\u91CD\uFF0C\u9748\u9B42\u50CF\u88AB\u62C9\u51FA\u8EAB\u9AD4\u822C\u986B\u6296\u3002\n\u90A3\u5F35\u5145\u6EFF\u5149\u9F52\u7684\u7B11\u5BB9\uFF0C\u4E26\u975E\u5A01\u5687\u2014\u2014\u800C\u662F\u5BA3\u544A\u72E9\u7375\u5DF2\u7D93\u958B\u59CB\u3002\n\u51E1\u8207\u4ED6\u5C0D\u8996\u8005\uFF0C\u610F\u8B58\u6703\u88AB\u4E00\u53E3\u4E00\u53E3\u6495\u788E\uFF0C\u53EA\u7559\u4E0B\u7A7A\u6D1E\u7684\u8EC0\u6BBC\u3002"
+  description: "\u9019\u53F0\u7206\u7834\u6A5F\u6A21\u64EC\u80FD\u628A\u6574\u5EA7\u57CE\u5821\u5937\u5E73\u7684\u602A\u7269\uFF0C\u4E00\u540D\u5408\u683C\u7684\u57F7\u70AE\u4EBA\u4E0D\u6703\u8B93\u9019\u4EF6\u4E8B\u60C5\u767C\u751F\n\n[\u8AAA\u660E]\n\u653E\u7F6E\u65B9\u584A\u5F8C\u5982\u679C\u65B9\u584A\u7ACB\u5373\u53D7\u5230\u50B7\u5BB3\uFF0C\u6703\u89F8\u767C\"\u53CD\u64CA\"\uFF0C\u751F\u6210\u4E00\u767C\u98DB\u5F48\u56DE\u64CA\u6575\u4EBA!"
   rewardBuffCount: 5
   maxHp: 1
   shootInterval: 1.2
   bulletSpeed: 9.5
   normalBullet:
-    enabled: 1
+    enabled: 0
     chance: 1
   areaBullet:
-    enabled: 0
-    chance: 0.25
+    enabled: 1
+    chance: 1
   addBlockBullet:
     enabled: 0
     chance: 0.3
@@ -40,12 +40,12 @@ MonoBehaviour:
     chance: 0.1
   corruptExplosiveBullet:
     enabled: 0
-    chance: 0.15
+    chance: 1
   corruptVoidBullet:
     enabled: 0
     chance: 0.1
   useSmartTargeting: 0
   addBlockTargetsHigh: 1
   areaDamageTargetsLow: 1
-  enemyIcon: {fileID: -2778821508322533060, guid: b4b5c25e5cd3f58439efccc6ce2ac7ba, type: 3}
+  enemyIcon: {fileID: -6243166331904431005, guid: 9962e99cf071c504393290ca9b980a9f, type: 3}
   themeColor: {r: 1, g: 0, b: 0, a: 1}

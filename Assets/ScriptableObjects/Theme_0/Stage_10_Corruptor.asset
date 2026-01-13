@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 3fe80882f65a4ff479ef1fca5ee38a6f, type: 3}
-  m_Name: Stage_10_Obliterator
+  m_Name: Stage_10_Corruptor
   m_EditorClassIdentifier: 
   stageName: "\u5922\u6E26\u738B"
   stageIndex: 10

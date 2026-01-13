@@ -200,10 +200,25 @@ namespace Tenronis.UI
                 enemyInfoPanel.SetActive(false);
             }
             
-            // 播放工程選擇動畫
-            if (projectSelectionText != null)
+            // 檢查是否有待選的 Buff
+            if (GameManager.Instance != null && GameManager.Instance.PendingBuffCount > 0)
             {
-                StartCoroutine(PlayProjectSelectionAnimationCoroutine());
+                // 有獎勵，播放工程選擇動畫，然後顯示 Buff 選擇
+                if (projectSelectionText != null)
+                {
+                    StartCoroutine(PlayProjectSelectionAnimationCoroutine());
+                }
+            }
+            else
+            {
+                // 沒有獎勵，直接開始遊戲
+                if (GameManager.Instance != null && GameManager.Instance.CurrentState == GameState.LevelUp)
+                {
+                    GameManager.Instance.ChangeGameState(GameState.Playing);
+                }
+                
+                // 關閉選單
+                gameObject.SetActive(false);
             }
         }
         
