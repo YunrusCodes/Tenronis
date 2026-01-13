@@ -16,6 +16,20 @@ namespace Tenronis.ScriptableObjects
         public Color themeColor = Color.white;
         [TextArea(3, 5)]
         public string description = "主題描述...";
+        
+        [Header("背景圖片")]
+        [Tooltip("戰鬥背景圖片 (用於 SpriteRenderer)")]
+        public Sprite battleBackgroundSprite;
+        
+        [Tooltip("敵人介紹背景圖片 (用於 Image)")]
+        public Sprite enemyIntroBackgroundSprite;
+        
+        [Tooltip("工程師背景圖片 (用於 Image)")]
+        public Sprite engineerBackgroundSprite;
+        
+        [Header("玩家圖片")]
+        [Tooltip("玩家圖片 (用於 Image)")]
+        public Sprite playerSprite;
 
         [Header("關卡列表")]
         public List<StageDataSO> stages = new List<StageDataSO>();

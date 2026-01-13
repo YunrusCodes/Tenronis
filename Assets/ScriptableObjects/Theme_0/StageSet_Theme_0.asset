@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b4b436aae261119448a7d93cc922b45e, type: 3}
+  m_Name: StageSet_Theme_0
+  m_EditorClassIdentifier: 
+  themeName: "\u6559\u5B78 \u6F14\u7FD2\u4E4B\u591C"
+  themeIcon: {fileID: 0}
+  themeColor: {r: 1, g: 1, b: 1, a: 1}
+  description: 
+  battleBackgroundSprite: {fileID: -885377563537952201, guid: d6409f510cdbd2e4194a04bec6005f09, type: 3}
+  enemyIntroBackgroundSprite: {fileID: -885377563537952201, guid: d6409f510cdbd2e4194a04bec6005f09, type: 3}
+  engineerBackgroundSprite: {fileID: -130070610015097871, guid: 5c858ef051aa9154597581395a5d9e4f, type: 3}
+  playerSprite: {fileID: -2311659948842064771, guid: 1378fdfdf2106f24fb27ba94183f844b, type: 3}
+  stages:
+  - {fileID: 11400000, guid: ede4c687d6d5b594e818ef5993633ba5, type: 2}
+  - {fileID: 11400000, guid: 10548ec8291fe6249a9c3d0bca16d6dc, type: 2}
+  - {fileID: 11400000, guid: b36f318617b1d9248a329488504178cf, type: 2}
+  - {fileID: 11400000, guid: c550dfb93298a1644ba02a3a200d1b4d, type: 2}
+  - {fileID: 11400000, guid: bc4f442ade3779947ba659b90e78de1c, type: 2}
+  - {fileID: 11400000, guid: c928914f6e3df604e8f6c26fcc945787, type: 2}
+  - {fileID: 11400000, guid: 9561c541f98ef4640bf0272f9f12c6ee, type: 2}
+  - {fileID: 11400000, guid: 3951b509550e0d64ca8f320d27826932, type: 2}
+  - {fileID: 11400000, guid: e3e46dd73a2b02340b6170de8bf830fb, type: 2}
+  - {fileID: 11400000, guid: 99df1185ae9d65d4587cb4d4c5310e37, type: 2}

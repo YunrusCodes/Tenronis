@@ -433,6 +433,11 @@ namespace Tenronis.Managers
                     Debug.Log($"[CombatManager] 子彈擊中基地！Grid位置: ({gridPos.x}, {gridPos.y}), 傷害: {bullet.Damage}");
                     GameEvents.TriggerPlayerDamaged(bullet.Damage);
                     GameEvents.TriggerPlayImpactSound();
+                    
+                    // 在子彈擊中位置顯示浮動文字
+                    Vector2 hitPosition = bullet.transform.position;
+                    GameEvents.TriggerShowPopupText("玩家受傷", new Color(1f, 0.3f, 0.3f), hitPosition);
+                    
                     bulletsToRemove.Add(bullet);
                     continue;
                 }

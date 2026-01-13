@@ -14,8 +14,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   themeName: "\u96E3\u5EA6\u4E00 \u9B58\u8972\u4E4B\u591C"
   themeIcon: {fileID: 0}
-  themeColor: {r: 1, g: 0, b: 0, a: 1}
+  themeColor: {r: 1, g: 1, b: 1, a: 1}
   description: 
+  battleBackgroundSprite: {fileID: -7222543788725832754, guid: c24fca26ee24e2a4ab2ee169bbf309c8, type: 3}
+  enemyIntroBackgroundSprite: {fileID: -7222543788725832754, guid: c24fca26ee24e2a4ab2ee169bbf309c8, type: 3}
+  engineerBackgroundSprite: {fileID: -5808773475502751053, guid: 0564633923e79c945849f0da3b1fbebd, type: 3}
+  playerSprite: {fileID: 2556286265186245886, guid: 507fd2feb3222cc4fab709140f7094a7, type: 3}
   stages:
   - {fileID: 11400000, guid: 99046f8011615124bbfcd113216acc86, type: 2}
   - {fileID: 11400000, guid: 9b68cd3667a291e4d9653c93b9177e23, type: 2}

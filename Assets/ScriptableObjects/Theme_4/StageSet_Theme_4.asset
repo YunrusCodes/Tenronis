@@ -16,6 +16,10 @@ MonoBehaviour:
   themeIcon: {fileID: 0}
   themeColor: {r: 1, g: 0, b: 0, a: 1}
   description: 
+  battleBackgroundSprite: {fileID: 0}
+  enemyIntroBackgroundSprite: {fileID: 0}
+  engineerBackgroundSprite: {fileID: 0}
+  playerSprite: {fileID: 0}
   stages:
   - {fileID: 11400000, guid: cd70c79b32ee0a44480b4a33c308b35b, type: 2}
   - {fileID: 11400000, guid: 75aa0775ba84ebf4d90175c25db95b61, type: 2}

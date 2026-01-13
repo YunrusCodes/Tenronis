@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.UI;
 using System.Collections.Generic;
 using Tenronis.Data;
 using Tenronis.Core;
@@ -22,6 +23,20 @@ namespace Tenronis.Managers
         
         [Header("傳奇強化")]
         [SerializeField] private BuffDataSO[] legendaryBuffs;
+        
+        [Header("背景設定")]
+        [Tooltip("戰鬥背景 (SpriteRenderer)")]
+        [SerializeField] private SpriteRenderer battleBackground;
+        
+        [Tooltip("敵人介紹背景 (Image)")]
+        [SerializeField] private Image enemyIntroBackground;
+        
+        [Tooltip("工程師背景 (Image)")]
+        [SerializeField] private Image engineerBackground;
+        
+        [Header("玩家設定")]
+        [Tooltip("玩家圖片 (SpriteRenderer) - 主玩家圖片，由主題系統控制")]
+        [SerializeField] private SpriteRenderer playerSprite;
         
         // 遊戲狀態
         private GameState currentState = GameState.Menu;
@@ -116,6 +131,9 @@ namespace Tenronis.Managers
             }
             
             Debug.Log($"[GameManager] 選擇主題：{currentTheme.themeName}，關卡數：{currentStages.Count}");
+            
+            // 更新背景圖片為主題背景圖片
+            UpdateBackgroundSprites(currentTheme);
             
             // 重置遊戲數據
             currentStageIndex = 0;
@@ -424,6 +442,91 @@ namespace Tenronis.Managers
             // 基於權重隨機選擇一個
             var selected = SelectRandomBuff(availableLegendaryBuffs, 1);
             return selected.Count > 0 ? selected[0] : null;
+        }
+        
+        /// <summary>
+        /// 更新所有背景圖片為主題背景圖片
+        /// </summary>
+        /// <param name="theme">主題資料</param>
+        private void UpdateBackgroundSprites(StageSetSO theme)
+        {
+            if (theme == null)
+            {
+                Debug.LogError("[GameManager] 主題資料為空，無法更新背景圖片！");
+                return;
+            }
+            
+            // 更新戰鬥背景 (SpriteRenderer)
+            if (battleBackground != null)
+            {
+                if (theme.battleBackgroundSprite != null)
+                {
+                    battleBackground.sprite = theme.battleBackgroundSprite;
+                    Debug.Log($"[GameManager] 已更新 Battle Background 圖片為: {theme.battleBackgroundSprite.name}");
+                }
+                else
+                {
+                    Debug.LogWarning($"[GameManager] 主題 {theme.themeName} 沒有設定 Battle Background 圖片！");
+                }
+            }
+            else
+            {
+                Debug.LogWarning("[GameManager] Battle Background 組件未設定！");
+            }
+            
+            // 更新敵人介紹背景 (Image)
+            if (enemyIntroBackground != null)
+            {
+                if (theme.enemyIntroBackgroundSprite != null)
+                {
+                    enemyIntroBackground.sprite = theme.enemyIntroBackgroundSprite;
+                    Debug.Log($"[GameManager] 已更新 EnemyIntro Background 圖片為: {theme.enemyIntroBackgroundSprite.name}");
+                }
+                else
+                {
+                    Debug.LogWarning($"[GameManager] 主題 {theme.themeName} 沒有設定 EnemyIntro Background 圖片！");
+                }
+            }
+            else
+            {
+                Debug.LogWarning("[GameManager] EnemyIntro Background 組件未設定！");
+            }
+            
+            // 更新工程師背景 (Image)
+            if (engineerBackground != null)
+            {
+                if (theme.engineerBackgroundSprite != null)
+                {
+                    engineerBackground.sprite = theme.engineerBackgroundSprite;
+                    Debug.Log($"[GameManager] 已更新 Engineer Background 圖片為: {theme.engineerBackgroundSprite.name}");
+                }
+                else
+                {
+                    Debug.LogWarning($"[GameManager] 主題 {theme.themeName} 沒有設定 Engineer Background 圖片！");
+                }
+            }
+            else
+            {
+                Debug.LogWarning("[GameManager] Engineer Background 組件未設定！");
+            }
+            
+            // 更新玩家圖片（直接設定主玩家圖片）
+            if (playerSprite != null)
+            {
+                if (theme.playerSprite != null)
+                {
+                    playerSprite.sprite = theme.playerSprite;
+                    Debug.Log($"[GameManager] 已更新 Player Sprite 圖片為: {theme.playerSprite.name}");
+                }
+                else
+                {
+                    Debug.LogWarning($"[GameManager] 主題 {theme.themeName} 沒有設定 Player Sprite 圖片！");
+                }
+            }
+            else
+            {
+                Debug.LogWarning("[GameManager] Player Sprite 組件未設定！");
+            }
         }
     }
 }

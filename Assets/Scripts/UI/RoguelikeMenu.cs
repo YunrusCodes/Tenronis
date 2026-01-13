@@ -54,12 +54,11 @@ namespace Tenronis.UI
         
         [Header("玩家強化面板")]
         [SerializeField] private GameObject playerBuffPanel;
-        [SerializeField] private TextMeshProUGUI currentStatsText;
+        [SerializeField] private TextMeshProUGUI normalStatsText; // 普通強化顯示
+        [SerializeField] private TextMeshProUGUI legendaryStatsText; // 傳奇強化顯示
         [SerializeField] private UnityEngine.UI.Toggle detailToggle; // 顯示詳細資訊的 Toggle
-        
-        [Header("分頁按鈕")]
-        [SerializeField] private Button normalBuffButton;
-        [SerializeField] private Button legendaryBuffButton;
+        [SerializeField] private Button showPlayerBuffButton; // 顯示玩家狀態面板按鈕
+        [SerializeField] private Button hidePlayerBuffButton; // 隱藏玩家狀態面板按鈕
         
         [Header("傳奇強化說明頁面")]
         [SerializeField] private GameObject bonusPanel;
@@ -108,9 +107,6 @@ namespace Tenronis.UI
             UpdateCurrentStats();
             StartCoroutine(UpdateNextStageEnemyPreviewCoroutine());
             
-            // 設置分頁按鈕
-            SetupTabButtons();
-            
             // 設置 Toggle
             SetupDetailToggle();
             
@@ -120,8 +116,16 @@ namespace Tenronis.UI
             // 設置關閉敵人面板按鈕
             SetupCloseEnemyPanelButton();
             
-            // 預設顯示普通強化
-            ShowInfoTab(0);
+            // 設置玩家狀態面板按鈕
+            SetupPlayerBuffPanelButtons();
+            
+            // 顯示所有資訊（不再有分頁）
+            if (enemyInfoPanel != null)
+                enemyInfoPanel.SetActive(true);
+            if (playerBuffPanel != null)
+                playerBuffPanel.SetActive(false); // 預設隱藏，需通過按鈕顯示
+            if (detailToggle != null)
+                detailToggle.gameObject.SetActive(true);
         }
         
         private void OnDisable()
@@ -168,10 +172,10 @@ namespace Tenronis.UI
             }
             
             // 移除按鈕監聽
-            if (normalBuffButton != null) normalBuffButton.onClick.RemoveAllListeners();
-            if (legendaryBuffButton != null) legendaryBuffButton.onClick.RemoveAllListeners();
             if (bonusConfirmButton != null) bonusConfirmButton.onClick.RemoveAllListeners();
             if (closeEnemyPanelButton != null) closeEnemyPanelButton.onClick.RemoveAllListeners();
+            if (showPlayerBuffButton != null) showPlayerBuffButton.onClick.RemoveAllListeners();
+            if (hidePlayerBuffButton != null) hidePlayerBuffButton.onClick.RemoveAllListeners();
         }
         
         /// <summary>
@@ -204,6 +208,46 @@ namespace Tenronis.UI
         }
         
         /// <summary>
+        /// 設置玩家狀態面板按鈕
+        /// </summary>
+        private void SetupPlayerBuffPanelButtons()
+        {
+            if (showPlayerBuffButton != null)
+            {
+                showPlayerBuffButton.onClick.RemoveAllListeners();
+                showPlayerBuffButton.onClick.AddListener(OnShowPlayerBuffPanelClicked);
+            }
+            
+            if (hidePlayerBuffButton != null)
+            {
+                hidePlayerBuffButton.onClick.RemoveAllListeners();
+                hidePlayerBuffButton.onClick.AddListener(OnHidePlayerBuffPanelClicked);
+            }
+        }
+        
+        /// <summary>
+        /// 顯示玩家狀態面板按鈕點擊
+        /// </summary>
+        private void OnShowPlayerBuffPanelClicked()
+        {
+            if (playerBuffPanel != null)
+            {
+                playerBuffPanel.SetActive(true);
+            }
+        }
+        
+        /// <summary>
+        /// 隱藏玩家狀態面板按鈕點擊
+        /// </summary>
+        private void OnHidePlayerBuffPanelClicked()
+        {
+            if (playerBuffPanel != null)
+            {
+                playerBuffPanel.SetActive(false);
+            }
+        }
+        
+        /// <summary>
         /// 設置說明頁面確認按鈕
         /// </summary>
         private void SetupBonusConfirmButton()
@@ -212,24 +256,6 @@ namespace Tenronis.UI
             {
                 bonusConfirmButton.onClick.RemoveAllListeners();
                 bonusConfirmButton.onClick.AddListener(OnBonusConfirmClicked);
-            }
-        }
-        
-        /// <summary>
-        /// 設置分頁按鈕
-        /// </summary>
-        private void SetupTabButtons()
-        {
-            if (normalBuffButton != null)
-            {
-                normalBuffButton.onClick.RemoveAllListeners();
-                normalBuffButton.onClick.AddListener(() => ShowInfoTab(0));
-            }
-            
-            if (legendaryBuffButton != null)
-            {
-                legendaryBuffButton.onClick.RemoveAllListeners();
-                legendaryBuffButton.onClick.AddListener(() => ShowInfoTab(1));
             }
         }
         
@@ -253,68 +279,6 @@ namespace Tenronis.UI
         {
             showDetailedInfo = isOn;
             UpdateCurrentStats(); // 重新更新顯示內容
-        }
-        
-        /// <summary>
-        /// 顯示指定的分頁
-        /// </summary>
-        /// <param name="tabIndex">0=普通強化, 1=傳奇強化</param>
-        private void ShowInfoTab(int tabIndex)
-        {
-            currentInfoTab = tabIndex;
-            
-            // 敵人資訊面板固定顯示在左側
-            if (enemyInfoPanel != null)
-                enemyInfoPanel.SetActive(true);
-            
-            // 右側玩家強化面板固定顯示
-            if (playerBuffPanel != null)
-                playerBuffPanel.SetActive(true);
-            
-            // 根據分頁控制 Toggle 顯示/隱藏
-            if (detailToggle != null)
-            {
-                // 普通強化頁面顯示 Toggle，傳奇強化頁面隱藏 Toggle
-                detailToggle.gameObject.SetActive(tabIndex == 0);
-            }
-            
-            // 更新按鈕背景色和內容
-            UpdateTabButtonColors();
-            UpdateCurrentStats(); // 根據當前分頁更新內容
-        }
-        
-        /// <summary>
-        /// 更新分頁按鈕樣式（選中：黃底黑字，未選中：黑底白字）
-        /// </summary>
-        private void UpdateTabButtonColors()
-        {
-            // 只更新普通和傳奇按鈕（敵人資訊按鈕已隱藏）
-            SetButtonStyle(normalBuffButton, currentInfoTab == 0);
-            SetButtonStyle(legendaryBuffButton, currentInfoTab == 1);
-        }
-        
-        /// <summary>
-        /// 設置按鈕樣式
-        /// </summary>
-        private void SetButtonStyle(Button button, bool isSelected)
-        {
-            if (button == null) return;
-            
-            // 設置背景色
-            Color bgColor = isSelected ? Color.yellow : Color.black;
-            var colors = button.colors;
-            colors.normalColor = bgColor;
-            colors.highlightedColor = bgColor;
-            colors.selectedColor = bgColor;
-            button.colors = colors;
-            
-            // 設置文字顏色
-            Color textColor = isSelected ? Color.black : Color.white;
-            var text = button.GetComponentInChildren<TextMeshProUGUI>();
-            if (text != null)
-            {
-                text.color = textColor;
-            }
         }
         
         /// <summary>
@@ -353,8 +317,8 @@ namespace Tenronis.UI
             
             if (GameManager.Instance == null) return;
             
-            // 普通強化固定為二選一（不再有傳奇強化選擇階段）
-            int optionCount = 2;
+            // 普通強化固定為三選一（不再有傳奇強化選擇階段）
+            int optionCount = 3;
             BuffDataSO[] options = GameManager.Instance.GetRandomBuffOptions(optionCount, false);
             
             foreach (var buffData in options)
@@ -803,7 +767,7 @@ namespace Tenronis.UI
             if (volleyUpgraded && PlayerManager.Instance != null)
             {
                 int volleyLevel = PlayerManager.Instance.Stats.missileExtraCount;
-                descriptionText = $"現在消除方塊，會額外生成 {1 + volleyLevel} 發飛彈";
+                descriptionText = $"現在消除方塊，會生成 {1 + volleyLevel} 發飛彈";
                 
                 // 根據等級選擇對應的影片（等級 1-5 對應索引 0-4）
                 int videoIndex = Mathf.Clamp(volleyLevel - 1, 0, volleyVideos.Length - 1);
@@ -1163,7 +1127,6 @@ namespace Tenronis.UI
         private void UpdateCurrentStats()
         {
             if (PlayerManager.Instance == null) return;
-            if (currentStatsText == null) return;
             
             var stats = PlayerManager.Instance.Stats;
             
@@ -1174,120 +1137,123 @@ namespace Tenronis.UI
                 return;
             }
             
-            System.Text.StringBuilder sb = new System.Text.StringBuilder();
+            // 構建普通強化內容
+            System.Text.StringBuilder normalSb = new System.Text.StringBuilder();
             
-            // 根據當前分頁顯示不同內容
-            if (currentInfoTab == 0) // 普通強化
+            normalSb.AppendLine("普通增益強化項目");
+            normalSb.AppendLine();
+            
+            // 齊射強化進度條（簡化版）
+            string salvoProgress = GetSimpleProgressBar(stats.salvoLevel, GameConstants.SALVO_MAX_LEVEL);
+            normalSb.AppendLine($"齊射強化 {salvoProgress}");
+            if (showDetailedInfo)
             {
-                sb.AppendLine("普通增益強化項目");
-                sb.AppendLine("<size=80%>(達到上限獲得一次傳奇強化)</size>");
-                sb.AppendLine();
-                
-                // 升級進度提示區域
-                sb.AppendLine("<b><i><u><color=black>升滿一個能力以獲得傳奇獎勵</color></u></i></b>");
-                sb.AppendLine();
-                
-                // 齊射強化進度條（簡化版）
-                string salvoProgress = GetSimpleProgressBar(stats.salvoLevel, GameConstants.SALVO_MAX_LEVEL);
-                sb.AppendLine($"齊射強化 {salvoProgress}");
-                if (showDetailedInfo)
-                {
-                    int maxSalvoPercent = GameConstants.SALVO_MAX_LEVEL * 50;
-                    sb.AppendLine($"  當前: {stats.salvoLevel * 50}%/列 (上限 {maxSalvoPercent}%/列)");
-                }
-                sb.AppendLine();
-                
-                // 連發強化進度條（簡化版）
-                string burstProgress = GetSimpleProgressBar(stats.burstLevel, GameConstants.BURST_MAX_LEVEL);
-                sb.AppendLine($"連發強化 {burstProgress}");
-                if (showDetailedInfo)
-                {
-                    int maxBurstPercent = GameConstants.BURST_MAX_LEVEL * 25;
-                    sb.AppendLine($"  當前: {stats.burstLevel * 25}%/發 (上限 {maxBurstPercent}%/發)");
-                }
-                sb.AppendLine();
-                
-                // 反擊強化進度條（簡化版）
-                string counterProgress = GetSimpleProgressBar(stats.counterFireLevel, GameConstants.COUNTER_MAX_LEVEL);
-                sb.AppendLine($"反擊強化 {counterProgress}");
-                if (showDetailedInfo)
-                {
-                    sb.AppendLine($"  當前: {stats.counterFireLevel}發子彈 (上限 {GameConstants.COUNTER_MAX_LEVEL}發子彈)");
-                    sb.AppendLine("  <size=80%>方塊在生成後的0.2秒內受到傷害會觸發反擊</size>");
-                }
-                sb.AppendLine();
-                
-                // 爆炸充能進度條（簡化版）
-                string explosionProgress = GetSimpleProgressBar(stats.explosionChargeLevel, GameConstants.EXPLOSION_BUFF_MAX_LEVEL);
-                sb.AppendLine($"衝擊擴充 {explosionProgress}");
-                if (showDetailedInfo)
-                {
-                    int maxExplosionCharge = GameConstants.EXPLOSION_BUFF_MAX_LEVEL * GameConstants.EXPLOSION_BUFF_MAX_CHARGE_INCREASE;
-                    sb.AppendLine($"  當前上限: {stats.explosionMaxCharge} (最大 {maxExplosionCharge})");
-                    sb.AppendLine($"  <size=80%>網格溢位時消耗 {GameConstants.OVERFLOW_CP_COST} CP，釋放衝擊炮累積的充能對敵人造成傷害</size>");
-                    sb.AppendLine($"  <size=80%><color=red>若 CP 不足，自身HP 歸 1</color></size>");
-                }
-                sb.AppendLine();
-                
-                // 資源擴充進度條（簡化版）
-                string cpProgress = GetSimpleProgressBar(stats.cpExpansionLevel, GameConstants.RESOURCE_EXPANSION_MAX_LEVEL);
-                sb.AppendLine($"資源擴充 {cpProgress}");
-                if (showDetailedInfo)
-                {
-                    int maxCp = GameConstants.PLAYER_MAX_CP + GameConstants.RESOURCE_EXPANSION_MAX_LEVEL * 50;
-                    sb.AppendLine($"  當前 CP: {stats.maxCp} (上限 {maxCp})");
-                    sb.AppendLine("  <size=80%>釋放衝擊炮和使用主動技能需消耗CP</size>");
-                }
-                sb.AppendLine();
-                
-                // 空間擴充進度條（簡化版）
-                string spaceProgress = GetSimpleProgressBar(stats.spaceExpansionLevel, GameConstants.SPACE_EXPANSION_MAX_LEVEL);
-                sb.AppendLine($"空間擴充 {spaceProgress}");
-                if (showDetailedInfo)
-                {
-                    sb.AppendLine($"  當前槽位: {stats.spaceExpansionLevel} (上限 {GameConstants.SPACE_EXPANSION_MAX_LEVEL})");
-                    sb.AppendLine("  <size=80%>可儲存的方塊槽位數量</size>");
-                }
+                int maxSalvoPercent = GameConstants.SALVO_MAX_LEVEL * 50;
+                normalSb.AppendLine($"  當前: {stats.salvoLevel * 50}%/列 (上限 {maxSalvoPercent}%/列)");
             }
-            else // currentInfoTab == 1，傳奇強化
+            normalSb.AppendLine();
+            
+            // 連發強化進度條（簡化版）
+            string burstProgress = GetSimpleProgressBar(stats.burstLevel, GameConstants.BURST_MAX_LEVEL);
+            normalSb.AppendLine($"連發強化 {burstProgress}");
+            if (showDetailedInfo)
             {
-                sb.AppendLine("傳奇增益強化項目");
-                sb.AppendLine();
-                
-                sb.AppendLine($"方塊可承受子彈次數 : {stats.blockDefenseLevel}");
-                sb.AppendLine();
-                
-                sb.AppendLine($"導彈傷害倍率 : x{1 + stats.missileExtraCount}");
-                sb.AppendLine();
-                
-                // 湮滅技能
-                sb.AppendLine($"湮滅 (按鍵1) - 消耗 {GameConstants.ANNIHILATION_CP_COST} CP");
-                sb.AppendLine("<size=80%>進入幽靈穿透狀態，硬降時破壞重疊方塊並發射導彈</size>");
-                if (!PlayerManager.Instance.IsAnnihilationUnlocked())
-                {
-                    sb.AppendLine("<color=red>(無法使用，獲得一次戰術擴張以解鎖)</color>");
-                }
-                sb.AppendLine();
-                
-                // 處決技能
-                sb.AppendLine($"處決 (按鍵2) - 消耗 {GameConstants.EXECUTION_CP_COST} CP");
-                sb.AppendLine("<size=80%>清除每列最上方的方塊並發射導彈</size>");
-                if (!PlayerManager.Instance.IsExecutionUnlocked())
-                {
-                    sb.AppendLine("<color=red>(無法使用，獲得兩次戰術擴張以解鎖)</color>");
-                }
-                sb.AppendLine();
-                
-                // 修補技能
-                sb.AppendLine($"修補 (按鍵3) - 消耗 {GameConstants.REPAIR_CP_COST} CP");
-                sb.AppendLine("<size=80%>填補封閉空洞並檢查消除</size>");
-                if (!PlayerManager.Instance.IsRepairUnlocked())
-                {
-                    sb.AppendLine("<color=red>(無法使用，獲得三次戰術擴張以解鎖)</color>");
-                }
+                int maxBurstPercent = GameConstants.BURST_MAX_LEVEL * 25;
+                normalSb.AppendLine($"  當前: {stats.burstLevel * 25}%/發 (上限 {maxBurstPercent}%/發)");
+            }
+            normalSb.AppendLine();
+            
+            // 反擊強化進度條（簡化版）
+            string counterProgress = GetSimpleProgressBar(stats.counterFireLevel, GameConstants.COUNTER_MAX_LEVEL);
+            normalSb.AppendLine($"反擊強化 {counterProgress}");
+            if (showDetailedInfo)
+            {
+                normalSb.AppendLine($"  當前: {stats.counterFireLevel}發子彈 (上限 {GameConstants.COUNTER_MAX_LEVEL}發子彈)");
+                normalSb.AppendLine("  <size=80%>方塊在生成後的0.2秒內受到傷害會觸發反擊</size>");
+            }
+            normalSb.AppendLine();
+            
+            // 爆炸充能進度條（簡化版）
+            string explosionProgress = GetSimpleProgressBar(stats.explosionChargeLevel, GameConstants.EXPLOSION_BUFF_MAX_LEVEL);
+            normalSb.AppendLine($"衝擊擴充 {explosionProgress}");
+            if (showDetailedInfo)
+            {
+                int maxExplosionCharge = GameConstants.EXPLOSION_BUFF_MAX_LEVEL * GameConstants.EXPLOSION_BUFF_MAX_CHARGE_INCREASE;
+                normalSb.AppendLine($"  當前上限: {stats.explosionMaxCharge} (最大 {maxExplosionCharge})");
+                normalSb.AppendLine($"  <size=80%>網格溢位時消耗 {GameConstants.OVERFLOW_CP_COST} CP，釋放衝擊炮累積的充能對敵人造成傷害</size>");
+                normalSb.AppendLine($"  <size=80%><color=red>若 CP 不足，自身HP 歸 1</color></size>");
+            }
+            normalSb.AppendLine();
+            
+            // 資源擴充進度條（簡化版）
+            string cpProgress = GetSimpleProgressBar(stats.cpExpansionLevel, GameConstants.RESOURCE_EXPANSION_MAX_LEVEL);
+            normalSb.AppendLine($"資源擴充 {cpProgress}");
+            if (showDetailedInfo)
+            {
+                int maxCp = GameConstants.PLAYER_MAX_CP + GameConstants.RESOURCE_EXPANSION_MAX_LEVEL * 50;
+                normalSb.AppendLine($"  當前 CP: {stats.maxCp} (上限 {maxCp})");
+                normalSb.AppendLine("  <size=80%>釋放衝擊炮和使用主動技能需消耗CP</size>");
+            }
+            normalSb.AppendLine();
+            
+            // 空間擴充進度條（簡化版）
+            string spaceProgress = GetSimpleProgressBar(stats.spaceExpansionLevel, GameConstants.SPACE_EXPANSION_MAX_LEVEL);
+            normalSb.AppendLine($"空間擴充 {spaceProgress}");
+            if (showDetailedInfo)
+            {
+                normalSb.AppendLine($"  當前槽位: {stats.spaceExpansionLevel} (上限 {GameConstants.SPACE_EXPANSION_MAX_LEVEL})");
+                normalSb.AppendLine("  <size=80%>可儲存的方塊槽位數量</size>");
             }
             
-            currentStatsText.text = sb.ToString();
+            // 設置普通強化文本
+            if (normalStatsText != null)
+            {
+                normalStatsText.text = normalSb.ToString();
+            }
+            
+            // 構建傳奇強化內容
+            System.Text.StringBuilder legendarySb = new System.Text.StringBuilder();
+            
+            legendarySb.AppendLine("傳奇增益強化項目");
+            legendarySb.AppendLine();
+            
+            legendarySb.AppendLine($"方塊可承受子彈次數 : {stats.blockDefenseLevel}");
+            legendarySb.AppendLine();
+            
+            legendarySb.AppendLine($"導彈傷害倍率 : x{1 + stats.missileExtraCount}");
+            legendarySb.AppendLine();
+            
+            // 湮滅技能
+            legendarySb.AppendLine($"湮滅 (按鍵1) - 消耗 {GameConstants.ANNIHILATION_CP_COST} CP");
+            legendarySb.AppendLine("<size=80%>進入幽靈穿透狀態，硬降時破壞重疊方塊並發射導彈</size>");
+            if (!PlayerManager.Instance.IsAnnihilationUnlocked())
+            {
+                legendarySb.AppendLine("<color=red>(無法使用，獲得一次戰術擴張以解鎖)</color>");
+            }
+            legendarySb.AppendLine();
+            
+            // 處決技能
+            legendarySb.AppendLine($"處決 (按鍵2) - 消耗 {GameConstants.EXECUTION_CP_COST} CP");
+            legendarySb.AppendLine("<size=80%>清除每列最上方的方塊並發射導彈</size>");
+            if (!PlayerManager.Instance.IsExecutionUnlocked())
+            {
+                legendarySb.AppendLine("<color=red>(無法使用，獲得兩次戰術擴張以解鎖)</color>");
+            }
+            legendarySb.AppendLine();
+            
+            // 修補技能
+            legendarySb.AppendLine($"修補 (按鍵3) - 消耗 {GameConstants.REPAIR_CP_COST} CP");
+            legendarySb.AppendLine("<size=80%>填補封閉空洞並檢查消除</size>");
+            if (!PlayerManager.Instance.IsRepairUnlocked())
+            {
+                legendarySb.AppendLine("<color=red>(無法使用，獲得三次戰術擴張以解鎖)</color>");
+            }
+            
+            // 設置傳奇強化文本
+            if (legendaryStatsText != null)
+            {
+                legendaryStatsText.text = legendarySb.ToString();
+            }
         }
         
         /// <summary>

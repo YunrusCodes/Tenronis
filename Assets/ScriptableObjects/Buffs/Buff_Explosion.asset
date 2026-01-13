@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Tenronis.ScriptableObjects.BuffDataSO
   buffName: "\u885D\u64CA\u64F4\u5145"
   buffType: 3
-  description: "\u885D\u64CA\u5145\u80FD\u4E0A\u9650 +200"
+  description: "\u589E\u52A0\u885D\u64CA\u5145\u80FD\u4E0A\u9650"
   icon: {fileID: 6921737331032145203, guid: 53edba41778fd714bb2a7d1a8e8c777a, type: 3}
   iconColor: {r: 1, g: 1, b: 1, a: 1}
   spawnWeight: 1

@@ -445,12 +445,15 @@ namespace Tenronis.Managers
                     GameEvents.TriggerPlayerDamaged(5);
                     
                     // 生成爆炸特效
+                    Vector3 effectPos = GridToWorldPosition(x, y);
                     if (explosiveBlockEffectPrefab != null)
                     {
-                        Vector3 effectPos = GridToWorldPosition(x, y);
                         GameObject effect = Instantiate(explosiveBlockEffectPrefab, effectPos, Quaternion.identity);
                         Destroy(effect, 2f);
                     }
+                    
+                    // 在爆炸方塊位置顯示浮動文字
+                    GameEvents.TriggerShowPopupText("玩家受傷", new Color(1f, 0.3f, 0.3f), effectPos);
                 }
                 
                 RemoveBlock(x, y); // 這裡會觸發 TriggerGridChanged

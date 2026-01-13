@@ -1,0 +1,51 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3fe80882f65a4ff479ef1fca5ee38a6f, type: 3}
+  m_Name: Stage_4_Striker
+  m_EditorClassIdentifier: 
+  stageName: "\u88C2\u89D2"
+  stageIndex: 4
+  isBossStage: 0
+  description: "\u90A3\u5C0D\u626D\u66F2\u7684\u89D2\uFF0C\u770B\u4F3C\u6050\u61FC\u5177\u8C61\u5316\u5F8C\u9577\u51FA\u7684\u5F62\u72C0\u3002\n\u7576\u4ED6\u8E0F\u5165\u73FE\u5BE6\uFF0C\u7A7A\u6C23\u6703\u8B8A\u5F97\u6C89\u91CD\uFF0C\u9748\u9B42\u50CF\u88AB\u62C9\u51FA\u8EAB\u9AD4\u822C\u986B\u6296\u3002\n\u90A3\u5F35\u5145\u6EFF\u5149\u9F52\u7684\u7B11\u5BB9\uFF0C\u4E26\u975E\u5A01\u5687\u2014\u2014\u800C\u662F\u5BA3\u544A\u72E9\u7375\u5DF2\u7D93\u958B\u59CB\u3002\n\u51E1\u8207\u4ED6\u5C0D\u8996\u8005\uFF0C\u610F\u8B58\u6703\u88AB\u4E00\u53E3\u4E00\u53E3\u6495\u788E\uFF0C\u53EA\u7559\u4E0B\u7A7A\u6D1E\u7684\u8EC0\u6BBC\u3002"
+  rewardBuffCount: 5
+  maxHp: 1
+  shootInterval: 1.2
+  bulletSpeed: 9.5
+  normalBullet:
+    enabled: 1
+    chance: 1
+  areaBullet:
+    enabled: 0
+    chance: 0.25
+  addBlockBullet:
+    enabled: 0
+    chance: 0.3
+  addExplosiveBlockBullet:
+    enabled: 0
+    chance: 0.2
+  addRowBullet:
+    enabled: 0
+    chance: 0.15
+  addVoidRowBullet:
+    enabled: 0
+    chance: 0.1
+  corruptExplosiveBullet:
+    enabled: 0
+    chance: 0.15
+  corruptVoidBullet:
+    enabled: 0
+    chance: 0.1
+  useSmartTargeting: 0
+  addBlockTargetsHigh: 1
+  areaDamageTargetsLow: 1
+  enemyIcon: {fileID: -2778821508322533060, guid: b4b5c25e5cd3f58439efccc6ce2ac7ba, type: 3}
+  themeColor: {r: 1, g: 0, b: 0, a: 1}

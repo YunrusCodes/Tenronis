@@ -14,10 +14,12 @@ namespace Tenronis.Gameplay.Player
         public static PlayerVisualController Instance { get; private set; }
         
         [Header("視覺")]
-        [SerializeField] private SpriteRenderer playerSprite;
-        [SerializeField] private Sprite defaultSprite; // 默認圖片
-        [SerializeField] private Sprite damagedSprite; // 受傷時的圖片（可選）
-        [SerializeField] private Sprite lowHpSprite;   // 低HP時的圖片（可選）
+        [SerializeField] private SpriteRenderer playerSprite; // 主玩家圖片（由 GameManager 控制）
+        [SerializeField] private SpriteRenderer overlaySpriteRenderer; // 覆蓋層圖片（用於顯示狀態效果）
+        
+        [Header("覆蓋層圖片")]
+        [SerializeField] private Sprite damagedOverlaySprite; // 受傷時的覆蓋層圖片（可選）
+        [SerializeField] private Sprite lowHpOverlaySprite;   // 低HP時的覆蓋層圖片（可選）
         
         [Header("受傷特效")]
         [SerializeField] private GameObject damageEffectPrefab; // 受傷時的爆炸特效
@@ -31,9 +33,10 @@ namespace Tenronis.Gameplay.Player
         
         // 視覺效果
         private Vector3 originalSpritePosition;
+        private Vector3 originalOverlayPosition;
         private Coroutine shakeCoroutine;
         private Coroutine effectSpawnCoroutine;
-        private Coroutine spriteFlashCoroutine;
+        private Coroutine overlayFlashCoroutine;
         private int pendingEffectCount = 0; // 待生成的特效數量
         private bool isGameOver = false; // 遊戲是否結束
         
@@ -53,21 +56,20 @@ namespace Tenronis.Gameplay.Player
             if (playerSprite != null)
             {
                 originalSpritePosition = playerSprite.transform.localPosition;
-                
-                // 設置默認圖片
-                if (defaultSprite != null)
-                {
-                    playerSprite.sprite = defaultSprite;
-                }
+            }
+            
+            // 記錄覆蓋層的原始位置
+            if (overlaySpriteRenderer != null)
+            {
+                originalOverlayPosition = overlaySpriteRenderer.transform.localPosition;
+                // 初始時隱藏覆蓋層
+                overlaySpriteRenderer.sprite = null;
             }
             
             // 訂閱事件
             GameEvents.OnPlayerDamaged += HandlePlayerDamaged;
             GameEvents.OnGameStateChanged += HandleGameStateChanged;
             GameEvents.OnRowsCleared += HandleRowsCleared;
-            
-            // 訂閱反擊事件（需要檢查是否有此事件）
-            // 如果反擊通過其他方式觸發，可能需要調整
         }
         
         private void OnDestroy()
@@ -79,34 +81,34 @@ namespace Tenronis.Gameplay.Player
         
         private void Update()
         {
-            // 根據HP更新圖片
-            UpdateSpriteBasedOnHp();
+            // 根據HP更新覆蓋層圖片
+            UpdateOverlayBasedOnHp();
         }
         
         /// <summary>
-        /// 根據HP百分比更新玩家圖片
+        /// 根據HP百分比更新覆蓋層圖片
         /// </summary>
-        private void UpdateSpriteBasedOnHp()
+        private void UpdateOverlayBasedOnHp()
         {
-            if (playerSprite == null || PlayerManager.Instance == null) return;
-            if (shakeCoroutine != null || spriteFlashCoroutine != null) return; // 正在晃動或閃爍時不更新
+            if (overlaySpriteRenderer == null || PlayerManager.Instance == null) return;
+            if (shakeCoroutine != null || overlayFlashCoroutine != null) return; // 正在晃動或閃爍時不更新
             
             float hpPercent = (float)PlayerManager.Instance.Stats.currentHp / PlayerManager.Instance.Stats.maxHp;
             
-            // 低HP時顯示低HP圖片
-            if (hpPercent <= lowHpThreshold && lowHpSprite != null)
+            // 低HP時顯示低HP覆蓋層
+            if (hpPercent <= lowHpThreshold && lowHpOverlaySprite != null)
             {
-                if (playerSprite.sprite != lowHpSprite)
+                if (overlaySpriteRenderer.sprite != lowHpOverlaySprite)
                 {
-                    playerSprite.sprite = lowHpSprite;
+                    overlaySpriteRenderer.sprite = lowHpOverlaySprite;
                 }
             }
-            // 正常HP時顯示默認圖片
-            else if (defaultSprite != null)
+            // 正常HP時隱藏覆蓋層
+            else
             {
-                if (playerSprite.sprite != defaultSprite && playerSprite.sprite != damagedSprite)
+                if (overlaySpriteRenderer.sprite != null)
                 {
-                    playerSprite.sprite = defaultSprite;
+                    overlaySpriteRenderer.sprite = null;
                 }
             }
         }
@@ -136,14 +138,14 @@ namespace Tenronis.Gameplay.Player
                 shakeCoroutine = StartCoroutine(ShakeSprite());
             }
             
-            // 視覺效果：短暫顯示受傷圖片
-            if (damagedSprite != null && playerSprite != null)
+            // 視覺效果：短暫顯示受傷覆蓋層
+            if (damagedOverlaySprite != null && overlaySpriteRenderer != null)
             {
-                if (spriteFlashCoroutine != null)
+                if (overlayFlashCoroutine != null)
                 {
-                    StopCoroutine(spriteFlashCoroutine);
+                    StopCoroutine(overlayFlashCoroutine);
                 }
-                spriteFlashCoroutine = StartCoroutine(FlashDamagedSprite());
+                overlayFlashCoroutine = StartCoroutine(FlashDamagedOverlay());
             }
             
             // 視覺效果：爆炸特效（累積到隊列）
@@ -179,10 +181,10 @@ namespace Tenronis.Gameplay.Player
                 effectSpawnCoroutine = null;
             }
             
-            if (spriteFlashCoroutine != null)
+            if (overlayFlashCoroutine != null)
             {
-                StopCoroutine(spriteFlashCoroutine);
-                spriteFlashCoroutine = null;
+                StopCoroutine(overlayFlashCoroutine);
+                overlayFlashCoroutine = null;
             }
             
             // 清空特效隊列
@@ -192,6 +194,13 @@ namespace Tenronis.Gameplay.Player
             if (playerSprite != null)
             {
                 playerSprite.transform.localPosition = originalSpritePosition;
+            }
+            
+            // 恢復覆蓋層位置並隱藏
+            if (overlaySpriteRenderer != null)
+            {
+                overlaySpriteRenderer.transform.localPosition = originalOverlayPosition;
+                overlaySpriteRenderer.sprite = null;
             }
             
             Debug.Log("[PlayerVisualController] 玩家死亡，停止所有視覺效果");
@@ -217,38 +226,53 @@ namespace Tenronis.Gameplay.Player
                     0f
                 );
                 
-                playerSprite.transform.localPosition = originalSpritePosition + offset;
+                Vector3 shakeOffset = originalSpritePosition + offset;
+                playerSprite.transform.localPosition = shakeOffset;
+                
+                // 覆蓋層跟隨主圖片位置
+                if (overlaySpriteRenderer != null)
+                {
+                    overlaySpriteRenderer.transform.localPosition = originalOverlayPosition + offset;
+                }
                 
                 elapsed += Time.deltaTime;
                 yield return null;
             }
             
             playerSprite.transform.localPosition = originalSpritePosition;
+            
+            // 恢復覆蓋層位置
+            if (overlaySpriteRenderer != null)
+            {
+                overlaySpriteRenderer.transform.localPosition = originalOverlayPosition;
+            }
+            
             shakeCoroutine = null;
         }
         
         /// <summary>
-        /// 短暫顯示受傷圖片
+        /// 短暫顯示受傷覆蓋層
         /// </summary>
-        private System.Collections.IEnumerator FlashDamagedSprite()
+        private System.Collections.IEnumerator FlashDamagedOverlay()
         {
-            Sprite originalSprite = playerSprite.sprite;
-            playerSprite.sprite = damagedSprite;
+            if (overlaySpriteRenderer == null) yield break;
+            
+            overlaySpriteRenderer.sprite = damagedOverlaySprite;
             
             yield return new WaitForSeconds(0.2f); // 顯示0.2秒
             
-            // 恢復原圖片（根據當前HP）
+            // 恢復覆蓋層（根據當前HP）
             float hpPercent = (float)PlayerManager.Instance.Stats.currentHp / PlayerManager.Instance.Stats.maxHp;
-            if (hpPercent <= lowHpThreshold && lowHpSprite != null)
+            if (hpPercent <= lowHpThreshold && lowHpOverlaySprite != null)
             {
-                playerSprite.sprite = lowHpSprite;
+                overlaySpriteRenderer.sprite = lowHpOverlaySprite;
             }
-            else if (defaultSprite != null)
+            else
             {
-                playerSprite.sprite = defaultSprite;
+                overlaySpriteRenderer.sprite = null;
             }
             
-            spriteFlashCoroutine = null;
+            overlayFlashCoroutine = null;
         }
         
         /// <summary>
@@ -320,20 +344,23 @@ namespace Tenronis.Gameplay.Player
                         StopCoroutine(effectSpawnCoroutine);
                         effectSpawnCoroutine = null;
                     }
-                    if (spriteFlashCoroutine != null)
+                    if (overlayFlashCoroutine != null)
                     {
-                        StopCoroutine(spriteFlashCoroutine);
-                        spriteFlashCoroutine = null;
+                        StopCoroutine(overlayFlashCoroutine);
+                        overlayFlashCoroutine = null;
                     }
                     
-                    // 恢復Sprite位置和圖片
+                    // 恢復Sprite位置（不修改主圖片，主圖片由 GameManager 控制）
                     if (playerSprite != null)
                     {
                         playerSprite.transform.localPosition = originalSpritePosition;
-                        if (defaultSprite != null)
-                        {
-                            playerSprite.sprite = defaultSprite;
-                        }
+                    }
+                    
+                    // 恢復覆蓋層位置並隱藏
+                    if (overlaySpriteRenderer != null)
+                    {
+                        overlaySpriteRenderer.transform.localPosition = originalOverlayPosition;
+                        overlaySpriteRenderer.sprite = null;
                     }
                     
                     Debug.Log("[PlayerVisualController] 遊戲開始，重置所有視覺狀態");
@@ -343,18 +370,6 @@ namespace Tenronis.Gameplay.Player
                     // 遊戲結束時停止所有特效
                     HandlePlayerDeath();
                     break;
-            }
-        }
-        
-        /// <summary>
-        /// 設置玩家圖片（可從外部調用）
-        /// </summary>
-        public void SetPlayerSprite(Sprite sprite)
-        {
-            if (playerSprite != null && sprite != null)
-            {
-                defaultSprite = sprite;
-                playerSprite.sprite = sprite;
             }
         }
         
