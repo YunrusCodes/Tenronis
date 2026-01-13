@@ -27,6 +27,10 @@ namespace Tenronis.UI
         [SerializeField] private Sprite blockSprite; // 方塊 Sprite（可選）
         [SerializeField] private Color emptySlotColor = new Color(0.3f, 0.3f, 0.3f, 0.5f); // 空位顏色
         
+        [Header("腐化符號設定")]
+        [SerializeField] private Sprite explosiveSymbol; // 爆炸型符紋
+        [SerializeField] private Sprite voidSymbol; // 虛無型符紋
+        
         private List<GameObject>[] slotPreviews = new List<GameObject>[4]; // 每個位置的預覽方塊
         private GameState previousGameState = GameState.Menu; // 用於判斷是否為真正開局
         
@@ -197,6 +201,13 @@ namespace Tenronis.UI
             float offsetX = -(actualWidth - 1) * (blockSize + spacing) * 0.5f;
             float offsetY = (actualHeight - 1) * (blockSize + spacing) * 0.5f;
             
+            // 獲取腐化信息
+            Dictionary<string, BlockType> corruptedBlocks = null;
+            if (TetrominoController.Instance != null)
+            {
+                corruptedBlocks = TetrominoController.Instance.GetHeldCorruptedBlocks(slotIndex);
+            }
+            
             // 繪製方塊
             Color blockColor = GetColorFromBlockColor(shape.color);
             
@@ -211,9 +222,63 @@ namespace Tenronis.UI
                         
                         GameObject blockObj = CreateUIBlock(slotIndex, relativeX, relativeY, offsetX, offsetY, blockColor);
                         slotPreviews[slotIndex].Add(blockObj);
+                        
+                        // 檢查這個格子是否被腐化
+                        if (corruptedBlocks != null)
+                        {
+                            string key = $"{x},{y}";
+                            if (corruptedBlocks.ContainsKey(key))
+                            {
+                                BlockType corruptType = corruptedBlocks[key];
+                                AddCorruptionSymbol(blockObj, corruptType);
+                            }
+                        }
                     }
                 }
             }
+        }
+        
+        /// <summary>
+        /// 添加腐化符號標記（UI版本）
+        /// </summary>
+        private void AddCorruptionSymbol(GameObject blockObj, BlockType corruptType)
+        {
+            if (blockObj == null) return;
+            
+            // 創建符號圖片物件
+            GameObject symbolObj = new GameObject("CorruptionSymbol");
+            symbolObj.transform.SetParent(blockObj.transform, false);
+            
+            // 添加 RectTransform
+            RectTransform symbolRect = symbolObj.AddComponent<RectTransform>();
+            symbolRect.anchorMin = Vector2.zero;
+            symbolRect.anchorMax = Vector2.one;
+            symbolRect.sizeDelta = Vector2.zero;
+            symbolRect.anchoredPosition = Vector2.zero;
+            
+            // 添加 Image 組件
+            Image symbolImage = symbolObj.AddComponent<Image>();
+            
+            // 設置符號 Sprite
+            if (corruptType == BlockType.Explosive && explosiveSymbol != null)
+            {
+                symbolImage.sprite = explosiveSymbol;
+            }
+            else if (corruptType == BlockType.Void && voidSymbol != null)
+            {
+                symbolImage.sprite = voidSymbol;
+            }
+            else
+            {
+                // 如果沒有對應的 Sprite，銷毀物件
+                Destroy(symbolObj);
+                return;
+            }
+            
+            // 設置圖片屬性
+            symbolImage.color = Color.white;
+            symbolImage.preserveAspect = true;
+            symbolRect.localScale = new Vector3(0.8f, 0.8f, 1f); // 符號稍小於方塊
         }
         
         /// <summary>

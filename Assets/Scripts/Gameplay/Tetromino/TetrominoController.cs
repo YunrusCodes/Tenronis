@@ -39,6 +39,7 @@ namespace Tenronis.Gameplay.Tetromino
         
         // 儲存方塊系統（4個位置：A、S、D、F）
         private TetrominoShape?[] heldPieces = new TetrominoShape?[4];
+        private Dictionary<string, BlockType>[] heldCorruptedBlocks = new Dictionary<string, BlockType>[4]; // 儲存每個槽位的腐化信息
         private bool[] canHoldSlot = new bool[4]; // 每個槽位在當前方塊落下前可以使用一次
         private int unlockedSlots = 0; // 已解鎖的槽位數量（初始為0）
         
@@ -86,6 +87,12 @@ namespace Tenronis.Gameplay.Tetromino
             // 訂閱事件
             GameEvents.OnGameStateChanged += HandleGameStateChanged;
             GameEvents.OnGridChanged += HandleGridChanged;
+            
+            // 初始化儲存槽的腐化信息
+            for (int i = 0; i < 4; i++)
+            {
+                heldCorruptedBlocks[i] = new Dictionary<string, BlockType>();
+            }
             
             // 預先生成下一個方塊
             nextShape = TetrominoDefinitions.GetRandomTetromino();
@@ -212,7 +219,15 @@ namespace Tenronis.Gameplay.Tetromino
             {
                 // 儲存槽為空：儲存當前方塊，取出下一個方塊
                 heldPieces[slotIndex] = currentShape;
-                Debug.Log($"[TetrominoController] 儲存方塊到位置 {slotIndex}: {currentShape.name}");
+                
+                // 保存當前方塊的腐化信息
+                heldCorruptedBlocks[slotIndex].Clear();
+                foreach (var kvp in currentCorruptedBlocks)
+                {
+                    heldCorruptedBlocks[slotIndex][kvp.Key] = kvp.Value;
+                }
+                
+                Debug.Log($"[TetrominoController] 儲存方塊到位置 {slotIndex}: {currentShape.name}，腐化格子數: {currentCorruptedBlocks.Count}");
                 
                 // 觸發儲存更新事件
                 GameEvents.TriggerHeldPieceChanged(slotIndex);
@@ -220,6 +235,14 @@ namespace Tenronis.Gameplay.Tetromino
                 // 取出下一個方塊作為當前方塊
                 currentShape = nextShape;
                 nextShape = TetrominoDefinitions.GetRandomTetromino();
+                
+                // 將下個方塊的腐化信息轉移到當前方塊
+                currentCorruptedBlocks.Clear();
+                foreach (var kvp in nextCorruptedBlocks)
+                {
+                    currentCorruptedBlocks[kvp.Key] = kvp.Value;
+                }
+                nextCorruptedBlocks.Clear();
                 
                 // 觸發下一個方塊已更新事件
                 GameEvents.TriggerNextPieceChanged();
@@ -253,7 +276,20 @@ namespace Tenronis.Gameplay.Tetromino
                 currentShape = heldPieces[slotIndex].Value;
                 heldPieces[slotIndex] = temp;
                 
-                Debug.Log($"[TetrominoController] 交換方塊：{temp.name} ⟷ {currentShape.name}");
+                // 交換腐化信息
+                Dictionary<string, BlockType> tempCorrupted = new Dictionary<string, BlockType>(currentCorruptedBlocks);
+                currentCorruptedBlocks.Clear();
+                foreach (var kvp in heldCorruptedBlocks[slotIndex])
+                {
+                    currentCorruptedBlocks[kvp.Key] = kvp.Value;
+                }
+                heldCorruptedBlocks[slotIndex].Clear();
+                foreach (var kvp in tempCorrupted)
+                {
+                    heldCorruptedBlocks[slotIndex][kvp.Key] = kvp.Value;
+                }
+                
+                Debug.Log($"[TetrominoController] 交換方塊：{temp.name} ⟷ {currentShape.name}，當前方塊腐化格子數: {currentCorruptedBlocks.Count}");
                 
                 // 觸發儲存更新事件
                 GameEvents.TriggerHeldPieceChanged(slotIndex);
@@ -1112,6 +1148,7 @@ namespace Tenronis.Gameplay.Tetromino
                         for (int i = 0; i < heldPieces.Length; i++)
                         {
                             heldPieces[i] = null;
+                            heldCorruptedBlocks[i].Clear();
                             canHoldSlot[i] = true;
                             GameEvents.TriggerHeldPieceChanged(i);
                         }
@@ -1208,6 +1245,20 @@ namespace Tenronis.Gameplay.Tetromino
         public Dictionary<string, BlockType> GetNextCorruptedBlocks()
         {
             return new Dictionary<string, BlockType>(nextCorruptedBlocks);
+        }
+        
+        /// <summary>
+        /// 獲取儲存方塊的腐化信息（用於 UI 顯示）
+        /// </summary>
+        /// <param name="slotIndex">儲存位置索引 (0=A, 1=S, 2=D, 3=F)</param>
+        public Dictionary<string, BlockType> GetHeldCorruptedBlocks(int slotIndex)
+        {
+            if (slotIndex < 0 || slotIndex >= 4)
+            {
+                return new Dictionary<string, BlockType>();
+            }
+            
+            return new Dictionary<string, BlockType>(heldCorruptedBlocks[slotIndex]);
         }
         
         /// <summary>
