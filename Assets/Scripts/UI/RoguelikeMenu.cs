@@ -2816,9 +2816,10 @@ namespace Tenronis.UI
             if (stageData.corruptVoidBullet.enabled)
                 enabledBullets.Add((BulletType.CorruptVoid, "腐化虛無", "對命中的方塊造成傷害，並將下個方塊隨機一格變成虛無方塊", stageData.corruptVoidBullet.chance));
             
-            // 如果沒有任何啟用的子彈，不顯示任何預覽
+            // 如果沒有任何啟用的子彈，顯示"無"的欄位
             if (enabledBullets.Count == 0)
             {
+                StartCoroutine(CreateAttackPreviewItemsSequentially(new List<(BulletType type, string name, string desc, float weight)>(), 0f, descriptionText));
                 return;
             }
             
@@ -2845,10 +2846,18 @@ namespace Tenronis.UI
         /// </summary>
         private IEnumerator CreateAttackPreviewItemsSequentially(List<(BulletType type, string name, string desc, float weight)> bullets, float totalWeight, string descriptionText = "")
         {
-            foreach (var bullet in bullets)
+            // 如果沒有子彈，顯示"無"的欄位
+            if (bullets.Count == 0)
             {
-                float actualChance = bullet.weight / totalWeight;
-                yield return StartCoroutine(CreateAttackPreviewItem(bullet.type, bullet.name, bullet.desc, actualChance));
+                yield return StartCoroutine(CreateAttackPreviewItem(BulletType.Normal, "無", "敵人不會發射任何子彈", 0f));
+            }
+            else
+            {
+                foreach (var bullet in bullets)
+                {
+                    float actualChance = totalWeight > 0f ? bullet.weight / totalWeight : 0f;
+                    yield return StartCoroutine(CreateAttackPreviewItem(bullet.type, bullet.name, bullet.desc, actualChance));
+                }
             }
             
             // 所有子彈實例化完成後，顯示描述文字（如果有）
@@ -2880,36 +2889,58 @@ namespace Tenronis.UI
             var colorImageTransform = item.transform.Find("ColorImage");
             Image iconImage = null;
             
-            if (colorImageTransform != null && bulletPrefabReference != null)
+            // 檢查是否為"無"的情況
+            bool isNone = attackName == "無";
+            
+            if (colorImageTransform != null)
             {
                 var spriteRenderer = colorImageTransform.GetComponent<SpriteRenderer>();
                 var animator = colorImageTransform.GetComponent<Animator>();
                 iconImage = colorImageTransform.GetComponent<Image>();
                 
-                // 設置顏色
-                Color bulletColor = bulletPrefabReference.GetColorByType(bulletType);
-                if (spriteRenderer != null)
+                if (isNone)
                 {
-                    spriteRenderer.color = bulletColor;
+                    // 如果是"無"，隱藏 icon
+                    if (spriteRenderer != null)
+                    {
+                        spriteRenderer.gameObject.SetActive(false);
+                    }
+                    if (iconImage != null)
+                    {
+                        iconImage.gameObject.SetActive(false);
+                    }
+                    if (animator != null)
+                    {
+                        animator.gameObject.SetActive(false);
+                    }
                 }
-                
-                // 設置動畫控制器
-                RuntimeAnimatorController animController = bulletPrefabReference.GetAnimatorByType(bulletType);
-                if (animator != null && animController != null)
+                else if (bulletPrefabReference != null)
                 {
-                    animator.runtimeAnimatorController = animController;
-                }
-                
-                // 啟動協程同步 SpriteRenderer 到 Image
-                if (spriteRenderer != null && iconImage != null)
-                {
-                    var coroutine = StartCoroutine(SyncSpriteToImage(spriteRenderer, iconImage, bulletColor));
-                    spriteSyncCoroutines.Add(coroutine);
-                }
-                else if (iconImage != null)
-                {
-                    // 如果沒有 SpriteRenderer，直接設置 Image 顏色
-                    iconImage.color = bulletColor;
+                    // 設置顏色
+                    Color bulletColor = bulletPrefabReference.GetColorByType(bulletType);
+                    if (spriteRenderer != null)
+                    {
+                        spriteRenderer.color = bulletColor;
+                    }
+                    
+                    // 設置動畫控制器
+                    RuntimeAnimatorController animController = bulletPrefabReference.GetAnimatorByType(bulletType);
+                    if (animator != null && animController != null)
+                    {
+                        animator.runtimeAnimatorController = animController;
+                    }
+                    
+                    // 啟動協程同步 SpriteRenderer 到 Image
+                    if (spriteRenderer != null && iconImage != null)
+                    {
+                        var coroutine = StartCoroutine(SyncSpriteToImage(spriteRenderer, iconImage, bulletColor));
+                        spriteSyncCoroutines.Add(coroutine);
+                    }
+                    else if (iconImage != null)
+                    {
+                        // 如果沒有 SpriteRenderer，直接設置 Image 顏色
+                        iconImage.color = bulletColor;
+                    }
                 }
             }
             
@@ -2935,7 +2966,12 @@ namespace Tenronis.UI
             if (nameText != null)
             {
                 nameText.text = "";
-                if (bulletPrefabReference != null)
+                if (isNone)
+                {
+                    // 如果是"無"，使用灰色
+                    nameText.color = Color.grey;
+                }
+                else if (bulletPrefabReference != null)
                 {
                     nameText.color = bulletPrefabReference.GetColorByType(bulletType);
                 }
@@ -2946,13 +2982,13 @@ namespace Tenronis.UI
                 descText.text = "";
             }
             
-            // 第一階段：背板和 icon 一起淡入
+            // 第一階段：背板和 icon 一起淡入（如果是"無"則不淡入 icon）
             Sequence fadeInSequence = DOTween.Sequence();
             if (backgroundImage != null)
             {
                 fadeInSequence.Join(backgroundImage.DOFade(1f, 0.5f));
             }
-            if (iconImage != null)
+            if (iconImage != null && !isNone)
             {
                 fadeInSequence.Join(iconImage.DOFade(1f, 0.5f));
             }

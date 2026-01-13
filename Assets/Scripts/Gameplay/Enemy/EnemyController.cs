@@ -138,6 +138,13 @@ namespace Tenronis.Gameplay.Enemy
             if (CombatManager.Instance == null) return;
             if (GridManager.Instance == null) return;
             
+            // 檢查是否有啟用的子彈類型
+            if (!HasEnabledBullets())
+            {
+                // 如果沒有任何啟用的子彈，不發射
+                return;
+            }
+            
             // 決定子彈類型
             BulletType bulletType = DetermineBulletType();
             
@@ -151,6 +158,23 @@ namespace Tenronis.Gameplay.Enemy
                 GameConstants.BULLET_DAMAGE,
                 currentStageData.bulletSpeed
             );
+        }
+        
+        /// <summary>
+        /// 檢查是否有啟用的子彈類型
+        /// </summary>
+        private bool HasEnabledBullets()
+        {
+            if (currentStageData == null) return false;
+            
+            return currentStageData.normalBullet.enabled ||
+                   currentStageData.areaBullet.enabled ||
+                   currentStageData.addBlockBullet.enabled ||
+                   currentStageData.addExplosiveBlockBullet.enabled ||
+                   currentStageData.addRowBullet.enabled ||
+                   currentStageData.addVoidRowBullet.enabled ||
+                   currentStageData.corruptExplosiveBullet.enabled ||
+                   currentStageData.corruptVoidBullet.enabled;
         }
         
         /// <summary>
@@ -224,7 +248,7 @@ namespace Tenronis.Gameplay.Enemy
             if (currentStageData.corruptVoidBullet.enabled)
                 enabledBullets.Add((BulletType.CorruptVoid, currentStageData.corruptVoidBullet.chance));
             
-            // 如果沒有任何啟用的子彈，返回普通子彈作為預設值（理論上不應該發生）
+            // 如果沒有任何啟用的子彈，返回普通子彈作為預設值（理論上不應該發生，因為 Shoot() 會先檢查）
             if (enabledBullets.Count == 0)
             {
                 Debug.LogWarning("[EnemyController] 沒有任何啟用的子彈類型！返回普通子彈作為預設值");
