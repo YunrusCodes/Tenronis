@@ -1228,7 +1228,15 @@ namespace Tenronis.Gameplay.Tetromino
                 string targetKey = availableBlocks[Random.Range(0, availableBlocks.Count)];
                 nextCorruptedBlocks[targetKey] = blockType;
                 
+                // 解析座標
+                string[] coords = targetKey.Split(',');
+                int x = int.Parse(coords[0]);
+                int y = int.Parse(coords[1]);
+                
                 Debug.Log($"[TetrominoController] 下個方塊格子 {targetKey} 被腐化為 {blockType}");
+                
+                // 觸發腐化事件（用於 UI 特效），傳遞座標信息
+                GameEvents.TriggerPieceCorrupted(blockType, x, y);
                 
                 // 觸發下一個方塊已更新事件（用於 UI 預覽更新）
                 GameEvents.TriggerNextPieceChanged();

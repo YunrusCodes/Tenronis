@@ -24,13 +24,26 @@ namespace Tenronis.UI
         [SerializeField] private Sprite explosiveSymbol; // 爆炸型符紋
         [SerializeField] private Sprite voidSymbol; // 虛無型符紋
         
+        [Header("腐化特效設定")]
+        [Tooltip("特效容器（與 PreviewContainer 同層級）")]
+        [SerializeField] private RectTransform effectContainer; // 特效容器
+        [Tooltip("爆炸方塊腐化特效預製體")]
+        [SerializeField] private GameObject explosiveCorruptEffectPrefab; // 爆炸方塊腐化特效
+        [Tooltip("虛無方塊腐化特效預製體")]
+        [SerializeField] private GameObject voidCorruptEffectPrefab; // 虛無方塊腐化特效
+        
         private List<GameObject> previewBlocks = new List<GameObject>();
+        // 保存預覽方塊與其座標的對應關係：Key = "x,y" (方塊在形狀中的座標), Value = GameObject
+        private Dictionary<string, GameObject> previewBlockMap = new Dictionary<string, GameObject>();
         
         private void Start()
         {
             // 訂閱下一個方塊更新事件
             Core.GameEvents.OnNextPieceChanged += UpdatePreview;
             
+            // 訂閱腐化事件
+            Core.GameEvents.OnPieceCorrupted += HandlePieceCorrupted;
+                        
             // 初始更新
             Invoke(nameof(UpdatePreview), 0.2f); // 延遲更新，確保 TetrominoController 已初始化
         }
@@ -38,6 +51,7 @@ namespace Tenronis.UI
         private void OnDestroy()
         {
             Core.GameEvents.OnNextPieceChanged -= UpdatePreview;
+            Core.GameEvents.OnPieceCorrupted -= HandlePieceCorrupted;
         }
         
         /// <summary>
@@ -128,6 +142,9 @@ namespace Tenronis.UI
                         
                         GameObject blockObj = CreateUIBlock(relativeX, relativeY, offsetX, offsetY, blockColor, corruptType);
                         previewBlocks.Add(blockObj);
+                        
+                        // 保存座標映射關係
+                        previewBlockMap[key] = blockObj;
                     }
                 }
             }
@@ -221,6 +238,7 @@ namespace Tenronis.UI
                 }
             }
             previewBlocks.Clear();
+            previewBlockMap.Clear();
         }
         
         /// <summary>
@@ -240,6 +258,132 @@ namespace Tenronis.UI
                 case BlockColor.Gray:    return new Color(0.5f, 0.5f, 0.5f);    // 灰色（修復用）
                 default: return Color.white;
             }
+        }
+        
+        /// <summary>
+        /// 處理方塊腐化事件
+        /// </summary>
+        private void HandlePieceCorrupted(BlockType blockType, int x, int y)
+        {
+            if (effectContainer == null)
+            {
+                Debug.LogWarning("[NextPiecePreview] EffectContainer 未設定，無法生成腐化特效");
+                return;
+            }
+            
+            // 根據腐化類型選擇對應的特效預製體
+            GameObject effectPrefab = null;
+            if (blockType == BlockType.Explosive)
+            {
+                effectPrefab = explosiveCorruptEffectPrefab;
+            }
+            else if (blockType == BlockType.Void)
+            {
+                effectPrefab = voidCorruptEffectPrefab;
+            }
+            
+            if (effectPrefab == null)
+            {
+                Debug.LogWarning($"[NextPiecePreview] {blockType} 腐化特效預製體未設定");
+                return;
+            }
+            
+            // 根據座標找到對應的預覽方塊位置
+            string key = $"{x},{y}";
+            Vector2 targetPosition = GetCorruptedBlockPosition(key);
+            
+            // 在 EffectContainer 中生成特效
+            GameObject effect = Instantiate(effectPrefab, effectContainer);
+            
+            // 設置特效位置（相對於 EffectContainer）
+            RectTransform effectRect = effect.GetComponent<RectTransform>();
+            if (effectRect == null)
+            {
+                effectRect = effect.AddComponent<RectTransform>();
+            }
+            
+            effectRect.anchoredPosition = targetPosition;
+            effectRect.localScale = Vector3.one;
+            
+            // 設置特效在 Time.timeScale = 0 時也能播放（如果需要）
+            var animator = effect.GetComponent<Animator>();
+            if (animator != null)
+            {
+                animator.updateMode = AnimatorUpdateMode.UnscaledTime;
+            }
+            
+            var particleSystems = effect.GetComponentsInChildren<ParticleSystem>();
+            foreach (var ps in particleSystems)
+            {
+                var main = ps.main;
+                main.useUnscaledTime = true;
+            }
+            
+            // 0.5秒後自動銷毀特效
+            Destroy(effect, 0.5f);
+            
+            Debug.Log($"[NextPiecePreview] 在被腐化的方塊位置 ({x}, {y}) 生成 {blockType} 腐化特效，UI位置: {targetPosition}");
+        }
+        
+        /// <summary>
+        /// 獲取被腐化方塊的位置（UI 座標）
+        /// </summary>
+        private Vector2 GetCorruptedBlockPosition(string blockKey)
+        {
+            // 從映射表中找到對應的預覽方塊
+            if (previewBlockMap.ContainsKey(blockKey))
+            {
+                GameObject blockObj = previewBlockMap[blockKey];
+                if (blockObj != null)
+                {
+                    RectTransform rect = blockObj.GetComponent<RectTransform>();
+                    if (rect != null)
+                    {
+                        return rect.anchoredPosition;
+                    }
+                }
+            }
+            
+            // 如果找不到對應的方塊，返回預覽方塊的中心位置作為備用
+            Debug.LogWarning($"[NextPiecePreview] 找不到座標為 {blockKey} 的預覽方塊，使用中心位置作為備用");
+            return GetPreviewCenterPosition();
+        }
+        
+        /// <summary>
+        /// 獲取預覽方塊的中心位置（UI 座標）- 備用方法
+        /// </summary>
+        private Vector2 GetPreviewCenterPosition()
+        {
+            if (previewContainer == null || previewBlocks.Count == 0)
+            {
+                // 如果沒有預覽方塊，返回容器中心
+                return previewContainer != null ? previewContainer.anchoredPosition : Vector2.zero;
+            }
+            
+            // 計算所有預覽方塊的中心位置
+            Vector2 sumPosition = Vector2.zero;
+            int count = 0;
+            
+            foreach (GameObject block in previewBlocks)
+            {
+                if (block != null)
+                {
+                    RectTransform rect = block.GetComponent<RectTransform>();
+                    if (rect != null)
+                    {
+                        sumPosition += rect.anchoredPosition;
+                        count++;
+                    }
+                }
+            }
+            
+            if (count > 0)
+            {
+                return sumPosition / count;
+            }
+            
+            // 備用：返回容器中心
+            return previewContainer != null ? previewContainer.anchoredPosition : Vector2.zero;
         }
     }
 }

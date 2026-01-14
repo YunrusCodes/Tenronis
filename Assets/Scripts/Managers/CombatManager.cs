@@ -21,6 +21,17 @@ namespace Tenronis.Managers
         [Header("視覺特效")]
         [SerializeField] private GameObject explosionEffectPrefab; // 飛彈攔截子彈的爆炸特效
         
+        [Header("子彈擊中方塊特效")]
+        [Tooltip("不同子彈類型擊中方塊時的特效預製體")]
+        [SerializeField] private GameObject normalBulletHitEffect;        // Normal 子彈特效
+        [SerializeField] private GameObject addBlockBulletHitEffect;    // AddBlock 子彈特效
+        [SerializeField] private GameObject areaDamageBulletHitEffect;  // AreaDamage 子彈特效
+        [SerializeField] private GameObject insertRowBulletHitEffect;    // InsertRow 子彈特效
+        [SerializeField] private GameObject addExplosiveBulletHitEffect; // AddExplosiveBlock 子彈特效
+        [SerializeField] private GameObject insertVoidBulletHitEffect;    // InsertVoidRow 子彈特效
+        [SerializeField] private GameObject corruptExplosiveBulletHitEffect; // CorruptExplosive 子彈特效
+        [SerializeField] private GameObject corruptVoidBulletHitEffect;  // CorruptVoid 子彈特效
+        
         [Header("容器")]
         [SerializeField] private Transform projectileContainer;
         
@@ -471,6 +482,9 @@ namespace Tenronis.Managers
         {
             GameEvents.TriggerPlayImpactSound();
             
+            // 產生子彈擊中方塊的特效
+            SpawnBulletHitEffect(bullet, hitPos);
+            
             switch (bullet.BulletType)
             {
                 case BulletType.Normal:
@@ -597,6 +611,54 @@ namespace Tenronis.Managers
                         Debug.Log("[CombatManager] 下個方塊被腐化為虛無方塊！");
                     }
                     break;
+            }
+        }
+        
+        /// <summary>
+        /// 產生子彈擊中方塊的特效
+        /// </summary>
+        private void SpawnBulletHitEffect(Bullet bullet, Vector2Int hitPos)
+        {
+            // 獲取擊中位置的世界座標
+            Vector3 worldPos = GridManager.Instance.GridToWorldPosition(hitPos.x, hitPos.y);
+            
+            // 根據子彈類型選擇對應的特效預製體
+            GameObject effectPrefab = bullet.BulletType switch
+            {
+                BulletType.Normal => normalBulletHitEffect,
+                BulletType.AddBlock => addBlockBulletHitEffect,
+                BulletType.AreaDamage => areaDamageBulletHitEffect,
+                BulletType.InsertRow => insertRowBulletHitEffect,
+                BulletType.AddExplosiveBlock => addExplosiveBulletHitEffect,
+                BulletType.InsertVoidRow => insertVoidBulletHitEffect,
+                BulletType.CorruptExplosive => corruptExplosiveBulletHitEffect,
+                BulletType.CorruptVoid => corruptVoidBulletHitEffect,
+                _ => null
+            };
+            
+            // 如果該子彈類型有對應的特效預製體，則產生特效
+            if (effectPrefab != null)
+            {
+                GameObject effect = Instantiate(effectPrefab, worldPos, Quaternion.identity);
+                
+                // 設置特效在 Time.timeScale = 0 時也能播放（如果需要）
+                var animator = effect.GetComponent<Animator>();
+                if (animator != null)
+                {
+                    animator.updateMode = AnimatorUpdateMode.UnscaledTime;
+                }
+                
+                var particleSystems = effect.GetComponentsInChildren<ParticleSystem>();
+                foreach (var ps in particleSystems)
+                {
+                    var main = ps.main;
+                    main.useUnscaledTime = true;
+                }
+                
+                // 2秒後自動銷毀特效
+                Destroy(effect, 0.5f);
+                
+                Debug.Log($"[CombatManager] 產生 {bullet.BulletType} 子彈擊中方塊特效，位置: ({hitPos.x}, {hitPos.y})");
             }
         }
         
