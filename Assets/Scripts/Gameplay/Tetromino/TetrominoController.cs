@@ -332,8 +332,8 @@ namespace Tenronis.Gameplay.Tetromino
                 currentPosition = newPos;
                 UpdateVisual();
                 
-                // 成功移動後，重置 Lock Delay（如果在觸地狀態）
-                ResetLockDelay();
+                // 成功移動後，重新判定接地狀態
+                RecheckGroundedState();
             }
         }
         
@@ -350,8 +350,8 @@ namespace Tenronis.Gameplay.Tetromino
                 currentPosition = newPos;
                 UpdateVisual();
                 
-                // 成功移動後，重置 Lock Delay（如果在觸地狀態）
-                ResetLockDelay();
+                // 成功移動後，重新判定接地狀態
+                RecheckGroundedState();
             }
         }
         
@@ -454,8 +454,8 @@ namespace Tenronis.Gameplay.Tetromino
                     GameEvents.TriggerPlayRotateSound();
                     UpdateVisual();
                     
-                    // 成功旋轉後，重置 Lock Delay（如果在觸地狀態）
-                    ResetLockDelay();
+                    // 成功旋轉後，重新判定接地狀態
+                    RecheckGroundedState();
                     
                     Debug.Log($"[SRS] 旋轉成功！方塊: {currentShape.type}, 狀態: {currentRotationState}, 偏移: {offset}");
                     return;
@@ -668,7 +668,48 @@ namespace Tenronis.Gameplay.Tetromino
         }
         
         /// <summary>
-        /// 重置 Lock Delay（在成功移動或旋轉後調用）
+        /// 統一重新判定接地狀態
+        /// 在方塊位置或形狀改變後調用，確保 isGrounded 狀態準確
+        /// </summary>
+        private void RecheckGroundedState()
+        {
+            // 檢查方塊是否可以繼續下移
+            // 如果可以下移，代表目前是懸空狀態
+            Vector2Int downPosition = currentPosition + Vector2Int.up; // Unity Y軸向下是+1
+            bool canMoveDown = !CheckCollision(downPosition, currentRotation);
+            
+            if (canMoveDown)
+            {
+                // 方塊懸空，完全退出 Lock Delay 狀態
+                if (isGrounded)
+                {
+                    isGrounded = false;
+                    lockTimer = 0f;
+                    lockResetCount = 0;
+                    Debug.Log("[Lock Delay] 方塊已懸空，退出 Lock Delay 狀態");
+                }
+            }
+            else
+            {
+                // 方塊接地
+                if (!isGrounded)
+                {
+                    // 進入 Lock Delay 狀態
+                    isGrounded = true;
+                    lockTimer = 0f;
+                    lockResetCount = 0;
+                    Debug.Log($"[Lock Delay] 方塊觸地，開始鎖定計時（{lockDelay}秒）");
+                }
+                else
+                {
+                    // 仍然接地，重置 Lock Delay（如果還有重置次數）
+                    ResetLockDelay();
+                }
+            }
+        }
+        
+        /// <summary>
+        /// 重置 Lock Delay（在成功移動或旋轉後調用，僅在仍然接地時使用）
         /// </summary>
         private void ResetLockDelay()
         {
