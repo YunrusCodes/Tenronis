@@ -12,12 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3fe80882f65a4ff479ef1fca5ee38a6f, type: 3}
   m_Name: Stage_4_Hunter
   m_EditorClassIdentifier: 
-  stageName: "\u6F14\u7FD2\u7528\u7206\u7834\u6A5F"
+  stageName: "\u7206\u7834\u6A5F"
   stageIndex: 4
   isBossStage: 0
   description: "\u9019\u53F0\u7206\u7834\u6A5F\u6A21\u64EC\u80FD\u628A\u6574\u5EA7\u57CE\u5821\u5937\u5E73\u7684\u602A\u7269\uFF0C\u4E00\u540D\u5408\u683C\u7684\u57F7\u70AE\u4EBA\u4E0D\u6703\u8B93\u9019\u4EF6\u4E8B\u60C5\u767C\u751F\n\n[\u8AAA\u660E]\n\u653E\u7F6E\u65B9\u584A\u5F8C\u5982\u679C\u65B9\u584A\u7ACB\u5373\u53D7\u5230\u50B7\u5BB3\uFF0C\u6703\u89F8\u767C\"\u53CD\u64CA\"\uFF0C\u751F\u6210\u4E00\u767C\u98DB\u5F48\u56DE\u64CA\u6575\u4EBA!"
   rewardBuffCount: 5
-  maxHp: 1
+  maxHp: 260
   shootInterval: 1.2
   bulletSpeed: 9.5
   normalBullet:

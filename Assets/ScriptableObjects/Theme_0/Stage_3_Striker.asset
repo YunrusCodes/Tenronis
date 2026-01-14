@@ -12,12 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3fe80882f65a4ff479ef1fca5ee38a6f, type: 3}
   m_Name: Stage_3_Striker
   m_EditorClassIdentifier: 
-  stageName: "\u6F14\u7FD2\u7528\u653B\u57CE\u8ECA"
+  stageName: "\u653B\u57CE\u8ECA"
   stageIndex: 3
   isBossStage: 0
   description: "\u96D6\u7136\u8AAA\u662F\u6F14\u7FD2\uFF0C\u4F46\u4F60\u5982\u679C\u6C92\u64CB\u4F4F\u57CE\u5821\u662F\u771F\u7684\u6703\u57AE\u6389\u5594\uFF0C\u597D\u597D\u5728\u5099\u6230\u968E\u6BB5\u6307\u63EE\u4F60\u7684\u5DE5\u7A0B\u90E8\u968A\u5427\n\n[\u8AAA\u660E]\n\u9078\u64C7\u4E00\u500B\u5F37\u5316\u5EFA\u8A2D\u4F86\u63D0\u5347\u5DE5\u7A0B\u7B49\u7D1A\u3002\n\u6EFF\u7D1A\u7684\u5DE5\u7A0B\u80FD\u7372\u5F97\u4E00\u500B\u50B3\u5947\u5DE5\u7A0B\u3002"
   rewardBuffCount: 3
-  maxHp: 1
+  maxHp: 200
   shootInterval: 1.4
   bulletSpeed: 9
   normalBullet:

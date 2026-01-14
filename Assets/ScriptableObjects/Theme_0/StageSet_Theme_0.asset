@@ -21,13 +21,9 @@ MonoBehaviour:
   engineerBackgroundSprite: {fileID: -130070610015097871, guid: 5c858ef051aa9154597581395a5d9e4f, type: 3}
   playerSprite: {fileID: -2311659948842064771, guid: 1378fdfdf2106f24fb27ba94183f844b, type: 3}
   stages:
-  - {fileID: 11400000, guid: c928914f6e3df604e8f6c26fcc945787, type: 2}
   - {fileID: 11400000, guid: ede4c687d6d5b594e818ef5993633ba5, type: 2}
   - {fileID: 11400000, guid: 10548ec8291fe6249a9c3d0bca16d6dc, type: 2}
   - {fileID: 11400000, guid: b36f318617b1d9248a329488504178cf, type: 2}
   - {fileID: 11400000, guid: c550dfb93298a1644ba02a3a200d1b4d, type: 2}
   - {fileID: 11400000, guid: bc4f442ade3779947ba659b90e78de1c, type: 2}
-  - {fileID: 11400000, guid: 9561c541f98ef4640bf0272f9f12c6ee, type: 2}
-  - {fileID: 11400000, guid: 3951b509550e0d64ca8f320d27826932, type: 2}
-  - {fileID: 11400000, guid: e3e46dd73a2b02340b6170de8bf830fb, type: 2}
-  - {fileID: 11400000, guid: 99df1185ae9d65d4587cb4d4c5310e37, type: 2}
+  - {fileID: 11400000, guid: c928914f6e3df604e8f6c26fcc945787, type: 2}
