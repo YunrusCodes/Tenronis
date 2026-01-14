@@ -21,7 +21,7 @@ MonoBehaviour:
   shootInterval: 1.8
   bulletSpeed: 8
   normalBullet:
-    enabled: 0
+    enabled: 1
     chance: 1
   areaBullet:
     enabled: 0
@@ -33,10 +33,10 @@ MonoBehaviour:
     enabled: 0
     chance: 0.2
   addRowBullet:
-    enabled: 1
+    enabled: 0
     chance: 0.15
   addVoidRowBullet:
-    enabled: 1
+    enabled: 0
     chance: 0.1
   corruptExplosiveBullet:
     enabled: 0
