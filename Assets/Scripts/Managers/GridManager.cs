@@ -536,6 +536,16 @@ namespace Tenronis.Managers
             string blockTypeName = blockType == BlockType.Void ? "虛無垃圾行" : "普通垃圾行";
             Debug.Log($"[GridManager] 插入{blockTypeName} HP: {indestructibleHp} (基礎: {GameConstants.INDESTRUCTIBLE_BLOCK_HP} + 防禦: {defenseLevel})");
             
+            // 播放插入垃圾行音效
+            if (blockType == BlockType.Void)
+            {
+                GameEvents.TriggerPlayInsertVoidRowSound();
+            }
+            else
+            {
+                GameEvents.TriggerPlayInsertRowSound();
+            }
+            
             // 在垃圾行中間位置生成特效（往下移動一個方塊高度）
             int centerX = GameConstants.BOARD_WIDTH / 2;
             int bottomRow = GameConstants.BOARD_HEIGHT - 1;

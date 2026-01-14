@@ -56,6 +56,8 @@ namespace Tenronis.Core
     public static event Action OnPlayEnemyAddBlockSound; // 敵人製造方塊音效
     public static event Action OnPlayVoidNullifySound; // 虛空抵銷音效
     public static event Action<BlockType> OnPlayCorruptSound; // 方塊腐化音效
+    public static event Action OnPlayInsertRowSound; // 插入普通垃圾行音效
+    public static event Action OnPlayInsertVoidRowSound; // 插入虛無垃圾行音效
         
         // 觸發方法
         public static void TriggerGameStateChanged(GameState newState) => OnGameStateChanged?.Invoke(newState);
@@ -89,6 +91,8 @@ namespace Tenronis.Core
     public static void TriggerPlayEnemyAddBlockSound() => OnPlayEnemyAddBlockSound?.Invoke();
     public static void TriggerPlayVoidNullifySound() => OnPlayVoidNullifySound?.Invoke();
     public static void TriggerPlayCorruptSound(BlockType blockType) => OnPlayCorruptSound?.Invoke(blockType);
+    public static void TriggerPlayInsertRowSound() => OnPlayInsertRowSound?.Invoke();
+    public static void TriggerPlayInsertVoidRowSound() => OnPlayInsertVoidRowSound?.Invoke();
         
         /// <summary>
         /// 清除所有事件訂閱（場景切換時使用）
@@ -126,6 +130,8 @@ namespace Tenronis.Core
         OnPlayEnemyAddBlockSound = null;
         OnPlayVoidNullifySound = null;
         OnPlayCorruptSound = null;
+        OnPlayInsertRowSound = null;
+        OnPlayInsertVoidRowSound = null;
     }
 }
 }

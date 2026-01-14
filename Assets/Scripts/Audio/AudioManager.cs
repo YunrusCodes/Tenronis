@@ -27,6 +27,8 @@ namespace Tenronis.Audio
     [SerializeField] private AudioClip enemyShootAddBlockSound;      // 添加方塊音效
     [SerializeField] private AudioClip enemyShootAreaDamageSound;    // 範圍傷害音效
     [SerializeField] private AudioClip enemyShootInsertRowSound;     // 插入不可摧毀行音效
+    [SerializeField] private AudioClip enemyShootAddExplosiveBlockSound; // 添加爆炸方塊音效
+    [SerializeField] private AudioClip enemyShootInsertVoidRowSound;    // 插入虛無垃圾行音效
     [SerializeField] private AudioClip enemyShootCorruptExplosiveSound; // 腐化爆炸方塊音效
     [SerializeField] private AudioClip enemyShootCorruptVoidSound;      // 腐化虛無方塊音效
     
@@ -35,6 +37,8 @@ namespace Tenronis.Audio
     [SerializeField] private AudioClip voidNullifySound;          // 虛空抵銷音效
     [SerializeField] private AudioClip corruptExplosiveSound;     // 方塊被腐化為爆炸方塊音效
     [SerializeField] private AudioClip corruptVoidSound;          // 方塊被腐化為虛無方塊音效
+    [SerializeField] private AudioClip insertRowSound;            // 插入普通垃圾行音效
+    [SerializeField] private AudioClip insertVoidRowSound;        // 插入虛無垃圾行音效
         
         [Header("音樂")]
         [SerializeField] private AudioClip normalBGM;
@@ -91,6 +95,8 @@ namespace Tenronis.Audio
         GameEvents.OnPlayEnemyAddBlockSound += PlayEnemyAddBlockSound;
         GameEvents.OnPlayVoidNullifySound += PlayVoidNullifySound;
         GameEvents.OnPlayCorruptSound += PlayCorruptSound;
+        GameEvents.OnPlayInsertRowSound += PlayInsertRowSound;
+        GameEvents.OnPlayInsertVoidRowSound += PlayInsertVoidRowSound;
         
         // 訂閱遊戲事件以控制BGM
         GameEvents.OnGameStateChanged += HandleGameStateChanged;
@@ -108,6 +114,8 @@ namespace Tenronis.Audio
         GameEvents.OnPlayEnemyAddBlockSound -= PlayEnemyAddBlockSound;
         GameEvents.OnPlayVoidNullifySound -= PlayVoidNullifySound;
         GameEvents.OnPlayCorruptSound -= PlayCorruptSound;
+        GameEvents.OnPlayInsertRowSound -= PlayInsertRowSound;
+        GameEvents.OnPlayInsertVoidRowSound -= PlayInsertVoidRowSound;
         GameEvents.OnGameStateChanged -= HandleGameStateChanged;
         }
         
@@ -155,6 +163,8 @@ namespace Tenronis.Audio
             BulletType.AddBlock => enemyShootAddBlockSound,
             BulletType.AreaDamage => enemyShootAreaDamageSound,
             BulletType.InsertRow => enemyShootInsertRowSound,
+            BulletType.AddExplosiveBlock => enemyShootAddExplosiveBlockSound,
+            BulletType.InsertVoidRow => enemyShootInsertVoidRowSound,
             BulletType.CorruptExplosive => enemyShootCorruptExplosiveSound,
             BulletType.CorruptVoid => enemyShootCorruptVoidSound,
             _ => enemyShootNormalSound
@@ -187,6 +197,16 @@ namespace Tenronis.Audio
         
         PlaySound(clip);
     }
+    
+    /// <summary>
+    /// 播放插入普通垃圾行音效
+    /// </summary>
+    public void PlayInsertRowSound() => PlaySound(insertRowSound);
+    
+    /// <summary>
+    /// 播放插入虛無垃圾行音效
+    /// </summary>
+    public void PlayInsertVoidRowSound() => PlaySound(insertVoidRowSound);
         
         /// <summary>
         /// 播放BGM
