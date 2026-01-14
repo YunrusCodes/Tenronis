@@ -33,16 +33,16 @@ MonoBehaviour:
     enabled: 0
     chance: 0.2
   addRowBullet:
-    enabled: 0
+    enabled: 1
     chance: 0.15
   addVoidRowBullet:
-    enabled: 0
+    enabled: 1
     chance: 0.1
   corruptExplosiveBullet:
-    enabled: 1
+    enabled: 0
     chance: 0.15
   corruptVoidBullet:
-    enabled: 1
+    enabled: 0
     chance: 0.1
   useSmartTargeting: 0
   addBlockTargetsHigh: 1

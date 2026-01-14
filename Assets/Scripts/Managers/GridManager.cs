@@ -24,6 +24,8 @@ namespace Tenronis.Managers
         [SerializeField] private GameObject explosiveBlockEffectPrefab; // 爆炸方塊被摧毀的特效
         [SerializeField] private GameObject voidBlockEffectPrefab; // 虛無方塊消除的特效
         [SerializeField] private GameObject overflowEffectPrefab; // 溢出時的大爆炸特效
+        [SerializeField] private GameObject normalGarbageRowEffectPrefab; // 普通垃圾行插入特效
+        [SerializeField] private GameObject voidGarbageRowEffectPrefab; // 虛無垃圾行插入特效
         
         // 網格數據（二維陣列）
         private BlockData[,] grid;
@@ -533,6 +535,41 @@ namespace Tenronis.Managers
             
             string blockTypeName = blockType == BlockType.Void ? "虛無垃圾行" : "普通垃圾行";
             Debug.Log($"[GridManager] 插入{blockTypeName} HP: {indestructibleHp} (基礎: {GameConstants.INDESTRUCTIBLE_BLOCK_HP} + 防禦: {defenseLevel})");
+            
+            // 在垃圾行中間位置生成特效（往下移動一個方塊高度）
+            int centerX = GameConstants.BOARD_WIDTH / 2;
+            int bottomRow = GameConstants.BOARD_HEIGHT - 1;
+            Vector3 effectPosition = GridToWorldPosition(centerX, bottomRow);
+            effectPosition.y -= blockSize; // 往下移動一個方塊高度
+            
+            GameObject effectPrefab = blockType == BlockType.Void ? voidGarbageRowEffectPrefab : normalGarbageRowEffectPrefab;
+            if (effectPrefab != null)
+            {
+                GameObject effect = Instantiate(effectPrefab, effectPosition, Quaternion.identity);
+                
+                // 設置特效在 Time.timeScale = 0 時也能播放（如果需要）
+                var animator = effect.GetComponent<Animator>();
+                if (animator != null)
+                {
+                    animator.updateMode = AnimatorUpdateMode.UnscaledTime;
+                }
+                
+                var particleSystems = effect.GetComponentsInChildren<ParticleSystem>();
+                foreach (var ps in particleSystems)
+                {
+                    var main = ps.main;
+                    main.useUnscaledTime = true;
+                }
+                
+                // 2秒後自動銷毀特效
+                Destroy(effect, 2f);
+                
+                Debug.Log($"[GridManager] 在垃圾行中間位置 ({centerX}, {bottomRow}) 生成{blockTypeName}插入特效");
+            }
+            else
+            {
+                Debug.LogWarning($"[GridManager] {blockTypeName}插入特效預製體未設定");
+            }
             
             // 插入完成後統一觸發一次事件
             GameEvents.TriggerGridChanged();
