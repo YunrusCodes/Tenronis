@@ -23,14 +23,21 @@ namespace Tenronis.Gameplay.Player
             var stats = PlayerManager.Instance.Stats;
             int volleyExtraMissiles = stats.missileExtraCount; // Volley 額外導彈數量
             
-            // 清除每列最上面的方塊（削平表面）
+            // 清除每列最上面的方塊（削平表面），但跳過垃圾行
             for (int x = 0; x < GameConstants.BOARD_WIDTH; x++)
             {
-                // 從頂部往底部掃描，找到第一個方塊
+                // 從頂部往底部掃描，找到第一個非垃圾行方塊
                 for (int y = 0; y < GameConstants.BOARD_HEIGHT; y++)
                 {
                     if (GridManager.Instance.IsOccupied(x, y))
                     {
+                        // 檢查是否為垃圾行（不可摧毀方塊），如果是則跳過
+                        BlockData block = GridManager.Instance.GetBlock(x, y);
+                        if (block != null && block.isIndestructible)
+                        {
+                            continue; // 跳過垃圾行，繼續往下找
+                        }
+                        
                         GridManager.Instance.RemoveBlock(x, y);
                         
                         // 發射導彈（發射 1 + volleyExtraMissiles 發），以骰子點數方式排列
@@ -46,7 +53,7 @@ namespace Tenronis.Gameplay.Player
                             CombatManager.Instance?.FireMissile(offsetPos, damage);
                         }
                         
-                        break; // 只清除最上面的一個
+                        break; // 只清除最上面的一個非垃圾行方塊
                     }
                 }
             }

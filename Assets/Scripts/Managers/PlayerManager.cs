@@ -421,6 +421,38 @@ namespace Tenronis.Managers
         }
         
         /// <summary>
+        /// 檢查是否有可被處決消除的方塊
+        /// </summary>
+        private bool HasExecutableBlocks()
+        {
+            if (GridManager.Instance == null) return false;
+            
+            // 遍歷每一列，檢查是否有可被處決消除的方塊
+            for (int x = 0; x < GameConstants.BOARD_WIDTH; x++)
+            {
+                // 從頂部往底部掃描，找到第一個非垃圾行方塊
+                for (int y = 0; y < GameConstants.BOARD_HEIGHT; y++)
+                {
+                    if (GridManager.Instance.IsOccupied(x, y))
+                    {
+                        // 檢查是否為垃圾行（不可摧毀方塊），如果是則跳過
+                        BlockData block = GridManager.Instance.GetBlock(x, y);
+                        if (block != null && block.isIndestructible)
+                        {
+                            continue; // 跳過垃圾行，繼續往下找
+                        }
+                        
+                        // 找到可消除的方塊
+                        return true;
+                    }
+                }
+            }
+            
+            // 所有列都沒有可消除的方塊
+            return false;
+        }
+        
+        /// <summary>
         /// 使用處決技能（消耗CP）
         /// </summary>
         public bool UseExecution()
@@ -434,6 +466,13 @@ namespace Tenronis.Managers
             int cost = GameConstants.EXECUTION_CP_COST;
             if (stats.currentCp < cost) return false;
             
+            // 檢查是否有可被處決消除的方塊
+            if (!HasExecutableBlocks())
+            {
+                Debug.Log("[PlayerManager] 沒有可被處決消除的方塊！");
+                return false;
+            }
+            
             stats.currentCp -= cost;
             CancelComboReset();
             stats.comboCount++;
@@ -443,6 +482,74 @@ namespace Tenronis.Managers
             
             Debug.Log($"[PlayerManager] 使用處決技能，消耗 {cost} CP，剩餘: {stats.currentCp}/{stats.maxCp}");
             return true;
+        }
+        
+        /// <summary>
+        /// 檢查是否有封閉區域（封閉空洞）
+        /// </summary>
+        private bool HasClosedHoles()
+        {
+            if (GridManager.Instance == null) return false;
+            
+            var grid = GridManager.Instance.Grid;
+            
+            // 標記已訪問的空格
+            bool[,] visited = new bool[GameConstants.BOARD_HEIGHT, GameConstants.BOARD_WIDTH];
+            
+            // 從邊界開始BFS標記所有連通的空格
+            System.Collections.Generic.Queue<Vector2Int> queue = new System.Collections.Generic.Queue<Vector2Int>();
+            
+            // 從頂部所有空格開始
+            for (int x = 0; x < GameConstants.BOARD_WIDTH; x++)
+            {
+                if (grid[0, x] == null && !visited[0, x])
+                {
+                    queue.Enqueue(new Vector2Int(x, 0));
+                    visited[0, x] = true;
+                }
+            }
+            
+            // BFS搜尋
+            Vector2Int[] directions = { 
+                Vector2Int.up, 
+                Vector2Int.down, 
+                Vector2Int.left, 
+                Vector2Int.right 
+            };
+            
+            while (queue.Count > 0)
+            {
+                Vector2Int current = queue.Dequeue();
+                
+                foreach (var dir in directions)
+                {
+                    Vector2Int next = current + dir;
+                    
+                    if (GridManager.Instance.IsValidPosition(next.x, next.y) &&
+                        !visited[next.y, next.x] &&
+                        grid[next.y, next.x] == null)
+                    {
+                        visited[next.y, next.x] = true;
+                        queue.Enqueue(next);
+                    }
+                }
+            }
+            
+            // 檢查是否有未訪問的空格（封閉空洞）
+            for (int y = 0; y < GameConstants.BOARD_HEIGHT; y++)
+            {
+                for (int x = 0; x < GameConstants.BOARD_WIDTH; x++)
+                {
+                    if (grid[y, x] == null && !visited[y, x])
+                    {
+                        // 找到封閉空洞
+                        return true;
+                    }
+                }
+            }
+            
+            // 沒有封閉空洞
+            return false;
         }
         
         /// <summary>
@@ -458,6 +565,13 @@ namespace Tenronis.Managers
             
             int cost = GameConstants.REPAIR_CP_COST;
             if (stats.currentCp < cost) return false;
+            
+            // 檢查是否有封閉區域
+            if (!HasClosedHoles())
+            {
+                Debug.Log("[PlayerManager] 沒有封閉區域可以修補！");
+                return false;
+            }
             
             stats.currentCp -= cost;
             GameEvents.TriggerCpChanged(stats.currentCp, stats.maxCp);

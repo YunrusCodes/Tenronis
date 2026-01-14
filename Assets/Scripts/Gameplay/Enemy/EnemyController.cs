@@ -463,6 +463,12 @@ namespace Tenronis.Gameplay.Enemy
         {
             isDefeated = true;
             
+            // 清除所有掉落中的敵方子彈
+            if (Tenronis.Managers.CombatManager.Instance != null)
+            {
+                Tenronis.Managers.CombatManager.Instance.ClearAllBullets();
+            }
+            
             // 不停止晃動效果和爆炸特效，讓最後一擊的所有特效都能完整播放
             
             Debug.Log($"[EnemyController] 敵人被擊敗！開始淡化過渡...");

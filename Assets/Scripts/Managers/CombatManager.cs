@@ -447,7 +447,7 @@ namespace Tenronis.Managers
                     
                     // 在子彈擊中位置顯示浮動文字
                     Vector2 hitPosition = bullet.transform.position;
-                    GameEvents.TriggerShowPopupText("玩家受傷", new Color(1f, 0.3f, 0.3f), hitPosition);
+                    GameEvents.TriggerShowPopupText("城堡受損", new Color(1f, 0.3f, 0.3f), hitPosition);
                     
                     bulletsToRemove.Add(bullet);
                     continue;
@@ -744,6 +744,22 @@ namespace Tenronis.Managers
                 bulletPool.Return(bullet);
             }
             activeBullets.Clear();
+        }
+        
+        /// <summary>
+        /// 清理所有敵方子彈（敵人死亡時使用）
+        /// </summary>
+        public void ClearAllBullets()
+        {
+            foreach (var bullet in activeBullets)
+            {
+                if (bullet != null && bullet.gameObject != null)
+                {
+                    bulletPool.Return(bullet);
+                }
+            }
+            activeBullets.Clear();
+            Debug.Log("[CombatManager] 敵人死亡，清除所有掉落中的子彈");
         }
         
         /// <summary>

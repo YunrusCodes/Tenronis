@@ -519,6 +519,13 @@ namespace Tenronis.Gameplay.Tetromino
                         if (GridManager.Instance.IsValidPosition(gridX, gridY) &&
                             GridManager.Instance.IsOccupied(gridX, gridY))
                         {
+                            // 檢查是否為垃圾行方塊（不可摧毀），如果是則跳過
+                            BlockData block = GridManager.Instance.GetBlock(gridX, gridY);
+                            if (block != null && block.isIndestructible)
+                            {
+                                continue; // 跳過垃圾行方塊，不破壞也不產生導彈
+                            }
+                            
                             // 破壞該方塊
                             GridManager.Instance.RemoveBlock(gridX, gridY);
                             destroyedCount++;

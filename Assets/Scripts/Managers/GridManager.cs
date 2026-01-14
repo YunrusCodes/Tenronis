@@ -455,7 +455,7 @@ namespace Tenronis.Managers
                     }
                     
                     // 在爆炸方塊位置顯示浮動文字
-                    GameEvents.TriggerShowPopupText("玩家受傷", new Color(1f, 0.3f, 0.3f), effectPos);
+                    GameEvents.TriggerShowPopupText("城堡受損", new Color(1f, 0.3f, 0.3f), effectPos);
                 }
                 
                 RemoveBlock(x, y); // 這裡會觸發 TriggerGridChanged
