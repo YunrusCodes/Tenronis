@@ -543,7 +543,7 @@ namespace Tenronis.Managers
                         GridManager.Instance.SetBlock(hitPos.x, hitPos.y - 1, explosiveBlock);
                         
                         Debug.Log($"[CombatManager] 敵人添加爆炸垃圾方塊 HP: {garbageHp}");
-                        GameEvents.TriggerPlayEnemyAddBlockSound();
+                        GameEvents.TriggerPlayEnemyAddExplosiveBlockSound();
                         CheckRowsAfterAddBlock();
                     }
                     else if (hitPos.y == 0)

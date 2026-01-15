@@ -77,6 +77,11 @@ namespace Tenronis.UI
         [SerializeField] private VideoClip executionVideo; // 處決.mp4
         [SerializeField] private VideoClip repairVideo; // 修補.mp4
         
+        [Header("提示訊息")]
+        [SerializeField] private GameObject tipsPanel; // 提示訊息面板
+        [SerializeField] private TextMeshProUGUI tipsText; // 提示訊息文字
+        [SerializeField] private Button nextTipButton; // 下一個提示按鈕
+        
         private List<GameObject> currentOptions = new List<GameObject>();
         private List<GameObject> attackPreviewItems = new List<GameObject>();
         private List<Coroutine> spriteSyncCoroutines = new List<Coroutine>();
@@ -90,6 +95,8 @@ namespace Tenronis.UI
         private bool showDetailedInfo = false; // 是否顯示詳細資訊
         private int currentInfoTab = 0; // 0=敵人資訊, 1=普通強化, 2=傳奇強化
         private bool waitingForBonusConfirm = false; // 是否正在等待說明頁面確認
+        private int currentTipIndex = 0; // 當前提示訊息的索引
+        private Coroutine tipDisplayCoroutine = null; // 提示訊息顯示協程
         
         private void OnEnable()
         {
@@ -119,6 +126,12 @@ namespace Tenronis.UI
             // 設置玩家狀態面板按鈕
             SetupPlayerBuffPanelButtons();
             
+            // 設置提示訊息按鈕
+            SetupTipButton();
+            
+            // 初始化提示訊息變量（但不立即顯示，等待關閉敵人面板時才顯示）
+            InitializeTips();
+            
             // 顯示所有資訊（不再有分頁）
             if (enemyInfoPanel != null)
                 enemyInfoPanel.SetActive(true);
@@ -126,6 +139,9 @@ namespace Tenronis.UI
                 playerBuffPanel.SetActive(false); // 預設隱藏，需通過按鈕顯示
             if (detailToggle != null)
                 detailToggle.gameObject.SetActive(true);
+            
+            // TipsPanel 初始狀態：只有在關閉敵人面板後根據是否有 tips 來決定是否顯示
+            // 這裡暫時保持激活狀態（或根據場景設置的初始狀態），實際顯示由 StartTipsDisplay() 控制
         }
         
         private void OnDisable()
@@ -176,6 +192,14 @@ namespace Tenronis.UI
             if (closeEnemyPanelButton != null) closeEnemyPanelButton.onClick.RemoveAllListeners();
             if (showPlayerBuffButton != null) showPlayerBuffButton.onClick.RemoveAllListeners();
             if (hidePlayerBuffButton != null) hidePlayerBuffButton.onClick.RemoveAllListeners();
+            if (nextTipButton != null) nextTipButton.onClick.RemoveAllListeners();
+            
+            // 停止提示訊息顯示協程
+            if (tipDisplayCoroutine != null)
+            {
+                StopCoroutine(tipDisplayCoroutine);
+                tipDisplayCoroutine = null;
+            }
         }
         
         /// <summary>
@@ -200,6 +224,9 @@ namespace Tenronis.UI
                 enemyInfoPanel.SetActive(false);
             }
             
+            // 關閉敵人面板後，開始顯示提示訊息
+            StartTipsDisplay();
+            
             // 檢查是否有待選的 Buff
             if (GameManager.Instance != null && GameManager.Instance.PendingBuffCount > 0)
             {
@@ -220,6 +247,45 @@ namespace Tenronis.UI
                 // 關閉選單
                 gameObject.SetActive(false);
             }
+        }
+        
+        /// <summary>
+        /// 開始顯示提示訊息（在關閉敵人面板後調用）
+        /// </summary>
+        private void StartTipsDisplay()
+        {
+            if (GameManager.Instance == null || GameManager.Instance.CurrentStage == null)
+            {
+                // 如果沒有關卡數據，隱藏 TipsPanel
+                if (tipsPanel != null)
+                {
+                    tipsPanel.SetActive(false);
+                }
+                return;
+            }
+            
+            var currentStage = GameManager.Instance.CurrentStage;
+            if (currentStage.tips == null || currentStage.tips.Count == 0)
+            {
+                // 如果沒有提示訊息，隱藏 TipsPanel 並返回
+                if (tipsPanel != null)
+                {
+                    tipsPanel.SetActive(false);
+                }
+                return;
+            }
+            
+            // 如果有提示訊息，確保 TipsPanel 是激活的
+            if (tipsPanel != null)
+            {
+                tipsPanel.SetActive(true);
+            }
+            
+            // 重置索引為第一個
+            currentTipIndex = 0;
+            
+            // 使用協程顯示第一個提示訊息（帶打字動畫）
+            ShowTipWithTypewriter();
         }
         
         /// <summary>
@@ -260,6 +326,129 @@ namespace Tenronis.UI
             {
                 playerBuffPanel.SetActive(false);
             }
+        }
+        
+        /// <summary>
+        /// 設置提示訊息按鈕
+        /// </summary>
+        private void SetupTipButton()
+        {
+            if (nextTipButton != null)
+            {
+                nextTipButton.onClick.RemoveAllListeners();
+                nextTipButton.onClick.AddListener(OnNextTipClicked);
+            }
+        }
+        
+        /// <summary>
+        /// 初始化提示訊息（僅初始化變量，不顯示內容）
+        /// </summary>
+        private void InitializeTips()
+        {
+            currentTipIndex = 0;
+            
+            // 初始狀態：清空文字，隱藏按鈕
+            if (tipsText != null)
+            {
+                tipsText.text = "";
+            }
+            if (nextTipButton != null)
+            {
+                nextTipButton.gameObject.SetActive(false);
+            }
+            
+            // TipsPanel 初始狀態由 StartTipsDisplay() 根據是否有 tips 來決定
+        }
+        
+        /// <summary>
+        /// 使用打字動畫顯示提示訊息（協程版本）
+        /// 流程：1.隱藏按鈕 2.打字動畫顯示 "Tips\n\n提示內容" 3.顯示按鈕
+        /// </summary>
+        private void ShowTipWithTypewriter()
+        {
+            // 停止之前的協程（如果有）
+            if (tipDisplayCoroutine != null)
+            {
+                StopCoroutine(tipDisplayCoroutine);
+            }
+            
+            tipDisplayCoroutine = StartCoroutine(ShowTipWithTypewriterCoroutine());
+        }
+        
+        /// <summary>
+        /// 使用打字動畫顯示提示訊息的協程
+        /// </summary>
+        private IEnumerator ShowTipWithTypewriterCoroutine()
+        {
+            if (GameManager.Instance == null || GameManager.Instance.CurrentStage == null)
+            {
+                yield break;
+            }
+            
+            var currentStage = GameManager.Instance.CurrentStage;
+            if (currentStage.tips == null || currentStage.tips.Count == 0)
+            {
+                yield break;
+            }
+            
+            // 確保索引在有效範圍內
+            if (currentTipIndex < 0 || currentTipIndex >= currentStage.tips.Count)
+            {
+                currentTipIndex = 0;
+            }
+            
+            // 第一階段：隱藏按鈕
+            if (nextTipButton != null)
+            {
+                nextTipButton.gameObject.SetActive(false);
+            }
+            
+            // 第二階段：使用打字動畫顯示 "Tips\n\n提示內容"
+            if (tipsText != null)
+            {
+                string tipContent = currentStage.tips[currentTipIndex];
+                string fullText = $"Tips\n\n{tipContent}";
+                
+                // 使用打字動畫效果
+                yield return StartCoroutine(TypewriterEffect(tipsText, fullText, 0.01f));
+            }
+            
+            // 第三階段：顯示按鈕
+            if (nextTipButton != null)
+            {
+                nextTipButton.gameObject.SetActive(true);
+            }
+            
+            tipDisplayCoroutine = null;
+        }
+        
+        /// <summary>
+        /// 下一個提示按鈕點擊
+        /// </summary>
+        private void OnNextTipClicked()
+        {
+            if (GameManager.Instance == null || GameManager.Instance.CurrentStage == null)
+            {
+                return;
+            }
+            
+            var currentStage = GameManager.Instance.CurrentStage;
+            if (currentStage.tips == null || currentStage.tips.Count == 0)
+            {
+                return;
+            }
+            
+            // 移到下一個索引
+            currentTipIndex++;
+            
+            // 如果已經超出範圍，回到第一個
+            if (currentTipIndex >= currentStage.tips.Count)
+            {
+                currentTipIndex = 0;
+            }
+            
+            // 重新執行打字動畫流程
+            ShowTipWithTypewriter();
         }
         
         /// <summary>

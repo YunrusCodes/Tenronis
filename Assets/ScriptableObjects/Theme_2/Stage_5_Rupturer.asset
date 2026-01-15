@@ -30,22 +30,27 @@ MonoBehaviour:
     enabled: 1
     chance: 0.3
   addExplosiveBlockBullet:
-    enabled: 0
+    enabled: 1
     chance: 0.2
   addRowBullet:
     enabled: 0
     chance: 0.15
   addVoidRowBullet:
-    enabled: 1
+    enabled: 0
     chance: 0.1
   corruptExplosiveBullet:
     enabled: 0
     chance: 0.15
   corruptVoidBullet:
-    enabled: 1
+    enabled: 0
     chance: 0.1
   useSmartTargeting: 0
   addBlockTargetsHigh: 1
   areaDamageTargetsLow: 1
   enemyIcon: {fileID: -2982942903090351936, guid: aceb871c8de6c3846a1644137943a051, type: 3}
   themeColor: {r: 1, g: 1, b: 1, a: 1}
+  tips:
+  - "\u7206\u70B8\u65B9\u584A\u4E00\u65E6\u88AB\u6575\u65B9\u653B\u64CA\u7834\u58DE\uFF0C\u57CE\u5821\u5C31\u6703\u53D7\u640D"
+  - "\u5FC5\u8981\u7684\u6642\u5019\u5C31\u628A\u65B9\u584A\u5806\u7206\u5427\uFF0C\u6E05\u6383\u6230\u5834\uFF0C\u9806\u4FBF\u7D66\u90A3\u602A\u7269\u4F86\u767C\u5927\u7684"
+  - "\u7B49\u5F85\u602A\u7269\u7528\u6DFB\u52A0\u65B9\u584A\u7684\u5B50\u5F48\u5E6B\u4F60\u88DC\u4E0A\u65B9\u584A\u7F3A\u53E3\u5427"
+  - "\u6491\u8457\u5427\uFF0C\u4E5F\u8A31\u73FE\u5728\u7684\u5145\u80FD\u4E4B\u5F8C\u624D\u6703\u7528\u5230"

@@ -1,5 +1,6 @@
 using UnityEngine;
 using System;
+using System.Collections.Generic;
 
 namespace Tenronis.ScriptableObjects
 {
@@ -92,5 +93,9 @@ namespace Tenronis.ScriptableObjects
         [Header("視覺")]
         public Sprite enemyIcon;
         public Color themeColor = Color.red;
+        
+        [Header("提示訊息")]
+        [Tooltip("關卡提示訊息列表")]
+        public List<string> tips = new List<string>();
     }
 }

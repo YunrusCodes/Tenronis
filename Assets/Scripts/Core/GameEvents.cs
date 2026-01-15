@@ -53,7 +53,8 @@ namespace Tenronis.Core
     public static event Action OnPlayCounterFireSound; // 反擊音效
     public static event Action OnPlayLockSound; // 方塊鎖定音效
     public static event Action<BulletType> OnPlayEnemyShootSound; // 敵人射擊音效
-    public static event Action OnPlayEnemyAddBlockSound; // 敵人製造方塊音效
+    public static event Action OnPlayEnemyAddBlockSound; // 敵人製造普通方塊音效
+    public static event Action OnPlayEnemyAddExplosiveBlockSound; // 敵人製造爆炸方塊音效
     public static event Action OnPlayVoidNullifySound; // 虛空抵銷音效
     public static event Action<BlockType> OnPlayCorruptSound; // 方塊腐化音效
     public static event Action OnPlayInsertRowSound; // 插入普通垃圾行音效
@@ -89,6 +90,7 @@ namespace Tenronis.Core
     public static void TriggerPlayLockSound() => OnPlayLockSound?.Invoke();
     public static void TriggerPlayEnemyShootSound(BulletType bulletType) => OnPlayEnemyShootSound?.Invoke(bulletType);
     public static void TriggerPlayEnemyAddBlockSound() => OnPlayEnemyAddBlockSound?.Invoke();
+    public static void TriggerPlayEnemyAddExplosiveBlockSound() => OnPlayEnemyAddExplosiveBlockSound?.Invoke();
     public static void TriggerPlayVoidNullifySound() => OnPlayVoidNullifySound?.Invoke();
     public static void TriggerPlayCorruptSound(BlockType blockType) => OnPlayCorruptSound?.Invoke(blockType);
     public static void TriggerPlayInsertRowSound() => OnPlayInsertRowSound?.Invoke();
@@ -128,6 +130,7 @@ namespace Tenronis.Core
         OnPlayLockSound = null;
         OnPlayEnemyShootSound = null;
         OnPlayEnemyAddBlockSound = null;
+        OnPlayEnemyAddExplosiveBlockSound = null;
         OnPlayVoidNullifySound = null;
         OnPlayCorruptSound = null;
         OnPlayInsertRowSound = null;

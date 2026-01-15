@@ -33,7 +33,8 @@ namespace Tenronis.Audio
     [SerializeField] private AudioClip enemyShootCorruptVoidSound;      // 腐化虛無方塊音效
     
     [Header("特殊事件音效")]
-    [SerializeField] private AudioClip enemyAddBlockSound;        // 敵人製造方塊音效
+    [SerializeField] private AudioClip enemyAddBlockSound;        // 敵人製造普通方塊音效
+    [SerializeField] private AudioClip enemyAddExplosiveBlockSound; // 敵人製造爆炸方塊音效
     [SerializeField] private AudioClip voidNullifySound;          // 虛空抵銷音效
     [SerializeField] private AudioClip corruptExplosiveSound;     // 方塊被腐化為爆炸方塊音效
     [SerializeField] private AudioClip corruptVoidSound;          // 方塊被腐化為虛無方塊音效
@@ -93,6 +94,7 @@ namespace Tenronis.Audio
         GameEvents.OnPlayLockSound += PlayLockSound;
         GameEvents.OnPlayEnemyShootSound += PlayEnemyShootSound;
         GameEvents.OnPlayEnemyAddBlockSound += PlayEnemyAddBlockSound;
+        GameEvents.OnPlayEnemyAddExplosiveBlockSound += PlayEnemyAddExplosiveBlockSound;
         GameEvents.OnPlayVoidNullifySound += PlayVoidNullifySound;
         GameEvents.OnPlayCorruptSound += PlayCorruptSound;
         GameEvents.OnPlayInsertRowSound += PlayInsertRowSound;
@@ -112,6 +114,7 @@ namespace Tenronis.Audio
         GameEvents.OnPlayLockSound -= PlayLockSound;
         GameEvents.OnPlayEnemyShootSound -= PlayEnemyShootSound;
         GameEvents.OnPlayEnemyAddBlockSound -= PlayEnemyAddBlockSound;
+        GameEvents.OnPlayEnemyAddExplosiveBlockSound -= PlayEnemyAddExplosiveBlockSound;
         GameEvents.OnPlayVoidNullifySound -= PlayVoidNullifySound;
         GameEvents.OnPlayCorruptSound -= PlayCorruptSound;
         GameEvents.OnPlayInsertRowSound -= PlayInsertRowSound;
@@ -174,9 +177,14 @@ namespace Tenronis.Audio
     }
     
     /// <summary>
-    /// 播放敵人製造方塊音效
+    /// 播放敵人製造普通方塊音效
     /// </summary>
     public void PlayEnemyAddBlockSound() => PlaySound(enemyAddBlockSound);
+    
+    /// <summary>
+    /// 播放敵人製造爆炸方塊音效
+    /// </summary>
+    public void PlayEnemyAddExplosiveBlockSound() => PlaySound(enemyAddExplosiveBlockSound);
     
     /// <summary>
     /// 播放虛空抵銷音效
