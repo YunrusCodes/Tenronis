@@ -681,8 +681,7 @@ namespace Tenronis.Managers
                     stats.currentCp = 0; // CP 歸零
                     stats.currentHp = 1; // HP 變成 1
                     
-                    // 觸發玩家受傷事件以觸發視覺效果（HP=1 的閃現效果）
-                    GameEvents.TriggerPlayerDamaged(0); // 傳遞 0 傷害，僅用於觸發視覺效果
+                    // 注意：視覺效果（damagedOverlaySprite）已由 HandleGridOverflow 處理，不需要再次觸發
                 }
                 
                 // 觸發爆炸傷害（如果有充能）

@@ -35,7 +35,6 @@ namespace Tenronis.Gameplay.Player
         // 視覺效果
         private Vector3 originalSpritePosition;
         private Vector3 originalOverlayPosition;
-        private Sprite originalPlayerSprite; // 原始玩家圖片
         private Coroutine shakeCoroutine;
         private Coroutine effectSpawnCoroutine;
         private Coroutine overlayFlashCoroutine;
@@ -56,11 +55,10 @@ namespace Tenronis.Gameplay.Player
         
         private void Start()
         {
-            // 記錄玩家Sprite的原始位置和圖片
+            // 記錄玩家Sprite的原始位置（不保存圖片，因為主圖片由 GameManager 控制）
             if (playerSprite != null)
             {
                 originalSpritePosition = playerSprite.transform.localPosition;
-                originalPlayerSprite = playerSprite.sprite; // 保存原始圖片
             }
             
             // 記錄覆蓋層的原始位置
@@ -98,7 +96,9 @@ namespace Tenronis.Gameplay.Player
         private void UpdateOverlayBasedOnHp()
         {
             if (overlaySpriteRenderer == null || PlayerManager.Instance == null) return;
-            if (shakeCoroutine != null || overlayFlashCoroutine != null) return; // 正在晃動或閃爍時不更新
+            // 正在執行任何閃現效果時不更新，避免覆蓋閃現效果
+            if (shakeCoroutine != null || overlayFlashCoroutine != null || 
+                overflowSpriteCoroutine != null || hpOneFlashCoroutine != null) return;
             
             float hpPercent = (float)PlayerManager.Instance.Stats.currentHp / PlayerManager.Instance.Stats.maxHp;
             
@@ -136,11 +136,13 @@ namespace Tenronis.Gameplay.Player
             }
             
             // 檢查 HP 是否為 1（瀕死狀態）
+            // 注意：溢出導致的 HP=1 已經在 HandleGridOverflow 中處理，這裡只處理其他情況
             bool isHpOne = PlayerManager.Instance != null && PlayerManager.Instance.Stats.currentHp == 1;
             
             if (isHpOne && damagedOverlaySprite != null)
             {
-                // HP=1 時：playerSprite 和 overlaySpriteRenderer 同步閃現 damagedOverlaySprite
+                // HP=1 時：在覆蓋層閃現 damagedOverlaySprite（非溢出情況，例如被爆炸方塊傷害導致 HP=1）
+                // 但溢出導致的 HP=1 已在 HandleGridOverflow 中處理，避免重複
                 if (hpOneFlashCoroutine != null)
                 {
                     StopCoroutine(hpOneFlashCoroutine);
@@ -386,15 +388,10 @@ namespace Tenronis.Gameplay.Player
                         hpOneFlashCoroutine = null;
                     }
                     
-                    // 恢復Sprite位置和圖片（不修改主圖片，主圖片由 GameManager 控制）
+                    // 恢復Sprite位置（不修改主圖片，主圖片由 GameManager 控制）
                     if (playerSprite != null)
                     {
                         playerSprite.transform.localPosition = originalSpritePosition;
-                        // 確保恢復原始圖片
-                        if (originalPlayerSprite != null)
-                        {
-                            playerSprite.sprite = originalPlayerSprite;
-                        }
                     }
                     
                     // 恢復覆蓋層位置並隱藏
@@ -501,7 +498,15 @@ namespace Tenronis.Gameplay.Player
         private void HandleGridOverflow()
         {
             if (isGameOver) return;
-            if (playerSprite == null || overflowSprite == null) return;
+            if (overlaySpriteRenderer == null) return;
+            
+            // 檢查 CP 是否足夠（判斷 HP 是否會變成 1）
+            bool willHpBecomeOne = false;
+            if (PlayerManager.Instance != null)
+            {
+                var stats = PlayerManager.Instance.Stats;
+                willHpBecomeOne = stats.currentCp < GameConstants.OVERFLOW_CP_COST;
+            }
             
             // 如果已經有溢出協程在運行，停止它
             if (overflowSpriteCoroutine != null)
@@ -509,74 +514,80 @@ namespace Tenronis.Gameplay.Player
                 StopCoroutine(overflowSpriteCoroutine);
             }
             
-            // 啟動溢出圖片切換協程
-            overflowSpriteCoroutine = StartCoroutine(FlashOverflowSprite());
+            if (willHpBecomeOne && damagedOverlaySprite != null)
+            {
+                // HP 會變成 1：使用 damagedOverlaySprite（不觸發 HandlePlayerDamaged，避免重複）
+                overflowSpriteCoroutine = StartCoroutine(FlashOverflowSprite(damagedOverlaySprite, true));
+            }
+            else if (overflowSprite != null)
+            {
+                // HP 不會變成 1（CP 足夠）：使用 overflowSprite
+                overflowSpriteCoroutine = StartCoroutine(FlashOverflowSprite(overflowSprite, false));
+            }
         }
         
         /// <summary>
-        /// 溢出時切換玩家圖片並閃回
+        /// 溢出時在覆蓋層閃現圖片
         /// </summary>
-        private System.Collections.IEnumerator FlashOverflowSprite()
+        /// <param name="spriteToFlash">要閃現的圖片</param>
+        /// <param name="isHpOne">是否為 HP=1 的情況</param>
+        private System.Collections.IEnumerator FlashOverflowSprite(Sprite spriteToFlash, bool isHpOne)
         {
-            if (playerSprite == null || overflowSprite == null || originalPlayerSprite == null)
+            if (overlaySpriteRenderer == null || spriteToFlash == null)
             {
                 overflowSpriteCoroutine = null;
                 yield break;
             }
             
-            // 保存當前圖片（如果還沒保存）
-            if (originalPlayerSprite == null)
+            // 保存當前覆蓋層圖片
+            Sprite previousOverlaySprite = overlaySpriteRenderer.sprite;
+            
+            // 在覆蓋層顯示圖片
+            overlaySpriteRenderer.sprite = spriteToFlash;
+            
+            string spriteName = isHpOne ? "damagedOverlaySprite (HP=1)" : "overflowSprite";
+            Debug.Log($"[PlayerVisualController] 溢出！覆蓋層顯示 {spriteName}");
+            
+            // 等待一段時間（閃爍持續時間，與受傷閃現時間一致）
+            yield return new WaitForSeconds(0.2f); // 0.2秒後閃回（與受傷閃現時間一致）
+            
+            // 恢復覆蓋層圖片（根據當前HP）
+            float hpPercent = (float)PlayerManager.Instance.Stats.currentHp / PlayerManager.Instance.Stats.maxHp;
+            if (hpPercent <= lowHpThreshold && lowHpOverlaySprite != null)
             {
-                originalPlayerSprite = playerSprite.sprite;
+                overlaySpriteRenderer.sprite = lowHpOverlaySprite;
+            }
+            else
+            {
+                overlaySpriteRenderer.sprite = previousOverlaySprite; // 恢復原覆蓋層圖片
             }
             
-            // 切換到溢出圖片
-            playerSprite.sprite = overflowSprite;
-            
-            Debug.Log("[PlayerVisualController] 溢出！切換玩家圖片");
-            
-            // 等待一段時間（閃爍持續時間）
-            yield return new WaitForSeconds(0.3f); // 0.3秒後閃回
-            
-            // 恢復原始圖片
-            playerSprite.sprite = originalPlayerSprite;
-            
-            Debug.Log("[PlayerVisualController] 溢出圖片已恢復");
+            Debug.Log($"[PlayerVisualController] 溢出覆蓋層已恢復 ({spriteName})");
             
             overflowSpriteCoroutine = null;
         }
         
         /// <summary>
-        /// HP=1 時：playerSprite 和 overlaySpriteRenderer 同步閃現 damagedOverlaySprite
+        /// HP=1 時：在覆蓋層閃現 damagedOverlaySprite
         /// </summary>
         private System.Collections.IEnumerator FlashHpOneSprite()
         {
-            if (playerSprite == null || overlaySpriteRenderer == null || damagedOverlaySprite == null)
+            if (overlaySpriteRenderer == null || damagedOverlaySprite == null)
             {
                 hpOneFlashCoroutine = null;
                 yield break;
             }
             
-            // 保存當前圖片（如果還沒保存）
-            if (originalPlayerSprite == null)
-            {
-                originalPlayerSprite = playerSprite.sprite;
-            }
+            // 保存當前覆蓋層圖片
+            Sprite previousOverlaySprite = overlaySpriteRenderer.sprite;
             
-            // 同步切換到 damagedOverlaySprite
-            playerSprite.sprite = damagedOverlaySprite;
+            // 在覆蓋層顯示 damagedOverlaySprite
             overlaySpriteRenderer.sprite = damagedOverlaySprite;
             
-            Debug.Log("[PlayerVisualController] HP=1！playerSprite 和 overlaySpriteRenderer 同步閃現 damagedOverlaySprite");
+            Debug.Log("[PlayerVisualController] HP=1！覆蓋層閃現 damagedOverlaySprite");
             
-            // 等待閃現時間
-            yield return new WaitForSeconds(0.3f); // 0.3秒閃現
-            
-            // 恢復原始圖片
-            if (originalPlayerSprite != null)
-            {
-                playerSprite.sprite = originalPlayerSprite;
-            }
+            // 等待閃現時間（與受傷閃現時間一致）
+            yield return new WaitForSeconds(0.2f); // 0.2秒閃現（與受傷閃現時間一致）
             
             // 恢復覆蓋層（根據當前HP）
             float hpPercent = (float)PlayerManager.Instance.Stats.currentHp / PlayerManager.Instance.Stats.maxHp;
@@ -586,7 +597,7 @@ namespace Tenronis.Gameplay.Player
             }
             else
             {
-                overlaySpriteRenderer.sprite = null;
+                overlaySpriteRenderer.sprite = previousOverlaySprite; // 恢復原覆蓋層圖片
             }
             
             Debug.Log("[PlayerVisualController] HP=1 閃現已恢復");
