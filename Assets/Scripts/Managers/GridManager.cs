@@ -642,7 +642,7 @@ namespace Tenronis.Managers
             
             // 觸發溢出事件
             GameEvents.TriggerGridOverflow();
-            GameEvents.TriggerPlayExplosionSound();
+            GameEvents.TriggerPlayOverflowSound();
             
             // 生成大爆炸特效（網格中央）
             if (overflowEffectPrefab != null)

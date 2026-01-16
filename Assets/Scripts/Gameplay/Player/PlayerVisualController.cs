@@ -20,6 +20,7 @@ namespace Tenronis.Gameplay.Player
         [Header("覆蓋層圖片")]
         [SerializeField] private Sprite damagedOverlaySprite; // 受傷時的覆蓋層圖片（可選）
         [SerializeField] private Sprite lowHpOverlaySprite;   // 低HP時的覆蓋層圖片（可選）
+        [SerializeField] private Sprite overflowSprite; // 溢出時的玩家圖片
         
         [Header("受傷特效")]
         [SerializeField] private GameObject damageEffectPrefab; // 受傷時的爆炸特效
@@ -34,9 +35,11 @@ namespace Tenronis.Gameplay.Player
         // 視覺效果
         private Vector3 originalSpritePosition;
         private Vector3 originalOverlayPosition;
+        private Sprite originalPlayerSprite; // 原始玩家圖片
         private Coroutine shakeCoroutine;
         private Coroutine effectSpawnCoroutine;
         private Coroutine overlayFlashCoroutine;
+        private Coroutine overflowSpriteCoroutine;
         private int pendingEffectCount = 0; // 待生成的特效數量
         private bool isGameOver = false; // 遊戲是否結束
         
@@ -52,10 +55,11 @@ namespace Tenronis.Gameplay.Player
         
         private void Start()
         {
-            // 記錄玩家Sprite的原始位置
+            // 記錄玩家Sprite的原始位置和圖片
             if (playerSprite != null)
             {
                 originalSpritePosition = playerSprite.transform.localPosition;
+                originalPlayerSprite = playerSprite.sprite; // 保存原始圖片
             }
             
             // 記錄覆蓋層的原始位置
@@ -70,6 +74,7 @@ namespace Tenronis.Gameplay.Player
             GameEvents.OnPlayerDamaged += HandlePlayerDamaged;
             GameEvents.OnGameStateChanged += HandleGameStateChanged;
             GameEvents.OnRowsCleared += HandleRowsCleared;
+            GameEvents.OnGridOverflow += HandleGridOverflow;
         }
         
         private void OnDestroy()
@@ -77,6 +82,7 @@ namespace Tenronis.Gameplay.Player
             GameEvents.OnPlayerDamaged -= HandlePlayerDamaged;
             GameEvents.OnGameStateChanged -= HandleGameStateChanged;
             GameEvents.OnRowsCleared -= HandleRowsCleared;
+            GameEvents.OnGridOverflow -= HandleGridOverflow;
         }
         
         private void Update()
@@ -452,6 +458,57 @@ namespace Tenronis.Gameplay.Player
             {
                 SpawnEffectAtPoint(randomIndex);
             }
+        }
+        
+        /// <summary>
+        /// 處理溢出事件
+        /// </summary>
+        private void HandleGridOverflow()
+        {
+            if (isGameOver) return;
+            if (playerSprite == null || overflowSprite == null) return;
+            
+            // 如果已經有溢出協程在運行，停止它
+            if (overflowSpriteCoroutine != null)
+            {
+                StopCoroutine(overflowSpriteCoroutine);
+            }
+            
+            // 啟動溢出圖片切換協程
+            overflowSpriteCoroutine = StartCoroutine(FlashOverflowSprite());
+        }
+        
+        /// <summary>
+        /// 溢出時切換玩家圖片並閃回
+        /// </summary>
+        private System.Collections.IEnumerator FlashOverflowSprite()
+        {
+            if (playerSprite == null || overflowSprite == null || originalPlayerSprite == null)
+            {
+                overflowSpriteCoroutine = null;
+                yield break;
+            }
+            
+            // 保存當前圖片（如果還沒保存）
+            if (originalPlayerSprite == null)
+            {
+                originalPlayerSprite = playerSprite.sprite;
+            }
+            
+            // 切換到溢出圖片
+            playerSprite.sprite = overflowSprite;
+            
+            Debug.Log("[PlayerVisualController] 溢出！切換玩家圖片");
+            
+            // 等待一段時間（閃爍持續時間）
+            yield return new WaitForSeconds(0.3f); // 0.3秒後閃回
+            
+            // 恢復原始圖片
+            playerSprite.sprite = originalPlayerSprite;
+            
+            Debug.Log("[PlayerVisualController] 溢出圖片已恢復");
+            
+            overflowSpriteCoroutine = null;
         }
     }
 }

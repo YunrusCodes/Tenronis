@@ -40,6 +40,7 @@ namespace Tenronis.Audio
     [SerializeField] private AudioClip corruptVoidSound;          // 方塊被腐化為虛無方塊音效
     [SerializeField] private AudioClip insertRowSound;            // 插入普通垃圾行音效
     [SerializeField] private AudioClip insertVoidRowSound;        // 插入虛無垃圾行音效
+    [SerializeField] private AudioClip overflowSound;             // 溢出音效
         
         [Header("音樂")]
         [SerializeField] private AudioClip normalBGM;
@@ -99,6 +100,7 @@ namespace Tenronis.Audio
         GameEvents.OnPlayCorruptSound += PlayCorruptSound;
         GameEvents.OnPlayInsertRowSound += PlayInsertRowSound;
         GameEvents.OnPlayInsertVoidRowSound += PlayInsertVoidRowSound;
+        GameEvents.OnPlayOverflowSound += PlayOverflowSound;
         
         // 訂閱遊戲事件以控制BGM
         GameEvents.OnGameStateChanged += HandleGameStateChanged;
@@ -119,6 +121,7 @@ namespace Tenronis.Audio
         GameEvents.OnPlayCorruptSound -= PlayCorruptSound;
         GameEvents.OnPlayInsertRowSound -= PlayInsertRowSound;
         GameEvents.OnPlayInsertVoidRowSound -= PlayInsertVoidRowSound;
+        GameEvents.OnPlayOverflowSound -= PlayOverflowSound;
         GameEvents.OnGameStateChanged -= HandleGameStateChanged;
         }
         
@@ -215,6 +218,11 @@ namespace Tenronis.Audio
     /// 播放插入虛無垃圾行音效
     /// </summary>
     public void PlayInsertVoidRowSound() => PlaySound(insertVoidRowSound);
+    
+    /// <summary>
+    /// 播放溢出音效
+    /// </summary>
+    public void PlayOverflowSound() => PlaySound(overflowSound);
         
         /// <summary>
         /// 播放BGM
