@@ -26,6 +26,7 @@ namespace Tenronis.Managers
         [SerializeField] private GameObject overflowEffectPrefab; // 溢出時的大爆炸特效
         [SerializeField] private GameObject normalGarbageRowEffectPrefab; // 普通垃圾行插入特效
         [SerializeField] private GameObject voidGarbageRowEffectPrefab; // 虛無垃圾行插入特效
+        [SerializeField] private GameObject rowClearEffectPrefab; // 行消除特效
         
         // 網格數據（二維陣列）
         private BlockData[,] grid;
@@ -332,7 +333,7 @@ namespace Tenronis.Managers
                 GameEvents.TriggerRowsCleared(rowsToClear, nonGarbageRowsList, hasVoidBlocks);
                 
                 // 然後清除方塊
-                ClearRows(rowsToClear, hasVoidBlocks);
+                ClearRows(rowsToClear, hasVoidBlocks, nonGarbageRowsList);
             }
             
             return rowsToClear;
@@ -341,7 +342,7 @@ namespace Tenronis.Managers
         /// <summary>
         /// 消除指定行
         /// </summary>
-        private void ClearRows(List<int> rows, bool hasVoidBlocks = false)
+        private void ClearRows(List<int> rows, bool hasVoidBlocks = false, List<int> nonGarbageRows = null)
         {
             if (rows.Count == 0) return;
             
@@ -354,6 +355,17 @@ namespace Tenronis.Managers
             // 移除所有要清除的行的視覺物件
             foreach (int row in rows)
             {
+                // 在該行的中間位置生成消除特效（只為非垃圾行生成，且虛無抵銷時不生成）
+                bool isNonGarbageRow = nonGarbageRows != null && nonGarbageRows.Contains(row);
+                if (!hasVoidBlocks && isNonGarbageRow && rowClearEffectPrefab != null)
+                {
+                    int centerX = GameConstants.BOARD_WIDTH / 2;
+                    Vector3 effectPos = GridToWorldPosition(centerX, row);
+                    GameObject effect = Instantiate(rowClearEffectPrefab, effectPos, Quaternion.identity);
+                    Destroy(effect, 2f);
+                    Debug.Log($"[GridManager] 在行 {row} 中間位置 ({centerX}, {row}) 生成行消除特效");
+                }
+                
                 for (int x = 0; x < GameConstants.BOARD_WIDTH; x++)
                 {
                     // 如果是虛無方塊消除，生成特效
