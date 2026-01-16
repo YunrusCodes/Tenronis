@@ -40,6 +40,7 @@ namespace Tenronis.Gameplay.Player
         private Coroutine effectSpawnCoroutine;
         private Coroutine overlayFlashCoroutine;
         private Coroutine overflowSpriteCoroutine;
+        private Coroutine hpOneFlashCoroutine; // HP=1 時的同步閃現協程
         private int pendingEffectCount = 0; // 待生成的特效數量
         private bool isGameOver = false; // 遊戲是否結束
         
@@ -134,24 +135,41 @@ namespace Tenronis.Gameplay.Player
                 return;
             }
             
-            // 視覺效果：晃動
-            if (playerSprite != null)
-            {
-                if (shakeCoroutine != null)
-                {
-                    StopCoroutine(shakeCoroutine);
-                }
-                shakeCoroutine = StartCoroutine(ShakeSprite());
-            }
+            // 檢查 HP 是否為 1（瀕死狀態）
+            bool isHpOne = PlayerManager.Instance != null && PlayerManager.Instance.Stats.currentHp == 1;
             
-            // 視覺效果：短暫顯示受傷覆蓋層
-            if (damagedOverlaySprite != null && overlaySpriteRenderer != null)
+            if (isHpOne && damagedOverlaySprite != null)
             {
-                if (overlayFlashCoroutine != null)
+                // HP=1 時：playerSprite 和 overlaySpriteRenderer 同步閃現 damagedOverlaySprite
+                if (hpOneFlashCoroutine != null)
                 {
-                    StopCoroutine(overlayFlashCoroutine);
+                    StopCoroutine(hpOneFlashCoroutine);
                 }
-                overlayFlashCoroutine = StartCoroutine(FlashDamagedOverlay());
+                hpOneFlashCoroutine = StartCoroutine(FlashHpOneSprite());
+            }
+            else
+            {
+                // 一般受傷：正常的受傷效果
+                
+                // 視覺效果：晃動
+                if (playerSprite != null)
+                {
+                    if (shakeCoroutine != null)
+                    {
+                        StopCoroutine(shakeCoroutine);
+                    }
+                    shakeCoroutine = StartCoroutine(ShakeSprite());
+                }
+                
+                // 視覺效果：短暫顯示受傷覆蓋層
+                if (damagedOverlaySprite != null && overlaySpriteRenderer != null)
+                {
+                    if (overlayFlashCoroutine != null)
+                    {
+                        StopCoroutine(overlayFlashCoroutine);
+                    }
+                    overlayFlashCoroutine = StartCoroutine(FlashDamagedOverlay());
+                }
             }
             
             // 視覺效果：爆炸特效（累積到隊列）
@@ -191,6 +209,12 @@ namespace Tenronis.Gameplay.Player
             {
                 StopCoroutine(overlayFlashCoroutine);
                 overlayFlashCoroutine = null;
+            }
+            
+            if (hpOneFlashCoroutine != null)
+            {
+                StopCoroutine(hpOneFlashCoroutine);
+                hpOneFlashCoroutine = null;
             }
             
             // 清空特效隊列
@@ -356,10 +380,21 @@ namespace Tenronis.Gameplay.Player
                         overlayFlashCoroutine = null;
                     }
                     
-                    // 恢復Sprite位置（不修改主圖片，主圖片由 GameManager 控制）
+                    if (hpOneFlashCoroutine != null)
+                    {
+                        StopCoroutine(hpOneFlashCoroutine);
+                        hpOneFlashCoroutine = null;
+                    }
+                    
+                    // 恢復Sprite位置和圖片（不修改主圖片，主圖片由 GameManager 控制）
                     if (playerSprite != null)
                     {
                         playerSprite.transform.localPosition = originalSpritePosition;
+                        // 確保恢復原始圖片
+                        if (originalPlayerSprite != null)
+                        {
+                            playerSprite.sprite = originalPlayerSprite;
+                        }
                     }
                     
                     // 恢復覆蓋層位置並隱藏
@@ -509,6 +544,54 @@ namespace Tenronis.Gameplay.Player
             Debug.Log("[PlayerVisualController] 溢出圖片已恢復");
             
             overflowSpriteCoroutine = null;
+        }
+        
+        /// <summary>
+        /// HP=1 時：playerSprite 和 overlaySpriteRenderer 同步閃現 damagedOverlaySprite
+        /// </summary>
+        private System.Collections.IEnumerator FlashHpOneSprite()
+        {
+            if (playerSprite == null || overlaySpriteRenderer == null || damagedOverlaySprite == null)
+            {
+                hpOneFlashCoroutine = null;
+                yield break;
+            }
+            
+            // 保存當前圖片（如果還沒保存）
+            if (originalPlayerSprite == null)
+            {
+                originalPlayerSprite = playerSprite.sprite;
+            }
+            
+            // 同步切換到 damagedOverlaySprite
+            playerSprite.sprite = damagedOverlaySprite;
+            overlaySpriteRenderer.sprite = damagedOverlaySprite;
+            
+            Debug.Log("[PlayerVisualController] HP=1！playerSprite 和 overlaySpriteRenderer 同步閃現 damagedOverlaySprite");
+            
+            // 等待閃現時間
+            yield return new WaitForSeconds(0.3f); // 0.3秒閃現
+            
+            // 恢復原始圖片
+            if (originalPlayerSprite != null)
+            {
+                playerSprite.sprite = originalPlayerSprite;
+            }
+            
+            // 恢復覆蓋層（根據當前HP）
+            float hpPercent = (float)PlayerManager.Instance.Stats.currentHp / PlayerManager.Instance.Stats.maxHp;
+            if (hpPercent <= lowHpThreshold && lowHpOverlaySprite != null)
+            {
+                overlaySpriteRenderer.sprite = lowHpOverlaySprite;
+            }
+            else
+            {
+                overlaySpriteRenderer.sprite = null;
+            }
+            
+            Debug.Log("[PlayerVisualController] HP=1 閃現已恢復");
+            
+            hpOneFlashCoroutine = null;
         }
     }
 }

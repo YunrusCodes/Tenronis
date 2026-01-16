@@ -60,6 +60,7 @@ namespace Tenronis.Core
     public static event Action OnPlayInsertRowSound; // 插入普通垃圾行音效
     public static event Action OnPlayInsertVoidRowSound; // 插入虛無垃圾行音效
     public static event Action OnPlayOverflowSound; // 溢出音效
+    public static event Action OnPlayExplosiveBlockDestroyedSound; // 爆炸方塊被破壞音效
         
         // 觸發方法
         public static void TriggerGameStateChanged(GameState newState) => OnGameStateChanged?.Invoke(newState);
@@ -97,6 +98,7 @@ namespace Tenronis.Core
     public static void TriggerPlayInsertRowSound() => OnPlayInsertRowSound?.Invoke();
     public static void TriggerPlayInsertVoidRowSound() => OnPlayInsertVoidRowSound?.Invoke();
     public static void TriggerPlayOverflowSound() => OnPlayOverflowSound?.Invoke();
+    public static void TriggerPlayExplosiveBlockDestroyedSound() => OnPlayExplosiveBlockDestroyedSound?.Invoke();
         
         /// <summary>
         /// 清除所有事件訂閱（場景切換時使用）
@@ -138,6 +140,7 @@ namespace Tenronis.Core
         OnPlayInsertRowSound = null;
         OnPlayInsertVoidRowSound = null;
         OnPlayOverflowSound = null;
+        OnPlayExplosiveBlockDestroyedSound = null;
         OnPlayOverflowSound = null;
     }
 }

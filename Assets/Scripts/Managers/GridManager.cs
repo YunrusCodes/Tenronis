@@ -458,6 +458,9 @@ namespace Tenronis.Managers
                     Debug.Log($"[GridManager] 爆炸方塊在 ({x}, {y}) 被摧毀！玩家受到 5 點傷害");
                     GameEvents.TriggerPlayerDamaged(5);
                     
+                    // 播放爆炸方塊被破壞音效
+                    GameEvents.TriggerPlayExplosiveBlockDestroyedSound();
+                    
                     // 生成爆炸特效
                     Vector3 effectPos = GridToWorldPosition(x, y);
                     if (explosiveBlockEffectPrefab != null)
@@ -677,6 +680,9 @@ namespace Tenronis.Managers
                     Debug.LogWarning($"[GridManager] CP 不足！當前 CP: {stats.currentCp}，HP 降至 1");
                     stats.currentCp = 0; // CP 歸零
                     stats.currentHp = 1; // HP 變成 1
+                    
+                    // 觸發玩家受傷事件以觸發視覺效果（HP=1 的閃現效果）
+                    GameEvents.TriggerPlayerDamaged(0); // 傳遞 0 傷害，僅用於觸發視覺效果
                 }
                 
                 // 觸發爆炸傷害（如果有充能）

@@ -50,3 +50,4 @@ MonoBehaviour:
   areaDamageTargetsLow: 1
   enemyIcon: {fileID: 1337143811719002286, guid: 8e1630f0807eb9940b889b7338c8b6bb, type: 3}
   themeColor: {r: 1, g: 0, b: 0, a: 1}
+  tips: []
