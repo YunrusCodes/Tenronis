@@ -1,0 +1,111 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e9620f8c34305754d8cc9a7e49e852d9, type: 3}
+  m_Name: UI_Text_en
+  m_EditorClassIdentifier: Unity.Localization::UnityEngine.Localization.Tables.StringTable
+  m_LocaleId:
+    m_Code: en
+  m_SharedData: {fileID: 11400000, guid: 5f7172cb00664d1408e497d91f8b9d3f, type: 2}
+  m_Metadata:
+    m_Items: []
+  m_TableData:
+  - m_Id: 3623289126912
+    m_Localized: Confirm
+    m_Metadata:
+      m_Items: []
+  - m_Id: 4794401718272
+    m_Localized: Engineering Construction
+    m_Metadata:
+      m_Items: []
+  - m_Id: 4884457619456
+    m_Localized: Legendary Project
+    m_Metadata:
+      m_Items: []
+  - m_Id: 4899867492352
+    m_Localized: Powerful Enemy Encountered!!!
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5035309957120
+    m_Localized: Rapid Fire
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5149332111360
+    m_Localized: Impact Cannon Charging
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5172593721344
+    m_Localized: Impact Blast!
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5241124454400
+    m_Localized: Show Details
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5294949957632
+    m_Localized: Annihilation
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5308002631680
+    m_Localized: Execute
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5319981563904
+    m_Localized: Repair
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5370501955584
+    m_Localized: Overflow Cost
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5408963723264
+    m_Localized: Impact Blast
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5597216669696
+    m_Localized: Retry
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5611611521024
+    m_Localized: Exit
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5624110546944
+    m_Localized: Cancel
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5708357337088
+    m_Localized: View Construction Status
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5785188597760
+    m_Localized: Back
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5810538971136
+    m_Localized: Abandon
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6562351185920
+    m_Localized: Defense Successful!
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6579061293056
+    m_Localized: Quit game and return to title?
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6599143620608
+    m_Localized: Castle Fallen
+    m_Metadata:
+      m_Items: []
+  references:
+    version: 2
+    RefIds: []
