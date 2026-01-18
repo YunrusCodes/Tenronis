@@ -1,6 +1,5 @@
 using UnityEngine;
 using UnityEngine.UI;
-using UnityEngine.Video;
 using TMPro;
 using System.Collections;
 using System.Collections.Generic;
@@ -63,19 +62,20 @@ namespace Tenronis.UI
         [Header("傳奇強化說明頁面")]
         [SerializeField] private GameObject bonusPanel;
         [SerializeField] private Image bonusIconImage; // 強化圖示
-        [SerializeField] private RawImage bonusVideoImage; // 從 Image 改成 RawImage
-        [SerializeField] private VideoPlayer bonusVideoPlayer; // VideoPlayer 組件
+        [SerializeField] private Image bonusAnimationImage; // 從 RawImage 改成 Image
+        [SerializeField] private Animator bonusAnimator; // Animator 組件（用於播放動畫）
+        [SerializeField] private SpriteRenderer bonusSpriteRenderer; // SpriteRenderer（用於Animator控制，從中讀取Sprite）
         [SerializeField] private UnityEngine.UI.AspectRatioFitter bonusAspectRatioFitter; // AspectRatioFilter 組件
         [SerializeField] private TextMeshProUGUI bonusText;
         [SerializeField] private TextMeshProUGUI bonusLevelText; // 顯示等級變化（例如：戰術擴張 Lv0 -> Lv1）
         [SerializeField] private Button bonusConfirmButton;
         
-        [Header("說明影片資源")]
-        [SerializeField] private VideoClip defenseVideo; // 防禦強化.mp4
-        [SerializeField] private VideoClip[] volleyVideos = new VideoClip[5]; // 火力強化1-5.mp4
-        [SerializeField] private VideoClip annihilationVideo; // 湮滅.mp4
-        [SerializeField] private VideoClip executionVideo; // 處決.mp4
-        [SerializeField] private VideoClip repairVideo; // 修補.mp4
+        [Header("說明動畫資源")]
+        [SerializeField] private RuntimeAnimatorController defenseAnimator; // 防禦強化動畫
+        [SerializeField] private RuntimeAnimatorController[] volleyAnimators = new RuntimeAnimatorController[5]; // 火力強化1-5動畫
+        [SerializeField] private RuntimeAnimatorController annihilationAnimator; // 湮滅動畫
+        [SerializeField] private RuntimeAnimatorController executionAnimator; // 處決動畫
+        [SerializeField] private RuntimeAnimatorController repairAnimator; // 修補動畫
         
         [Header("提示訊息")]
         [SerializeField] private GameObject tipsPanel; // 提示訊息面板
@@ -199,6 +199,19 @@ namespace Tenronis.UI
             {
                 StopCoroutine(tipDisplayCoroutine);
                 tipDisplayCoroutine = null;
+            }
+            
+            // 停止Sprite同步協程
+            if (spriteSyncCoroutine != null)
+            {
+                StopCoroutine(spriteSyncCoroutine);
+                spriteSyncCoroutine = null;
+            }
+            
+            // 停止Animator
+            if (bonusAnimator != null)
+            {
+                bonusAnimator.enabled = false;
             }
         }
         
@@ -945,7 +958,8 @@ namespace Tenronis.UI
         // 保存 Bonus Panel 的內容，用於動畫結束後顯示
         private string savedDescriptionText = "";
         private string savedLevelChangeText = "";
-        private VideoClip savedVideoClip = null;
+        private RuntimeAnimatorController savedAnimatorController = null;
+        private Coroutine spriteSyncCoroutine = null; // 用於同步Sprite的協程
         
         /// <summary>
         /// 準備傳奇強化說明頁面內容（但不顯示）
@@ -964,20 +978,20 @@ namespace Tenronis.UI
             if (selectPanel != null)
                 selectPanel.SetActive(false);
             
-            // 設置文字和影片
+            // 設置文字和動畫
             string descriptionText = "";
-            VideoClip videoClip = null;
+            RuntimeAnimatorController animatorController = null;
             
             if (volleyUpgraded && PlayerManager.Instance != null)
             {
                 int volleyLevel = PlayerManager.Instance.Stats.missileExtraCount;
                 descriptionText = $"現在消除方塊，會生成 {1 + volleyLevel} 發飛彈";
                 
-                // 根據等級選擇對應的影片（等級 1-5 對應索引 0-4）
-                int videoIndex = Mathf.Clamp(volleyLevel - 1, 0, volleyVideos.Length - 1);
-                if (videoIndex >= 0 && videoIndex < volleyVideos.Length && volleyVideos[videoIndex] != null)
+                // 根據等級選擇對應的動畫（等級 1-5 對應索引 0-4）
+                int animIndex = Mathf.Clamp(volleyLevel - 1, 0, volleyAnimators.Length - 1);
+                if (animIndex >= 0 && animIndex < volleyAnimators.Length && volleyAnimators[animIndex] != null)
                 {
-                    videoClip = volleyVideos[videoIndex];
+                    animatorController = volleyAnimators[animIndex];
                 }
             }
             else if (defenseUpgraded && PlayerManager.Instance != null)
@@ -985,42 +999,42 @@ namespace Tenronis.UI
                 int defenseLevel = PlayerManager.Instance.Stats.blockDefenseLevel;
                 descriptionText = $"方塊現在可以承受 {1 + defenseLevel} 發飛彈";
                 
-                if (defenseVideo != null)
+                if (defenseAnimator != null)
                 {
-                    videoClip = defenseVideo;
+                    animatorController = defenseAnimator;
                 }
             }
             else if (unlockedAnnihilation)
             {
                 descriptionText = "按 1 將當前方塊轉化為可穿透已存在方塊的湮滅方塊。按 空白鍵 將摧毀所有與湮滅方塊重疊的方塊，並生成飛彈。";
                 
-                if (annihilationVideo != null)
+                if (annihilationAnimator != null)
                 {
-                    videoClip = annihilationVideo;
+                    animatorController = annihilationAnimator;
                 }
             }
             else if (unlockedExecution)
             {
                 descriptionText = "按 2 消除每一行最上方的方塊，並生成飛彈。";
                 
-                if (executionVideo != null)
+                if (executionAnimator != null)
                 {
-                    videoClip = executionVideo;
+                    animatorController = executionAnimator;
                 }
             }
             else if (unlockedRepair)
             {
                 descriptionText = "按 3 將所有封閉區域填充為方塊。若形成整列，則視為有效消除。消除虛無方塊時不會產生任何飛彈。";
                 
-                if (repairVideo != null)
+                if (repairAnimator != null)
                 {
-                    videoClip = repairVideo;
+                    animatorController = repairAnimator;
                 }
             }
             
             // 保存內容供後續動畫使用
             savedDescriptionText = descriptionText;
-            savedVideoClip = videoClip;
+            savedAnimatorController = animatorController;
             
             // 獲取並設置 Icon
             Sprite iconSprite = null;
@@ -1127,65 +1141,52 @@ namespace Tenronis.UI
             
             savedLevelChangeText = levelChangeText;
             
-            // 設置影片（但不顯示）
-            if (bonusVideoPlayer != null && bonusVideoImage != null)
+            // 設置動畫（但不顯示）
+            if (bonusAnimator != null && bonusAnimationImage != null && bonusSpriteRenderer != null)
             {
-                if (videoClip != null)
+                if (animatorController != null)
                 {
-                    // 設置 VideoPlayer
-                    bonusVideoPlayer.clip = videoClip;
-                    bonusVideoPlayer.renderMode = VideoRenderMode.RenderTexture;
-                    
-                    // 獲取影片的寬高比
-                    uint videoWidth = videoClip.width;
-                    uint videoHeight = videoClip.height;
-                    float aspectRatio = (float)videoWidth / (float)videoHeight;
-                    
-                    // 根據影片寬高比調整 AspectRatioFilter
-                    if (bonusAspectRatioFitter != null)
+                    // 停止之前的同步協程
+                    if (spriteSyncCoroutine != null)
                     {
-                        bonusAspectRatioFitter.aspectRatio = aspectRatio;
-                        bonusAspectRatioFitter.aspectMode = UnityEngine.UI.AspectRatioFitter.AspectMode.FitInParent;
+                        StopCoroutine(spriteSyncCoroutine);
+                        spriteSyncCoroutine = null;
                     }
                     
-                    // 創建 RenderTexture（根據影片實際尺寸）
-                    int videoWidthInt = (int)videoWidth;
-                    int videoHeightInt = (int)videoHeight;
-                    if (bonusVideoPlayer.targetTexture == null || 
-                        bonusVideoPlayer.targetTexture.width != videoWidthInt || 
-                        bonusVideoPlayer.targetTexture.height != videoHeightInt)
+                    // 設置 Animator
+                    bonusAnimator.runtimeAnimatorController = animatorController;
+                    
+                    // 確保SpriteRenderer在開始時是啟用的
+                    if (!bonusSpriteRenderer.gameObject.activeSelf)
                     {
-                        // 釋放舊的 RenderTexture（如果存在）
-                        if (bonusVideoPlayer.targetTexture != null)
-                        {
-                            bonusVideoPlayer.targetTexture.Release();
-                            Destroy(bonusVideoPlayer.targetTexture);
-                        }
-                        
-                        // 創建新的 RenderTexture（使用影片的實際尺寸）
-                        RenderTexture renderTexture = new RenderTexture(videoWidthInt, videoHeightInt, 0);
-                        bonusVideoPlayer.targetTexture = renderTexture;
+                        bonusSpriteRenderer.gameObject.SetActive(true);
                     }
                     
-                    // 設置 RawImage 的 texture
-                    bonusVideoImage.texture = bonusVideoPlayer.targetTexture;
+                    // 重置Animator狀態
+                    bonusAnimator.enabled = true;
+                    bonusAnimator.Rebind();
                     
                     // 設置初始狀態：透明
-                    Color imageColor = bonusVideoImage.color;
+                    Color imageColor = bonusAnimationImage.color;
                     imageColor.a = 0f;
-                    bonusVideoImage.color = imageColor;
-                    bonusVideoImage.gameObject.SetActive(true);
+                    bonusAnimationImage.color = imageColor;
+                    bonusAnimationImage.gameObject.SetActive(true);
                     
-                    // 播放影片
-                    bonusVideoPlayer.Play();
+                    // 開始同步Sprite的協程
+                    spriteSyncCoroutine = StartCoroutine(SyncSpriteFromRendererToImage());
                 }
                 else
                 {
-                    // 如果沒有影片，隱藏 RawImage
-                    bonusVideoImage.gameObject.SetActive(false);
-                    bonusVideoPlayer.Stop();
+                    // 如果沒有動畫，隱藏Image
+                    bonusAnimationImage.gameObject.SetActive(false);
                     
-                    // 重置 AspectRatioFilter（可選）
+                    // 停止Animator
+                    if (bonusAnimator != null)
+                    {
+                        bonusAnimator.enabled = false;
+                    }
+                    
+                    // 重置 AspectRatioFitter（可選）
                     if (bonusAspectRatioFitter != null)
                     {
                         bonusAspectRatioFitter.aspectRatio = 1f; // 重置為 1:1
@@ -1239,6 +1240,39 @@ namespace Tenronis.UI
         }
         
         /// <summary>
+        /// 從 SpriteRenderer 同步 Sprite 到 Image 的協程
+        /// </summary>
+        private IEnumerator SyncSpriteFromRendererToImage()
+        {
+            if (bonusSpriteRenderer == null || bonusAnimationImage == null)
+            {
+                yield break;
+            }
+            
+            while (bonusAnimationImage.gameObject.activeSelf && bonusAnimator != null && bonusAnimator.enabled)
+            {
+                // 從 SpriteRenderer 讀取當前 Sprite
+                Sprite currentSprite = bonusSpriteRenderer.sprite;
+                if (currentSprite != null)
+                {
+                    // 將 Sprite 應用到 Image
+                    bonusAnimationImage.sprite = currentSprite;
+                    
+                    // 如果AspectRatioFitter存在，根據Sprite尺寸設置寬高比
+                    if (bonusAspectRatioFitter != null && currentSprite != null)
+                    {
+                        float aspectRatio = (float)currentSprite.texture.width / (float)currentSprite.texture.height;
+                        bonusAspectRatioFitter.aspectRatio = aspectRatio;
+                        bonusAspectRatioFitter.aspectMode = UnityEngine.UI.AspectRatioFitter.AspectMode.FitInParent;
+                    }
+                }
+                
+                // 每幀更新
+                yield return null;
+            }
+        }
+        
+        /// <summary>
         /// 顯示 Bonus Panel 內容的動畫序列
         /// </summary>
         private IEnumerator ShowBonusPanelContent()
@@ -1263,10 +1297,10 @@ namespace Tenronis.UI
                 yield return StartCoroutine(TypewriterEffect(bonusText, savedDescriptionText, 0.01f));
             }
             
-            // 第四階段：bonusVideoImage 淡入
-            if (bonusVideoImage != null && bonusVideoImage.gameObject.activeSelf && savedVideoClip != null)
+            // 第四階段：bonusAnimationImage 淡入
+            if (bonusAnimationImage != null && bonusAnimationImage.gameObject.activeSelf && savedAnimatorController != null)
             {
-                yield return bonusVideoImage.DOFade(1f, 0.5f).WaitForCompletion();
+                yield return bonusAnimationImage.DOFade(1f, 0.5f).WaitForCompletion();
             }
             
             // 第五階段：bonusConfirmButton 出現
@@ -1281,10 +1315,17 @@ namespace Tenronis.UI
         /// </summary>
         private void OnBonusConfirmClicked()
         {
-            // 停止影片播放
-            if (bonusVideoPlayer != null)
+            // 停止動畫播放
+            if (bonusAnimator != null)
             {
-                bonusVideoPlayer.Stop();
+                bonusAnimator.enabled = false;
+            }
+            
+            // 停止同步協程
+            if (spriteSyncCoroutine != null)
+            {
+                StopCoroutine(spriteSyncCoroutine);
+                spriteSyncCoroutine = null;
             }
             
             if (bonusPanel != null)

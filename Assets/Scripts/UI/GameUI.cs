@@ -25,6 +25,7 @@ namespace Tenronis.UI
         
         [Header("遊戲中UI")]
         [SerializeField] private GameObject gameplayPanel;
+        [SerializeField] private Button quitButton; // 退出按鈕
         [SerializeField] private TextMeshProUGUI scoreText;
         [SerializeField] private TextMeshProUGUI comboText;
         [SerializeField] private TextMeshProUGUI salvoText;  // 齊射提示文字
@@ -34,18 +35,23 @@ namespace Tenronis.UI
         [SerializeField] private TextMeshProUGUI playerHpText;
         [SerializeField] private Slider playerCpSlider;
         [SerializeField] private TextMeshProUGUI playerCpText;
+        [SerializeField] private TextMeshProUGUI overflowCostText; // 溢出CP消耗提示文字
         [SerializeField] private Slider enemyHpSlider;
         [SerializeField] private TextMeshProUGUI enemyHpText;
         [SerializeField] private TextMeshProUGUI stageText;
         
         [Header("技能UI")]
+        [SerializeField] private GameObject skillPanel; // 技能面板
         [SerializeField] private TextMeshProUGUI explosionDamageText;
-        [SerializeField] private TextMeshProUGUI executionKeyLabelText;
-        [SerializeField] private TextMeshProUGUI executionCostText;
-        [SerializeField] private TextMeshProUGUI repairKeyLabelText;
-        [SerializeField] private TextMeshProUGUI repairCostText;
+        [SerializeField] private GameObject annihilationSkillObject; // 湮滅技能GameObject
         [SerializeField] private TextMeshProUGUI annihilationKeyLabelText;
         [SerializeField] private TextMeshProUGUI annihilationCostText;
+        [SerializeField] private GameObject executionSkillObject; // 處決技能GameObject
+        [SerializeField] private TextMeshProUGUI executionKeyLabelText;
+        [SerializeField] private TextMeshProUGUI executionCostText;
+        [SerializeField] private GameObject repairSkillObject; // 修補技能GameObject
+        [SerializeField] private TextMeshProUGUI repairKeyLabelText;
+        [SerializeField] private TextMeshProUGUI repairCostText;
         
         [Header("敵人受傷計數器")]
         [SerializeField] private TextMeshProUGUI enemyDamageCounterText;
@@ -98,12 +104,22 @@ namespace Tenronis.UI
         [Header("升級UI")]
         [SerializeField] private GameObject levelUpPanel;
         
-        [Header("遊戲結束")]
+        [Header("遊戲結束 - 失敗")]
         [SerializeField] private GameObject gameOverPanel;
+        [SerializeField] private TextMeshProUGUI gameOverFinalScoreText;
+        [SerializeField] private Button gameOverRestartButton;
+        [SerializeField] private Button gameOverMenuButton;
+        
+        [Header("遊戲結束 - 勝利")]
         [SerializeField] private GameObject victoryPanel;
-        [SerializeField] private TextMeshProUGUI finalScoreText;
-        [SerializeField] private Button restartButton;
-        [SerializeField] private Button menuButton;
+        [SerializeField] private TextMeshProUGUI victoryFinalScoreText;
+        [SerializeField] private Button victoryRestartButton;
+        [SerializeField] private Button victoryMenuButton;
+        
+        [Header("退出確認面板")]
+        [SerializeField] private GameObject quitPanel;
+        [SerializeField] private Button quitYesButton; // 確認退出（返回主選單）
+        [SerializeField] private Button quitNoButton; // 取消退出（關閉面板）
         
         private void Start()
         {
@@ -115,9 +131,18 @@ namespace Tenronis.UI
                 return;
             }
             
-            // 綁定按鈕事件
-            if (restartButton != null) restartButton.onClick.AddListener(OnRestart);
-            if (menuButton != null) menuButton.onClick.AddListener(OnReturnToMenu);
+            // 綁定按鈕事件 - 失敗面板
+            if (gameOverRestartButton != null) gameOverRestartButton.onClick.AddListener(OnRestart);
+            if (gameOverMenuButton != null) gameOverMenuButton.onClick.AddListener(OnReturnToMenu);
+            
+            // 綁定按鈕事件 - 勝利面板
+            if (victoryRestartButton != null) victoryRestartButton.onClick.AddListener(OnRestart);
+            if (victoryMenuButton != null) victoryMenuButton.onClick.AddListener(OnReturnToMenu);
+            
+            // 綁定按鈕事件 - 退出功能
+            if (quitButton != null) quitButton.onClick.AddListener(OnQuitButtonClicked);
+            if (quitYesButton != null) quitYesButton.onClick.AddListener(OnQuitYesClicked);
+            if (quitNoButton != null) quitNoButton.onClick.AddListener(OnQuitNoClicked);
             
             // 訂閱遊戲事件
             GameEvents.OnGameStateChanged += HandleGameStateChanged;
@@ -166,8 +191,18 @@ namespace Tenronis.UI
             GameEvents.OnGridOverflow -= HandleGridOverflow;
             GameEvents.OnSkillUsed -= HandleSkillUsed;
             
-            if (restartButton != null) restartButton.onClick.RemoveListener(OnRestart);
-            if (menuButton != null) menuButton.onClick.RemoveListener(OnReturnToMenu);
+            // 解綁按鈕事件 - 失敗面板
+            if (gameOverRestartButton != null) gameOverRestartButton.onClick.RemoveListener(OnRestart);
+            if (gameOverMenuButton != null) gameOverMenuButton.onClick.RemoveListener(OnReturnToMenu);
+            
+            // 解綁按鈕事件 - 勝利面板
+            if (victoryRestartButton != null) victoryRestartButton.onClick.RemoveListener(OnRestart);
+            if (victoryMenuButton != null) victoryMenuButton.onClick.RemoveListener(OnReturnToMenu);
+            
+            // 解綁按鈕事件 - 退出功能
+            if (quitButton != null) quitButton.onClick.RemoveListener(OnQuitButtonClicked);
+            if (quitYesButton != null) quitYesButton.onClick.RemoveListener(OnQuitYesClicked);
+            if (quitNoButton != null) quitNoButton.onClick.RemoveListener(OnQuitNoClicked);
         }
         
         private void Update()
@@ -290,6 +325,7 @@ namespace Tenronis.UI
             SetPanelActive(levelUpPanel, false);
             SetPanelActive(gameOverPanel, false);
             SetPanelActive(victoryPanel, false);
+            SetPanelActive(quitPanel, false); // 隱藏退出確認面板
             
             // 預設顯示主題選擇
             ShowThemeSelection();
@@ -336,6 +372,7 @@ namespace Tenronis.UI
             SetPanelActive(levelUpPanel, false);
             SetPanelActive(gameOverPanel, false);
             SetPanelActive(victoryPanel, false);
+            SetPanelActive(quitPanel, false); // 隱藏退出確認面板
         }
         
         private void ShowLevelUp()
@@ -345,6 +382,7 @@ namespace Tenronis.UI
             SetPanelActive(levelUpPanel, true);
             SetPanelActive(gameOverPanel, false);
             SetPanelActive(victoryPanel, false);
+            SetPanelActive(quitPanel, false); // 隱藏退出確認面板
         }
         
         private void ShowGameOver()
@@ -354,9 +392,10 @@ namespace Tenronis.UI
             SetPanelActive(levelUpPanel, false);
             SetPanelActive(gameOverPanel, true);
             SetPanelActive(victoryPanel, false);
+            SetPanelActive(quitPanel, false); // 隱藏退出確認面板
             
-            if (finalScoreText != null && PlayerManager.Instance != null)
-                finalScoreText.text = $"最終分數: {PlayerManager.Instance.Stats.score:N0}";
+            if (gameOverFinalScoreText != null && PlayerManager.Instance != null)
+                gameOverFinalScoreText.text = $"最終分數: {PlayerManager.Instance.Stats.score:N0}";
         }
         
         private void ShowVictory()
@@ -366,9 +405,10 @@ namespace Tenronis.UI
             SetPanelActive(levelUpPanel, false);
             SetPanelActive(gameOverPanel, false);
             SetPanelActive(victoryPanel, true);
+            SetPanelActive(quitPanel, false); // 隱藏退出確認面板
             
-            if (finalScoreText != null && PlayerManager.Instance != null)
-                finalScoreText.text = $"最終分數: {PlayerManager.Instance.Stats.score:N0}";
+            if (victoryFinalScoreText != null && PlayerManager.Instance != null)
+                victoryFinalScoreText.text = $"最終分數: {PlayerManager.Instance.Stats.score:N0}";
         }
         
         private void SetPanelActive(GameObject panel, bool active)
@@ -386,6 +426,33 @@ namespace Tenronis.UI
         private void OnReturnToMenu()
         {
             GameManager.Instance.ReturnToMenu();
+        }
+        
+        // --- 退出功能 ---
+        
+        /// <summary>
+        /// 點擊退出按鈕 - 顯示退出確認面板
+        /// </summary>
+        private void OnQuitButtonClicked()
+        {
+            SetPanelActive(quitPanel, true);
+        }
+        
+        /// <summary>
+        /// 點擊退出確認（Yes）- 返回主選單
+        /// </summary>
+        private void OnQuitYesClicked()
+        {
+            SetPanelActive(quitPanel, false);
+            OnReturnToMenu();
+        }
+        
+        /// <summary>
+        /// 點擊取消退出（No）- 關閉退出確認面板
+        /// </summary>
+        private void OnQuitNoClicked()
+        {
+            SetPanelActive(quitPanel, false);
         }
         
         private void HandleGameStateChanged(GameState newState)
@@ -475,6 +542,23 @@ namespace Tenronis.UI
                 if (playerCpSlider != null) { playerCpSlider.maxValue = stats.maxCp; playerCpSlider.value = stats.currentCp; }
                 if (playerCpText != null) playerCpText.text = $"CP: {stats.currentCp} / {stats.maxCp}";
                 if (explosionDamageText != null) explosionDamageText.text = $"衝擊炮充能 : {stats.explosionCharge}/{stats.explosionMaxCharge}";
+                
+                // 更新溢出CP消耗提示
+                if (overflowCostText != null)
+                {
+                    if (stats.currentCp >= GameConstants.OVERFLOW_CP_COST)
+                    {
+                        // CP足夠：顯示 溢出代價 : CP -75
+                        overflowCostText.text = $"溢出代價 : CP -{GameConstants.OVERFLOW_CP_COST}";
+                        overflowCostText.color = Color.white;
+                    }
+                    else
+                    {
+                        // CP不足：顯示 溢出代價 : HP -> 1 (紅色)
+                        overflowCostText.text = "溢出代價 : HP = 1";
+                        overflowCostText.color = Color.red;
+                    }
+                }
                 
                 UpdateSkillUI();
             }
@@ -731,15 +815,28 @@ namespace Tenronis.UI
         private void UpdateSkillUI()
         {
             if (PlayerManager.Instance == null) return;
+            
             // 1 -> 湮滅
-            if (annihilationKeyLabelText != null) annihilationKeyLabelText.text = PlayerManager.Instance.IsAnnihilationUnlocked() ? "1" : "Locked";
-            if (annihilationCostText != null) annihilationCostText.text = PlayerManager.Instance.IsAnnihilationUnlocked() ? $"CP-{GameConstants.ANNIHILATION_CP_COST}" : "";
+            bool isAnnihilationUnlocked = PlayerManager.Instance.IsAnnihilationUnlocked();
+            if (annihilationSkillObject != null) annihilationSkillObject.SetActive(isAnnihilationUnlocked);
+            if (annihilationKeyLabelText != null && isAnnihilationUnlocked) annihilationKeyLabelText.text = "1";
+            if (annihilationCostText != null && isAnnihilationUnlocked) annihilationCostText.text = $"CP-{GameConstants.ANNIHILATION_CP_COST}";
+            
             // 2 -> 處決
-            if (executionKeyLabelText != null) executionKeyLabelText.text = PlayerManager.Instance.IsExecutionUnlocked() ? "2" : "Locked";
-            if (executionCostText != null) executionCostText.text = PlayerManager.Instance.IsExecutionUnlocked() ? $"CP-{GameConstants.EXECUTION_CP_COST}" : "";
+            bool isExecutionUnlocked = PlayerManager.Instance.IsExecutionUnlocked();
+            if (executionSkillObject != null) executionSkillObject.SetActive(isExecutionUnlocked);
+            if (executionKeyLabelText != null && isExecutionUnlocked) executionKeyLabelText.text = "2";
+            if (executionCostText != null && isExecutionUnlocked) executionCostText.text = $"CP-{GameConstants.EXECUTION_CP_COST}";
+            
             // 3 -> 修補
-            if (repairKeyLabelText != null) repairKeyLabelText.text = PlayerManager.Instance.IsRepairUnlocked() ? "3" : "Locked";
-            if (repairCostText != null) repairCostText.text = PlayerManager.Instance.IsRepairUnlocked() ? $"CP-{GameConstants.REPAIR_CP_COST}" : "";
+            bool isRepairUnlocked = PlayerManager.Instance.IsRepairUnlocked();
+            if (repairSkillObject != null) repairSkillObject.SetActive(isRepairUnlocked);
+            if (repairKeyLabelText != null && isRepairUnlocked) repairKeyLabelText.text = "3";
+            if (repairCostText != null && isRepairUnlocked) repairCostText.text = $"CP-{GameConstants.REPAIR_CP_COST}";
+            
+            // 如果三個技能都未解鎖，隱藏SkillPanel
+            bool hasAnySkillUnlocked = isAnnihilationUnlocked || isExecutionUnlocked || isRepairUnlocked;
+            if (skillPanel != null) skillPanel.SetActive(hasAnySkillUnlocked);
         }
         
         /// <summary>
