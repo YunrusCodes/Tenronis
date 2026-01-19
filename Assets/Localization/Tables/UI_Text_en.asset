@@ -106,6 +106,153 @@ MonoBehaviour:
     m_Localized: Castle Fallen
     m_Metadata:
       m_Items: []
+  - m_Id: 6700000000001
+    m_Localized: Combo!
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6700000000002
+    m_Localized: Full Salvo!
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6700000000003
+    m_Localized: Triple Salvo!
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6700000000004
+    m_Localized: Double Salvo!
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6700000000005
+    m_Localized: 'Final Score:'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6700000000006
+    m_Localized: 'HP:'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6700000000007
+    m_Localized: 'CP:'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6700000000008
+    m_Localized: 'Cannon Charge :'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6700000000009
+    m_Localized: 'Overflow Cost : CP -'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6700000000010
+    m_Localized: 'Overflow Cost : HP = 1'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6700000000011
+    m_Localized: STAGE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6700000000012
+    m_Localized: Counter!
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6700000000013
+    m_Localized: Normal Buff Items
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6700000000014
+    m_Localized: Legendary Buff Items
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6700000000015
+    m_Localized: Salvo Enhancement
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6700000000016
+    m_Localized: Burst Enhancement
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6700000000017
+    m_Localized: Counter Enhancement
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6700000000018
+    m_Localized: Impact Expansion
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6700000000019
+    m_Localized: Resource Expansion
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6700000000020
+    m_Localized: Space Expansion
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6700000000021
+    m_Localized: 'Block Defense :'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6700000000022
+    m_Localized: 'Missile Damage Multiplier :'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6700000000023
+    m_Localized: Annihilation (Key 1) - Cost
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6700000000024
+    m_Localized: Execution (Key 2) - Cost
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6700000000025
+    m_Localized: Repair (Key 3) - Cost
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6700000000026
+    m_Localized: Enter ghost penetration state, destroy overlapping blocks on hard
+      drop and fire missiles
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6700000000027
+    m_Localized: Clear the top block of each column and fire missiles
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6700000000028
+    m_Localized: Fill closed gaps and check for clears
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6700000000029
+    m_Localized: Unavailable, obtain one Tactical Expansion to unlock
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6700000000030
+    m_Localized: Unavailable, obtain two Tactical Expansions to unlock
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6700000000031
+    m_Localized: Unavailable, obtain three Tactical Expansions to unlock
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6700000000032
+    m_Localized: Blocks take damage within 0.2 seconds after generation will trigger
+      counter
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6700000000033
+    m_Localized: When grid overflows, consume {0} CP, release accumulated charge
+      of impact cannon to damage enemies
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6700000000034
+    m_Localized: If CP is insufficient, own HP becomes 1
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6700000000035
+    m_Localized: Releasing impact cannon and using active skills consume CP
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6700000000036
+    m_Localized: Number of storable block slots
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

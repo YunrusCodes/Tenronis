@@ -701,7 +701,7 @@ namespace Tenronis.Managers
                     Gameplay.Player.PlayerVisualController.Instance.TriggerCounterFireEffect();
                 }
                 
-                GameEvents.TriggerShowPopupText("反擊!", new Color(0.29f, 0.87f, 0.5f), GridManager.Instance.GridToWorldPosition(hitPos.x, hitPos.y));
+                GameEvents.TriggerShowPopupText(Tenronis.Utils.LocalizationHelper.GetLocalizedString("反擊!"), new Color(0.29f, 0.87f, 0.5f), GridManager.Instance.GridToWorldPosition(hitPos.x, hitPos.y));
                 
                 // 增加爆炸充能（反擊一次增加5充能）
                 if (PlayerManager.Instance != null)

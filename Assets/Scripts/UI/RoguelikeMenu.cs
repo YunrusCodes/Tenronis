@@ -7,6 +7,7 @@ using Tenronis.Data;
 using Tenronis.Core;
 using Tenronis.Managers;
 using Tenronis.ScriptableObjects;
+using Tenronis.Utils;
 using DG.Tweening;
 
 namespace Tenronis.UI
@@ -1385,12 +1386,12 @@ namespace Tenronis.UI
             // 構建普通強化內容
             System.Text.StringBuilder normalSb = new System.Text.StringBuilder();
             
-            normalSb.AppendLine("普通增益強化項目");
+            normalSb.AppendLine(LocalizationHelper.GetLocalizedString("普通增益強化項目"));
             normalSb.AppendLine();
             
             // 齊射強化進度條（簡化版）
             string salvoProgress = GetSimpleProgressBar(stats.salvoLevel, GameConstants.SALVO_MAX_LEVEL);
-            normalSb.AppendLine($"齊射強化 {salvoProgress}");
+            normalSb.AppendLine($"{LocalizationHelper.GetLocalizedString("齊射強化")} {salvoProgress}");
             if (showDetailedInfo)
             {
                 int maxSalvoPercent = GameConstants.SALVO_MAX_LEVEL * 50;
@@ -1400,7 +1401,7 @@ namespace Tenronis.UI
             
             // 連發強化進度條（簡化版）
             string burstProgress = GetSimpleProgressBar(stats.burstLevel, GameConstants.BURST_MAX_LEVEL);
-            normalSb.AppendLine($"連發強化 {burstProgress}");
+            normalSb.AppendLine($"{LocalizationHelper.GetLocalizedString("連發強化")} {burstProgress}");
             if (showDetailedInfo)
             {
                 int maxBurstPercent = GameConstants.BURST_MAX_LEVEL * 25;
@@ -1410,44 +1411,44 @@ namespace Tenronis.UI
             
             // 反擊強化進度條（簡化版）
             string counterProgress = GetSimpleProgressBar(stats.counterFireLevel, GameConstants.COUNTER_MAX_LEVEL);
-            normalSb.AppendLine($"反擊強化 {counterProgress}");
+            normalSb.AppendLine($"{LocalizationHelper.GetLocalizedString("反擊強化")} {counterProgress}");
             if (showDetailedInfo)
             {
                 normalSb.AppendLine($"  當前: {stats.counterFireLevel}發子彈 (上限 {GameConstants.COUNTER_MAX_LEVEL}發子彈)");
-                normalSb.AppendLine("  <size=80%>方塊在生成後的0.2秒內受到傷害會觸發反擊</size>");
+                normalSb.AppendLine($"  <size=80%>{LocalizationHelper.GetLocalizedString("方塊在生成後的0.2秒內受到傷害會觸發反擊")}</size>");
             }
             normalSb.AppendLine();
             
             // 爆炸充能進度條（簡化版）
             string explosionProgress = GetSimpleProgressBar(stats.explosionChargeLevel, GameConstants.EXPLOSION_BUFF_MAX_LEVEL);
-            normalSb.AppendLine($"衝擊擴充 {explosionProgress}");
+            normalSb.AppendLine($"{LocalizationHelper.GetLocalizedString("衝擊擴充")} {explosionProgress}");
             if (showDetailedInfo)
             {
                 int maxExplosionCharge = GameConstants.EXPLOSION_BUFF_MAX_LEVEL * GameConstants.EXPLOSION_BUFF_MAX_CHARGE_INCREASE;
                 normalSb.AppendLine($"  當前上限: {stats.explosionMaxCharge} (最大 {maxExplosionCharge})");
-                normalSb.AppendLine($"  <size=80%>網格溢位時消耗 {GameConstants.OVERFLOW_CP_COST} CP，釋放衝擊炮累積的充能對敵人造成傷害</size>");
-                normalSb.AppendLine($"  <size=80%><color=red>若 CP 不足，自身HP 歸 1</color></size>");
+                normalSb.AppendLine($"  <size=80%>{LocalizationHelper.GetLocalizedStringFormat("網格溢位時消耗 {0} CP，釋放衝擊炮累積的充能對敵人造成傷害", GameConstants.OVERFLOW_CP_COST)}</size>");
+                normalSb.AppendLine($"  <size=80%><color=red>{LocalizationHelper.GetLocalizedString("若 CP 不足，自身HP 歸 1")}</color></size>");
             }
             normalSb.AppendLine();
             
             // 資源擴充進度條（簡化版）
             string cpProgress = GetSimpleProgressBar(stats.cpExpansionLevel, GameConstants.RESOURCE_EXPANSION_MAX_LEVEL);
-            normalSb.AppendLine($"資源擴充 {cpProgress}");
+            normalSb.AppendLine($"{LocalizationHelper.GetLocalizedString("資源擴充")} {cpProgress}");
             if (showDetailedInfo)
             {
                 int maxCp = GameConstants.PLAYER_MAX_CP + GameConstants.RESOURCE_EXPANSION_MAX_LEVEL * 50;
                 normalSb.AppendLine($"  當前 CP: {stats.maxCp} (上限 {maxCp})");
-                normalSb.AppendLine("  <size=80%>釋放衝擊炮和使用主動技能需消耗CP</size>");
+                normalSb.AppendLine($"  <size=80%>{LocalizationHelper.GetLocalizedString("釋放衝擊炮和使用主動技能需消耗CP")}</size>");
             }
             normalSb.AppendLine();
             
             // 空間擴充進度條（簡化版）
             string spaceProgress = GetSimpleProgressBar(stats.spaceExpansionLevel, GameConstants.SPACE_EXPANSION_MAX_LEVEL);
-            normalSb.AppendLine($"空間擴充 {spaceProgress}");
+            normalSb.AppendLine($"{LocalizationHelper.GetLocalizedString("空間擴充")} {spaceProgress}");
             if (showDetailedInfo)
             {
                 normalSb.AppendLine($"  當前槽位: {stats.spaceExpansionLevel} (上限 {GameConstants.SPACE_EXPANSION_MAX_LEVEL})");
-                normalSb.AppendLine("  <size=80%>可儲存的方塊槽位數量</size>");
+                normalSb.AppendLine($"  <size=80%>{LocalizationHelper.GetLocalizedString("可儲存的方塊槽位數量")}</size>");
             }
             
             // 設置普通強化文本
@@ -1459,39 +1460,39 @@ namespace Tenronis.UI
             // 構建傳奇強化內容
             System.Text.StringBuilder legendarySb = new System.Text.StringBuilder();
             
-            legendarySb.AppendLine("傳奇增益強化項目");
+            legendarySb.AppendLine(LocalizationHelper.GetLocalizedString("傳奇增益強化項目"));
             legendarySb.AppendLine();
             
-            legendarySb.AppendLine($"方塊可承受子彈次數 : {stats.blockDefenseLevel}");
+            legendarySb.AppendLine($"{LocalizationHelper.GetLocalizedString("方塊可承受子彈次數 :")} {stats.blockDefenseLevel}");
             legendarySb.AppendLine();
             
-            legendarySb.AppendLine($"導彈傷害倍率 : x{1 + stats.missileExtraCount}");
+            legendarySb.AppendLine($"{LocalizationHelper.GetLocalizedString("導彈傷害倍率 :")} x{1 + stats.missileExtraCount}");
             legendarySb.AppendLine();
             
             // 湮滅技能
-            legendarySb.AppendLine($"湮滅 (按鍵1) - 消耗 {GameConstants.ANNIHILATION_CP_COST} CP");
-            legendarySb.AppendLine("<size=80%>進入幽靈穿透狀態，硬降時破壞重疊方塊並發射導彈</size>");
+            legendarySb.AppendLine($"{LocalizationHelper.GetLocalizedString("湮滅 (按鍵1) - 消耗")} {GameConstants.ANNIHILATION_CP_COST} CP");
+            legendarySb.AppendLine($"<size=80%>{LocalizationHelper.GetLocalizedString("進入幽靈穿透狀態，硬降時破壞重疊方塊並發射導彈")}</size>");
             if (!PlayerManager.Instance.IsAnnihilationUnlocked())
             {
-                legendarySb.AppendLine("<color=red>(無法使用，獲得一次戰術擴張以解鎖)</color>");
+                legendarySb.AppendLine($"<color=red>({LocalizationHelper.GetLocalizedString("無法使用，獲得一次戰術擴張以解鎖")})</color>");
             }
             legendarySb.AppendLine();
             
             // 處決技能
-            legendarySb.AppendLine($"處決 (按鍵2) - 消耗 {GameConstants.EXECUTION_CP_COST} CP");
-            legendarySb.AppendLine("<size=80%>清除每列最上方的方塊並發射導彈</size>");
+            legendarySb.AppendLine($"{LocalizationHelper.GetLocalizedString("處決 (按鍵2) - 消耗")} {GameConstants.EXECUTION_CP_COST} CP");
+            legendarySb.AppendLine($"<size=80%>{LocalizationHelper.GetLocalizedString("清除每列最上方的方塊並發射導彈")}</size>");
             if (!PlayerManager.Instance.IsExecutionUnlocked())
             {
-                legendarySb.AppendLine("<color=red>(無法使用，獲得兩次戰術擴張以解鎖)</color>");
+                legendarySb.AppendLine($"<color=red>({LocalizationHelper.GetLocalizedString("無法使用，獲得兩次戰術擴張以解鎖")})</color>");
             }
             legendarySb.AppendLine();
             
             // 修補技能
-            legendarySb.AppendLine($"修補 (按鍵3) - 消耗 {GameConstants.REPAIR_CP_COST} CP");
-            legendarySb.AppendLine("<size=80%>填補封閉空洞並檢查消除</size>");
+            legendarySb.AppendLine($"{LocalizationHelper.GetLocalizedString("修補 (按鍵3) - 消耗")} {GameConstants.REPAIR_CP_COST} CP");
+            legendarySb.AppendLine($"<size=80%>{LocalizationHelper.GetLocalizedString("填補封閉空洞並檢查消除")}</size>");
             if (!PlayerManager.Instance.IsRepairUnlocked())
             {
-                legendarySb.AppendLine("<color=red>(無法使用，獲得三次戰術擴張以解鎖)</color>");
+                legendarySb.AppendLine($"<color=red>({LocalizationHelper.GetLocalizedString("無法使用，獲得三次戰術擴張以解鎖")})</color>");
             }
             
             // 設置傳奇強化文本
