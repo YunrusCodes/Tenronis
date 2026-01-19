@@ -506,7 +506,8 @@ namespace Tenronis.UI
             // 第二階段：使用打字動畫顯示 "Tips\n\n提示內容"
             if (tipsText != null)
             {
-                string tipContent = currentStage.tips[currentTipIndex];
+                string tipKey = currentStage.tips[currentTipIndex];
+                string tipContent = LocalizationHelper.GetLocalizedString(tipKey, tipKey); // 如果找不到本地化，使用原始key作為後備
                 string fullText = $"Tips\n\n{tipContent}";
                 
                 // 使用打字動畫效果
