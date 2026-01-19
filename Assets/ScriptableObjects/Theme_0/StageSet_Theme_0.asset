@@ -13,6 +13,8 @@ MonoBehaviour:
   m_Name: StageSet_Theme_0
   m_EditorClassIdentifier: 
   themeName: "\u6559\u5B78 \u6F14\u7FD2\u4E4B\u591C"
+  themeNameEn: Tutorial\n Night of Drills
+  themeNameJa: "\u8A13\u7DF4\u30FB\u6F14\u7FD2\u306E\u591C"
   themeIcon: {fileID: 0}
   themeColor: {r: 1, g: 1, b: 1, a: 1}
   description: 

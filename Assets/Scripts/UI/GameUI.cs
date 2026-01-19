@@ -360,7 +360,7 @@ namespace Tenronis.UI
                     var theme = themes[i];
                     var btn = Instantiate(themeButtonPrefab, themeButtonContainer);
                     var btnText = btn.GetComponentInChildren<TextMeshProUGUI>();
-                    if (btnText != null) btnText.text = theme.themeName;
+                    if (btnText != null) btnText.text = GetLocalizedThemeName(theme);
                     
                     btn.onClick.AddListener(() => OnThemeSelected(index));
                 }
@@ -907,6 +907,81 @@ namespace Tenronis.UI
             {
                 comboLabelText.text = LocalizationHelper.GetLocalizedString("連發!");
             }
+            
+            // 更新主題按鈕文字
+            if (themeButtonContainer != null)
+            {
+                var themes = GameManager.Instance?.allThemes;
+                if (themes != null)
+                {
+                    int index = 0;
+                    foreach (Transform child in themeButtonContainer)
+                    {
+                        if (index < themes.Count)
+                        {
+                            var btnText = child.GetComponentInChildren<TextMeshProUGUI>();
+                            if (btnText != null)
+                            {
+                                btnText.text = GetLocalizedThemeName(themes[index]);
+                            }
+                        }
+                        index++;
+                    }
+                }
+            }
+        }
+        
+        /// <summary>
+        /// 根據當前語言獲取主題名稱
+        /// </summary>
+        private string GetLocalizedThemeName(StageSetSO theme)
+        {
+            if (theme == null) return "";
+            
+            string languageCode = GetCurrentLanguageCode();
+            
+            switch (languageCode)
+            {
+                case "en":
+                    return !string.IsNullOrEmpty(theme.themeNameEn) ? theme.themeNameEn : theme.themeName;
+                case "ja":
+                    return !string.IsNullOrEmpty(theme.themeNameJa) ? theme.themeNameJa : theme.themeName;
+                case "zh-TW":
+                default:
+                    return theme.themeName;
+            }
+        }
+        
+        /// <summary>
+        /// 獲取當前語言代碼
+        /// </summary>
+        private string GetCurrentLanguageCode()
+        {
+            // 優先使用 LocalizationSettings（因為它會在 SetLanguage 時立即更新，不受初始化順序影響）
+            try
+            {
+                var locale = UnityEngine.Localization.Settings.LocalizationSettings.SelectedLocale;
+                if (locale != null && !string.IsNullOrEmpty(locale.Identifier.Code))
+                {
+                    return locale.Identifier.Code;
+                }
+            }
+            catch
+            {
+                // 如果獲取失敗，繼續嘗試 LanguageManager
+            }
+            
+            // 如果 LocalizationSettings 不可用，使用 LanguageManager
+            if (Tenronis.Managers.LanguageManager.Instance != null)
+            {
+                string langCode = Tenronis.Managers.LanguageManager.Instance.CurrentLanguageCode;
+                if (!string.IsNullOrEmpty(langCode))
+                {
+                    return langCode;
+                }
+            }
+            
+            return "zh-TW"; // 默認繁體中文
         }
         
         /// <summary>
