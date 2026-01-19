@@ -23,23 +23,23 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 4794401718272
-    m_Localized: Engineering Construction
+    m_Localized: Building
     m_Metadata:
       m_Items: []
   - m_Id: 4884457619456
-    m_Localized: Legendary Project
+    m_Localized: Bonus
     m_Metadata:
       m_Items: []
   - m_Id: 4899867492352
-    m_Localized: Powerful Enemy Encountered!!!
+    m_Localized: Dangerous!!!
     m_Metadata:
       m_Items: []
   - m_Id: 5035309957120
-    m_Localized: Rapid Fire
+    m_Localized: Combo
     m_Metadata:
       m_Items: []
   - m_Id: 5149332111360
-    m_Localized: Impact Cannon Charging
+    m_Localized: Charging
     m_Metadata:
       m_Items: []
   - m_Id: 5172593721344
@@ -51,7 +51,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 5294949957632
-    m_Localized: Annihilation
+    m_Localized: Erase
     m_Metadata:
       m_Items: []
   - m_Id: 5308002631680
@@ -83,7 +83,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 5708357337088
-    m_Localized: View Construction Status
+    m_Localized: View Status
     m_Metadata:
       m_Items: []
   - m_Id: 5785188597760
