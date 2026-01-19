@@ -195,7 +195,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 6700000000023
-    m_Localized: Annihilation (Key 1) - Cost
+    m_Localized: Erase (Key 1) - Cost
     m_Metadata:
       m_Items: []
   - m_Id: 6700000000024
@@ -386,6 +386,14 @@ MonoBehaviour:
       m_Items: []
   - m_Id: 6700000000068
     m_Localized: Enemy will not fire any bullets
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6700000000069
+    m_Localized: '[Legendary Enhancement]'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6700000000070
+    m_Localized: 'Attack Interval:'
     m_Metadata:
       m_Items: []
   references:

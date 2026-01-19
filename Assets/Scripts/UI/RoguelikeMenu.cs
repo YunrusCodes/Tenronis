@@ -84,6 +84,7 @@ namespace Tenronis.UI
         [SerializeField] private Button nextTipButton; // 下一個提示按鈕
         
         private List<GameObject> currentOptions = new List<GameObject>();
+        private Dictionary<GameObject, BuffDataSO> optionBuffDataMap = new Dictionary<GameObject, BuffDataSO>();
         private List<GameObject> attackPreviewItems = new List<GameObject>();
         private List<Coroutine> spriteSyncCoroutines = new List<Coroutine>();
         private List<GameObject> bossBattleCharObjects = new List<GameObject>(); // Boss Battle 字符對象列表
@@ -177,6 +178,54 @@ namespace Tenronis.UI
         {
             // 更新動畫文字
             UpdateAnimationTexts();
+            
+            // 更新當前顯示的 buff 選項（如果有的話）
+            UpdateBuffOptionsLocalization();
+        }
+        
+        /// <summary>
+        /// 更新當前顯示的 buff 選項的本地化文本
+        /// </summary>
+        private void UpdateBuffOptionsLocalization()
+        {
+            if (currentOptions == null || optionBuffDataMap == null) return;
+            
+            // 更新每個選項的本地化文本
+            foreach (var optionObj in currentOptions)
+            {
+                if (optionObj == null || !optionObj.activeSelf) continue;
+                
+                // 從映射中獲取對應的 BuffDataSO
+                if (!optionBuffDataMap.TryGetValue(optionObj, out BuffDataSO buffData) || buffData == null)
+                {
+                    continue;
+                }
+                
+                // 更新標題
+                var titleText = optionObj.transform.Find("Title")?.GetComponent<TextMeshProUGUI>();
+                if (titleText != null)
+                {
+                    titleText.text = GetLocalizedBuffName(buffData);
+                }
+                
+                // 更新描述
+                var descText = optionObj.transform.Find("Description")?.GetComponent<TextMeshProUGUI>();
+                if (descText != null)
+                {
+                    bool isLegendary = System.Array.IndexOf(GameConstants.LEGENDARY_BUFFS, buffData.buffType) >= 0;
+                    string buffDescription = GetLocalizedBuffDescription(buffData);
+                    
+                    if (isLegendary)
+                    {
+                        string legendaryTag = LocalizationHelper.GetLocalizedString("[傳奇強化]");
+                        descText.text = $"{legendaryTag}\n{buffDescription}";
+                    }
+                    else
+                    {
+                        descText.text = buffDescription;
+                    }
+                }
+            }
         }
         
         private void OnDisable()
@@ -583,6 +632,9 @@ namespace Tenronis.UI
                 GameObject optionObj = Instantiate(buffOptionPrefab, buffOptionsContainer);
                 currentOptions.Add(optionObj);
                 
+                // 保存選項與 BuffDataSO 的映射關係
+                optionBuffDataMap[optionObj] = buffData;
+                
                 // 設置UI（傳入是否為第一組的標記）
                 SetupBuffOption(optionObj, buffData, isFirst);
             }
@@ -600,27 +652,22 @@ namespace Tenronis.UI
             var titleText = optionObj.transform.Find("Title")?.GetComponent<TextMeshProUGUI>();
             if (titleText != null)
             {
-                if (isLegendary)
-                {
-                    titleText.text = $"{buffData.buffName}"; // 傳奇強化標記
-                }
-                else
-                {
-                    titleText.text = buffData.buffName;
-                }
+                titleText.text = GetLocalizedBuffName(buffData);
             }
             
             // 描述
             var descText = optionObj.transform.Find("Description")?.GetComponent<TextMeshProUGUI>();
             if (descText != null)
             {
+                string buffDescription = GetLocalizedBuffDescription(buffData);
                 if (isLegendary)
                 {
-                    descText.text = $"[傳奇強化]\n{buffData.description}";
+                    string legendaryTag = LocalizationHelper.GetLocalizedString("[傳奇強化]");
+                    descText.text = $"{legendaryTag}\n{buffDescription}";
                 }
                 else
                 {
-                    descText.text = buffData.description;
+                    descText.text = buffDescription;
                 }
             }
             
@@ -886,6 +933,7 @@ namespace Tenronis.UI
                     Destroy(option);
             }
             currentOptions.Clear();
+            optionBuffDataMap.Clear();
         }
         
         /// <summary>
@@ -1649,7 +1697,8 @@ namespace Tenronis.UI
             }
             
             // 構建基本資訊文字（先不顯示，等動畫完成後用打字機效果顯示）
-            string previewText = $"HP: {currentStage.maxHp}  |  攻擊間隔: {currentStage.shootInterval}s";
+            string attackIntervalLabel = LocalizationHelper.GetLocalizedString("攻擊間隔:");
+            string previewText = $"HP: {currentStage.maxHp}  |  {attackIntervalLabel} {currentStage.shootInterval}s";
             
             // 先清空文字，等動畫完成後再顯示
             if (nextStageEnemyPreviewText != null)
@@ -3341,28 +3390,74 @@ namespace Tenronis.UI
         }
         
         /// <summary>
+        /// 根據當前語言獲取Buff名稱
+        /// </summary>
+        private string GetLocalizedBuffName(BuffDataSO buff)
+        {
+            if (buff == null) return "";
+            
+            string languageCode = GetCurrentLanguageCode();
+            
+            switch (languageCode)
+            {
+                case "en":
+                    return !string.IsNullOrEmpty(buff.buffNameEn) ? buff.buffNameEn : buff.buffName;
+                case "ja":
+                    return !string.IsNullOrEmpty(buff.buffNameJa) ? buff.buffNameJa : buff.buffName;
+                case "zh-TW":
+                default:
+                    return buff.buffName;
+            }
+        }
+        
+        /// <summary>
+        /// 根據當前語言獲取Buff描述
+        /// </summary>
+        private string GetLocalizedBuffDescription(BuffDataSO buff)
+        {
+            if (buff == null) return "";
+            
+            string languageCode = GetCurrentLanguageCode();
+            
+            switch (languageCode)
+            {
+                case "en":
+                    return !string.IsNullOrEmpty(buff.descriptionEn) ? buff.descriptionEn : buff.description;
+                case "ja":
+                    return !string.IsNullOrEmpty(buff.descriptionJa) ? buff.descriptionJa : buff.description;
+                case "zh-TW":
+                default:
+                    return buff.description;
+            }
+        }
+        
+        /// <summary>
         /// 獲取當前語言代碼
         /// </summary>
         private string GetCurrentLanguageCode()
         {
-            // 優先使用 LanguageManager
-            if (LanguageManager.Instance != null)
-            {
-                return LanguageManager.Instance.CurrentLanguageCode ?? "zh-TW";
-            }
-            
-            // 如果 LanguageManager 不存在，使用 LocalizationSettings
+            // 優先使用 LocalizationSettings（因為它會在 SetLanguage 時立即更新，不受初始化順序影響）
             try
             {
                 var locale = UnityEngine.Localization.Settings.LocalizationSettings.SelectedLocale;
-                if (locale != null)
+                if (locale != null && !string.IsNullOrEmpty(locale.Identifier.Code))
                 {
                     return locale.Identifier.Code;
                 }
             }
             catch
             {
-                // 如果獲取失敗，使用默認值
+                // 如果獲取失敗，繼續嘗試 LanguageManager
+            }
+            
+            // 如果 LocalizationSettings 不可用，使用 LanguageManager
+            if (LanguageManager.Instance != null)
+            {
+                string langCode = LanguageManager.Instance.CurrentLanguageCode;
+                if (!string.IsNullOrEmpty(langCode))
+                {
+                    return langCode;
+                }
             }
             
             return "zh-TW"; // 默認繁體中文

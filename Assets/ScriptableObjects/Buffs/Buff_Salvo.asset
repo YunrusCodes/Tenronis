@@ -13,8 +13,12 @@ MonoBehaviour:
   m_Name: Buff_Salvo
   m_EditorClassIdentifier: Assembly-CSharp::Tenronis.ScriptableObjects.BuffDataSO
   buffName: "\u9F4A\u5C04\u5F37\u5316"
+  buffNameEn: Salvo Enhancement
+  buffNameJa: "\u6589\u5C04\u5F37\u5316"
   buffType: 4
   description: "\u984D\u5916\u589E\u52A0\u591A\u6392\u6D88\u9664\u6642\u7684\u5C0E\u5F48\u50B7\u5BB3"
+  descriptionEn: Increase missile damage when clearing multiple rows
+  descriptionJa: "\u8907\u6570\u5217\u6D88\u53BB\u6642\u306E\u30DF\u30B5\u30A4\u30EB\u30C0\u30E1\u30FC\u30B8\u304C\u5897\u52A0\u3059\u308B"
   icon: {fileID: 8684010770584099090, guid: a51e8860a2820a94e8496967a1e947d4, type: 3}
   iconColor: {r: 1, g: 1, b: 1, a: 1}
   spawnWeight: 1
