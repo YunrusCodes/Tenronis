@@ -346,12 +346,7 @@ namespace Tenronis.Managers
                 if (hasVoid)
                 {
                     Debug.Log("[PlayerManager] 虛無抵銷！不產生導彈");
-                    // 顯示"虛無抵銷!"彈出文字
-                    GameEvents.TriggerShowPopupText(
-                        "虛無抵銷!",
-                        new Color(0.5f, 0.5f, 0.5f), // 灰色
-                        Vector2.zero
-                    );
+                    // 虛無抵銷文字顯示在齊射文字區域（GameUI 中處理），不需要彈出文字
                 }
                 
                 // 消除行數的資訊顯示在固定 UI (SalvoText)，不需要彈出文字

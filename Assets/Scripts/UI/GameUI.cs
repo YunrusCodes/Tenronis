@@ -62,6 +62,7 @@ namespace Tenronis.UI
         private float salvoDisplayTimer = 0f;
         private float salvoAnimationTimer = 0f;
         private float salvoAnimationDuration = 0.3f; // 動畫時間
+        private bool isVoidNullify = false; // 標記是否為虛無抵銷
         
         // 衝擊爆破文字顯示計時
         private float impactBlastDisplayTimer = 0f;
@@ -153,6 +154,9 @@ namespace Tenronis.UI
             GameEvents.OnGridOverflow += HandleGridOverflow;
             GameEvents.OnSkillUsed += HandleSkillUsed;
             
+            // 訂閱語言變更事件
+            UnityEngine.Localization.Settings.LocalizationSettings.SelectedLocaleChanged += OnLanguageChanged;
+            
             // 保存連發文字原始位置和顏色，並創建相關文字物件
             if (comboText != null)
             {
@@ -191,6 +195,9 @@ namespace Tenronis.UI
             GameEvents.OnEnemyDamaged -= HandleEnemyDamaged;
             GameEvents.OnGridOverflow -= HandleGridOverflow;
             GameEvents.OnSkillUsed -= HandleSkillUsed;
+            
+            // 取消訂閱語言變更事件
+            UnityEngine.Localization.Settings.LocalizationSettings.SelectedLocaleChanged -= OnLanguageChanged;
             
             // 解綁按鈕事件 - 失敗面板
             if (gameOverRestartButton != null) gameOverRestartButton.onClick.RemoveListener(OnRestart);
@@ -481,7 +488,12 @@ namespace Tenronis.UI
                     if (stats.comboCount > 1)
                     {
                         comboText.gameObject.SetActive(true);
-                        if (comboLabelText != null) comboLabelText.gameObject.SetActive(true);
+                        if (comboLabelText != null)
+                        {
+                            comboLabelText.gameObject.SetActive(true);
+                            // 每次顯示時都重新獲取本地化文字（確保語言切換時能更新）
+                            comboLabelText.text = LocalizationHelper.GetLocalizedString("連發!");
+                        }
                         
                         // 只有第二個 Combo（從 1 變成 2）時觸發滑入動畫
                         if (stats.comboCount == 2 && lastComboCount < 2)
@@ -578,7 +590,18 @@ namespace Tenronis.UI
         
         private void HandleRowsClearedForSalvo(List<int> clearedRows, List<int> nonGarbageRows, bool hasVoid)
         {
-            if (hasVoid) return;
+            // 虛無抵銷處理：顯示虛無抵銷文字
+            if (hasVoid)
+            {
+                isVoidNullify = true;
+                lastClearedRows = 0; // 虛無抵銷不顯示行數
+                salvoDisplayTimer = 2f;
+                salvoAnimationTimer = salvoAnimationDuration; // 觸發動畫
+                return;
+            }
+            
+            // 正常齊射處理
+            isVoidNullify = false;
             if (nonGarbageRows.Count >= 2)
             {
                 lastClearedRows = nonGarbageRows.Count;
@@ -624,7 +647,13 @@ namespace Tenronis.UI
                 
                 // 設置文字和基礎顏色
                 Color baseColor;
-                if (lastClearedRows >= 4)
+                if (isVoidNullify)
+                {
+                    // 虛無抵銷顯示
+                    salvoText.text = LocalizationHelper.GetLocalizedString("虛無抵銷!");
+                    baseColor = new Color(0.5f, 0.5f, 0.5f); // 灰色
+                }
+                else if (lastClearedRows >= 4)
                 {
                     salvoText.text = LocalizationHelper.GetLocalizedString("全彈齊射!");
                     baseColor = new Color(1f, 0.84f, 0f); // 金色
@@ -664,7 +693,7 @@ namespace Tenronis.UI
                     salvoText.color = new Color(baseColor.r, baseColor.g, baseColor.b, salvoTextOriginalAlpha);
                 }
                 
-                salvoText.gameObject.SetActive(lastClearedRows >= 2);
+                salvoText.gameObject.SetActive(isVoidNullify || lastClearedRows >= 2);
                 if (salvoDisplayTimer <= 0) salvoText.gameObject.SetActive(false);
             }
             else
@@ -702,7 +731,7 @@ namespace Tenronis.UI
                 impactBlastDisplayTimer -= Time.deltaTime;
                 
                 // 設置文字
-                impactBlastText.text = $"{LocalizationHelper.GetLocalizedString("衝擊爆破!")} {lastImpactBlastDamage:0}";
+                impactBlastText.text = $"{LocalizationHelper.GetLocalizedString("衝擊爆破!")}\n{lastImpactBlastDamage:0}";
                 Color baseColor = new Color(1f, 0.3f, 0.1f); // 橙紅色
                 
                 // 動畫效果：從 2 倍大縮小到原始大小，同時淡入
@@ -865,6 +894,18 @@ namespace Tenronis.UI
                 enemyDamageCounterText.gameObject.SetActive(true);
                 enemyDamageCounterText.text = $"{accumulatedEnemyDamage:0.#}";
                 enemyDamageCounterText.color = new Color(1f, 0.3f, 0.3f); // 紅色
+            }
+        }
+        
+        /// <summary>
+        /// 語言變更事件處理
+        /// </summary>
+        private void OnLanguageChanged(UnityEngine.Localization.Locale locale)
+        {
+            // 更新連發標籤文字
+            if (comboLabelText != null && comboLabelText.gameObject.activeSelf)
+            {
+                comboLabelText.text = LocalizationHelper.GetLocalizedString("連發!");
             }
         }
         

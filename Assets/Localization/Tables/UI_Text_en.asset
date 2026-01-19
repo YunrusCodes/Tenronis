@@ -303,6 +303,14 @@ MonoBehaviour:
     m_Localized: Bonus Enhance
     m_Metadata:
       m_Items: []
+  - m_Id: 6700000000049
+    m_Localized: Void Nullify!
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6700000000050
+    m_Localized: Castle Damaged
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

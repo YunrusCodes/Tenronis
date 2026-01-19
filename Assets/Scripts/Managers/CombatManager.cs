@@ -447,7 +447,7 @@ namespace Tenronis.Managers
                     
                     // 在子彈擊中位置顯示浮動文字
                     Vector2 hitPosition = bullet.transform.position;
-                    GameEvents.TriggerShowPopupText("城堡受損", new Color(1f, 0.3f, 0.3f), hitPosition);
+                    GameEvents.TriggerShowPopupText(Tenronis.Utils.LocalizationHelper.GetLocalizedString("城堡受損"), new Color(1f, 0.3f, 0.3f), hitPosition);
                     
                     bulletsToRemove.Add(bullet);
                     continue;
