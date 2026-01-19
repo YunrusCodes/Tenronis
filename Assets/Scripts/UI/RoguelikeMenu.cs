@@ -1661,9 +1661,10 @@ namespace Tenronis.UI
             string descriptionText = "";
             if (previewDescriptionText != null)
             {
-                if (!string.IsNullOrEmpty(currentStage.description))
+                string description = GetLocalizedDescription(currentStage);
+                if (!string.IsNullOrEmpty(description))
                 {
-                    descriptionText = currentStage.description;
+                    descriptionText = description;
                     previewDescriptionText.text = ""; // 先清空，等動畫完成後再顯示
                     previewDescriptionText.gameObject.SetActive(true);
                 }
@@ -2719,8 +2720,9 @@ namespace Tenronis.UI
                 enemyIconImage.color = iconColor;
             }
             
-            // 構建文字內容："Stage n 怪物名稱"
-            string text = $"Stage {stageIndex + 1} {stage.stageName}";
+            // 構建文字內容："Stage n 怪物名稱"（根據當前語言選擇）
+            string localizedStageName = GetLocalizedStageName(stage);
+            string text = $"Stage {stageIndex + 1} {localizedStageName}";
             
             // 獲取容器（如果沒有指定，使用文字本身的 Transform）
             Transform container = stageTextContainer != null ? stageTextContainer : stageText.transform;
@@ -3292,6 +3294,76 @@ namespace Tenronis.UI
             }
                 yield return null; // 每幀更新
             }
+        }
+        
+        /// <summary>
+        /// 根據當前語言獲取關卡名稱
+        /// </summary>
+        private string GetLocalizedStageName(StageDataSO stage)
+        {
+            if (stage == null) return "";
+            
+            string languageCode = GetCurrentLanguageCode();
+            
+            switch (languageCode)
+            {
+                case "en":
+                    return !string.IsNullOrEmpty(stage.stageNameEn) ? stage.stageNameEn : stage.stageName;
+                case "ja":
+                    return !string.IsNullOrEmpty(stage.stageNameJa) ? stage.stageNameJa : stage.stageName;
+                case "zh-TW":
+                default:
+                    return stage.stageName;
+            }
+        }
+        
+        /// <summary>
+        /// 根據當前語言獲取關卡描述
+        /// </summary>
+        private string GetLocalizedDescription(StageDataSO stage)
+        {
+            if (stage == null) return "";
+            
+            string languageCode = GetCurrentLanguageCode();
+            
+            switch (languageCode)
+            {
+                case "en":
+                    return !string.IsNullOrEmpty(stage.descriptionEn) ? stage.descriptionEn : stage.description;
+                case "ja":
+                    return !string.IsNullOrEmpty(stage.descriptionJa) ? stage.descriptionJa : stage.description;
+                case "zh-TW":
+                default:
+                    return stage.description;
+            }
+        }
+        
+        /// <summary>
+        /// 獲取當前語言代碼
+        /// </summary>
+        private string GetCurrentLanguageCode()
+        {
+            // 優先使用 LanguageManager
+            if (LanguageManager.Instance != null)
+            {
+                return LanguageManager.Instance.CurrentLanguageCode ?? "zh-TW";
+            }
+            
+            // 如果 LanguageManager 不存在，使用 LocalizationSettings
+            try
+            {
+                var locale = UnityEngine.Localization.Settings.LocalizationSettings.SelectedLocale;
+                if (locale != null)
+                {
+                    return locale.Identifier.Code;
+                }
+            }
+            catch
+            {
+                // 如果獲取失敗，使用默認值
+            }
+            
+            return "zh-TW"; // 默認繁體中文
         }
     }
 }
