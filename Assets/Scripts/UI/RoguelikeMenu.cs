@@ -3122,7 +3122,7 @@ namespace Tenronis.UI
             // 如果沒有子彈，顯示"無"的欄位
             if (bullets.Count == 0)
             {
-                yield return StartCoroutine(CreateAttackPreviewItem(BulletType.Normal, LocalizationHelper.GetLocalizedString("無"), LocalizationHelper.GetLocalizedString("敵人不會發射任何子彈"), 0f));
+                yield return StartCoroutine(CreateAttackPreviewItem(BulletType.Normal, LocalizationHelper.GetLocalizedString("無"), LocalizationHelper.GetLocalizedString("敵人不會發射任何子彈"), 0f, isNoneItem: true));
             }
             else
             {
@@ -3150,7 +3150,12 @@ namespace Tenronis.UI
         /// <summary>
         /// 創建單個攻擊預覽項目（協程版本，帶動畫效果）
         /// </summary>
-        private IEnumerator CreateAttackPreviewItem(BulletType bulletType, string attackName, string description, float chance)
+        /// <param name="bulletType">子彈類型</param>
+        /// <param name="attackName">攻擊名稱（已本地化）</param>
+        /// <param name="description">描述（已本地化）</param>
+        /// <param name="chance">機率</param>
+        /// <param name="isNoneItem">是否為"無"的情況（敵人不會攻擊）</param>
+        private IEnumerator CreateAttackPreviewItem(BulletType bulletType, string attackName, string description, float chance, bool isNoneItem = false)
         {
             GameObject item = Instantiate(enemyAttackPreviewPrefab, enemyAttackPreviewContainer);
             attackPreviewItems.Add(item);
@@ -3162,16 +3167,13 @@ namespace Tenronis.UI
             var colorImageTransform = item.transform.Find("ColorImage");
             Image iconImage = null;
             
-            // 檢查是否為"無"的情況
-            bool isNone = attackName == "無";
-            
             if (colorImageTransform != null)
             {
                 var spriteRenderer = colorImageTransform.GetComponent<SpriteRenderer>();
                 var animator = colorImageTransform.GetComponent<Animator>();
                 iconImage = colorImageTransform.GetComponent<Image>();
                 
-                if (isNone)
+                if (isNoneItem)
                 {
                     // 如果是"無"，隱藏 icon
                     if (spriteRenderer != null)
@@ -3239,7 +3241,7 @@ namespace Tenronis.UI
             if (nameText != null)
             {
                 nameText.text = "";
-                if (isNone)
+                if (isNoneItem)
                 {
                     // 如果是"無"，使用灰色
                     nameText.color = Color.grey;
@@ -3261,7 +3263,7 @@ namespace Tenronis.UI
             {
                 fadeInSequence.Join(backgroundImage.DOFade(1f, 0.5f));
             }
-            if (iconImage != null && !isNone)
+            if (iconImage != null && !isNoneItem)
             {
                 fadeInSequence.Join(iconImage.DOFade(1f, 0.5f));
             }
