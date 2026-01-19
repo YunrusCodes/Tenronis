@@ -111,6 +111,12 @@ namespace Tenronis.UI
             if (bonusPanel != null)
                 bonusPanel.SetActive(false);
             
+            // 更新動畫文字為本地化版本（確保語言切換時能正確顯示）
+            UpdateAnimationTexts();
+            
+            // 訂閱語言變更事件
+            UnityEngine.Localization.Settings.LocalizationSettings.SelectedLocaleChanged += OnLanguageChanged;
+            
             GenerateBuffOptions();
             UpdateCurrentStats();
             StartCoroutine(UpdateNextStageEnemyPreviewCoroutine());
@@ -145,8 +151,39 @@ namespace Tenronis.UI
             // 這裡暫時保持激活狀態（或根據場景設置的初始狀態），實際顯示由 StartTipsDisplay() 控制
         }
         
+        /// <summary>
+        /// 更新動畫文字為本地化版本
+        /// </summary>
+        private void UpdateAnimationTexts()
+        {
+            if (bossBattleText != null)
+            {
+                bossBattleText.text = LocalizationHelper.GetLocalizedString("遭遇強敵!!!");
+            }
+            if (bonusEnhanceText != null)
+            {
+                bonusEnhanceText.text = LocalizationHelper.GetLocalizedString("傳奇工程");
+            }
+            if (projectSelectionText != null)
+            {
+                projectSelectionText.text = LocalizationHelper.GetLocalizedString("工程選擇");
+            }
+        }
+        
+        /// <summary>
+        /// 語言變更事件處理
+        /// </summary>
+        private void OnLanguageChanged(UnityEngine.Localization.Locale locale)
+        {
+            // 更新動畫文字
+            UpdateAnimationTexts();
+        }
+        
         private void OnDisable()
         {
+            // 取消訂閱語言變更事件
+            UnityEngine.Localization.Settings.LocalizationSettings.SelectedLocaleChanged -= OnLanguageChanged;
+            
             ClearOptions();
             ClearAttackPreviews();
             ClearBossBattleChars();
@@ -1712,12 +1749,8 @@ namespace Tenronis.UI
             // 清理之前的字符對象
             ClearBossBattleChars();
             
-            // 獲取文字內容（如果為空，使用默認值）
-            string text = bossBattleText.text;
-            if (string.IsNullOrEmpty(text))
-            {
-                text = LocalizationHelper.GetLocalizedString("Boss Battle");
-            }
+            // 直接使用本地化文字（不從 TextMeshProUGUI.text 讀取，確保語言切換時能更新）
+            string text = LocalizationHelper.GetLocalizedString("遭遇強敵!!!");
             
             // 先設置文字並強制更新，以獲取字符位置信息
             bossBattleText.text = text;
@@ -1790,7 +1823,7 @@ namespace Tenronis.UI
                 
                 // 添加 TextMeshProUGUI 組件
                 TextMeshProUGUI charText = charObj.AddComponent<TextMeshProUGUI>();
-                charText.text = text[i].ToString();
+                charText.text = charInfo.character.ToString(); // 使用 charInfo.character 而不是 text[i]，避免索引不匹配
                 
                 // 複製字體相關屬性
                 charText.font = bossBattleText.font;
@@ -2030,12 +2063,8 @@ namespace Tenronis.UI
             // 清理之前的字符對象
             ClearProjectSelectionChars();
             
-            // 獲取文字內容（如果為空，使用默認值）
-            string text = projectSelectionText.text;
-            if (string.IsNullOrEmpty(text))
-            {
-                text = LocalizationHelper.GetLocalizedString("工程選擇");
-            }
+            // 直接使用本地化文字（不從 TextMeshProUGUI.text 讀取，確保語言切換時能更新）
+            string text = LocalizationHelper.GetLocalizedString("工程選擇");
             
             // 先設置文字並強制更新，以獲取字符位置信息
             projectSelectionText.text = text;
@@ -2364,12 +2393,8 @@ namespace Tenronis.UI
             // 清理之前的字符對象
             ClearBonusEnhanceChars();
             
-            // 獲取文字內容（如果為空，使用默認值）
-            string text = bonusEnhanceText.text;
-            if (string.IsNullOrEmpty(text))
-            {
-                text = LocalizationHelper.GetLocalizedString("Bonus Enhance");
-            }
+            // 直接使用本地化文字（不從 TextMeshProUGUI.text 讀取，確保語言切換時能更新）
+            string text = LocalizationHelper.GetLocalizedString("傳奇工程");
             
             // 先設置文字並強制更新，以獲取字符位置信息
             bonusEnhanceText.text = text;
@@ -2442,7 +2467,7 @@ namespace Tenronis.UI
                 
                 // 添加 TextMeshProUGUI 組件
                 TextMeshProUGUI charText = charObj.AddComponent<TextMeshProUGUI>();
-                charText.text = text[i].ToString();
+                charText.text = charInfo.character.ToString(); // 使用 charInfo.character 而不是 text[i]，避免索引不匹配
                 
                 // 複製字體相關屬性
                 charText.font = bonusEnhanceText.font;

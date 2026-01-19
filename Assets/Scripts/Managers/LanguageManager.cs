@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using TMPro;
 using UnityEngine.Localization;
 using UnityEngine.Localization.Settings;
@@ -28,6 +29,7 @@ namespace Tenronis.Managers
         
         private const string LANGUAGE_PREF_KEY = "SelectedLanguage";
         private bool isInitializing = false;
+        private bool isInitialLoad = true; // 標記是否為初始載入（避免初始載入時重載場景）
         
         // 屬性
         public string CurrentLanguageCode { get; private set; }
@@ -44,7 +46,6 @@ namespace Tenronis.Managers
             }
             
             Instance = this;
-            DontDestroyOnLoad(gameObject);
             Debug.Log("[LanguageManager] 初始化完成 - 單例已建立");
         }
         
@@ -67,6 +68,9 @@ namespace Tenronis.Managers
             
             // 載入保存的語言設置或使用系統默認語言
             LoadSavedLanguage();
+            
+            // 標記初始載入完成
+            isInitialLoad = false;
             
             Debug.Log($"[LanguageManager] 語言系統初始化完成，當前語言: {CurrentLanguageCode}");
         }
@@ -175,11 +179,27 @@ namespace Tenronis.Managers
                 PlayerPrefs.Save();
                 
                 Debug.Log($"[LanguageManager] 語言已切換為: {languageCode} ({languageDisplayNames[languageIndex]})");
+                
+                // 如果不是初始載入，重載場景以應用語言變更
+                if (!isInitialLoad)
+                {
+                    ReloadCurrentScene();
+                }
             }
             else
             {
                 Debug.LogError($"[LanguageManager] 找不到語言 Locale: {languageCode}");
             }
+        }
+        
+        /// <summary>
+        /// 重載當前場景
+        /// </summary>
+        private void ReloadCurrentScene()
+        {
+            int currentSceneIndex = SceneManager.GetActiveScene().buildIndex;
+            SceneManager.LoadScene(currentSceneIndex);
+            Debug.Log($"[LanguageManager] 重載場景以應用語言變更: Scene {currentSceneIndex}");
         }
         
         /// <summary>
