@@ -247,6 +247,55 @@ MonoBehaviour:
     m_Key: "\u53EF\u5132\u5B58\u7684\u65B9\u584A\u69FD\u4F4D\u6578\u91CF"
     m_Metadata:
       m_Items: []
+  - m_Id: 6700000000037
+    m_Key: "\u73FE\u5728\u6D88\u9664\u65B9\u584A\uFF0C\u6703\u751F\u6210 {0} \u767C\u98DB\u5F48"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6700000000038
+    m_Key: "\u65B9\u584A\u73FE\u5728\u53EF\u4EE5\u627F\u53D7 {0} \u767C\u98DB\u5F48"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6700000000039
+    m_Key: "\u6309 1 \u5C07\u7576\u524D\u65B9\u584A\u8F49\u5316\u70BA\u53EF\u7A7F\u900F\u5DF2\u5B58\u5728\u65B9\u584A\u7684\u6E6E\u6EC5\u65B9\u584A\u3002\u6309
+      \u7A7A\u767D\u9375 \u5C07\u6467\u6BC0\u6240\u6709\u8207\u6E6E\u6EC5\u65B9\u584A\u91CD\u758A\u7684\u65B9\u584A\uFF0C\u4E26\u751F\u6210\u98DB\u5F48\u3002"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6700000000040
+    m_Key: "\u6309 2 \u6D88\u9664\u6BCF\u4E00\u884C\u6700\u4E0A\u65B9\u7684\u65B9\u584A\uFF0C\u4E26\u751F\u6210\u98DB\u5F48\u3002"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6700000000041
+    m_Key: "\u6309 3 \u5C07\u6240\u6709\u5C01\u9589\u5340\u57DF\u586B\u5145\u70BA\u65B9\u584A\u3002\u82E5\u5F62\u6210\u6574\u5217\uFF0C\u5247\u8996\u70BA\u6709\u6548\u6D88\u9664\u3002\u6D88\u9664\u865B\u7121\u65B9\u584A\u6642\u4E0D\u6703\u7522\u751F\u4EFB\u4F55\u98DB\u5F48\u3002"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6700000000042
+    m_Key: "\u6230\u8853\u64F4\u5F35"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6700000000043
+    m_Key: "\u978F\u56FA\u9632\u79A6"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6700000000044
+    m_Key: "\u52A0\u500D\u706B\u529B"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6700000000045
+    m_Key: Lv{0} -> Lv{1}
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6700000000046
+    m_Key: Boss Battle
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6700000000047
+    m_Key: "\u5DE5\u7A0B\u9078\u64C7"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6700000000048
+    m_Key: Bonus Enhance
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

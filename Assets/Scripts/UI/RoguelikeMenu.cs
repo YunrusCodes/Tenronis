@@ -986,7 +986,7 @@ namespace Tenronis.UI
             if (volleyUpgraded && PlayerManager.Instance != null)
             {
                 int volleyLevel = PlayerManager.Instance.Stats.missileExtraCount;
-                descriptionText = $"現在消除方塊，會生成 {1 + volleyLevel} 發飛彈";
+                descriptionText = LocalizationHelper.GetLocalizedStringFormat("現在消除方塊，會生成 {0} 發飛彈", 1 + volleyLevel);
                 
                 // 根據等級選擇對應的動畫（等級 1-5 對應索引 0-4）
                 int animIndex = Mathf.Clamp(volleyLevel - 1, 0, volleyAnimators.Length - 1);
@@ -998,7 +998,7 @@ namespace Tenronis.UI
             else if (defenseUpgraded && PlayerManager.Instance != null)
             {
                 int defenseLevel = PlayerManager.Instance.Stats.blockDefenseLevel;
-                descriptionText = $"方塊現在可以承受 {1 + defenseLevel} 發飛彈";
+                descriptionText = LocalizationHelper.GetLocalizedStringFormat("方塊現在可以承受 {0} 發飛彈", 1 + defenseLevel);
                 
                 if (defenseAnimator != null)
                 {
@@ -1007,7 +1007,7 @@ namespace Tenronis.UI
             }
             else if (unlockedAnnihilation)
             {
-                descriptionText = "按 1 將當前方塊轉化為可穿透已存在方塊的湮滅方塊。按 空白鍵 將摧毀所有與湮滅方塊重疊的方塊，並生成飛彈。";
+                descriptionText = LocalizationHelper.GetLocalizedString("按 1 將當前方塊轉化為可穿透已存在方塊的湮滅方塊。按 空白鍵 將摧毀所有與湮滅方塊重疊的方塊，並生成飛彈。");
                 
                 if (annihilationAnimator != null)
                 {
@@ -1016,7 +1016,7 @@ namespace Tenronis.UI
             }
             else if (unlockedExecution)
             {
-                descriptionText = "按 2 消除每一行最上方的方塊，並生成飛彈。";
+                descriptionText = LocalizationHelper.GetLocalizedString("按 2 消除每一行最上方的方塊，並生成飛彈。");
                 
                 if (executionAnimator != null)
                 {
@@ -1025,7 +1025,7 @@ namespace Tenronis.UI
             }
             else if (unlockedRepair)
             {
-                descriptionText = "按 3 將所有封閉區域填充為方塊。若形成整列，則視為有效消除。消除虛無方塊時不會產生任何飛彈。";
+                descriptionText = LocalizationHelper.GetLocalizedString("按 3 將所有封閉區域填充為方塊。若形成整列，則視為有效消除。消除虛無方塊時不會產生任何飛彈。");
                 
                 if (repairAnimator != null)
                 {
@@ -1118,7 +1118,7 @@ namespace Tenronis.UI
             if (tacticalExpansionUpgraded && PlayerManager.Instance != null)
             {
                 int tacticalExpansionLevel = PlayerManager.Instance.Stats.tacticalExpansionLevel;
-                levelChangeText = $"戰術擴張\n Lv{tacticalExpansionLevelBefore} -> Lv{tacticalExpansionLevel}";
+                levelChangeText = $"{LocalizationHelper.GetLocalizedString("戰術擴張")}\n {LocalizationHelper.GetLocalizedStringFormat("Lv{0} -> Lv{1}", tacticalExpansionLevelBefore, tacticalExpansionLevel)}";
             }
             else if (unlockedAnnihilation || unlockedExecution || unlockedRepair)
             {
@@ -1126,18 +1126,18 @@ namespace Tenronis.UI
                 if (PlayerManager.Instance != null)
                 {
                     int tacticalExpansionLevel = PlayerManager.Instance.Stats.tacticalExpansionLevel;
-                    levelChangeText = $"戰術擴張\n Lv{tacticalExpansionLevelBefore} -> Lv{tacticalExpansionLevel}";
+                    levelChangeText = $"{LocalizationHelper.GetLocalizedString("戰術擴張")}\n {LocalizationHelper.GetLocalizedStringFormat("Lv{0} -> Lv{1}", tacticalExpansionLevelBefore, tacticalExpansionLevel)}";
                 }
             }
             else if (defenseUpgraded && PlayerManager.Instance != null)
             {
                 int defenseLevel = PlayerManager.Instance.Stats.blockDefenseLevel;
-                levelChangeText = $"鞏固防禦\n Lv{defenseLevelBefore} -> Lv{defenseLevel}";
+                levelChangeText = $"{LocalizationHelper.GetLocalizedString("鞏固防禦")}\n {LocalizationHelper.GetLocalizedStringFormat("Lv{0} -> Lv{1}", defenseLevelBefore, defenseLevel)}";
             }
             else if (volleyUpgraded && PlayerManager.Instance != null)
             {
                 int volleyLevel = PlayerManager.Instance.Stats.missileExtraCount;
-                levelChangeText = $"加倍火力\n Lv{volleyLevelBefore} -> Lv{volleyLevel}";
+                levelChangeText = $"{LocalizationHelper.GetLocalizedString("加倍火力")}\n {LocalizationHelper.GetLocalizedStringFormat("Lv{0} -> Lv{1}", volleyLevelBefore, volleyLevel)}";
             }
             
             savedLevelChangeText = levelChangeText;
@@ -1716,7 +1716,7 @@ namespace Tenronis.UI
             string text = bossBattleText.text;
             if (string.IsNullOrEmpty(text))
             {
-                text = "Boss Battle";
+                text = LocalizationHelper.GetLocalizedString("Boss Battle");
             }
             
             // 先設置文字並強制更新，以獲取字符位置信息
@@ -2034,7 +2034,7 @@ namespace Tenronis.UI
             string text = projectSelectionText.text;
             if (string.IsNullOrEmpty(text))
             {
-                text = "工程選擇";
+                text = LocalizationHelper.GetLocalizedString("工程選擇");
             }
             
             // 先設置文字並強制更新，以獲取字符位置信息
@@ -2368,7 +2368,7 @@ namespace Tenronis.UI
             string text = bonusEnhanceText.text;
             if (string.IsNullOrEmpty(text))
             {
-                text = "Bonus Enhance";
+                text = LocalizationHelper.GetLocalizedString("Bonus Enhance");
             }
             
             // 先設置文字並強制更新，以獲取字符位置信息

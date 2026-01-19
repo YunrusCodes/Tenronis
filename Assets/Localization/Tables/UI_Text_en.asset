@@ -253,6 +253,56 @@ MonoBehaviour:
     m_Localized: Number of storable block slots
     m_Metadata:
       m_Items: []
+  - m_Id: 6700000000037
+    m_Localized: Now clearing blocks will generate {0} missiles
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6700000000038
+    m_Localized: Blocks can now withstand {0} missiles
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6700000000039
+    m_Localized: 'Press 1 to phase through blocks.Press Space to wipe out overlaps
+      and launch missiles. '
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6700000000040
+    m_Localized: Press 2 to clear the top block of each row and generate missiles.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6700000000041
+    m_Localized: 'Press 3 to fill all enclosed areas with blocks.Completed rows count
+      as valid clears. Clearing void blocks generates no missiles. '
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6700000000042
+    m_Localized: Tactical Expansion
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6700000000043
+    m_Localized: Fortify Defense
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6700000000044
+    m_Localized: Double Firepower
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6700000000045
+    m_Localized: Lv{0} -> Lv{1}
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6700000000046
+    m_Localized: Boss Battle
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6700000000047
+    m_Localized: Project Selection
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6700000000048
+    m_Localized: Bonus Enhance
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []
