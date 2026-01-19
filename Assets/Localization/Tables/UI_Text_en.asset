@@ -311,6 +311,83 @@ MonoBehaviour:
     m_Localized: Castle Damaged
     m_Metadata:
       m_Items: []
+  - m_Id: 6700000000051
+    m_Localized: Normal Bullet
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6700000000052
+    m_Localized: Area Damage
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6700000000053
+    m_Localized: Add Block
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6700000000054
+    m_Localized: Explosive Block
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6700000000055
+    m_Localized: Insert Garbage Row
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6700000000056
+    m_Localized: Insert Void Row
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6700000000057
+    m_Localized: Corrupt Explosive
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6700000000058
+    m_Localized: Corrupt Void
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6700000000059
+    m_Localized: Deals damage to the hit block
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6700000000060
+    m_Localized: Deals damage to blocks in a 3x3 area centered on the hit block
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6700000000061
+    m_Localized: Deals damage to the hit block and adds a garbage block above it
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6700000000062
+    m_Localized: Deals damage to the hit block and adds an explosive block above
+      it
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6700000000063
+    m_Localized: Deals damage to the hit block and inserts a full row of garbage
+      blocks from the bottom
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6700000000064
+    m_Localized: Deals damage to the hit block and inserts a full row of void blocks
+      from the bottom
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6700000000065
+    m_Localized: Deals damage to the hit block and randomly corrupts one cell of
+      the next piece into an explosive block
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6700000000066
+    m_Localized: Deals damage to the hit block and randomly corrupts one cell of
+      the next piece into a void block
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6700000000067
+    m_Localized: None
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6700000000068
+    m_Localized: Enemy will not fire any bullets
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

@@ -3064,28 +3064,28 @@ namespace Tenronis.UI
             var enabledBullets = new List<(BulletType type, string name, string desc, float weight)>();
             
             if (stageData.normalBullet.enabled)
-                enabledBullets.Add((BulletType.Normal, "普通子彈", "對命中的方塊造成傷害", stageData.normalBullet.chance));
+                enabledBullets.Add((BulletType.Normal, LocalizationHelper.GetLocalizedString("普通子彈"), LocalizationHelper.GetLocalizedString("對命中的方塊造成傷害"), stageData.normalBullet.chance));
             
             if (stageData.areaBullet.enabled)
-                enabledBullets.Add((BulletType.AreaDamage, "範圍傷害", "以命中的方塊為中心，對 3x3 範圍內的方塊造成傷害", stageData.areaBullet.chance));
+                enabledBullets.Add((BulletType.AreaDamage, LocalizationHelper.GetLocalizedString("範圍傷害"), LocalizationHelper.GetLocalizedString("以命中的方塊為中心，對 3x3 範圍內的方塊造成傷害"), stageData.areaBullet.chance));
             
             if (stageData.addBlockBullet.enabled)
-                enabledBullets.Add((BulletType.AddBlock, "添加方塊", "對命中的方塊造成傷害，並上方添加垃圾方塊", stageData.addBlockBullet.chance));
+                enabledBullets.Add((BulletType.AddBlock, LocalizationHelper.GetLocalizedString("添加方塊"), LocalizationHelper.GetLocalizedString("對命中的方塊造成傷害，並上方添加垃圾方塊"), stageData.addBlockBullet.chance));
             
             if (stageData.addExplosiveBlockBullet.enabled)
-                enabledBullets.Add((BulletType.AddExplosiveBlock, "爆炸方塊", "對命中的方塊造成傷害，並上方添加爆炸方塊", stageData.addExplosiveBlockBullet.chance));
+                enabledBullets.Add((BulletType.AddExplosiveBlock, LocalizationHelper.GetLocalizedString("爆炸方塊"), LocalizationHelper.GetLocalizedString("對命中的方塊造成傷害，並上方添加爆炸方塊"), stageData.addExplosiveBlockBullet.chance));
             
             if (stageData.addRowBullet.enabled)
-                enabledBullets.Add((BulletType.InsertRow, "插入垃圾行", "對命中的方塊造成傷害，並從底部插入一整行垃圾方塊", stageData.addRowBullet.chance));
+                enabledBullets.Add((BulletType.InsertRow, LocalizationHelper.GetLocalizedString("插入垃圾行"), LocalizationHelper.GetLocalizedString("對命中的方塊造成傷害，並從底部插入一整行垃圾方塊"), stageData.addRowBullet.chance));
             
             if (stageData.addVoidRowBullet.enabled)
-                enabledBullets.Add((BulletType.InsertVoidRow, "虛無垃圾行", "對命中的方塊造成傷害，並從底部插入一整行虛無方塊", stageData.addVoidRowBullet.chance));
+                enabledBullets.Add((BulletType.InsertVoidRow, LocalizationHelper.GetLocalizedString("虛無垃圾行"), LocalizationHelper.GetLocalizedString("對命中的方塊造成傷害，並從底部插入一整行虛無方塊"), stageData.addVoidRowBullet.chance));
             
             if (stageData.corruptExplosiveBullet.enabled)
-                enabledBullets.Add((BulletType.CorruptExplosive, "腐化爆炸", "對命中的方塊造成傷害，並將下個方塊隨機一格變成爆炸方塊", stageData.corruptExplosiveBullet.chance));
+                enabledBullets.Add((BulletType.CorruptExplosive, LocalizationHelper.GetLocalizedString("腐化爆炸"), LocalizationHelper.GetLocalizedString("對命中的方塊造成傷害，並將下個方塊隨機一格變成爆炸方塊"), stageData.corruptExplosiveBullet.chance));
             
             if (stageData.corruptVoidBullet.enabled)
-                enabledBullets.Add((BulletType.CorruptVoid, "腐化虛無", "對命中的方塊造成傷害，並將下個方塊隨機一格變成虛無方塊", stageData.corruptVoidBullet.chance));
+                enabledBullets.Add((BulletType.CorruptVoid, LocalizationHelper.GetLocalizedString("腐化虛無"), LocalizationHelper.GetLocalizedString("對命中的方塊造成傷害，並將下個方塊隨機一格變成虛無方塊"), stageData.corruptVoidBullet.chance));
             
             // 如果沒有任何啟用的子彈，顯示"無"的欄位
             if (enabledBullets.Count == 0)
@@ -3120,7 +3120,7 @@ namespace Tenronis.UI
             // 如果沒有子彈，顯示"無"的欄位
             if (bullets.Count == 0)
             {
-                yield return StartCoroutine(CreateAttackPreviewItem(BulletType.Normal, "無", "敵人不會發射任何子彈", 0f));
+                yield return StartCoroutine(CreateAttackPreviewItem(BulletType.Normal, LocalizationHelper.GetLocalizedString("無"), LocalizationHelper.GetLocalizedString("敵人不會發射任何子彈"), 0f));
             }
             else
             {

@@ -18362,6 +18362,8 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 6d8ad6a5918fabc44b1f48a058fffbc3, type: 2}
   legendaryBuffs:
   - {fileID: 11400000, guid: 48128f06871961e4b9172a811e99ca73, type: 2}
+  - {fileID: 11400000, guid: 4984fdceb682ce2449c3b18662087da4, type: 2}
+  - {fileID: 11400000, guid: 593218382254a8f4f868a161a0aa8990, type: 2}
   battleBackground: {fileID: 1621460632}
   enemyIntroBackground: {fileID: 848139793}
   engineerBackground: {fileID: 299105078}
