@@ -115,7 +115,6 @@ namespace Tenronis.UI
         [Header("遊戲結束 - 勝利")]
         [SerializeField] private GameObject victoryPanel;
         [SerializeField] private TextMeshProUGUI victoryFinalScoreText;
-        [SerializeField] private Button victoryRestartButton;
         [SerializeField] private Button victoryMenuButton;
         
         [Header("退出確認面板")]
@@ -138,7 +137,6 @@ namespace Tenronis.UI
             if (gameOverMenuButton != null) gameOverMenuButton.onClick.AddListener(OnReturnToMenu);
             
             // 綁定按鈕事件 - 勝利面板
-            if (victoryRestartButton != null) victoryRestartButton.onClick.AddListener(OnRestart);
             if (victoryMenuButton != null) victoryMenuButton.onClick.AddListener(OnReturnToMenu);
             
             // 綁定按鈕事件 - 退出功能
@@ -204,7 +202,6 @@ namespace Tenronis.UI
             if (gameOverMenuButton != null) gameOverMenuButton.onClick.RemoveListener(OnReturnToMenu);
             
             // 解綁按鈕事件 - 勝利面板
-            if (victoryRestartButton != null) victoryRestartButton.onClick.RemoveListener(OnRestart);
             if (victoryMenuButton != null) victoryMenuButton.onClick.RemoveListener(OnReturnToMenu);
             
             // 解綁按鈕事件 - 退出功能
