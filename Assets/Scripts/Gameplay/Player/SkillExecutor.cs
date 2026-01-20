@@ -84,7 +84,7 @@ namespace Tenronis.Gameplay.Player
             }
             else
             {
-                GameEvents.TriggerPlayImpactSound();
+                // GameEvents.TriggerPlayImpactSound();
             }
         }
         

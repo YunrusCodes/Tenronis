@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 7873093760443385904}
   - component: {fileID: 7042620812679722766}
   - component: {fileID: 2953524427329951990}
-  - component: {fileID: 8366793664719667016}
+  - component: {fileID: 3018083677898974919}
   m_Layer: 0
   m_Name: Explosion2D
   m_TagString: Untagged
@@ -114,7 +114,7 @@ SpriteRenderer:
   m_WasSpriteAssigned: 0
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!82 &8366793664719667016
+--- !u!82 &3018083677898974919
 AudioSource:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -125,10 +125,10 @@ AudioSource:
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 0}
-  m_Resource: {fileID: 8300000, guid: 25fb702d662f7d6458380e39ec188a8a, type: 3}
+  m_Resource: {fileID: 8300000, guid: 08baaf1215889af4ab93035bc0814c00, type: 3}
   m_PlayOnAwake: 1
-  m_Volume: 0.25
-  m_Pitch: 1.5
+  m_Volume: 0.2
+  m_Pitch: 1
   Loop: 0
   Mute: 0
   Spatialize: 0
