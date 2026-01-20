@@ -577,6 +577,37 @@ namespace Tenronis.Gameplay.Tetromino
         {
             if (!isActive) return;
             
+            // Debug：列出當前方塊所有格子的 Grid 位置
+            if (currentRotation != null)
+            {
+                List<string> cellPositions = new List<string>();
+                for (int y = 0; y < currentRotation.GetLength(0); y++)
+                {
+                    for (int x = 0; x < currentRotation.GetLength(1); x++)
+                    {
+                        if (currentRotation[y, x] != 0)
+                        {
+                            int gridX = currentPosition.x + x;
+                            int gridY = currentPosition.y + y;
+                            cellPositions.Add($"({gridX}, {gridY})");
+                        }
+                    }
+                }
+
+                if (cellPositions.Count > 0)
+                {
+                    Debug.Log($"[LockPiece] 嘗試鎖定方塊，格子位置: {string.Join(", ", cellPositions)}");
+                }
+                else
+                {
+                    Debug.Log("[LockPiece] 嘗試鎖定方塊，但 currentRotation 中沒有任何非空格子");
+                }
+            }
+            else
+            {
+                Debug.LogWarning("[LockPiece] 嘗試鎖定方塊時 currentRotation 為 null");
+            }
+            
             // 檢查溢出（鎖定時特別檢查：方塊在緩衝區應判定溢出）
             if (CheckOverflow(currentPosition, currentRotation, isLocking: true))
             {
@@ -788,7 +819,11 @@ namespace Tenronis.Gameplay.Tetromino
         
         /// <summary>
         /// 檢查溢出
-        /// 如果方塊在緩衝區（y < 0）且該列已堆到頂部（y = 0），或方塊在網格內（y >= 0）與現有方塊重疊，則判定為溢出
+        /// - 鎖定時（isLocking = true）：
+        ///     - 只要有格子還在緩衝區（y < 0）就視為溢出
+        ///     - 或方塊在網格內（y >= 0）與現有方塊重疊
+        /// - 非鎖定時（Spawn / Hold）：
+        ///     - 只檢查網格內（y >= 0）的重疊，不因「下面有堆到 y=0」就直接 Game Over
         /// </summary>
         private bool CheckOverflow(Vector2Int position, int[,] shape, bool isLocking = false)
         {
@@ -803,29 +838,25 @@ namespace Tenronis.Gameplay.Tetromino
                         int gridX = position.x + x;
                         int gridY = position.y + y;
                         
-                        // 檢查列是否在有效範圍內
+                        // 檢查列是否在有效範圍內（超出左右邊界的格子不參與溢出判定）
                         if (gridX < 0 || gridX >= GameConstants.BOARD_WIDTH) continue;
                         
                         // 情況1：方塊在緩衝區（y < 0）
                         if (gridY < 0)
                         {
-                            // 如果正在鎖定，方塊不應該在緩衝區，直接判定溢出
+                            // 只有「鎖定時」才會因為還在緩衝區而視為溢出
                             if (isLocking)
                             {
                                 Debug.Log($"[CheckOverflow] 方塊在緩衝區 (y={gridY}) 時被鎖定，判定溢出");
                                 return true;
                             }
                             
-                            // 檢查該列是否已堆到頂部（y = 0）
-                            if (GridManager.Instance.IsOccupied(gridX, 0))
-                            {
-                                // 該列已堆到頂部，方塊無法下落，判定為溢出
-                                Debug.Log($"[CheckOverflow] 方塊在緩衝區 (y={gridY})，但列 {gridX} 已堆到頂部（y=0），判定溢出");
-                                return true;
-                            }
+                            // 非鎖定（Spawn / Hold）階段，在緩衝區不視為溢出，讓方塊有機會正常落下
+                            continue;
                         }
+                        
                         // 情況2：方塊在網格內（y >= 0），檢查是否與現有方塊重疊
-                        else if (gridY >= 0 && gridY < GameConstants.BOARD_HEIGHT)
+                        if (gridY >= 0 && gridY < GameConstants.BOARD_HEIGHT)
                         {
                             if (GridManager.Instance.IsOccupied(gridX, gridY))
                             {
@@ -1021,7 +1052,9 @@ namespace Tenronis.Gameplay.Tetromino
                         
                         // 建立預覽方塊（當前位置）
                         // 湮滅狀態下可以超出邊界顯示
-                        if (isInAnnihilationState || GridManager.Instance.IsValidPosition(gridX, gridY))
+                        // 一般狀態下允許在緩衝區範圍內顯示（y >= -2）
+                        if (isInAnnihilationState || (gridY >= -2 && gridY < GameConstants.BOARD_HEIGHT &&
+                                                      gridX >= 0 && gridX < GameConstants.BOARD_WIDTH))
                         {
                             GameObject previewBlock = CreateBlockVisual(gridX, gridY, currentShape.color, previewAlpha, corruptType, isInAnnihilationState);
                             previewBlocks.Add(previewBlock);
@@ -1034,8 +1067,10 @@ namespace Tenronis.Gameplay.Tetromino
                             int ghostX = ghostPosition.x + x;
                             int ghostY = ghostPosition.y + y;
                             
-                            if (ghostPosition != currentPosition && 
-                                GridManager.Instance.IsValidPosition(ghostX, ghostY))
+                            // 幽靈方塊只在正式網格內顯示（不含緩衝區）
+                            if (ghostPosition != currentPosition &&
+                                ghostY >= 0 && ghostY < GameConstants.BOARD_HEIGHT &&
+                                ghostX >= 0 && ghostX < GameConstants.BOARD_WIDTH)
                             {
                                 GameObject ghostBlock = CreateBlockVisual(ghostX, ghostY, currentShape.color, 0.3f, corruptType);
                                 ghostBlocks.Add(ghostBlock);

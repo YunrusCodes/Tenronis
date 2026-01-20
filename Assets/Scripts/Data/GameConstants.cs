@@ -76,7 +76,7 @@ namespace Tenronis.Data
         // Buff 起始等級
         public const int DEFENSE_START_LEVEL = 0;
         public const int VOLLEY_START_LEVEL = 0;
-        public const int TACTICAL_EXPANSION_START_LEVEL = 3;
+        public const int TACTICAL_EXPANSION_START_LEVEL = 0;
 
         // 🚫 普通強化（有限等級）
         public static readonly BuffType[] NORMAL_BUFFS = new BuffType[]

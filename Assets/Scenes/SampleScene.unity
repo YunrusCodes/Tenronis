@@ -12954,7 +12954,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -143, y: 482}
+  m_AnchoredPosition: {x: -155, y: 474}
   m_SizeDelta: {x: 514.28, y: 96.44}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1465650490
@@ -13914,7 +13914,6 @@ MonoBehaviour:
   gameOverMenuButton: {fileID: 920810256}
   victoryPanel: {fileID: 1833709566}
   victoryFinalScoreText: {fileID: 0}
-  victoryRestartButton: {fileID: 0}
   victoryMenuButton: {fileID: 45733057}
   quitPanel: {fileID: 1261181443}
   quitYesButton: {fileID: 1885063337}
