@@ -3850,7 +3850,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Tenronis.VFX.GridBorder
   borderColor: {r: 1, g: 1, b: 1, a: 1}
   borderWidth: 0.1
-  sortingOrder: 20
+  sortingOrder: 10
 --- !u!120 &425625684
 LineRenderer:
   serializedVersion: 2

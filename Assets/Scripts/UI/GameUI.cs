@@ -564,8 +564,8 @@ namespace Tenronis.UI
                     }
                     else
                     {
-                        // CP不足：顯示 溢出代價 : HP -> 1 (紅色)
-                        overflowCostText.text = LocalizationHelper.GetLocalizedString("溢出代價 : HP = 1");
+                        // CP不足：顯示 溢出代價 : HP ⇒ 1 (紅色)
+                        overflowCostText.text = LocalizationHelper.GetLocalizedString("溢出代價 : HP ⇒ 1");
                         overflowCostText.color = Color.red;
                     }
                 }

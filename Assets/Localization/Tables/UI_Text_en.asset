@@ -91,7 +91,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 5810538971136
-    m_Localized: Abandon
+    m_Localized: Quit
     m_Metadata:
       m_Items: []
   - m_Id: 6562351185920
@@ -143,7 +143,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 6700000000010
-    m_Localized: 'Overflow Cost : HP = 1'
+    m_Localized: "Overflow Cost : HP \u21D2 1"
     m_Metadata:
       m_Items: []
   - m_Id: 6700000000011
@@ -511,8 +511,8 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 6800000000027
-    m_Localized: Legendary Project [Tactical Expansion]\nLv1 Unlock Erase  Lv2 Unlock
-      Execute  Lv3 Unlock Repair
+    m_Localized: In Legendary Projects, Tactical Expansion unlocks Erase at level
+      1, Execute at level 2, and Repair at level 3.
     m_Metadata:
       m_Items: []
   - m_Id: 6800000000028
