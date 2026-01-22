@@ -113,5 +113,18 @@ namespace Tenronis.ScriptableObjects
         [Header("提示訊息")]
         [Tooltip("關卡提示訊息列表")]
         public List<string> tips = new List<string>();
+        
+        [Header("關卡提示")]
+        [Tooltip("關卡提示文字（繁體中文，顯示在敵人預覽面板中，與確定按鈕一起顯示）")]
+        [TextArea(2, 5)]
+        public string hint = "";
+        
+        [Tooltip("關卡提示文字（英文）")]
+        [TextArea(2, 5)]
+        public string hintEn = "";
+        
+        [Tooltip("關卡提示文字（日文）")]
+        [TextArea(2, 5)]
+        public string hintJa = "";
     }
 }

@@ -78,7 +78,7 @@ namespace Tenronis.Data
             salvoLevel = 1; // Salvo（齊射強化）起始等級 1
             burstLevel = 1;
             counterFireLevel = 1;
-            spaceExpansionLevel = 1; // 初始解鎖 1 個槽位（A 鍵）
+            spaceExpansionLevel = GameConstants.SPACE_EXPANSION_START_LEVEL; // 空間擴充起始等級（初始解鎖 1 個槽位）
             cpExpansionLevel = 0;
             tacticalExpansionLevel = GameConstants.TACTICAL_EXPANSION_START_LEVEL; // 戰術擴展起始等級
             comboCount = 0;

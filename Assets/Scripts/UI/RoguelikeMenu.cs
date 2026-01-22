@@ -28,6 +28,9 @@ namespace Tenronis.UI
         [SerializeField] private Button closeEnemyPanelButton; // 關閉敵人面板按鈕
         [SerializeField] private TextMeshProUGUI nextStageEnemyPreviewText;
         [SerializeField] private TextMeshProUGUI previewDescriptionText; // 關卡描述文字
+        [SerializeField] private GameObject hintPanel; // 關卡提示面板
+        [SerializeField] private TextMeshProUGUI hintText; // 關卡提示文字
+        [SerializeField] private Button hintCloseButton; // 關閉提示面板按鈕
         [SerializeField] private Transform enemyAttackPreviewContainer;
         [SerializeField] private GameObject enemyAttackPreviewPrefab;
         [SerializeField] private Tenronis.Gameplay.Projectiles.Bullet bulletPrefabReference;
@@ -137,6 +140,9 @@ namespace Tenronis.UI
             // 設置提示訊息按鈕
             SetupTipButton();
             
+            // 設置提示面板關閉按鈕
+            SetupHintCloseButton();
+            
             // 初始化提示訊息變量（但不立即顯示，等待關閉敵人面板時才顯示）
             InitializeTips();
             
@@ -147,6 +153,12 @@ namespace Tenronis.UI
                 playerBuffPanel.SetActive(false); // 預設隱藏，需通過按鈕顯示
             if (detailToggle != null)
                 detailToggle.gameObject.SetActive(true);
+            
+            // 初始化提示面板（預設隱藏，等描述文字完成後才顯示）
+            if (hintPanel != null)
+                hintPanel.SetActive(false);
+            if (hintText != null)
+                hintText.text = "";
             
             // TipsPanel 初始狀態：只有在關閉敵人面板後根據是否有 tips 來決定是否顯示
             // 這裡暫時保持激活狀態（或根據場景設置的初始狀態），實際顯示由 StartTipsDisplay() 控制
@@ -280,6 +292,7 @@ namespace Tenronis.UI
             if (showPlayerBuffButton != null) showPlayerBuffButton.onClick.RemoveAllListeners();
             if (hidePlayerBuffButton != null) hidePlayerBuffButton.onClick.RemoveAllListeners();
             if (nextTipButton != null) nextTipButton.onClick.RemoveAllListeners();
+            if (hintCloseButton != null) hintCloseButton.onClick.RemoveAllListeners();
             
             // 停止提示訊息顯示協程
             if (tipDisplayCoroutine != null)
@@ -437,6 +450,36 @@ namespace Tenronis.UI
             {
                 nextTipButton.onClick.RemoveAllListeners();
                 nextTipButton.onClick.AddListener(OnNextTipClicked);
+            }
+        }
+        
+        /// <summary>
+        /// 設置提示面板關閉按鈕
+        /// </summary>
+        private void SetupHintCloseButton()
+        {
+            if (hintCloseButton != null)
+            {
+                hintCloseButton.onClick.RemoveAllListeners();
+                hintCloseButton.onClick.AddListener(OnHintCloseButtonClicked);
+            }
+        }
+        
+        /// <summary>
+        /// 提示面板關閉按鈕點擊
+        /// </summary>
+        private void OnHintCloseButtonClicked()
+        {
+            // 關閉提示面板
+            if (hintPanel != null)
+            {
+                hintPanel.SetActive(false);
+            }
+            
+            // 顯示關閉敵人面板按鈕
+            if (closeEnemyPanelButton != null)
+            {
+                closeEnemyPanelButton.gameObject.SetActive(true);
             }
         }
         
@@ -1725,6 +1768,9 @@ namespace Tenronis.UI
                 }
             }
             
+            // 關卡提示（先不顯示，等描述文字完成後用打字機效果顯示）
+            string hintTextContent = GetLocalizedHint(currentStage);
+            
             // 如果是 Boss 關卡，同時顯示 Boss Battle 動畫和 Stage 動畫
             bool bossBattleCompleted = false;
             bool stageCompleted = false;
@@ -1744,10 +1790,10 @@ namespace Tenronis.UI
                 bossBattleCompleted = true; // 標記為已完成（因為沒有 bossBattleText）
             }
             
-            // 每關都顯示 Stage 動畫（傳遞預覽文字、關卡數據和描述文字，讓動畫完成後顯示）
+            // 每關都顯示 Stage 動畫（傳遞預覽文字、關卡數據、描述文字和提示文字，讓動畫完成後顯示）
             if (stageText != null)
             {
-                StartCoroutine(WaitForStageAnimation(currentStage, GameManager.Instance.CurrentStageIndex, previewText, descriptionText, () => stageCompleted = true));
+                StartCoroutine(WaitForStageAnimation(currentStage, GameManager.Instance.CurrentStageIndex, previewText, descriptionText, hintTextContent, () => stageCompleted = true));
             }
             else
             {
@@ -1762,8 +1808,8 @@ namespace Tenronis.UI
                 {
                     nextStageEnemyPreviewText.text = previewText;
                 }
-                // 沒有動畫時，直接生成攻擊預覽（傳遞描述文字）
-                GenerateAttackPreviews(currentStage, descriptionText);
+                // 沒有動畫時，直接生成攻擊預覽（傳遞描述文字和提示文字）
+                GenerateAttackPreviews(currentStage, descriptionText, hintTextContent);
                 stageCompleted = true; // 標記為已完成
             }
             
@@ -1783,9 +1829,9 @@ namespace Tenronis.UI
         /// <summary>
         /// 等待 Stage 動畫完成
         /// </summary>
-        private IEnumerator WaitForStageAnimation(StageDataSO stage, int stageIndex, string previewText, string descriptionText, System.Action onComplete)
+        private IEnumerator WaitForStageAnimation(StageDataSO stage, int stageIndex, string previewText, string descriptionText, string hintText, System.Action onComplete)
         {
-            yield return StartCoroutine(PlayStageAnimationCoroutine(stage, stageIndex, previewText, descriptionText));
+            yield return StartCoroutine(PlayStageAnimationCoroutine(stage, stageIndex, previewText, descriptionText, hintText));
             onComplete?.Invoke();
         }
         
@@ -2755,7 +2801,8 @@ namespace Tenronis.UI
         /// <param name="stageIndex">關卡索引</param>
         /// <param name="previewText">敵人預覽文字（動畫完成後用打字機效果顯示）</param>
         /// <param name="descriptionText">描述文字（子彈實例化完成後用打字機效果顯示）</param>
-        private IEnumerator PlayStageAnimationCoroutine(StageDataSO stage, int stageIndex, string previewText = "", string descriptionText = "")
+        /// <param name="hintText">提示文字（描述文字完成後用打字機效果顯示）</param>
+        private IEnumerator PlayStageAnimationCoroutine(StageDataSO stage, int stageIndex, string previewText = "", string descriptionText = "", string hintText = "")
         {
             if (stageText == null || stage == null) yield break;
             
@@ -3019,7 +3066,7 @@ namespace Tenronis.UI
             // 動畫完成後，使用打字機效果顯示預覽文字
             if (nextStageEnemyPreviewText != null && !string.IsNullOrEmpty(previewText))
             {
-                yield return StartCoroutine(TypewriterEffectAndGeneratePreviews(nextStageEnemyPreviewText, previewText, 0.01f, stage, descriptionText));
+                yield return StartCoroutine(TypewriterEffectAndGeneratePreviews(nextStageEnemyPreviewText, previewText, 0.01f, stage, descriptionText, hintText));
             }
         }
         
@@ -3065,15 +3112,16 @@ namespace Tenronis.UI
         /// <param name="delayPerChar">每個字符的延遲時間（秒）</param>
         /// <param name="stage">關卡數據</param>
         /// <param name="descriptionText">描述文字（子彈實例化完成後顯示）</param>
-        private IEnumerator TypewriterEffectAndGeneratePreviews(TextMeshProUGUI textComponent, string fullText, float delayPerChar, StageDataSO stage, string descriptionText = "")
+        /// <param name="hintText">提示文字（描述文字完成後顯示）</param>
+        private IEnumerator TypewriterEffectAndGeneratePreviews(TextMeshProUGUI textComponent, string fullText, float delayPerChar, StageDataSO stage, string descriptionText = "", string hintText = "")
         {
             // 先執行打字機效果
             yield return StartCoroutine(TypewriterEffect(textComponent, fullText, delayPerChar));
             
-            // 打字機效果完成後，生成攻擊預覽（傳遞描述文字）
+            // 打字機效果完成後，生成攻擊預覽（傳遞描述文字和提示文字）
             if (stage != null)
             {
-                GenerateAttackPreviews(stage, descriptionText);
+                GenerateAttackPreviews(stage, descriptionText, hintText);
             }
         }
         
@@ -3108,7 +3156,7 @@ namespace Tenronis.UI
         /// 計算方式：(彈種的權重) / (所有 enable 彈種的權重和)
         /// 所有子彈是否會發射，只看 enabled（包括普通子彈）
         /// </summary>
-        private void GenerateAttackPreviews(StageDataSO stageData, string descriptionText = "")
+        private void GenerateAttackPreviews(StageDataSO stageData, string descriptionText = "", string hintText = "")
         {
             if (enemyAttackPreviewContainer == null || enemyAttackPreviewPrefab == null) return;
             
@@ -3142,7 +3190,7 @@ namespace Tenronis.UI
             // 如果沒有任何啟用的子彈，顯示"無"的欄位
             if (enabledBullets.Count == 0)
             {
-                StartCoroutine(CreateAttackPreviewItemsSequentially(new List<(BulletType type, string name, string desc, float weight)>(), 0f, descriptionText));
+                StartCoroutine(CreateAttackPreviewItemsSequentially(new List<(BulletType type, string name, string desc, float weight)>(), 0f, descriptionText, hintText));
                 return;
             }
             
@@ -3161,13 +3209,13 @@ namespace Tenronis.UI
             
             // 為每個啟用的子彈生成預覽項目，顯示實際機率 = 權重 / 總權重
             // 使用協程依序顯示動畫
-            StartCoroutine(CreateAttackPreviewItemsSequentially(enabledBullets, totalWeight, descriptionText));
+            StartCoroutine(CreateAttackPreviewItemsSequentially(enabledBullets, totalWeight, descriptionText, hintText));
         }
         
         /// <summary>
         /// 依序創建攻擊預覽項目，每個項目都有動畫效果
         /// </summary>
-        private IEnumerator CreateAttackPreviewItemsSequentially(List<(BulletType type, string name, string desc, float weight)> bullets, float totalWeight, string descriptionText = "")
+        private IEnumerator CreateAttackPreviewItemsSequentially(List<(BulletType type, string name, string desc, float weight)> bullets, float totalWeight, string descriptionText = "", string hintText = "")
         {
             // 如果沒有子彈，顯示"無"的欄位
             if (bullets.Count == 0)
@@ -3190,10 +3238,31 @@ namespace Tenronis.UI
                 yield return StartCoroutine(TypewriterEffect(previewDescriptionText, descriptionText, 0.01f));
             }
             
-            // 描述文字顯示完成後（或沒有描述文字時），啟用關閉按鈕
-            if (closeEnemyPanelButton != null)
+            // 描述文字顯示完成後，顯示提示文字（如果有）
+            if (hintPanel != null && this.hintText != null && !string.IsNullOrEmpty(hintText))
             {
-                closeEnemyPanelButton.gameObject.SetActive(true);
+                // 顯示提示面板
+                hintPanel.SetActive(true);
+                // 使用打字機效果顯示提示文字
+                yield return StartCoroutine(TypewriterEffect(this.hintText, hintText, 0.01f));
+                // 如果有提示文字，不顯示確認按鈕
+                if (closeEnemyPanelButton != null)
+                {
+                    closeEnemyPanelButton.gameObject.SetActive(false);
+                }
+            }
+            else
+            {
+                // 如果沒有提示文字，隱藏提示面板
+                if (hintPanel != null)
+                {
+                    hintPanel.SetActive(false);
+                }
+                // 如果沒有提示文字，顯示確認按鈕
+                if (closeEnemyPanelButton != null)
+                {
+                    closeEnemyPanelButton.gameObject.SetActive(true);
+                }
             }
         }
         
@@ -3387,6 +3456,27 @@ namespace Tenronis.UI
                 case "zh-TW":
                 default:
                     return stage.description;
+            }
+        }
+        
+        /// <summary>
+        /// 根據當前語言獲取關卡提示
+        /// </summary>
+        private string GetLocalizedHint(StageDataSO stage)
+        {
+            if (stage == null) return "";
+            
+            string languageCode = GetCurrentLanguageCode();
+            
+            switch (languageCode)
+            {
+                case "en":
+                    return !string.IsNullOrEmpty(stage.hintEn) ? stage.hintEn : stage.hint;
+                case "ja":
+                    return !string.IsNullOrEmpty(stage.hintJa) ? stage.hintJa : stage.hint;
+                case "zh-TW":
+                default:
+                    return stage.hint;
             }
         }
         
