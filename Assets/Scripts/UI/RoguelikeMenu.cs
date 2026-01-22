@@ -29,8 +29,14 @@ namespace Tenronis.UI
         [SerializeField] private TextMeshProUGUI nextStageEnemyPreviewText;
         [SerializeField] private TextMeshProUGUI previewDescriptionText; // 關卡描述文字
         [SerializeField] private GameObject hintPanel; // 關卡提示面板
+        [SerializeField] private Image hintPanelBackgroundImage; // 關卡提示面板背景 Image（用於淡入效果）
+        [SerializeField] private TextMeshProUGUI hintTitleText; // 關卡提示標題
         [SerializeField] private TextMeshProUGUI hintText; // 關卡提示文字
         [SerializeField] private Button hintCloseButton; // 關閉提示面板按鈕
+        [SerializeField] private Image hintAnimationImage; // 提示動畫 Image
+        [SerializeField] private Animator hintAnimator; // 提示動畫 Animator 組件
+        [SerializeField] private SpriteRenderer hintSpriteRenderer; // 提示動畫 SpriteRenderer（用於Animator控制，從中讀取Sprite）
+        [SerializeField] private UnityEngine.UI.AspectRatioFitter hintAspectRatioFitter; // 提示動畫 AspectRatioFilter 組件
         [SerializeField] private Transform enemyAttackPreviewContainer;
         [SerializeField] private GameObject enemyAttackPreviewPrefab;
         [SerializeField] private Tenronis.Gameplay.Projectiles.Bullet bulletPrefabReference;
@@ -102,6 +108,7 @@ namespace Tenronis.UI
         private bool waitingForBonusConfirm = false; // 是否正在等待說明頁面確認
         private int currentTipIndex = 0; // 當前提示訊息的索引
         private Coroutine tipDisplayCoroutine = null; // 提示訊息顯示協程
+        private Coroutine hintSpriteSyncCoroutine = null; // 用於同步Hint Sprite的協程
         
         private void OnEnable()
         {
@@ -157,8 +164,29 @@ namespace Tenronis.UI
             // 初始化提示面板（預設隱藏，等描述文字完成後才顯示）
             if (hintPanel != null)
                 hintPanel.SetActive(false);
+            if (hintPanelBackgroundImage != null)
+            {
+                Color bgColor = hintPanelBackgroundImage.color;
+                bgColor.a = 0f;
+                hintPanelBackgroundImage.color = bgColor;
+            }
+            if (hintTitleText != null)
+                hintTitleText.text = "";
             if (hintText != null)
                 hintText.text = "";
+            
+            // 初始化提示動畫（預設隱藏）
+            if (hintAnimationImage != null)
+            {
+                hintAnimationImage.gameObject.SetActive(false);
+                Color imageColor = hintAnimationImage.color;
+                imageColor.a = 0f;
+                hintAnimationImage.color = imageColor;
+            }
+            if (hintAnimator != null)
+            {
+                hintAnimator.enabled = false;
+            }
             
             // TipsPanel 初始狀態：只有在關閉敵人面板後根據是否有 tips 來決定是否顯示
             // 這裡暫時保持激活狀態（或根據場景設置的初始狀態），實際顯示由 StartTipsDisplay() 控制
@@ -308,10 +336,23 @@ namespace Tenronis.UI
                 spriteSyncCoroutine = null;
             }
             
+            // 停止Hint Sprite同步協程
+            if (hintSpriteSyncCoroutine != null)
+            {
+                StopCoroutine(hintSpriteSyncCoroutine);
+                hintSpriteSyncCoroutine = null;
+            }
+            
             // 停止Animator
             if (bonusAnimator != null)
             {
                 bonusAnimator.enabled = false;
+            }
+            
+            // 停止Hint Animator
+            if (hintAnimator != null)
+            {
+                hintAnimator.enabled = false;
             }
         }
         
@@ -470,6 +511,19 @@ namespace Tenronis.UI
         /// </summary>
         private void OnHintCloseButtonClicked()
         {
+            // 停止動畫播放
+            if (hintAnimator != null)
+            {
+                hintAnimator.enabled = false;
+            }
+            
+            // 停止同步協程
+            if (hintSpriteSyncCoroutine != null)
+            {
+                StopCoroutine(hintSpriteSyncCoroutine);
+                hintSpriteSyncCoroutine = null;
+            }
+            
             // 關閉提示面板
             if (hintPanel != null)
             {
@@ -1394,6 +1448,94 @@ namespace Tenronis.UI
                         float aspectRatio = (float)currentSprite.texture.width / (float)currentSprite.texture.height;
                         bonusAspectRatioFitter.aspectRatio = aspectRatio;
                         bonusAspectRatioFitter.aspectMode = UnityEngine.UI.AspectRatioFitter.AspectMode.FitInParent;
+                    }
+                }
+                
+                // 每幀更新
+                yield return null;
+            }
+        }
+        
+        /// <summary>
+        /// 設置提示動畫
+        /// </summary>
+        private void SetupHintAnimation(StageDataSO stage)
+        {
+            if (stage == null) return;
+            
+            // 停止之前的同步協程
+            if (hintSpriteSyncCoroutine != null)
+            {
+                StopCoroutine(hintSpriteSyncCoroutine);
+                hintSpriteSyncCoroutine = null;
+            }
+            
+            // 如果有動畫控制器
+            if (stage.hintAnimatorController != null && hintAnimator != null && hintAnimationImage != null && hintSpriteRenderer != null)
+            {
+                // 設置 Animator
+                hintAnimator.runtimeAnimatorController = stage.hintAnimatorController;
+                
+                // 確保SpriteRenderer在開始時是啟用的
+                if (!hintSpriteRenderer.gameObject.activeSelf)
+                {
+                    hintSpriteRenderer.gameObject.SetActive(true);
+                }
+                
+                // 重置Animator狀態
+                hintAnimator.enabled = true;
+                hintAnimator.Rebind();
+                
+                // 設置初始狀態：透明
+                Color imageColor = hintAnimationImage.color;
+                imageColor.a = 0f;
+                hintAnimationImage.color = imageColor;
+                hintAnimationImage.gameObject.SetActive(true);
+                
+                // 開始同步Sprite的協程
+                hintSpriteSyncCoroutine = StartCoroutine(SyncHintSpriteFromRendererToImage());
+            }
+            else
+            {
+                // 如果沒有動畫，隱藏Image
+                if (hintAnimationImage != null)
+                {
+                    hintAnimationImage.gameObject.SetActive(false);
+                }
+                
+                // 停止Animator
+                if (hintAnimator != null)
+                {
+                    hintAnimator.enabled = false;
+                }
+            }
+        }
+        
+        /// <summary>
+        /// 從 SpriteRenderer 同步 Sprite 到 Image 的協程（提示動畫）
+        /// </summary>
+        private IEnumerator SyncHintSpriteFromRendererToImage()
+        {
+            if (hintSpriteRenderer == null || hintAnimationImage == null)
+            {
+                yield break;
+            }
+            
+            while (hintAnimationImage.gameObject.activeSelf && hintAnimator != null && hintAnimator.enabled)
+            {
+                // 從 SpriteRenderer 讀取當前 Sprite
+                Sprite currentSprite = hintSpriteRenderer.sprite;
+                if (currentSprite != null)
+                {
+                    // 將 Sprite 應用到 Image
+                    hintAnimationImage.sprite = currentSprite;
+                    
+                    // 如果AspectRatioFitter存在，根據Sprite尺寸設置寬高比
+                    if (hintAspectRatioFitter != null && currentSprite != null)
+                    {
+                        float aspectRatio = (float)currentSprite.texture.width / (float)currentSprite.texture.height;
+                        hintAspectRatioFitter.aspectRatio = aspectRatio;
+                        hintAspectRatioFitter.aspectMode = UnityEngine.UI.AspectRatioFitter.AspectMode.FitInParent;
                     }
                 }
                 
@@ -3190,7 +3332,7 @@ namespace Tenronis.UI
             // 如果沒有任何啟用的子彈，顯示"無"的欄位
             if (enabledBullets.Count == 0)
             {
-                StartCoroutine(CreateAttackPreviewItemsSequentially(new List<(BulletType type, string name, string desc, float weight)>(), 0f, descriptionText, hintText));
+                StartCoroutine(CreateAttackPreviewItemsSequentially(new List<(BulletType type, string name, string desc, float weight)>(), 0f, descriptionText, hintText, stageData));
                 return;
             }
             
@@ -3209,13 +3351,13 @@ namespace Tenronis.UI
             
             // 為每個啟用的子彈生成預覽項目，顯示實際機率 = 權重 / 總權重
             // 使用協程依序顯示動畫
-            StartCoroutine(CreateAttackPreviewItemsSequentially(enabledBullets, totalWeight, descriptionText, hintText));
+            StartCoroutine(CreateAttackPreviewItemsSequentially(enabledBullets, totalWeight, descriptionText, hintText, stageData));
         }
         
         /// <summary>
         /// 依序創建攻擊預覽項目，每個項目都有動畫效果
         /// </summary>
-        private IEnumerator CreateAttackPreviewItemsSequentially(List<(BulletType type, string name, string desc, float weight)> bullets, float totalWeight, string descriptionText = "", string hintText = "")
+        private IEnumerator CreateAttackPreviewItemsSequentially(List<(BulletType type, string name, string desc, float weight)> bullets, float totalWeight, string descriptionText = "", string hintText = "", StageDataSO stage = null)
         {
             // 如果沒有子彈，顯示"無"的欄位
             if (bullets.Count == 0)
@@ -3238,14 +3380,74 @@ namespace Tenronis.UI
                 yield return StartCoroutine(TypewriterEffect(previewDescriptionText, descriptionText, 0.01f));
             }
             
-            // 描述文字顯示完成後，顯示提示文字（如果有）
-            if (hintPanel != null && this.hintText != null && !string.IsNullOrEmpty(hintText))
+            // 描述文字顯示完成後，延遲 0.5 秒再顯示提示或確認按鈕
+            yield return new WaitForSeconds(0.5f);
+            
+            // 顯示提示（如果 showHint 為 true）
+            if (stage != null && stage.showHint && hintPanel != null)
             {
                 // 顯示提示面板
                 hintPanel.SetActive(true);
-                // 使用打字機效果顯示提示文字
-                yield return StartCoroutine(TypewriterEffect(this.hintText, hintText, 0.01f));
-                // 如果有提示文字，不顯示確認按鈕
+                
+                // 先隱藏其他元素（影片、標題、描述、按鈕）
+                if (hintAnimationImage != null)
+                    hintAnimationImage.gameObject.SetActive(false);
+                if (hintTitleText != null)
+                    hintTitleText.gameObject.SetActive(false);
+                if (this.hintText != null)
+                    this.hintText.gameObject.SetActive(false);
+                if (hintCloseButton != null)
+                    hintCloseButton.gameObject.SetActive(false);
+                
+                // 先讓背景 Image 淡入
+                if (hintPanelBackgroundImage != null)
+                {
+                    Color bgColor = hintPanelBackgroundImage.color;
+                    bgColor.a = 0f;
+                    hintPanelBackgroundImage.color = bgColor;
+                    hintPanelBackgroundImage.gameObject.SetActive(true);
+                    yield return hintPanelBackgroundImage.DOFade(1f, 0.5f).WaitForCompletion();
+                }
+                
+                // 背景淡入完成後，設置提示動畫（如果有）
+                SetupHintAnimation(stage);
+                
+                // 顯示並播放提示動畫（如果有）
+                if (hintAnimationImage != null && stage.hintAnimatorController != null)
+                {
+                    hintAnimationImage.gameObject.SetActive(true);
+                    yield return hintAnimationImage.DOFade(1f, 0.5f).WaitForCompletion();
+                }
+                
+                // 顯示提示標題
+                if (hintTitleText != null)
+                {
+                    hintTitleText.gameObject.SetActive(true);
+                    string hintTitleContent = GetLocalizedHintTitle(stage);
+                    if (!string.IsNullOrEmpty(hintTitleContent))
+                    {
+                        // 使用打字機效果顯示提示標題
+                        yield return StartCoroutine(TypewriterEffect(hintTitleText, hintTitleContent, 0.01f));
+                    }
+                }
+                
+                // 顯示提示文字
+                if (this.hintText != null)
+                {
+                    this.hintText.gameObject.SetActive(true);
+                    if (!string.IsNullOrEmpty(hintText))
+                    {
+                        yield return StartCoroutine(TypewriterEffect(this.hintText, hintText, 0.01f));
+                    }
+                }
+                
+                // 顯示關閉按鈕
+                if (hintCloseButton != null)
+                {
+                    hintCloseButton.gameObject.SetActive(true);
+                }
+                
+                // 如果顯示提示，不顯示確認按鈕
                 if (closeEnemyPanelButton != null)
                 {
                     closeEnemyPanelButton.gameObject.SetActive(false);
@@ -3253,12 +3455,12 @@ namespace Tenronis.UI
             }
             else
             {
-                // 如果沒有提示文字，隱藏提示面板
+                // 如果不顯示提示，隱藏提示面板
                 if (hintPanel != null)
                 {
                     hintPanel.SetActive(false);
                 }
-                // 如果沒有提示文字，顯示確認按鈕
+                // 如果不顯示提示，顯示確認按鈕
                 if (closeEnemyPanelButton != null)
                 {
                     closeEnemyPanelButton.gameObject.SetActive(true);
@@ -3456,6 +3658,27 @@ namespace Tenronis.UI
                 case "zh-TW":
                 default:
                     return stage.description;
+            }
+        }
+        
+        /// <summary>
+        /// 根據當前語言獲取關卡提示標題
+        /// </summary>
+        private string GetLocalizedHintTitle(StageDataSO stage)
+        {
+            if (stage == null) return "";
+            
+            string languageCode = GetCurrentLanguageCode();
+            
+            switch (languageCode)
+            {
+                case "en":
+                    return !string.IsNullOrEmpty(stage.hintTitleEn) ? stage.hintTitleEn : stage.hintTitle;
+                case "ja":
+                    return !string.IsNullOrEmpty(stage.hintTitleJa) ? stage.hintTitleJa : stage.hintTitle;
+                case "zh-TW":
+                default:
+                    return stage.hintTitle;
             }
         }
         

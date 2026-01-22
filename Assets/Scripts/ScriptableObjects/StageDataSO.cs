@@ -115,6 +115,18 @@ namespace Tenronis.ScriptableObjects
         public List<string> tips = new List<string>();
         
         [Header("關卡提示")]
+        [Tooltip("是否顯示關卡提示")]
+        public bool showHint = false;
+        
+        [Tooltip("關卡提示標題（繁體中文）")]
+        public string hintTitle = "";
+        
+        [Tooltip("關卡提示標題（英文）")]
+        public string hintTitleEn = "";
+        
+        [Tooltip("關卡提示標題（日文）")]
+        public string hintTitleJa = "";
+        
         [Tooltip("關卡提示文字（繁體中文，顯示在敵人預覽面板中，與確定按鈕一起顯示）")]
         [TextArea(2, 5)]
         public string hint = "";
@@ -126,5 +138,8 @@ namespace Tenronis.ScriptableObjects
         [Tooltip("關卡提示文字（日文）")]
         [TextArea(2, 5)]
         public string hintJa = "";
+        
+        [Tooltip("關卡提示動畫控制器（用於播放提示動畫）")]
+        public RuntimeAnimatorController hintAnimatorController;
     }
 }
