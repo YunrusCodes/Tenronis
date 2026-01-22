@@ -74,3 +74,6 @@ Assets/*.pfx
 # Crashlytics generated file crashlytics-build.properties
 .vscode/
 Build_BurstDebugInformation_DoNotShip/
+
+# Large executable files
+**/ffmpeg.exe
