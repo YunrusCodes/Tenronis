@@ -31,15 +31,31 @@ namespace Tenronis.ScriptableObjects
     public class StageDataSO : ScriptableObject
     {
         [Header("關卡資訊")]
+        [Tooltip("關卡名稱（繁體中文）")]
         public string stageName = "未命名威脅";
+        
+        [Tooltip("關卡名稱（英文）")]
+        public string stageNameEn = "Unnamed Threat";
+        
+        [Tooltip("關卡名稱（日文）")]
+        public string stageNameJa = "無名の脅威";
+        
         public int stageIndex = 0;
         
         [Tooltip("是否為Boss關卡（影響BGM和特殊效果）")]
         public bool isBossStage = false;
         
-        [Tooltip("關卡描述文字（顯示在敵人預覽面板中）")]
+        [Tooltip("關卡描述文字（繁體中文，顯示在敵人預覽面板中）")]
         [TextArea(3, 10)]
         public string description = "";
+        
+        [Tooltip("關卡描述文字（英文）")]
+        [TextArea(3, 10)]
+        public string descriptionEn = "";
+        
+        [Tooltip("關卡描述文字（日文）")]
+        [TextArea(3, 10)]
+        public string descriptionJa = "";
         
         [Header("過關獎勵")]
         [Tooltip("過關後獲得的升級卡牌數量")]
@@ -97,5 +113,33 @@ namespace Tenronis.ScriptableObjects
         [Header("提示訊息")]
         [Tooltip("關卡提示訊息列表")]
         public List<string> tips = new List<string>();
+        
+        [Header("關卡提示")]
+        [Tooltip("是否顯示關卡提示")]
+        public bool showHint = false;
+        
+        [Tooltip("關卡提示標題（繁體中文）")]
+        public string hintTitle = "";
+        
+        [Tooltip("關卡提示標題（英文）")]
+        public string hintTitleEn = "";
+        
+        [Tooltip("關卡提示標題（日文）")]
+        public string hintTitleJa = "";
+        
+        [Tooltip("關卡提示文字（繁體中文，顯示在敵人預覽面板中，與確定按鈕一起顯示）")]
+        [TextArea(2, 5)]
+        public string hint = "";
+        
+        [Tooltip("關卡提示文字（英文）")]
+        [TextArea(2, 5)]
+        public string hintEn = "";
+        
+        [Tooltip("關卡提示文字（日文）")]
+        [TextArea(2, 5)]
+        public string hintJa = "";
+        
+        [Tooltip("關卡提示動畫控制器（用於播放提示動畫）")]
+        public RuntimeAnimatorController hintAnimatorController;
     }
 }

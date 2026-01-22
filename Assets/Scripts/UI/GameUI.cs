@@ -6,6 +6,7 @@ using Tenronis.Core;
 using Tenronis.Managers;
 using Tenronis.Gameplay.Enemy;
 using Tenronis.ScriptableObjects;
+using Tenronis.Utils;
 using System.Collections.Generic;
 
 namespace Tenronis.UI
@@ -61,6 +62,7 @@ namespace Tenronis.UI
         private float salvoDisplayTimer = 0f;
         private float salvoAnimationTimer = 0f;
         private float salvoAnimationDuration = 0.3f; // 動畫時間
+        private bool isVoidNullify = false; // 標記是否為虛無抵銷
         
         // 衝擊爆破文字顯示計時
         private float impactBlastDisplayTimer = 0f;
@@ -113,7 +115,6 @@ namespace Tenronis.UI
         [Header("遊戲結束 - 勝利")]
         [SerializeField] private GameObject victoryPanel;
         [SerializeField] private TextMeshProUGUI victoryFinalScoreText;
-        [SerializeField] private Button victoryRestartButton;
         [SerializeField] private Button victoryMenuButton;
         
         [Header("退出確認面板")]
@@ -136,7 +137,6 @@ namespace Tenronis.UI
             if (gameOverMenuButton != null) gameOverMenuButton.onClick.AddListener(OnReturnToMenu);
             
             // 綁定按鈕事件 - 勝利面板
-            if (victoryRestartButton != null) victoryRestartButton.onClick.AddListener(OnRestart);
             if (victoryMenuButton != null) victoryMenuButton.onClick.AddListener(OnReturnToMenu);
             
             // 綁定按鈕事件 - 退出功能
@@ -151,6 +151,9 @@ namespace Tenronis.UI
             GameEvents.OnEnemyDamaged += HandleEnemyDamaged;
             GameEvents.OnGridOverflow += HandleGridOverflow;
             GameEvents.OnSkillUsed += HandleSkillUsed;
+            
+            // 訂閱語言變更事件
+            UnityEngine.Localization.Settings.LocalizationSettings.SelectedLocaleChanged += OnLanguageChanged;
             
             // 保存連發文字原始位置和顏色，並創建相關文字物件
             if (comboText != null)
@@ -169,7 +172,7 @@ namespace Tenronis.UI
                 GameObject labelObj = Instantiate(comboText.gameObject, comboText.transform.parent);
                 labelObj.name = "ComboLabelText";
                 comboLabelText = labelObj.GetComponent<TextMeshProUGUI>();
-                comboLabelText.text = "連發!";
+                comboLabelText.text = LocalizationHelper.GetLocalizedString("連發!");
                 comboLabelText.gameObject.SetActive(false);
             }
             
@@ -191,12 +194,14 @@ namespace Tenronis.UI
             GameEvents.OnGridOverflow -= HandleGridOverflow;
             GameEvents.OnSkillUsed -= HandleSkillUsed;
             
+            // 取消訂閱語言變更事件
+            UnityEngine.Localization.Settings.LocalizationSettings.SelectedLocaleChanged -= OnLanguageChanged;
+            
             // 解綁按鈕事件 - 失敗面板
             if (gameOverRestartButton != null) gameOverRestartButton.onClick.RemoveListener(OnRestart);
             if (gameOverMenuButton != null) gameOverMenuButton.onClick.RemoveListener(OnReturnToMenu);
             
             // 解綁按鈕事件 - 勝利面板
-            if (victoryRestartButton != null) victoryRestartButton.onClick.RemoveListener(OnRestart);
             if (victoryMenuButton != null) victoryMenuButton.onClick.RemoveListener(OnReturnToMenu);
             
             // 解綁按鈕事件 - 退出功能
@@ -352,7 +357,7 @@ namespace Tenronis.UI
                     var theme = themes[i];
                     var btn = Instantiate(themeButtonPrefab, themeButtonContainer);
                     var btnText = btn.GetComponentInChildren<TextMeshProUGUI>();
-                    if (btnText != null) btnText.text = theme.themeName;
+                    if (btnText != null) btnText.text = GetLocalizedThemeName(theme);
                     
                     btn.onClick.AddListener(() => OnThemeSelected(index));
                 }
@@ -395,7 +400,7 @@ namespace Tenronis.UI
             SetPanelActive(quitPanel, false); // 隱藏退出確認面板
             
             if (gameOverFinalScoreText != null && PlayerManager.Instance != null)
-                gameOverFinalScoreText.text = $"最終分數: {PlayerManager.Instance.Stats.score:N0}";
+                gameOverFinalScoreText.text = $"{LocalizationHelper.GetLocalizedString("最終分數:")} {PlayerManager.Instance.Stats.score:N0}";
         }
         
         private void ShowVictory()
@@ -408,7 +413,7 @@ namespace Tenronis.UI
             SetPanelActive(quitPanel, false); // 隱藏退出確認面板
             
             if (victoryFinalScoreText != null && PlayerManager.Instance != null)
-                victoryFinalScoreText.text = $"最終分數: {PlayerManager.Instance.Stats.score:N0}";
+                victoryFinalScoreText.text = $"{LocalizationHelper.GetLocalizedString("最終分數:")} {PlayerManager.Instance.Stats.score:N0}";
         }
         
         private void SetPanelActive(GameObject panel, bool active)
@@ -480,7 +485,12 @@ namespace Tenronis.UI
                     if (stats.comboCount > 1)
                     {
                         comboText.gameObject.SetActive(true);
-                        if (comboLabelText != null) comboLabelText.gameObject.SetActive(true);
+                        if (comboLabelText != null)
+                        {
+                            comboLabelText.gameObject.SetActive(true);
+                            // 每次顯示時都重新獲取本地化文字（確保語言切換時能更新）
+                            comboLabelText.text = LocalizationHelper.GetLocalizedString("連發!");
+                        }
                         
                         // 只有第二個 Combo（從 1 變成 2）時觸發滑入動畫
                         if (stats.comboCount == 2 && lastComboCount < 2)
@@ -538,10 +548,10 @@ namespace Tenronis.UI
                 }
                 
                 if (playerHpSlider != null) { playerHpSlider.maxValue = stats.maxHp; playerHpSlider.value = stats.currentHp; }
-                if (playerHpText != null) playerHpText.text = $"HP: {stats.currentHp} / {stats.maxHp}";
+                if (playerHpText != null) playerHpText.text = $"{LocalizationHelper.GetLocalizedString("HP:")} {stats.currentHp} / {stats.maxHp}";
                 if (playerCpSlider != null) { playerCpSlider.maxValue = stats.maxCp; playerCpSlider.value = stats.currentCp; }
-                if (playerCpText != null) playerCpText.text = $"CP: {stats.currentCp} / {stats.maxCp}";
-                if (explosionDamageText != null) explosionDamageText.text = $"衝擊炮充能 : {stats.explosionCharge}/{stats.explosionMaxCharge}";
+                if (playerCpText != null) playerCpText.text = $"{LocalizationHelper.GetLocalizedString("CP:")} {stats.currentCp} / {stats.maxCp}";
+                if (explosionDamageText != null) explosionDamageText.text = $"{LocalizationHelper.GetLocalizedString("衝擊炮充能 :")} {stats.explosionCharge}/{stats.explosionMaxCharge}";
                 
                 // 更新溢出CP消耗提示
                 if (overflowCostText != null)
@@ -549,13 +559,13 @@ namespace Tenronis.UI
                     if (stats.currentCp >= GameConstants.OVERFLOW_CP_COST)
                     {
                         // CP足夠：顯示 溢出代價 : CP -75
-                        overflowCostText.text = $"溢出代價 : CP -{GameConstants.OVERFLOW_CP_COST}";
+                        overflowCostText.text = $"{LocalizationHelper.GetLocalizedString("溢出代價 : CP -")}{GameConstants.OVERFLOW_CP_COST}";
                         overflowCostText.color = Color.white;
                     }
                     else
                     {
-                        // CP不足：顯示 溢出代價 : HP -> 1 (紅色)
-                        overflowCostText.text = "溢出代價 : HP = 1";
+                        // CP不足：顯示 溢出代價 : HP ⇒ 1 (紅色)
+                        overflowCostText.text = LocalizationHelper.GetLocalizedString("溢出代價 : HP ⇒ 1");
                         overflowCostText.color = Color.red;
                     }
                 }
@@ -571,13 +581,24 @@ namespace Tenronis.UI
             
             if (stageText != null && GameManager.Instance != null)
             {
-                stageText.text = $"STAGE {GameManager.Instance.CurrentStageIndex + 1} / {GameManager.Instance.TotalStages}";
+                stageText.text = $"{LocalizationHelper.GetLocalizedString("STAGE")} {GameManager.Instance.CurrentStageIndex + 1} / {GameManager.Instance.TotalStages}";
             }
         }
         
         private void HandleRowsClearedForSalvo(List<int> clearedRows, List<int> nonGarbageRows, bool hasVoid)
         {
-            if (hasVoid) return;
+            // 虛無抵銷處理：顯示虛無抵銷文字
+            if (hasVoid)
+            {
+                isVoidNullify = true;
+                lastClearedRows = 0; // 虛無抵銷不顯示行數
+                salvoDisplayTimer = 2f;
+                salvoAnimationTimer = salvoAnimationDuration; // 觸發動畫
+                return;
+            }
+            
+            // 正常齊射處理
+            isVoidNullify = false;
             if (nonGarbageRows.Count >= 2)
             {
                 lastClearedRows = nonGarbageRows.Count;
@@ -623,19 +644,25 @@ namespace Tenronis.UI
                 
                 // 設置文字和基礎顏色
                 Color baseColor;
-                if (lastClearedRows >= 4)
+                if (isVoidNullify)
                 {
-                    salvoText.text = "全彈齊射!";
+                    // 虛無抵銷顯示
+                    salvoText.text = LocalizationHelper.GetLocalizedString("虛無抵銷!");
+                    baseColor = new Color(0.5f, 0.5f, 0.5f); // 灰色
+                }
+                else if (lastClearedRows >= 4)
+                {
+                    salvoText.text = LocalizationHelper.GetLocalizedString("全彈齊射!");
                     baseColor = new Color(1f, 0.84f, 0f); // 金色
                 }
                 else if (lastClearedRows == 3)
                 {
-                    salvoText.text = "三連齊射!";
+                    salvoText.text = LocalizationHelper.GetLocalizedString("三連齊射!");
                     baseColor = new Color(1f, 0.5f, 0f); // 橙色
                 }
                 else
                 {
-                    salvoText.text = "雙管齊射!";
+                    salvoText.text = LocalizationHelper.GetLocalizedString("雙管齊射!");
                     baseColor = new Color(0.13f, 0.83f, 0.93f); // 青色
                 }
                 
@@ -663,7 +690,7 @@ namespace Tenronis.UI
                     salvoText.color = new Color(baseColor.r, baseColor.g, baseColor.b, salvoTextOriginalAlpha);
                 }
                 
-                salvoText.gameObject.SetActive(lastClearedRows >= 2);
+                salvoText.gameObject.SetActive(isVoidNullify || lastClearedRows >= 2);
                 if (salvoDisplayTimer <= 0) salvoText.gameObject.SetActive(false);
             }
             else
@@ -701,7 +728,7 @@ namespace Tenronis.UI
                 impactBlastDisplayTimer -= Time.deltaTime;
                 
                 // 設置文字
-                impactBlastText.text = $"衝擊爆破! {lastImpactBlastDamage:0}";
+                impactBlastText.text = $"{LocalizationHelper.GetLocalizedString("衝擊爆破!")}\n{lastImpactBlastDamage:0}";
                 Color baseColor = new Color(1f, 0.3f, 0.1f); // 橙紅色
                 
                 // 動畫效果：從 2 倍大縮小到原始大小，同時淡入
@@ -742,7 +769,16 @@ namespace Tenronis.UI
         /// </summary>
         private void HandleSkillUsed(string skillName)
         {
-            lastSkillName = skillName;
+            // 將中文技能名稱轉換為本地化版本
+            if (skillName == "湮滅")
+                lastSkillName = LocalizationHelper.GetLocalizedString("湮滅");
+            else if (skillName == "處決")
+                lastSkillName = LocalizationHelper.GetLocalizedString("處決");
+            else if (skillName == "修補")
+                lastSkillName = LocalizationHelper.GetLocalizedString("修補");
+            else
+                lastSkillName = skillName; // 如果已經是本地化版本，直接使用
+            
             skillDisplayTimer = 1.5f;
             skillAnimationTimer = skillAnimationDuration;
         }
@@ -799,17 +835,19 @@ namespace Tenronis.UI
         /// </summary>
         private Color GetSkillColor(string skillName)
         {
-            switch (skillName)
-            {
-                case "湮滅":
-                    return new Color(0.8f, 0.2f, 1f); // 紫色
-                case "處決":
-                    return new Color(1f, 0.3f, 0.3f); // 紅色
-                case "修補":
-                    return new Color(0.3f, 1f, 0.5f); // 綠色
-                default:
-                    return Color.white;
-            }
+            // 使用本地化後的技能名稱進行比對
+            string localizedAnnihilation = LocalizationHelper.GetLocalizedString("湮滅");
+            string localizedExecution = LocalizationHelper.GetLocalizedString("處決");
+            string localizedRepair = LocalizationHelper.GetLocalizedString("修補");
+            
+            if (skillName == localizedAnnihilation || skillName == "湮滅")
+                return new Color(0.8f, 0.2f, 1f); // 紫色
+            else if (skillName == localizedExecution || skillName == "處決")
+                return new Color(1f, 0.3f, 0.3f); // 紅色
+            else if (skillName == localizedRepair || skillName == "修補")
+                return new Color(0.3f, 1f, 0.5f); // 綠色
+            else
+                return Color.white;
         }
         
         private void UpdateSkillUI()
@@ -820,19 +858,19 @@ namespace Tenronis.UI
             bool isAnnihilationUnlocked = PlayerManager.Instance.IsAnnihilationUnlocked();
             if (annihilationSkillObject != null) annihilationSkillObject.SetActive(isAnnihilationUnlocked);
             if (annihilationKeyLabelText != null && isAnnihilationUnlocked) annihilationKeyLabelText.text = "1";
-            if (annihilationCostText != null && isAnnihilationUnlocked) annihilationCostText.text = $"CP-{GameConstants.ANNIHILATION_CP_COST}";
+            if (annihilationCostText != null && isAnnihilationUnlocked) annihilationCostText.text = $"{LocalizationHelper.GetLocalizedString("CP:")}{GameConstants.ANNIHILATION_CP_COST}";
             
             // 2 -> 處決
             bool isExecutionUnlocked = PlayerManager.Instance.IsExecutionUnlocked();
             if (executionSkillObject != null) executionSkillObject.SetActive(isExecutionUnlocked);
             if (executionKeyLabelText != null && isExecutionUnlocked) executionKeyLabelText.text = "2";
-            if (executionCostText != null && isExecutionUnlocked) executionCostText.text = $"CP-{GameConstants.EXECUTION_CP_COST}";
+            if (executionCostText != null && isExecutionUnlocked) executionCostText.text = $"{LocalizationHelper.GetLocalizedString("CP:")}{GameConstants.EXECUTION_CP_COST}";
             
             // 3 -> 修補
             bool isRepairUnlocked = PlayerManager.Instance.IsRepairUnlocked();
             if (repairSkillObject != null) repairSkillObject.SetActive(isRepairUnlocked);
             if (repairKeyLabelText != null && isRepairUnlocked) repairKeyLabelText.text = "3";
-            if (repairCostText != null && isRepairUnlocked) repairCostText.text = $"CP-{GameConstants.REPAIR_CP_COST}";
+            if (repairCostText != null && isRepairUnlocked) repairCostText.text = $"{LocalizationHelper.GetLocalizedString("CP:")}{GameConstants.REPAIR_CP_COST}";
             
             // 如果三個技能都未解鎖，隱藏SkillPanel
             bool hasAnySkillUnlocked = isAnnihilationUnlocked || isExecutionUnlocked || isRepairUnlocked;
@@ -854,6 +892,93 @@ namespace Tenronis.UI
                 enemyDamageCounterText.text = $"{accumulatedEnemyDamage:0.#}";
                 enemyDamageCounterText.color = new Color(1f, 0.3f, 0.3f); // 紅色
             }
+        }
+        
+        /// <summary>
+        /// 語言變更事件處理
+        /// </summary>
+        private void OnLanguageChanged(UnityEngine.Localization.Locale locale)
+        {
+            // 更新連發標籤文字
+            if (comboLabelText != null && comboLabelText.gameObject.activeSelf)
+            {
+                comboLabelText.text = LocalizationHelper.GetLocalizedString("連發!");
+            }
+            
+            // 更新主題按鈕文字
+            if (themeButtonContainer != null)
+            {
+                var themes = GameManager.Instance?.allThemes;
+                if (themes != null)
+                {
+                    int index = 0;
+                    foreach (Transform child in themeButtonContainer)
+                    {
+                        if (index < themes.Count)
+                        {
+                            var btnText = child.GetComponentInChildren<TextMeshProUGUI>();
+                            if (btnText != null)
+                            {
+                                btnText.text = GetLocalizedThemeName(themes[index]);
+                            }
+                        }
+                        index++;
+                    }
+                }
+            }
+        }
+        
+        /// <summary>
+        /// 根據當前語言獲取主題名稱
+        /// </summary>
+        private string GetLocalizedThemeName(StageSetSO theme)
+        {
+            if (theme == null) return "";
+            
+            string languageCode = GetCurrentLanguageCode();
+            
+            switch (languageCode)
+            {
+                case "en":
+                    return !string.IsNullOrEmpty(theme.themeNameEn) ? theme.themeNameEn : theme.themeName;
+                case "ja":
+                    return !string.IsNullOrEmpty(theme.themeNameJa) ? theme.themeNameJa : theme.themeName;
+                case "zh-TW":
+                default:
+                    return theme.themeName;
+            }
+        }
+        
+        /// <summary>
+        /// 獲取當前語言代碼
+        /// </summary>
+        private string GetCurrentLanguageCode()
+        {
+            // 優先使用 LocalizationSettings（因為它會在 SetLanguage 時立即更新，不受初始化順序影響）
+            try
+            {
+                var locale = UnityEngine.Localization.Settings.LocalizationSettings.SelectedLocale;
+                if (locale != null && !string.IsNullOrEmpty(locale.Identifier.Code))
+                {
+                    return locale.Identifier.Code;
+                }
+            }
+            catch
+            {
+                // 如果獲取失敗，繼續嘗試 LanguageManager
+            }
+            
+            // 如果 LocalizationSettings 不可用，使用 LanguageManager
+            if (Tenronis.Managers.LanguageManager.Instance != null)
+            {
+                string langCode = Tenronis.Managers.LanguageManager.Instance.CurrentLanguageCode;
+                if (!string.IsNullOrEmpty(langCode))
+                {
+                    return langCode;
+                }
+            }
+            
+            return "zh-TW"; // 默認繁體中文
         }
         
         /// <summary>

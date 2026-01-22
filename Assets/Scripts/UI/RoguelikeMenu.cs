@@ -7,6 +7,7 @@ using Tenronis.Data;
 using Tenronis.Core;
 using Tenronis.Managers;
 using Tenronis.ScriptableObjects;
+using Tenronis.Utils;
 using DG.Tweening;
 
 namespace Tenronis.UI
@@ -27,6 +28,15 @@ namespace Tenronis.UI
         [SerializeField] private Button closeEnemyPanelButton; // 關閉敵人面板按鈕
         [SerializeField] private TextMeshProUGUI nextStageEnemyPreviewText;
         [SerializeField] private TextMeshProUGUI previewDescriptionText; // 關卡描述文字
+        [SerializeField] private GameObject hintPanel; // 關卡提示面板
+        [SerializeField] private Image hintPanelBackgroundImage; // 關卡提示面板背景 Image（用於淡入效果）
+        [SerializeField] private TextMeshProUGUI hintTitleText; // 關卡提示標題
+        [SerializeField] private TextMeshProUGUI hintText; // 關卡提示文字
+        [SerializeField] private Button hintCloseButton; // 關閉提示面板按鈕
+        [SerializeField] private Image hintAnimationImage; // 提示動畫 Image
+        [SerializeField] private Animator hintAnimator; // 提示動畫 Animator 組件
+        [SerializeField] private SpriteRenderer hintSpriteRenderer; // 提示動畫 SpriteRenderer（用於Animator控制，從中讀取Sprite）
+        [SerializeField] private UnityEngine.UI.AspectRatioFitter hintAspectRatioFitter; // 提示動畫 AspectRatioFilter 組件
         [SerializeField] private Transform enemyAttackPreviewContainer;
         [SerializeField] private GameObject enemyAttackPreviewPrefab;
         [SerializeField] private Tenronis.Gameplay.Projectiles.Bullet bulletPrefabReference;
@@ -83,6 +93,7 @@ namespace Tenronis.UI
         [SerializeField] private Button nextTipButton; // 下一個提示按鈕
         
         private List<GameObject> currentOptions = new List<GameObject>();
+        private Dictionary<GameObject, BuffDataSO> optionBuffDataMap = new Dictionary<GameObject, BuffDataSO>();
         private List<GameObject> attackPreviewItems = new List<GameObject>();
         private List<Coroutine> spriteSyncCoroutines = new List<Coroutine>();
         private List<GameObject> bossBattleCharObjects = new List<GameObject>(); // Boss Battle 字符對象列表
@@ -97,6 +108,7 @@ namespace Tenronis.UI
         private bool waitingForBonusConfirm = false; // 是否正在等待說明頁面確認
         private int currentTipIndex = 0; // 當前提示訊息的索引
         private Coroutine tipDisplayCoroutine = null; // 提示訊息顯示協程
+        private Coroutine hintSpriteSyncCoroutine = null; // 用於同步Hint Sprite的協程
         
         private void OnEnable()
         {
@@ -109,6 +121,12 @@ namespace Tenronis.UI
             // 確保說明頁面初始為關閉狀態
             if (bonusPanel != null)
                 bonusPanel.SetActive(false);
+            
+            // 更新動畫文字為本地化版本（確保語言切換時能正確顯示）
+            UpdateAnimationTexts();
+            
+            // 訂閱語言變更事件
+            UnityEngine.Localization.Settings.LocalizationSettings.SelectedLocaleChanged += OnLanguageChanged;
             
             GenerateBuffOptions();
             UpdateCurrentStats();
@@ -129,6 +147,9 @@ namespace Tenronis.UI
             // 設置提示訊息按鈕
             SetupTipButton();
             
+            // 設置提示面板關閉按鈕
+            SetupHintCloseButton();
+            
             // 初始化提示訊息變量（但不立即顯示，等待關閉敵人面板時才顯示）
             InitializeTips();
             
@@ -140,12 +161,118 @@ namespace Tenronis.UI
             if (detailToggle != null)
                 detailToggle.gameObject.SetActive(true);
             
+            // 初始化提示面板（預設隱藏，等描述文字完成後才顯示）
+            if (hintPanel != null)
+                hintPanel.SetActive(false);
+            if (hintPanelBackgroundImage != null)
+            {
+                Color bgColor = hintPanelBackgroundImage.color;
+                bgColor.a = 0f;
+                hintPanelBackgroundImage.color = bgColor;
+            }
+            if (hintTitleText != null)
+                hintTitleText.text = "";
+            if (hintText != null)
+                hintText.text = "";
+            
+            // 初始化提示動畫（預設隱藏）
+            if (hintAnimationImage != null)
+            {
+                hintAnimationImage.gameObject.SetActive(false);
+                Color imageColor = hintAnimationImage.color;
+                imageColor.a = 0f;
+                hintAnimationImage.color = imageColor;
+            }
+            if (hintAnimator != null)
+            {
+                hintAnimator.enabled = false;
+            }
+            
             // TipsPanel 初始狀態：只有在關閉敵人面板後根據是否有 tips 來決定是否顯示
             // 這裡暫時保持激活狀態（或根據場景設置的初始狀態），實際顯示由 StartTipsDisplay() 控制
         }
         
+        /// <summary>
+        /// 更新動畫文字為本地化版本
+        /// </summary>
+        private void UpdateAnimationTexts()
+        {
+            if (bossBattleText != null)
+            {
+                bossBattleText.text = LocalizationHelper.GetLocalizedString("遭遇強敵!!!");
+            }
+            if (bonusEnhanceText != null)
+            {
+                bonusEnhanceText.text = LocalizationHelper.GetLocalizedString("傳奇工程");
+            }
+            if (projectSelectionText != null)
+            {
+                projectSelectionText.text = LocalizationHelper.GetLocalizedString("工程選擇");
+            }
+        }
+        
+        /// <summary>
+        /// 語言變更事件處理
+        /// </summary>
+        private void OnLanguageChanged(UnityEngine.Localization.Locale locale)
+        {
+            // 更新動畫文字
+            UpdateAnimationTexts();
+            
+            // 更新當前顯示的 buff 選項（如果有的話）
+            UpdateBuffOptionsLocalization();
+        }
+        
+        /// <summary>
+        /// 更新當前顯示的 buff 選項的本地化文本
+        /// </summary>
+        private void UpdateBuffOptionsLocalization()
+        {
+            if (currentOptions == null || optionBuffDataMap == null) return;
+            
+            // 更新每個選項的本地化文本
+            foreach (var optionObj in currentOptions)
+            {
+                if (optionObj == null || !optionObj.activeSelf) continue;
+                
+                // 從映射中獲取對應的 BuffDataSO
+                if (!optionBuffDataMap.TryGetValue(optionObj, out BuffDataSO buffData) || buffData == null)
+                {
+                    continue;
+                }
+                
+                // 更新標題
+                var titleText = optionObj.transform.Find("Title")?.GetComponent<TextMeshProUGUI>();
+                if (titleText != null)
+                {
+                    titleText.text = GetLocalizedBuffName(buffData);
+                }
+                
+                // 更新描述
+                var descText = optionObj.transform.Find("Description")?.GetComponent<TextMeshProUGUI>();
+                if (descText != null)
+                {
+                    bool isLegendary = System.Array.IndexOf(GameConstants.LEGENDARY_BUFFS, buffData.buffType) >= 0;
+                    string buffDescription = GetLocalizedBuffDescription(buffData);
+                    
+                    if (isLegendary)
+                    {
+                        string legendaryTag = LocalizationHelper.GetLocalizedString("[傳奇強化]");
+                        descText.text = $"{legendaryTag}\n{buffDescription}";
+                    }
+                    else
+                    {
+                        descText.text = buffDescription;
+                    }
+                }
+            }
+        }
+        
         private void OnDisable()
         {
+            // 取消訂閱語言變更事件
+            UnityEngine.Localization.Settings.LocalizationSettings.SelectedLocaleChanged -= OnLanguageChanged;
+            
             ClearOptions();
             ClearAttackPreviews();
             ClearBossBattleChars();
@@ -193,6 +320,7 @@ namespace Tenronis.UI
             if (showPlayerBuffButton != null) showPlayerBuffButton.onClick.RemoveAllListeners();
             if (hidePlayerBuffButton != null) hidePlayerBuffButton.onClick.RemoveAllListeners();
             if (nextTipButton != null) nextTipButton.onClick.RemoveAllListeners();
+            if (hintCloseButton != null) hintCloseButton.onClick.RemoveAllListeners();
             
             // 停止提示訊息顯示協程
             if (tipDisplayCoroutine != null)
@@ -208,10 +336,23 @@ namespace Tenronis.UI
                 spriteSyncCoroutine = null;
             }
             
+            // 停止Hint Sprite同步協程
+            if (hintSpriteSyncCoroutine != null)
+            {
+                StopCoroutine(hintSpriteSyncCoroutine);
+                hintSpriteSyncCoroutine = null;
+            }
+            
             // 停止Animator
             if (bonusAnimator != null)
             {
                 bonusAnimator.enabled = false;
+            }
+            
+            // 停止Hint Animator
+            if (hintAnimator != null)
+            {
+                hintAnimator.enabled = false;
             }
         }
         
@@ -354,6 +495,49 @@ namespace Tenronis.UI
         }
         
         /// <summary>
+        /// 設置提示面板關閉按鈕
+        /// </summary>
+        private void SetupHintCloseButton()
+        {
+            if (hintCloseButton != null)
+            {
+                hintCloseButton.onClick.RemoveAllListeners();
+                hintCloseButton.onClick.AddListener(OnHintCloseButtonClicked);
+            }
+        }
+        
+        /// <summary>
+        /// 提示面板關閉按鈕點擊
+        /// </summary>
+        private void OnHintCloseButtonClicked()
+        {
+            // 停止動畫播放
+            if (hintAnimator != null)
+            {
+                hintAnimator.enabled = false;
+            }
+            
+            // 停止同步協程
+            if (hintSpriteSyncCoroutine != null)
+            {
+                StopCoroutine(hintSpriteSyncCoroutine);
+                hintSpriteSyncCoroutine = null;
+            }
+            
+            // 關閉提示面板
+            if (hintPanel != null)
+            {
+                hintPanel.SetActive(false);
+            }
+            
+            // 顯示關閉敵人面板按鈕
+            if (closeEnemyPanelButton != null)
+            {
+                closeEnemyPanelButton.gameObject.SetActive(true);
+            }
+        }
+        
+        /// <summary>
         /// 初始化提示訊息（僅初始化變量，不顯示內容）
         /// </summary>
         private void InitializeTips()
@@ -419,7 +603,8 @@ namespace Tenronis.UI
             // 第二階段：使用打字動畫顯示 "Tips\n\n提示內容"
             if (tipsText != null)
             {
-                string tipContent = currentStage.tips[currentTipIndex];
+                string tipKey = currentStage.tips[currentTipIndex];
+                string tipContent = LocalizationHelper.GetLocalizedString(tipKey, tipKey); // 如果找不到本地化，使用原始key作為後備
                 string fullText = $"Tips\n\n{tipContent}";
                 
                 // 使用打字動畫效果
@@ -545,6 +730,9 @@ namespace Tenronis.UI
                 GameObject optionObj = Instantiate(buffOptionPrefab, buffOptionsContainer);
                 currentOptions.Add(optionObj);
                 
+                // 保存選項與 BuffDataSO 的映射關係
+                optionBuffDataMap[optionObj] = buffData;
+                
                 // 設置UI（傳入是否為第一組的標記）
                 SetupBuffOption(optionObj, buffData, isFirst);
             }
@@ -562,27 +750,22 @@ namespace Tenronis.UI
             var titleText = optionObj.transform.Find("Title")?.GetComponent<TextMeshProUGUI>();
             if (titleText != null)
             {
-                if (isLegendary)
-                {
-                    titleText.text = $"{buffData.buffName}"; // 傳奇強化標記
-                }
-                else
-                {
-                    titleText.text = buffData.buffName;
-                }
+                titleText.text = GetLocalizedBuffName(buffData);
             }
             
             // 描述
             var descText = optionObj.transform.Find("Description")?.GetComponent<TextMeshProUGUI>();
             if (descText != null)
             {
+                string buffDescription = GetLocalizedBuffDescription(buffData);
                 if (isLegendary)
                 {
-                    descText.text = $"[傳奇強化]\n{buffData.description}";
+                    string legendaryTag = LocalizationHelper.GetLocalizedString("[傳奇強化]");
+                    descText.text = $"{legendaryTag}\n{buffDescription}";
                 }
                 else
                 {
-                    descText.text = buffData.description;
+                    descText.text = buffDescription;
                 }
             }
             
@@ -848,6 +1031,7 @@ namespace Tenronis.UI
                     Destroy(option);
             }
             currentOptions.Clear();
+            optionBuffDataMap.Clear();
         }
         
         /// <summary>
@@ -985,7 +1169,7 @@ namespace Tenronis.UI
             if (volleyUpgraded && PlayerManager.Instance != null)
             {
                 int volleyLevel = PlayerManager.Instance.Stats.missileExtraCount;
-                descriptionText = $"現在消除方塊，會生成 {1 + volleyLevel} 發飛彈";
+                descriptionText = LocalizationHelper.GetLocalizedStringFormat("現在消除方塊，會生成 {0} 發飛彈", 1 + volleyLevel);
                 
                 // 根據等級選擇對應的動畫（等級 1-5 對應索引 0-4）
                 int animIndex = Mathf.Clamp(volleyLevel - 1, 0, volleyAnimators.Length - 1);
@@ -997,7 +1181,7 @@ namespace Tenronis.UI
             else if (defenseUpgraded && PlayerManager.Instance != null)
             {
                 int defenseLevel = PlayerManager.Instance.Stats.blockDefenseLevel;
-                descriptionText = $"方塊現在可以承受 {1 + defenseLevel} 發飛彈";
+                descriptionText = LocalizationHelper.GetLocalizedStringFormat("方塊現在可以承受 {0} 發飛彈", 1 + defenseLevel);
                 
                 if (defenseAnimator != null)
                 {
@@ -1006,7 +1190,7 @@ namespace Tenronis.UI
             }
             else if (unlockedAnnihilation)
             {
-                descriptionText = "按 1 將當前方塊轉化為可穿透已存在方塊的湮滅方塊。按 空白鍵 將摧毀所有與湮滅方塊重疊的方塊，並生成飛彈。";
+                descriptionText = LocalizationHelper.GetLocalizedString("按 1 將當前方塊轉化為可穿透已存在方塊的湮滅方塊。按 空白鍵 將摧毀所有與湮滅方塊重疊的方塊，並生成飛彈。");
                 
                 if (annihilationAnimator != null)
                 {
@@ -1015,7 +1199,7 @@ namespace Tenronis.UI
             }
             else if (unlockedExecution)
             {
-                descriptionText = "按 2 消除每一行最上方的方塊，並生成飛彈。";
+                descriptionText = LocalizationHelper.GetLocalizedString("按 2 消除每一行最上方的方塊，並生成飛彈。");
                 
                 if (executionAnimator != null)
                 {
@@ -1024,7 +1208,7 @@ namespace Tenronis.UI
             }
             else if (unlockedRepair)
             {
-                descriptionText = "按 3 將所有封閉區域填充為方塊。若形成整列，則視為有效消除。消除虛無方塊時不會產生任何飛彈。";
+                descriptionText = LocalizationHelper.GetLocalizedString("按 3 將所有封閉區域填充為方塊。若形成整列，則視為有效消除。消除虛無方塊時不會產生任何飛彈。");
                 
                 if (repairAnimator != null)
                 {
@@ -1117,7 +1301,7 @@ namespace Tenronis.UI
             if (tacticalExpansionUpgraded && PlayerManager.Instance != null)
             {
                 int tacticalExpansionLevel = PlayerManager.Instance.Stats.tacticalExpansionLevel;
-                levelChangeText = $"戰術擴張\n Lv{tacticalExpansionLevelBefore} -> Lv{tacticalExpansionLevel}";
+                levelChangeText = $"{LocalizationHelper.GetLocalizedString("戰術擴張")}\n {LocalizationHelper.GetLocalizedStringFormat("Lv{0} -> Lv{1}", tacticalExpansionLevelBefore, tacticalExpansionLevel)}";
             }
             else if (unlockedAnnihilation || unlockedExecution || unlockedRepair)
             {
@@ -1125,18 +1309,18 @@ namespace Tenronis.UI
                 if (PlayerManager.Instance != null)
                 {
                     int tacticalExpansionLevel = PlayerManager.Instance.Stats.tacticalExpansionLevel;
-                    levelChangeText = $"戰術擴張\n Lv{tacticalExpansionLevelBefore} -> Lv{tacticalExpansionLevel}";
+                    levelChangeText = $"{LocalizationHelper.GetLocalizedString("戰術擴張")}\n {LocalizationHelper.GetLocalizedStringFormat("Lv{0} -> Lv{1}", tacticalExpansionLevelBefore, tacticalExpansionLevel)}";
                 }
             }
             else if (defenseUpgraded && PlayerManager.Instance != null)
             {
                 int defenseLevel = PlayerManager.Instance.Stats.blockDefenseLevel;
-                levelChangeText = $"鞏固防禦\n Lv{defenseLevelBefore} -> Lv{defenseLevel}";
+                levelChangeText = $"{LocalizationHelper.GetLocalizedString("鞏固防禦")}\n {LocalizationHelper.GetLocalizedStringFormat("Lv{0} -> Lv{1}", defenseLevelBefore, defenseLevel)}";
             }
             else if (volleyUpgraded && PlayerManager.Instance != null)
             {
                 int volleyLevel = PlayerManager.Instance.Stats.missileExtraCount;
-                levelChangeText = $"加倍火力\n Lv{volleyLevelBefore} -> Lv{volleyLevel}";
+                levelChangeText = $"{LocalizationHelper.GetLocalizedString("加倍火力")}\n {LocalizationHelper.GetLocalizedStringFormat("Lv{0} -> Lv{1}", volleyLevelBefore, volleyLevel)}";
             }
             
             savedLevelChangeText = levelChangeText;
@@ -1273,6 +1457,94 @@ namespace Tenronis.UI
         }
         
         /// <summary>
+        /// 設置提示動畫
+        /// </summary>
+        private void SetupHintAnimation(StageDataSO stage)
+        {
+            if (stage == null) return;
+            
+            // 停止之前的同步協程
+            if (hintSpriteSyncCoroutine != null)
+            {
+                StopCoroutine(hintSpriteSyncCoroutine);
+                hintSpriteSyncCoroutine = null;
+            }
+            
+            // 如果有動畫控制器
+            if (stage.hintAnimatorController != null && hintAnimator != null && hintAnimationImage != null && hintSpriteRenderer != null)
+            {
+                // 設置 Animator
+                hintAnimator.runtimeAnimatorController = stage.hintAnimatorController;
+                
+                // 確保SpriteRenderer在開始時是啟用的
+                if (!hintSpriteRenderer.gameObject.activeSelf)
+                {
+                    hintSpriteRenderer.gameObject.SetActive(true);
+                }
+                
+                // 重置Animator狀態
+                hintAnimator.enabled = true;
+                hintAnimator.Rebind();
+                
+                // 設置初始狀態：透明
+                Color imageColor = hintAnimationImage.color;
+                imageColor.a = 0f;
+                hintAnimationImage.color = imageColor;
+                hintAnimationImage.gameObject.SetActive(true);
+                
+                // 開始同步Sprite的協程
+                hintSpriteSyncCoroutine = StartCoroutine(SyncHintSpriteFromRendererToImage());
+            }
+            else
+            {
+                // 如果沒有動畫，隱藏Image
+                if (hintAnimationImage != null)
+                {
+                    hintAnimationImage.gameObject.SetActive(false);
+                }
+                
+                // 停止Animator
+                if (hintAnimator != null)
+                {
+                    hintAnimator.enabled = false;
+                }
+            }
+        }
+        
+        /// <summary>
+        /// 從 SpriteRenderer 同步 Sprite 到 Image 的協程（提示動畫）
+        /// </summary>
+        private IEnumerator SyncHintSpriteFromRendererToImage()
+        {
+            if (hintSpriteRenderer == null || hintAnimationImage == null)
+            {
+                yield break;
+            }
+            
+            while (hintAnimationImage.gameObject.activeSelf && hintAnimator != null && hintAnimator.enabled)
+            {
+                // 從 SpriteRenderer 讀取當前 Sprite
+                Sprite currentSprite = hintSpriteRenderer.sprite;
+                if (currentSprite != null)
+                {
+                    // 將 Sprite 應用到 Image
+                    hintAnimationImage.sprite = currentSprite;
+                    
+                    // 如果AspectRatioFitter存在，根據Sprite尺寸設置寬高比
+                    if (hintAspectRatioFitter != null && currentSprite != null)
+                    {
+                        float aspectRatio = (float)currentSprite.texture.width / (float)currentSprite.texture.height;
+                        hintAspectRatioFitter.aspectRatio = aspectRatio;
+                        hintAspectRatioFitter.aspectMode = UnityEngine.UI.AspectRatioFitter.AspectMode.FitInParent;
+                    }
+                }
+                
+                // 每幀更新
+                yield return null;
+            }
+        }
+        
+        /// <summary>
         /// 顯示 Bonus Panel 內容的動畫序列
         /// </summary>
         private IEnumerator ShowBonusPanelContent()
@@ -1385,12 +1657,12 @@ namespace Tenronis.UI
             // 構建普通強化內容
             System.Text.StringBuilder normalSb = new System.Text.StringBuilder();
             
-            normalSb.AppendLine("普通增益強化項目");
+            normalSb.AppendLine(LocalizationHelper.GetLocalizedString("普通增益強化項目"));
             normalSb.AppendLine();
             
             // 齊射強化進度條（簡化版）
             string salvoProgress = GetSimpleProgressBar(stats.salvoLevel, GameConstants.SALVO_MAX_LEVEL);
-            normalSb.AppendLine($"齊射強化 {salvoProgress}");
+            normalSb.AppendLine($"{LocalizationHelper.GetLocalizedString("齊射強化")} {salvoProgress}");
             if (showDetailedInfo)
             {
                 int maxSalvoPercent = GameConstants.SALVO_MAX_LEVEL * 50;
@@ -1400,7 +1672,7 @@ namespace Tenronis.UI
             
             // 連發強化進度條（簡化版）
             string burstProgress = GetSimpleProgressBar(stats.burstLevel, GameConstants.BURST_MAX_LEVEL);
-            normalSb.AppendLine($"連發強化 {burstProgress}");
+            normalSb.AppendLine($"{LocalizationHelper.GetLocalizedString("連發強化")} {burstProgress}");
             if (showDetailedInfo)
             {
                 int maxBurstPercent = GameConstants.BURST_MAX_LEVEL * 25;
@@ -1410,44 +1682,44 @@ namespace Tenronis.UI
             
             // 反擊強化進度條（簡化版）
             string counterProgress = GetSimpleProgressBar(stats.counterFireLevel, GameConstants.COUNTER_MAX_LEVEL);
-            normalSb.AppendLine($"反擊強化 {counterProgress}");
+            normalSb.AppendLine($"{LocalizationHelper.GetLocalizedString("反擊強化")} {counterProgress}");
             if (showDetailedInfo)
             {
                 normalSb.AppendLine($"  當前: {stats.counterFireLevel}發子彈 (上限 {GameConstants.COUNTER_MAX_LEVEL}發子彈)");
-                normalSb.AppendLine("  <size=80%>方塊在生成後的0.2秒內受到傷害會觸發反擊</size>");
+                normalSb.AppendLine($"  <size=80%>{LocalizationHelper.GetLocalizedString("方塊在生成後的0.2秒內受到傷害會觸發反擊")}</size>");
             }
             normalSb.AppendLine();
             
             // 爆炸充能進度條（簡化版）
             string explosionProgress = GetSimpleProgressBar(stats.explosionChargeLevel, GameConstants.EXPLOSION_BUFF_MAX_LEVEL);
-            normalSb.AppendLine($"衝擊擴充 {explosionProgress}");
+            normalSb.AppendLine($"{LocalizationHelper.GetLocalizedString("衝擊擴充")} {explosionProgress}");
             if (showDetailedInfo)
             {
                 int maxExplosionCharge = GameConstants.EXPLOSION_BUFF_MAX_LEVEL * GameConstants.EXPLOSION_BUFF_MAX_CHARGE_INCREASE;
                 normalSb.AppendLine($"  當前上限: {stats.explosionMaxCharge} (最大 {maxExplosionCharge})");
-                normalSb.AppendLine($"  <size=80%>網格溢位時消耗 {GameConstants.OVERFLOW_CP_COST} CP，釋放衝擊炮累積的充能對敵人造成傷害</size>");
-                normalSb.AppendLine($"  <size=80%><color=red>若 CP 不足，自身HP 歸 1</color></size>");
+                normalSb.AppendLine($"  <size=80%>{LocalizationHelper.GetLocalizedStringFormat("網格溢位時消耗 {0} CP，釋放衝擊炮累積的充能對敵人造成傷害", GameConstants.OVERFLOW_CP_COST)}</size>");
+                normalSb.AppendLine($"  <size=80%><color=red>{LocalizationHelper.GetLocalizedString("若 CP 不足，自身HP 歸 1")}</color></size>");
             }
             normalSb.AppendLine();
             
             // 資源擴充進度條（簡化版）
             string cpProgress = GetSimpleProgressBar(stats.cpExpansionLevel, GameConstants.RESOURCE_EXPANSION_MAX_LEVEL);
-            normalSb.AppendLine($"資源擴充 {cpProgress}");
+            normalSb.AppendLine($"{LocalizationHelper.GetLocalizedString("資源擴充")} {cpProgress}");
             if (showDetailedInfo)
             {
                 int maxCp = GameConstants.PLAYER_MAX_CP + GameConstants.RESOURCE_EXPANSION_MAX_LEVEL * 50;
                 normalSb.AppendLine($"  當前 CP: {stats.maxCp} (上限 {maxCp})");
-                normalSb.AppendLine("  <size=80%>釋放衝擊炮和使用主動技能需消耗CP</size>");
+                normalSb.AppendLine($"  <size=80%>{LocalizationHelper.GetLocalizedString("釋放衝擊炮和使用主動技能需消耗CP")}</size>");
             }
             normalSb.AppendLine();
             
             // 空間擴充進度條（簡化版）
             string spaceProgress = GetSimpleProgressBar(stats.spaceExpansionLevel, GameConstants.SPACE_EXPANSION_MAX_LEVEL);
-            normalSb.AppendLine($"空間擴充 {spaceProgress}");
+            normalSb.AppendLine($"{LocalizationHelper.GetLocalizedString("空間擴充")} {spaceProgress}");
             if (showDetailedInfo)
             {
                 normalSb.AppendLine($"  當前槽位: {stats.spaceExpansionLevel} (上限 {GameConstants.SPACE_EXPANSION_MAX_LEVEL})");
-                normalSb.AppendLine("  <size=80%>可儲存的方塊槽位數量</size>");
+                normalSb.AppendLine($"  <size=80%>{LocalizationHelper.GetLocalizedString("可儲存的方塊槽位數量")}</size>");
             }
             
             // 設置普通強化文本
@@ -1459,39 +1731,39 @@ namespace Tenronis.UI
             // 構建傳奇強化內容
             System.Text.StringBuilder legendarySb = new System.Text.StringBuilder();
             
-            legendarySb.AppendLine("傳奇增益強化項目");
+            legendarySb.AppendLine(LocalizationHelper.GetLocalizedString("傳奇增益強化項目"));
             legendarySb.AppendLine();
             
-            legendarySb.AppendLine($"方塊可承受子彈次數 : {stats.blockDefenseLevel}");
+            legendarySb.AppendLine($"{LocalizationHelper.GetLocalizedString("方塊可承受子彈次數 :")} {stats.blockDefenseLevel}");
             legendarySb.AppendLine();
             
-            legendarySb.AppendLine($"導彈傷害倍率 : x{1 + stats.missileExtraCount}");
+            legendarySb.AppendLine($"{LocalizationHelper.GetLocalizedString("導彈傷害倍率 :")} x{1 + stats.missileExtraCount}");
             legendarySb.AppendLine();
             
             // 湮滅技能
-            legendarySb.AppendLine($"湮滅 (按鍵1) - 消耗 {GameConstants.ANNIHILATION_CP_COST} CP");
-            legendarySb.AppendLine("<size=80%>進入幽靈穿透狀態，硬降時破壞重疊方塊並發射導彈</size>");
+            legendarySb.AppendLine($"{LocalizationHelper.GetLocalizedString("湮滅 (按鍵1) - 消耗")} {GameConstants.ANNIHILATION_CP_COST} CP");
+            legendarySb.AppendLine($"<size=80%>{LocalizationHelper.GetLocalizedString("進入幽靈穿透狀態，硬降時破壞重疊方塊並發射導彈")}</size>");
             if (!PlayerManager.Instance.IsAnnihilationUnlocked())
             {
-                legendarySb.AppendLine("<color=red>(無法使用，獲得一次戰術擴張以解鎖)</color>");
+                legendarySb.AppendLine($"<color=red>({LocalizationHelper.GetLocalizedString("無法使用，獲得一次戰術擴張以解鎖")})</color>");
             }
             legendarySb.AppendLine();
             
             // 處決技能
-            legendarySb.AppendLine($"處決 (按鍵2) - 消耗 {GameConstants.EXECUTION_CP_COST} CP");
-            legendarySb.AppendLine("<size=80%>清除每列最上方的方塊並發射導彈</size>");
+            legendarySb.AppendLine($"{LocalizationHelper.GetLocalizedString("處決 (按鍵2) - 消耗")} {GameConstants.EXECUTION_CP_COST} CP");
+            legendarySb.AppendLine($"<size=80%>{LocalizationHelper.GetLocalizedString("清除每列最上方的方塊並發射導彈")}</size>");
             if (!PlayerManager.Instance.IsExecutionUnlocked())
             {
-                legendarySb.AppendLine("<color=red>(無法使用，獲得兩次戰術擴張以解鎖)</color>");
+                legendarySb.AppendLine($"<color=red>({LocalizationHelper.GetLocalizedString("無法使用，獲得兩次戰術擴張以解鎖")})</color>");
             }
             legendarySb.AppendLine();
             
             // 修補技能
-            legendarySb.AppendLine($"修補 (按鍵3) - 消耗 {GameConstants.REPAIR_CP_COST} CP");
-            legendarySb.AppendLine("<size=80%>填補封閉空洞並檢查消除</size>");
+            legendarySb.AppendLine($"{LocalizationHelper.GetLocalizedString("修補 (按鍵3) - 消耗")} {GameConstants.REPAIR_CP_COST} CP");
+            legendarySb.AppendLine($"<size=80%>{LocalizationHelper.GetLocalizedString("填補封閉空洞並檢查消除")}</size>");
             if (!PlayerManager.Instance.IsRepairUnlocked())
             {
-                legendarySb.AppendLine("<color=red>(無法使用，獲得三次戰術擴張以解鎖)</color>");
+                legendarySb.AppendLine($"<color=red>({LocalizationHelper.GetLocalizedString("無法使用，獲得三次戰術擴張以解鎖")})</color>");
             }
             
             // 設置傳奇強化文本
@@ -1611,7 +1883,8 @@ namespace Tenronis.UI
             }
             
             // 構建基本資訊文字（先不顯示，等動畫完成後用打字機效果顯示）
-            string previewText = $"HP: {currentStage.maxHp}  |  攻擊間隔: {currentStage.shootInterval}s";
+            string attackIntervalLabel = LocalizationHelper.GetLocalizedString("攻擊間隔:");
+            string previewText = $"HP: {currentStage.maxHp}  |  {attackIntervalLabel} {currentStage.shootInterval}s";
             
             // 先清空文字，等動畫完成後再顯示
             if (nextStageEnemyPreviewText != null)
@@ -1623,9 +1896,10 @@ namespace Tenronis.UI
             string descriptionText = "";
             if (previewDescriptionText != null)
             {
-                if (!string.IsNullOrEmpty(currentStage.description))
+                string description = GetLocalizedDescription(currentStage);
+                if (!string.IsNullOrEmpty(description))
                 {
-                    descriptionText = currentStage.description;
+                    descriptionText = description;
                     previewDescriptionText.text = ""; // 先清空，等動畫完成後再顯示
                     previewDescriptionText.gameObject.SetActive(true);
                 }
@@ -1635,6 +1909,9 @@ namespace Tenronis.UI
                     previewDescriptionText.gameObject.SetActive(false);
                 }
             }
+            
+            // 關卡提示（先不顯示，等描述文字完成後用打字機效果顯示）
+            string hintTextContent = GetLocalizedHint(currentStage);
             
             // 如果是 Boss 關卡，同時顯示 Boss Battle 動畫和 Stage 動畫
             bool bossBattleCompleted = false;
@@ -1655,10 +1932,10 @@ namespace Tenronis.UI
                 bossBattleCompleted = true; // 標記為已完成（因為沒有 bossBattleText）
             }
             
-            // 每關都顯示 Stage 動畫（傳遞預覽文字、關卡數據和描述文字，讓動畫完成後顯示）
+            // 每關都顯示 Stage 動畫（傳遞預覽文字、關卡數據、描述文字和提示文字，讓動畫完成後顯示）
             if (stageText != null)
             {
-                StartCoroutine(WaitForStageAnimation(currentStage, GameManager.Instance.CurrentStageIndex, previewText, descriptionText, () => stageCompleted = true));
+                StartCoroutine(WaitForStageAnimation(currentStage, GameManager.Instance.CurrentStageIndex, previewText, descriptionText, hintTextContent, () => stageCompleted = true));
             }
             else
             {
@@ -1673,8 +1950,8 @@ namespace Tenronis.UI
                 {
                     nextStageEnemyPreviewText.text = previewText;
                 }
-                // 沒有動畫時，直接生成攻擊預覽（傳遞描述文字）
-                GenerateAttackPreviews(currentStage, descriptionText);
+                // 沒有動畫時，直接生成攻擊預覽（傳遞描述文字和提示文字）
+                GenerateAttackPreviews(currentStage, descriptionText, hintTextContent);
                 stageCompleted = true; // 標記為已完成
             }
             
@@ -1694,9 +1971,9 @@ namespace Tenronis.UI
         /// <summary>
         /// 等待 Stage 動畫完成
         /// </summary>
-        private IEnumerator WaitForStageAnimation(StageDataSO stage, int stageIndex, string previewText, string descriptionText, System.Action onComplete)
+        private IEnumerator WaitForStageAnimation(StageDataSO stage, int stageIndex, string previewText, string descriptionText, string hintText, System.Action onComplete)
         {
-            yield return StartCoroutine(PlayStageAnimationCoroutine(stage, stageIndex, previewText, descriptionText));
+            yield return StartCoroutine(PlayStageAnimationCoroutine(stage, stageIndex, previewText, descriptionText, hintText));
             onComplete?.Invoke();
         }
         
@@ -1711,12 +1988,8 @@ namespace Tenronis.UI
             // 清理之前的字符對象
             ClearBossBattleChars();
             
-            // 獲取文字內容（如果為空，使用默認值）
-            string text = bossBattleText.text;
-            if (string.IsNullOrEmpty(text))
-            {
-                text = "Boss Battle";
-            }
+            // 直接使用本地化文字（不從 TextMeshProUGUI.text 讀取，確保語言切換時能更新）
+            string text = LocalizationHelper.GetLocalizedString("遭遇強敵!!!");
             
             // 先設置文字並強制更新，以獲取字符位置信息
             bossBattleText.text = text;
@@ -1789,7 +2062,7 @@ namespace Tenronis.UI
                 
                 // 添加 TextMeshProUGUI 組件
                 TextMeshProUGUI charText = charObj.AddComponent<TextMeshProUGUI>();
-                charText.text = text[i].ToString();
+                charText.text = charInfo.character.ToString(); // 使用 charInfo.character 而不是 text[i]，避免索引不匹配
                 
                 // 複製字體相關屬性
                 charText.font = bossBattleText.font;
@@ -2029,12 +2302,8 @@ namespace Tenronis.UI
             // 清理之前的字符對象
             ClearProjectSelectionChars();
             
-            // 獲取文字內容（如果為空，使用默認值）
-            string text = projectSelectionText.text;
-            if (string.IsNullOrEmpty(text))
-            {
-                text = "工程選擇";
-            }
+            // 直接使用本地化文字（不從 TextMeshProUGUI.text 讀取，確保語言切換時能更新）
+            string text = LocalizationHelper.GetLocalizedString("工程選擇");
             
             // 先設置文字並強制更新，以獲取字符位置信息
             projectSelectionText.text = text;
@@ -2363,12 +2632,8 @@ namespace Tenronis.UI
             // 清理之前的字符對象
             ClearBonusEnhanceChars();
             
-            // 獲取文字內容（如果為空，使用默認值）
-            string text = bonusEnhanceText.text;
-            if (string.IsNullOrEmpty(text))
-            {
-                text = "Bonus Enhance";
-            }
+            // 直接使用本地化文字（不從 TextMeshProUGUI.text 讀取，確保語言切換時能更新）
+            string text = LocalizationHelper.GetLocalizedString("傳奇工程");
             
             // 先設置文字並強制更新，以獲取字符位置信息
             bonusEnhanceText.text = text;
@@ -2441,7 +2706,7 @@ namespace Tenronis.UI
                 
                 // 添加 TextMeshProUGUI 組件
                 TextMeshProUGUI charText = charObj.AddComponent<TextMeshProUGUI>();
-                charText.text = text[i].ToString();
+                charText.text = charInfo.character.ToString(); // 使用 charInfo.character 而不是 text[i]，避免索引不匹配
                 
                 // 複製字體相關屬性
                 charText.font = bonusEnhanceText.font;
@@ -2678,7 +2943,8 @@ namespace Tenronis.UI
         /// <param name="stageIndex">關卡索引</param>
         /// <param name="previewText">敵人預覽文字（動畫完成後用打字機效果顯示）</param>
         /// <param name="descriptionText">描述文字（子彈實例化完成後用打字機效果顯示）</param>
-        private IEnumerator PlayStageAnimationCoroutine(StageDataSO stage, int stageIndex, string previewText = "", string descriptionText = "")
+        /// <param name="hintText">提示文字（描述文字完成後用打字機效果顯示）</param>
+        private IEnumerator PlayStageAnimationCoroutine(StageDataSO stage, int stageIndex, string previewText = "", string descriptionText = "", string hintText = "")
         {
             if (stageText == null || stage == null) yield break;
             
@@ -2693,8 +2959,9 @@ namespace Tenronis.UI
                 enemyIconImage.color = iconColor;
             }
             
-            // 構建文字內容："Stage n 怪物名稱"
-            string text = $"Stage {stageIndex + 1} {stage.stageName}";
+            // 構建文字內容："Stage n 怪物名稱"（根據當前語言選擇）
+            string localizedStageName = GetLocalizedStageName(stage);
+            string text = $"Stage {stageIndex + 1} {localizedStageName}";
             
             // 獲取容器（如果沒有指定，使用文字本身的 Transform）
             Transform container = stageTextContainer != null ? stageTextContainer : stageText.transform;
@@ -2941,7 +3208,7 @@ namespace Tenronis.UI
             // 動畫完成後，使用打字機效果顯示預覽文字
             if (nextStageEnemyPreviewText != null && !string.IsNullOrEmpty(previewText))
             {
-                yield return StartCoroutine(TypewriterEffectAndGeneratePreviews(nextStageEnemyPreviewText, previewText, 0.01f, stage, descriptionText));
+                yield return StartCoroutine(TypewriterEffectAndGeneratePreviews(nextStageEnemyPreviewText, previewText, 0.01f, stage, descriptionText, hintText));
             }
         }
         
@@ -2987,15 +3254,16 @@ namespace Tenronis.UI
         /// <param name="delayPerChar">每個字符的延遲時間（秒）</param>
         /// <param name="stage">關卡數據</param>
         /// <param name="descriptionText">描述文字（子彈實例化完成後顯示）</param>
-        private IEnumerator TypewriterEffectAndGeneratePreviews(TextMeshProUGUI textComponent, string fullText, float delayPerChar, StageDataSO stage, string descriptionText = "")
+        /// <param name="hintText">提示文字（描述文字完成後顯示）</param>
+        private IEnumerator TypewriterEffectAndGeneratePreviews(TextMeshProUGUI textComponent, string fullText, float delayPerChar, StageDataSO stage, string descriptionText = "", string hintText = "")
         {
             // 先執行打字機效果
             yield return StartCoroutine(TypewriterEffect(textComponent, fullText, delayPerChar));
             
-            // 打字機效果完成後，生成攻擊預覽（傳遞描述文字）
+            // 打字機效果完成後，生成攻擊預覽（傳遞描述文字和提示文字）
             if (stage != null)
             {
-                GenerateAttackPreviews(stage, descriptionText);
+                GenerateAttackPreviews(stage, descriptionText, hintText);
             }
         }
         
@@ -3030,7 +3298,7 @@ namespace Tenronis.UI
         /// 計算方式：(彈種的權重) / (所有 enable 彈種的權重和)
         /// 所有子彈是否會發射，只看 enabled（包括普通子彈）
         /// </summary>
-        private void GenerateAttackPreviews(StageDataSO stageData, string descriptionText = "")
+        private void GenerateAttackPreviews(StageDataSO stageData, string descriptionText = "", string hintText = "")
         {
             if (enemyAttackPreviewContainer == null || enemyAttackPreviewPrefab == null) return;
             
@@ -3038,33 +3306,33 @@ namespace Tenronis.UI
             var enabledBullets = new List<(BulletType type, string name, string desc, float weight)>();
             
             if (stageData.normalBullet.enabled)
-                enabledBullets.Add((BulletType.Normal, "普通子彈", "對命中的方塊造成傷害", stageData.normalBullet.chance));
+                enabledBullets.Add((BulletType.Normal, LocalizationHelper.GetLocalizedString("普通子彈"), LocalizationHelper.GetLocalizedString("對命中的方塊造成傷害"), stageData.normalBullet.chance));
             
             if (stageData.areaBullet.enabled)
-                enabledBullets.Add((BulletType.AreaDamage, "範圍傷害", "以命中的方塊為中心，對 3x3 範圍內的方塊造成傷害", stageData.areaBullet.chance));
+                enabledBullets.Add((BulletType.AreaDamage, LocalizationHelper.GetLocalizedString("範圍傷害"), LocalizationHelper.GetLocalizedString("以命中的方塊為中心，對 3x3 範圍內的方塊造成傷害"), stageData.areaBullet.chance));
             
             if (stageData.addBlockBullet.enabled)
-                enabledBullets.Add((BulletType.AddBlock, "添加方塊", "對命中的方塊造成傷害，並上方添加垃圾方塊", stageData.addBlockBullet.chance));
+                enabledBullets.Add((BulletType.AddBlock, LocalizationHelper.GetLocalizedString("添加方塊"), LocalizationHelper.GetLocalizedString("對命中的方塊造成傷害，並上方添加垃圾方塊"), stageData.addBlockBullet.chance));
             
             if (stageData.addExplosiveBlockBullet.enabled)
-                enabledBullets.Add((BulletType.AddExplosiveBlock, "爆炸方塊", "對命中的方塊造成傷害，並上方添加爆炸方塊", stageData.addExplosiveBlockBullet.chance));
+                enabledBullets.Add((BulletType.AddExplosiveBlock, LocalizationHelper.GetLocalizedString("爆炸方塊"), LocalizationHelper.GetLocalizedString("對命中的方塊造成傷害，並上方添加爆炸方塊"), stageData.addExplosiveBlockBullet.chance));
             
             if (stageData.addRowBullet.enabled)
-                enabledBullets.Add((BulletType.InsertRow, "插入垃圾行", "對命中的方塊造成傷害，並從底部插入一整行垃圾方塊", stageData.addRowBullet.chance));
+                enabledBullets.Add((BulletType.InsertRow, LocalizationHelper.GetLocalizedString("插入垃圾行"), LocalizationHelper.GetLocalizedString("對命中的方塊造成傷害，並從底部插入一整行垃圾方塊"), stageData.addRowBullet.chance));
             
             if (stageData.addVoidRowBullet.enabled)
-                enabledBullets.Add((BulletType.InsertVoidRow, "虛無垃圾行", "對命中的方塊造成傷害，並從底部插入一整行虛無方塊", stageData.addVoidRowBullet.chance));
+                enabledBullets.Add((BulletType.InsertVoidRow, LocalizationHelper.GetLocalizedString("虛無垃圾行"), LocalizationHelper.GetLocalizedString("對命中的方塊造成傷害，並從底部插入一整行虛無方塊"), stageData.addVoidRowBullet.chance));
             
             if (stageData.corruptExplosiveBullet.enabled)
-                enabledBullets.Add((BulletType.CorruptExplosive, "腐化爆炸", "對命中的方塊造成傷害，並將下個方塊隨機一格變成爆炸方塊", stageData.corruptExplosiveBullet.chance));
+                enabledBullets.Add((BulletType.CorruptExplosive, LocalizationHelper.GetLocalizedString("腐化爆炸"), LocalizationHelper.GetLocalizedString("對命中的方塊造成傷害，並將下個方塊隨機一格變成爆炸方塊"), stageData.corruptExplosiveBullet.chance));
             
             if (stageData.corruptVoidBullet.enabled)
-                enabledBullets.Add((BulletType.CorruptVoid, "腐化虛無", "對命中的方塊造成傷害，並將下個方塊隨機一格變成虛無方塊", stageData.corruptVoidBullet.chance));
+                enabledBullets.Add((BulletType.CorruptVoid, LocalizationHelper.GetLocalizedString("腐化虛無"), LocalizationHelper.GetLocalizedString("對命中的方塊造成傷害，並將下個方塊隨機一格變成虛無方塊"), stageData.corruptVoidBullet.chance));
             
             // 如果沒有任何啟用的子彈，顯示"無"的欄位
             if (enabledBullets.Count == 0)
             {
-                StartCoroutine(CreateAttackPreviewItemsSequentially(new List<(BulletType type, string name, string desc, float weight)>(), 0f, descriptionText));
+                StartCoroutine(CreateAttackPreviewItemsSequentially(new List<(BulletType type, string name, string desc, float weight)>(), 0f, descriptionText, hintText, stageData));
                 return;
             }
             
@@ -3083,18 +3351,18 @@ namespace Tenronis.UI
             
             // 為每個啟用的子彈生成預覽項目，顯示實際機率 = 權重 / 總權重
             // 使用協程依序顯示動畫
-            StartCoroutine(CreateAttackPreviewItemsSequentially(enabledBullets, totalWeight, descriptionText));
+            StartCoroutine(CreateAttackPreviewItemsSequentially(enabledBullets, totalWeight, descriptionText, hintText, stageData));
         }
         
         /// <summary>
         /// 依序創建攻擊預覽項目，每個項目都有動畫效果
         /// </summary>
-        private IEnumerator CreateAttackPreviewItemsSequentially(List<(BulletType type, string name, string desc, float weight)> bullets, float totalWeight, string descriptionText = "")
+        private IEnumerator CreateAttackPreviewItemsSequentially(List<(BulletType type, string name, string desc, float weight)> bullets, float totalWeight, string descriptionText = "", string hintText = "", StageDataSO stage = null)
         {
             // 如果沒有子彈，顯示"無"的欄位
             if (bullets.Count == 0)
             {
-                yield return StartCoroutine(CreateAttackPreviewItem(BulletType.Normal, "無", "敵人不會發射任何子彈", 0f));
+                yield return StartCoroutine(CreateAttackPreviewItem(BulletType.Normal, LocalizationHelper.GetLocalizedString("無"), LocalizationHelper.GetLocalizedString("敵人不會發射任何子彈"), 0f, isNoneItem: true));
             }
             else
             {
@@ -3112,17 +3380,103 @@ namespace Tenronis.UI
                 yield return StartCoroutine(TypewriterEffect(previewDescriptionText, descriptionText, 0.01f));
             }
             
-            // 描述文字顯示完成後（或沒有描述文字時），啟用關閉按鈕
-            if (closeEnemyPanelButton != null)
+            // 描述文字顯示完成後，延遲 0.5 秒再顯示提示或確認按鈕
+            yield return new WaitForSeconds(0.5f);
+            
+            // 顯示提示（如果 showHint 為 true）
+            if (stage != null && stage.showHint && hintPanel != null)
             {
-                closeEnemyPanelButton.gameObject.SetActive(true);
+                // 顯示提示面板
+                hintPanel.SetActive(true);
+                
+                // 先隱藏其他元素（影片、標題、描述、按鈕）
+                if (hintAnimationImage != null)
+                    hintAnimationImage.gameObject.SetActive(false);
+                if (hintTitleText != null)
+                    hintTitleText.gameObject.SetActive(false);
+                if (this.hintText != null)
+                    this.hintText.gameObject.SetActive(false);
+                if (hintCloseButton != null)
+                    hintCloseButton.gameObject.SetActive(false);
+                
+                // 先讓背景 Image 淡入
+                if (hintPanelBackgroundImage != null)
+                {
+                    Color bgColor = hintPanelBackgroundImage.color;
+                    bgColor.a = 0f;
+                    hintPanelBackgroundImage.color = bgColor;
+                    hintPanelBackgroundImage.gameObject.SetActive(true);
+                    yield return hintPanelBackgroundImage.DOFade(1f, 0.5f).WaitForCompletion();
+                }
+                
+                // 背景淡入完成後，設置提示動畫（如果有）
+                SetupHintAnimation(stage);
+                
+                // 顯示並播放提示動畫（如果有）
+                if (hintAnimationImage != null && stage.hintAnimatorController != null)
+                {
+                    hintAnimationImage.gameObject.SetActive(true);
+                    yield return hintAnimationImage.DOFade(1f, 0.5f).WaitForCompletion();
+                }
+                
+                // 顯示提示標題
+                if (hintTitleText != null)
+                {
+                    hintTitleText.gameObject.SetActive(true);
+                    string hintTitleContent = GetLocalizedHintTitle(stage);
+                    if (!string.IsNullOrEmpty(hintTitleContent))
+                    {
+                        // 使用打字機效果顯示提示標題
+                        yield return StartCoroutine(TypewriterEffect(hintTitleText, hintTitleContent, 0.01f));
+                    }
+                }
+                
+                // 顯示提示文字
+                if (this.hintText != null)
+                {
+                    this.hintText.gameObject.SetActive(true);
+                    if (!string.IsNullOrEmpty(hintText))
+                    {
+                        yield return StartCoroutine(TypewriterEffect(this.hintText, hintText, 0.01f));
+                    }
+                }
+                
+                // 顯示關閉按鈕
+                if (hintCloseButton != null)
+                {
+                    hintCloseButton.gameObject.SetActive(true);
+                }
+                
+                // 如果顯示提示，不顯示確認按鈕
+                if (closeEnemyPanelButton != null)
+                {
+                    closeEnemyPanelButton.gameObject.SetActive(false);
+                }
+            }
+            else
+            {
+                // 如果不顯示提示，隱藏提示面板
+                if (hintPanel != null)
+                {
+                    hintPanel.SetActive(false);
+                }
+                // 如果不顯示提示，顯示確認按鈕
+                if (closeEnemyPanelButton != null)
+                {
+                    closeEnemyPanelButton.gameObject.SetActive(true);
+                }
             }
         }
         
         /// <summary>
         /// 創建單個攻擊預覽項目（協程版本，帶動畫效果）
         /// </summary>
-        private IEnumerator CreateAttackPreviewItem(BulletType bulletType, string attackName, string description, float chance)
+        /// <param name="bulletType">子彈類型</param>
+        /// <param name="attackName">攻擊名稱（已本地化）</param>
+        /// <param name="description">描述（已本地化）</param>
+        /// <param name="chance">機率</param>
+        /// <param name="isNoneItem">是否為"無"的情況（敵人不會攻擊）</param>
+        private IEnumerator CreateAttackPreviewItem(BulletType bulletType, string attackName, string description, float chance, bool isNoneItem = false)
         {
             GameObject item = Instantiate(enemyAttackPreviewPrefab, enemyAttackPreviewContainer);
             attackPreviewItems.Add(item);
@@ -3134,16 +3488,13 @@ namespace Tenronis.UI
             var colorImageTransform = item.transform.Find("ColorImage");
             Image iconImage = null;
             
-            // 檢查是否為"無"的情況
-            bool isNone = attackName == "無";
-            
             if (colorImageTransform != null)
             {
                 var spriteRenderer = colorImageTransform.GetComponent<SpriteRenderer>();
                 var animator = colorImageTransform.GetComponent<Animator>();
                 iconImage = colorImageTransform.GetComponent<Image>();
                 
-                if (isNone)
+                if (isNoneItem)
                 {
                     // 如果是"無"，隱藏 icon
                     if (spriteRenderer != null)
@@ -3211,7 +3562,7 @@ namespace Tenronis.UI
             if (nameText != null)
             {
                 nameText.text = "";
-                if (isNone)
+                if (isNoneItem)
                 {
                     // 如果是"無"，使用灰色
                     nameText.color = Color.grey;
@@ -3233,7 +3584,7 @@ namespace Tenronis.UI
             {
                 fadeInSequence.Join(backgroundImage.DOFade(1f, 0.5f));
             }
-            if (iconImage != null && !isNone)
+            if (iconImage != null && !isNoneItem)
             {
                 fadeInSequence.Join(iconImage.DOFade(1f, 0.5f));
             }
@@ -3266,6 +3617,164 @@ namespace Tenronis.UI
             }
                 yield return null; // 每幀更新
             }
+        }
+        
+        /// <summary>
+        /// 根據當前語言獲取關卡名稱
+        /// </summary>
+        private string GetLocalizedStageName(StageDataSO stage)
+        {
+            if (stage == null) return "";
+            
+            string languageCode = GetCurrentLanguageCode();
+            
+            switch (languageCode)
+            {
+                case "en":
+                    return !string.IsNullOrEmpty(stage.stageNameEn) ? stage.stageNameEn : stage.stageName;
+                case "ja":
+                    return !string.IsNullOrEmpty(stage.stageNameJa) ? stage.stageNameJa : stage.stageName;
+                case "zh-TW":
+                default:
+                    return stage.stageName;
+            }
+        }
+        
+        /// <summary>
+        /// 根據當前語言獲取關卡描述
+        /// </summary>
+        private string GetLocalizedDescription(StageDataSO stage)
+        {
+            if (stage == null) return "";
+            
+            string languageCode = GetCurrentLanguageCode();
+            
+            switch (languageCode)
+            {
+                case "en":
+                    return !string.IsNullOrEmpty(stage.descriptionEn) ? stage.descriptionEn : stage.description;
+                case "ja":
+                    return !string.IsNullOrEmpty(stage.descriptionJa) ? stage.descriptionJa : stage.description;
+                case "zh-TW":
+                default:
+                    return stage.description;
+            }
+        }
+        
+        /// <summary>
+        /// 根據當前語言獲取關卡提示標題
+        /// </summary>
+        private string GetLocalizedHintTitle(StageDataSO stage)
+        {
+            if (stage == null) return "";
+            
+            string languageCode = GetCurrentLanguageCode();
+            
+            switch (languageCode)
+            {
+                case "en":
+                    return !string.IsNullOrEmpty(stage.hintTitleEn) ? stage.hintTitleEn : stage.hintTitle;
+                case "ja":
+                    return !string.IsNullOrEmpty(stage.hintTitleJa) ? stage.hintTitleJa : stage.hintTitle;
+                case "zh-TW":
+                default:
+                    return stage.hintTitle;
+            }
+        }
+        
+        /// <summary>
+        /// 根據當前語言獲取關卡提示
+        /// </summary>
+        private string GetLocalizedHint(StageDataSO stage)
+        {
+            if (stage == null) return "";
+            
+            string languageCode = GetCurrentLanguageCode();
+            
+            switch (languageCode)
+            {
+                case "en":
+                    return !string.IsNullOrEmpty(stage.hintEn) ? stage.hintEn : stage.hint;
+                case "ja":
+                    return !string.IsNullOrEmpty(stage.hintJa) ? stage.hintJa : stage.hint;
+                case "zh-TW":
+                default:
+                    return stage.hint;
+            }
+        }
+        
+        /// <summary>
+        /// 根據當前語言獲取Buff名稱
+        /// </summary>
+        private string GetLocalizedBuffName(BuffDataSO buff)
+        {
+            if (buff == null) return "";
+            
+            string languageCode = GetCurrentLanguageCode();
+            
+            switch (languageCode)
+            {
+                case "en":
+                    return !string.IsNullOrEmpty(buff.buffNameEn) ? buff.buffNameEn : buff.buffName;
+                case "ja":
+                    return !string.IsNullOrEmpty(buff.buffNameJa) ? buff.buffNameJa : buff.buffName;
+                case "zh-TW":
+                default:
+                    return buff.buffName;
+            }
+        }
+        
+        /// <summary>
+        /// 根據當前語言獲取Buff描述
+        /// </summary>
+        private string GetLocalizedBuffDescription(BuffDataSO buff)
+        {
+            if (buff == null) return "";
+            
+            string languageCode = GetCurrentLanguageCode();
+            
+            switch (languageCode)
+            {
+                case "en":
+                    return !string.IsNullOrEmpty(buff.descriptionEn) ? buff.descriptionEn : buff.description;
+                case "ja":
+                    return !string.IsNullOrEmpty(buff.descriptionJa) ? buff.descriptionJa : buff.description;
+                case "zh-TW":
+                default:
+                    return buff.description;
+            }
+        }
+        
+        /// <summary>
+        /// 獲取當前語言代碼
+        /// </summary>
+        private string GetCurrentLanguageCode()
+        {
+            // 優先使用 LocalizationSettings（因為它會在 SetLanguage 時立即更新，不受初始化順序影響）
+            try
+            {
+                var locale = UnityEngine.Localization.Settings.LocalizationSettings.SelectedLocale;
+                if (locale != null && !string.IsNullOrEmpty(locale.Identifier.Code))
+                {
+                    return locale.Identifier.Code;
+                }
+            }
+            catch
+            {
+                // 如果獲取失敗，繼續嘗試 LanguageManager
+            }
+            
+            // 如果 LocalizationSettings 不可用，使用 LanguageManager
+            if (LanguageManager.Instance != null)
+            {
+                string langCode = LanguageManager.Instance.CurrentLanguageCode;
+                if (!string.IsNullOrEmpty(langCode))
+                {
+                    return langCode;
+                }
+            }
+            
+            return "zh-TW"; // 默認繁體中文
         }
     }
 }

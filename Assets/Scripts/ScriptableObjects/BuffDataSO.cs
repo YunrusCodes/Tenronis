@@ -11,10 +11,16 @@ namespace Tenronis.ScriptableObjects
     {
         [Header("Buff資訊")]
         public string buffName = "未命名增益";
+        public string buffNameEn = "Unnamed Buff"; // 英文名稱
+        public string buffNameJa = "未命名バフ"; // 日文名稱
         public BuffType buffType;
         
         [TextArea(3, 5)]
         public string description = "描述...";
+        [TextArea(3, 5)]
+        public string descriptionEn = "Description..."; // 英文描述
+        [TextArea(3, 5)]
+        public string descriptionJa = "説明..."; // 日文描述
         
         [Header("視覺")]
         public Sprite icon;

@@ -11,7 +11,15 @@ namespace Tenronis.ScriptableObjects
     public class StageSetSO : ScriptableObject
     {
         [Header("主題設定")]
+        [Tooltip("主題名稱（繁體中文）")]
         public string themeName = "New Theme";
+        
+        [Tooltip("主題名稱（英文）")]
+        public string themeNameEn = "New Theme";
+        
+        [Tooltip("主題名稱（日文）")]
+        public string themeNameJa = "新テーマ";
+        
         public Sprite themeIcon;
         public Color themeColor = Color.white;
         [TextArea(3, 5)]

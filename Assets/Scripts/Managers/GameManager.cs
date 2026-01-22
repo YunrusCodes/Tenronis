@@ -70,7 +70,7 @@ namespace Tenronis.Managers
             }
             
             Instance = this;
-            DontDestroyOnLoad(gameObject);
+            //DontDestroyOnLoad(gameObject);
             Debug.Log("[GameManager] 初始化完成 - 單例已建立");
         }
         

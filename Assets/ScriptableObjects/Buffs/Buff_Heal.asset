@@ -13,8 +13,12 @@ MonoBehaviour:
   m_Name: Buff_Heal
   m_EditorClassIdentifier: Assembly-CSharp::Tenronis.ScriptableObjects.BuffDataSO
   buffName: "\u7DCA\u6025\u4FEE\u5FA9"
+  buffNameEn: Emergency Repair
+  buffNameJa: "\u7DCA\u6025\u4FEE\u5FA9"
   buffType: 2
-  description: "\u7ACB\u5373\u56DE\u5FA9 50% \u6700\u5927\u8840\u91CF\uFF0C\u6551\u547D\u7A3B\u8349\uFF01"
+  description: "\u7ACB\u5373\u56DE\u5FA9 50% \u6700\u5927\u8840\u91CF"
+  descriptionEn: Instantly restore 50% of maximum HP
+  descriptionJa: "\u6700\u5927HP\u306E50%\u3092\u5373\u5EA7\u306B\u56DE\u5FA9\u3059\u308B"
   icon: {fileID: 10907, guid: 0000000000000000f000000000000000, type: 0}
   iconColor: {r: 1, g: 1, b: 1, a: 1}
   spawnWeight: 1

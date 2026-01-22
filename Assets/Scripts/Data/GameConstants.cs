@@ -77,6 +77,7 @@ namespace Tenronis.Data
         public const int DEFENSE_START_LEVEL = 0;
         public const int VOLLEY_START_LEVEL = 0;
         public const int TACTICAL_EXPANSION_START_LEVEL = 0;
+        public const int SPACE_EXPANSION_START_LEVEL = 4; // 空間擴充起始等級（初始解鎖 1 個槽位）
 
         // 🚫 普通強化（有限等級）
         public static readonly BuffType[] NORMAL_BUFFS = new BuffType[]
