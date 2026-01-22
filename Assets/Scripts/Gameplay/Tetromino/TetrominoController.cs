@@ -153,16 +153,17 @@ namespace Tenronis.Gameplay.Tetromino
         // 觸發下一個方塊已更新事件（用於 UI 預覽）
         GameEvents.TriggerNextPieceChanged();
         
-        // 設置初始位置（網格中央頂部）
-        currentPosition = new Vector2Int(GameConstants.BOARD_WIDTH / 2 - 1, 0);
+        // 設置初始位置（網格中央頂部上方2格，允許緩衝區）
+        currentPosition = new Vector2Int(GameConstants.BOARD_WIDTH / 2 - 1, -2);
         currentRotation = (int[,])currentShape.shape.Clone();
         currentRotationState = 0; // 初始旋轉狀態為 0
             
             dropTimer = 0f;
             
-            // 檢查是否碰撞（Game Over）
-            if (CheckCollision(currentPosition, currentRotation))
+            // 檢查溢出
+            if (CheckOverflow(currentPosition, currentRotation))
             {
+                Debug.LogWarning("[SpawnPiece] 新方塊觸發溢出！");
                 HandleOverflow();
                 return;
             }
@@ -247,8 +248,8 @@ namespace Tenronis.Gameplay.Tetromino
                 // 觸發下一個方塊已更新事件
                 GameEvents.TriggerNextPieceChanged();
                 
-                // 重置方塊狀態
-                currentPosition = new Vector2Int(GameConstants.BOARD_WIDTH / 2 - 1, 0);
+                // 重置方塊狀態（頂部上方2格）
+                currentPosition = new Vector2Int(GameConstants.BOARD_WIDTH / 2 - 1, -2);
                 currentRotation = (int[,])currentShape.shape.Clone();
                 currentRotationState = 0;
                 
@@ -257,9 +258,10 @@ namespace Tenronis.Gameplay.Tetromino
                 lockTimer = 0f;
                 lockResetCount = 0;
                 
-                // 檢查碰撞
-                if (CheckCollision(currentPosition, currentRotation))
+                // 檢查溢出
+                if (CheckOverflow(currentPosition, currentRotation))
                 {
+                    Debug.LogWarning("[HoldPiece] 取出後的方塊觸發溢出！");
                     HandleOverflow();
                     return;
                 }
@@ -294,8 +296,8 @@ namespace Tenronis.Gameplay.Tetromino
                 // 觸發儲存更新事件
                 GameEvents.TriggerHeldPieceChanged(slotIndex);
                 
-                // 重置方塊狀態
-                currentPosition = new Vector2Int(GameConstants.BOARD_WIDTH / 2 - 1, 0);
+                // 重置方塊狀態（頂部上方2格）
+                currentPosition = new Vector2Int(GameConstants.BOARD_WIDTH / 2 - 1, -2);
                 currentRotation = (int[,])currentShape.shape.Clone();
                 currentRotationState = 0;
                 
@@ -304,10 +306,10 @@ namespace Tenronis.Gameplay.Tetromino
                 lockTimer = 0f;
                 lockResetCount = 0;
                 
-                // 檢查碰撞
-                if (CheckCollision(currentPosition, currentRotation))
+                // 檢查溢出
+                if (CheckOverflow(currentPosition, currentRotation))
                 {
-                    // 如果交換後的方塊無法生成，遊戲結束
+                    Debug.LogWarning("[HoldPiece] 交換後的方塊觸發溢出！");
                     HandleOverflow();
                     return;
                 }
@@ -575,6 +577,45 @@ namespace Tenronis.Gameplay.Tetromino
         {
             if (!isActive) return;
             
+            // Debug：列出當前方塊所有格子的 Grid 位置
+            if (currentRotation != null)
+            {
+                List<string> cellPositions = new List<string>();
+                for (int y = 0; y < currentRotation.GetLength(0); y++)
+                {
+                    for (int x = 0; x < currentRotation.GetLength(1); x++)
+                    {
+                        if (currentRotation[y, x] != 0)
+                        {
+                            int gridX = currentPosition.x + x;
+                            int gridY = currentPosition.y + y;
+                            cellPositions.Add($"({gridX}, {gridY})");
+                        }
+                    }
+                }
+
+                if (cellPositions.Count > 0)
+                {
+                    Debug.Log($"[LockPiece] 嘗試鎖定方塊，格子位置: {string.Join(", ", cellPositions)}");
+                }
+                else
+                {
+                    Debug.Log("[LockPiece] 嘗試鎖定方塊，但 currentRotation 中沒有任何非空格子");
+                }
+            }
+            else
+            {
+                Debug.LogWarning("[LockPiece] 嘗試鎖定方塊時 currentRotation 為 null");
+            }
+            
+            // 檢查溢出（鎖定時特別檢查：方塊在緩衝區應判定溢出）
+            if (CheckOverflow(currentPosition, currentRotation, isLocking: true))
+            {
+                Debug.LogWarning("[LockPiece] 方塊鎖定時觸發溢出！");
+                HandleOverflow();
+                return;
+            }
+            
             isActive = false;
             isGrounded = false;
             lockTimer = 0f;
@@ -777,6 +818,60 @@ namespace Tenronis.Gameplay.Tetromino
         }
         
         /// <summary>
+        /// 檢查溢出
+        /// - 鎖定時（isLocking = true）：
+        ///     - 只要有格子還在緩衝區（y < 0）就視為溢出
+        ///     - 或方塊在網格內（y >= 0）與現有方塊重疊
+        /// - 非鎖定時（Spawn / Hold）：
+        ///     - 只檢查網格內（y >= 0）的重疊，不因「下面有堆到 y=0」就直接 Game Over
+        /// </summary>
+        private bool CheckOverflow(Vector2Int position, int[,] shape, bool isLocking = false)
+        {
+            if (shape == null || GridManager.Instance == null) return false;
+            
+            for (int y = 0; y < shape.GetLength(0); y++)
+            {
+                for (int x = 0; x < shape.GetLength(1); x++)
+                {
+                    if (shape[y, x] != 0)
+                    {
+                        int gridX = position.x + x;
+                        int gridY = position.y + y;
+                        
+                        // 檢查列是否在有效範圍內（超出左右邊界的格子不參與溢出判定）
+                        if (gridX < 0 || gridX >= GameConstants.BOARD_WIDTH) continue;
+                        
+                        // 情況1：方塊在緩衝區（y < 0）
+                        if (gridY < 0)
+                        {
+                            // 只有「鎖定時」才會因為還在緩衝區而視為溢出
+                            if (isLocking)
+                            {
+                                Debug.Log($"[CheckOverflow] 方塊在緩衝區 (y={gridY}) 時被鎖定，判定溢出");
+                                return true;
+                            }
+                            
+                            // 非鎖定（Spawn / Hold）階段，在緩衝區不視為溢出，讓方塊有機會正常落下
+                            continue;
+                        }
+                        
+                        // 情況2：方塊在網格內（y >= 0），檢查是否與現有方塊重疊
+                        if (gridY >= 0 && gridY < GameConstants.BOARD_HEIGHT)
+                        {
+                            if (GridManager.Instance.IsOccupied(gridX, gridY))
+                            {
+                                Debug.Log($"[CheckOverflow] 方塊在網格內 ({gridX}, {gridY}) 與現有方塊重疊，判定溢出");
+                                return true;
+                            }
+                        }
+                    }
+                }
+            }
+            
+            return false;
+        }
+        
+        /// <summary>
         /// 獲取 SRS 踢牆偏移表
         /// </summary>
         private Vector2Int[] GetSRSKickOffsets(TetrominoType type, int fromState, int toState)
@@ -817,18 +912,29 @@ namespace Tenronis.Gameplay.Tetromino
                             continue;
                         }
                         
-                        // 正常狀態：完整邊界檢查
-                        if (gridX < 0 || gridX >= GameConstants.BOARD_WIDTH ||
-                            gridY < 0 || gridY >= GameConstants.BOARD_HEIGHT)
+                        // 正常狀態：左右邊界檢查
+                        if (gridX < 0 || gridX >= GameConstants.BOARD_WIDTH)
                         {
                             return true;
                         }
                         
-                        // 佔用檢查（除非忽略）
-                        if (!ignoreBlocks && GridManager.Instance.IsOccupied(gridX, gridY))
+                        // 底部邊界檢查（不允許超出底部）
+                        if (gridY >= GameConstants.BOARD_HEIGHT)
                         {
                             return true;
                         }
+                        
+                        // 頂部緩衝區：允許在頂部上方2格（y = -2, -1）存在，不檢查佔用
+                        // 但一旦進入網格（y >= 0），必須檢查是否有空間
+                        if (gridY >= 0)
+                        {
+                            // 佔用檢查（除非忽略）
+                            if (!ignoreBlocks && GridManager.Instance.IsOccupied(gridX, gridY))
+                            {
+                                return true;
+                            }
+                        }
+                        // gridY < 0 時不檢查佔用，允許在緩衝區存在
                     }
                 }
             }
@@ -946,7 +1052,9 @@ namespace Tenronis.Gameplay.Tetromino
                         
                         // 建立預覽方塊（當前位置）
                         // 湮滅狀態下可以超出邊界顯示
-                        if (isInAnnihilationState || GridManager.Instance.IsValidPosition(gridX, gridY))
+                        // 一般狀態下允許在緩衝區範圍內顯示（y >= -2）
+                        if (isInAnnihilationState || (gridY >= -2 && gridY < GameConstants.BOARD_HEIGHT &&
+                                                      gridX >= 0 && gridX < GameConstants.BOARD_WIDTH))
                         {
                             GameObject previewBlock = CreateBlockVisual(gridX, gridY, currentShape.color, previewAlpha, corruptType, isInAnnihilationState);
                             previewBlocks.Add(previewBlock);
@@ -959,8 +1067,10 @@ namespace Tenronis.Gameplay.Tetromino
                             int ghostX = ghostPosition.x + x;
                             int ghostY = ghostPosition.y + y;
                             
-                            if (ghostPosition != currentPosition && 
-                                GridManager.Instance.IsValidPosition(ghostX, ghostY))
+                            // 幽靈方塊只在正式網格內顯示（不含緩衝區）
+                            if (ghostPosition != currentPosition &&
+                                ghostY >= 0 && ghostY < GameConstants.BOARD_HEIGHT &&
+                                ghostX >= 0 && ghostX < GameConstants.BOARD_WIDTH)
                             {
                                 GameObject ghostBlock = CreateBlockVisual(ghostX, ghostY, currentShape.color, 0.3f, corruptType);
                                 ghostBlocks.Add(ghostBlock);
@@ -1173,10 +1283,24 @@ namespace Tenronis.Gameplay.Tetromino
         /// </summary>
         private void HandleOverflow()
         {
-            // 使用統一的溢出處理（50% 當前HP 傷害）
+            // 先停止方塊活動並清除視覺
+            if (isActive)
+            {
+                isActive = false;
+                isGrounded = false;
+                lockTimer = 0f;
+                lockResetCount = 0;
+                
+                // 清除當前方塊的視覺（不將方塊合併到網格，因為會觸發溢出處理）
+                ClearVisual();
+                
+                Debug.Log("[TetrominoController] 溢出：清除當前方塊視覺");
+            }
+            
+            // 使用統一的溢出處理（清空網格 + 消耗 CP）
             GridManager.Instance.HandleOverflow();
             
-            // 重新生成方塊
+            // 重新生成方塊（延遲確保溢出處理完成）
             Invoke(nameof(SpawnPiece), 0.5f);
         }
         

@@ -447,7 +447,7 @@ namespace Tenronis.Managers
                     
                     // 在子彈擊中位置顯示浮動文字
                     Vector2 hitPosition = bullet.transform.position;
-                    GameEvents.TriggerShowPopupText("城堡受損", new Color(1f, 0.3f, 0.3f), hitPosition);
+                    GameEvents.TriggerShowPopupText(Tenronis.Utils.LocalizationHelper.GetLocalizedString("城堡受損"), new Color(1f, 0.3f, 0.3f), hitPosition);
                     
                     bulletsToRemove.Add(bullet);
                     continue;
@@ -701,7 +701,7 @@ namespace Tenronis.Managers
                     Gameplay.Player.PlayerVisualController.Instance.TriggerCounterFireEffect();
                 }
                 
-                GameEvents.TriggerShowPopupText("反擊!", new Color(0.29f, 0.87f, 0.5f), GridManager.Instance.GridToWorldPosition(hitPos.x, hitPos.y));
+                GameEvents.TriggerShowPopupText(Tenronis.Utils.LocalizationHelper.GetLocalizedString("反擊!"), new Color(0.29f, 0.87f, 0.5f), GridManager.Instance.GridToWorldPosition(hitPos.x, hitPos.y));
                 
                 // 增加爆炸充能（反擊一次增加5充能）
                 if (PlayerManager.Instance != null)
