@@ -90,7 +90,6 @@ namespace Tenronis.Managers
             ResetStats();
             
             // 訂閱事件
-            GameEvents.OnGameStateChanged += HandleGameStateChanged;
             GameEvents.OnPlayerDamaged += HandlePlayerDamaged;
             GameEvents.OnBuffSelected += HandleBuffSelected;
             GameEvents.OnPieceLocked += HandlePieceLocked;
@@ -99,7 +98,6 @@ namespace Tenronis.Managers
         
         private void OnDestroy()
         {
-            GameEvents.OnGameStateChanged -= HandleGameStateChanged;
             GameEvents.OnPlayerDamaged -= HandlePlayerDamaged;
             GameEvents.OnBuffSelected -= HandleBuffSelected;
             GameEvents.OnPieceLocked -= HandlePieceLocked;
@@ -616,22 +614,6 @@ namespace Tenronis.Managers
             GameEvents.TriggerComboChanged(stats.comboCount);
         }
         
-        /// <summary>
-        /// 處理遊戲狀態變更
-        /// </summary>
-        private void HandleGameStateChanged(GameState newState)
-        {
-            if (newState == GameState.Playing)
-            {
-                // 每次進入 Playing 狀態時檢查是否需要重置
-                // 如果當前關卡索引是 0，表示是新遊戲開始
-                if (GameManager.Instance != null && GameManager.Instance.CurrentStageIndex == 0)
-                {
-                    Debug.Log("[PlayerManager] 新遊戲開始，重置玩家數據");
-                    ResetStats();
-                }
-            }
-        }
     }
 }
 
