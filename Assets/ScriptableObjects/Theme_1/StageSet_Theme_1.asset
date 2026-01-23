@@ -33,5 +33,8 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 29d5deab2c7692d47a0582c025681d12, type: 2}
   - {fileID: 11400000, guid: d8d6243c936e1104aa4b9c4f41db0d45, type: 2}
   - {fileID: 11400000, guid: db2a12996653ec4459bf8f6133331f10, type: 2}
-  passKey: Theme3
-  unlockKey: Theme2
+  passKey: Theme1
+  unlockKey: 
+  firstPassInfo: "\u89E3\u9396\u4E86\u65B0\u95DC\u5361"
+  firstPassInfoEn: New Level Unlocked!
+  firstPassInfoJa: "\u65B0\u30B9\u30C6\u30FC\u30B8\u89E3\u653E\uFF01"

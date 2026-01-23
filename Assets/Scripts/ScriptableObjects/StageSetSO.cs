@@ -48,6 +48,19 @@ namespace Tenronis.ScriptableObjects
         
         [Tooltip("解鎖此主題所需的通關鑰匙（需在 PlayerPrefs 中存在對應的 PassKey）。若為空則表示無需解鎖")]
         public string unlockKey = "";
+        
+        [Header("首次通關資訊")]
+        [Tooltip("首次通關時顯示的資訊（繁體中文）")]
+        [TextArea(2, 4)]
+        public string firstPassInfo = "";
+        
+        [Tooltip("首次通關時顯示的資訊（英文）")]
+        [TextArea(2, 4)]
+        public string firstPassInfoEn = "";
+        
+        [Tooltip("首次通關時顯示的資訊（日文）")]
+        [TextArea(2, 4)]
+        public string firstPassInfoJa = "";
 
         /// <summary>
         /// 獲取關卡列表

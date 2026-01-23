@@ -46,6 +46,7 @@ namespace Tenronis.Managers
         private int pendingBuffCount = 0;
         private float damageAccumulator = 0f;
         private int rogueRequirement = GameConstants.INITIAL_ROGUE_REQUIREMENT;
+        private bool isFirstPass = false; // 是否為第一次通關
         
         // 屬性
         public GameState CurrentState => currentState;
@@ -58,6 +59,7 @@ namespace Tenronis.Managers
         public BuffDataSO[] LegendaryBuffs => legendaryBuffs;
         public int PendingBuffCount => pendingBuffCount;
         public int RogueRequirement => rogueRequirement;
+        public bool IsFirstPass => isFirstPass;
         
         private void Awake()
         {
@@ -238,12 +240,19 @@ namespace Tenronis.Managers
                 // 勝利
                 Debug.Log($"[GameManager] 所有關卡完成！");
                 
-                // 保存通關鑰匙到 PlayerPrefs
+                // 在保存 passKey 之前檢查是否為第一次通關
                 if (currentTheme != null && !string.IsNullOrEmpty(currentTheme.passKey))
                 {
+                    isFirstPass = !PlayerPrefs.HasKey(currentTheme.passKey);
+                    
+                    // 保存通關鑰匙到 PlayerPrefs
                     PlayerPrefs.SetString(currentTheme.passKey, "1");
                     PlayerPrefs.Save();
-                    Debug.Log($"[GameManager] 已保存通關鑰匙: {currentTheme.passKey}");
+                    Debug.Log($"[GameManager] 已保存通關鑰匙: {currentTheme.passKey}，是否為第一次通關: {isFirstPass}");
+                }
+                else
+                {
+                    isFirstPass = false;
                 }
                 
                 ChangeGameState(GameState.Victory);

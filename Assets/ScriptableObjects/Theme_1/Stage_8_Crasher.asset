@@ -76,3 +76,11 @@ MonoBehaviour:
   - "[TIPS]_\u7A7A\u9593\u64F4\u5145\u5132\u5B58\u9375"
   - "[TIPS]_\u53CD\u64CA\u5E36\u4F86\u6DF7\u4E82"
   - "[TIPS]_\u6EA2\u51FA\u5F8C\u91CD\u6574\u614B\u52E2"
+  showHint: 0
+  hintTitle: 
+  hintTitleEn: 
+  hintTitleJa: 
+  hint: 
+  hintEn: 
+  hintJa: 
+  hintAnimatorController: {fileID: 9100000, guid: 18a15953eff1fc14f8c23a6bf4727f79, type: 2}

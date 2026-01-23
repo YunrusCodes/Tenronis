@@ -24,14 +24,8 @@ MonoBehaviour:
   playerSprite: {fileID: 1343493070784683951, guid: 57190ba7f1e53fa4281afe0fa4933e03, type: 3}
   stages:
   - {fileID: 11400000, guid: 739a950af74186649830d0d045edb845, type: 2}
-  - {fileID: 11400000, guid: d3019a6c4003833458a783767235d5bf, type: 2}
-  - {fileID: 11400000, guid: ce00558526db09d4abf4efc9031ae7ca, type: 2}
-  - {fileID: 11400000, guid: 600383f863a59114290be2645d00c810, type: 2}
-  - {fileID: 11400000, guid: 97f64e26b11653b4aa4c418336977a4c, type: 2}
-  - {fileID: 11400000, guid: da08cd11e21885c499f307a47276885a, type: 2}
-  - {fileID: 11400000, guid: 51a5ef551c974244dbe884eaac1656aa, type: 2}
-  - {fileID: 11400000, guid: 0dfefe60d8615f348a3f1153321c3177, type: 2}
-  - {fileID: 11400000, guid: 9c8849e563bf0eb4686ed624ad10fedd, type: 2}
-  - {fileID: 11400000, guid: 967144beef7ec744fbdcf6943d85ca14, type: 2}
-  passKey: Theme3
-  unlockKey: Theme2
+  passKey: Theme2
+  unlockKey: Theme1
+  firstPassInfo: "\u89E3\u9396\u4E86\u65B0\u95DC\u5361"
+  firstPassInfoEn: New Level Unlocked!
+  firstPassInfoJa: "\u65B0\u30B9\u30C6\u30FC\u30B8\u89E3\u653E\uFF01"

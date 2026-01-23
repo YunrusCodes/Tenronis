@@ -7,7 +7,9 @@ using Tenronis.Managers;
 using Tenronis.Gameplay.Enemy;
 using Tenronis.ScriptableObjects;
 using Tenronis.Utils;
+using System.Collections;
 using System.Collections.Generic;
+using DG.Tweening;
 
 namespace Tenronis.UI
 {
@@ -81,6 +83,9 @@ namespace Tenronis.UI
         private float accumulatedEnemyDamage = 0f;
         private float damageCounterTimer = 0f;
         
+        // FirstPassInfo 字符對象列表
+        private List<GameObject> firstPassInfoCharObjects = new List<GameObject>();
+        
         // 連發文字動畫
         private Vector2 comboTextOriginalPosition;
         private int lastComboCount = 0;
@@ -116,6 +121,8 @@ namespace Tenronis.UI
         [SerializeField] private GameObject victoryPanel;
         [SerializeField] private TextMeshProUGUI victoryFinalScoreText;
         [SerializeField] private Button victoryMenuButton;
+        [SerializeField] private TextMeshProUGUI firstPassInfoText; // 首次通關資訊文字
+        [SerializeField] private Transform firstPassInfoTextContainer; // 包含首次通關資訊文字的容器（用於整體移動）
         
         [Header("退出確認面板")]
         [SerializeField] private GameObject quitPanel;
@@ -442,6 +449,43 @@ namespace Tenronis.UI
             
             if (victoryFinalScoreText != null && PlayerManager.Instance != null)
                 victoryFinalScoreText.text = $"{LocalizationHelper.GetLocalizedString("最終分數:")} {PlayerManager.Instance.Stats.score:N0}";
+            
+            // 檢查是否為第一次通關並顯示 FirstPassInfo
+            if (GameManager.Instance != null && GameManager.Instance.CurrentTheme != null)
+            {
+                var currentTheme = GameManager.Instance.CurrentTheme;
+                
+                // 檢查是否有設定 FirstPassInfo 且為第一次通關
+                if (!string.IsNullOrEmpty(currentTheme.firstPassInfo) || 
+                    !string.IsNullOrEmpty(currentTheme.firstPassInfoEn) || 
+                    !string.IsNullOrEmpty(currentTheme.firstPassInfoJa))
+                {
+                    // 使用 GameManager 記錄的是否為第一次通關狀態
+                    bool isFirstPass = GameManager.Instance.IsFirstPass;
+                    
+                    if (isFirstPass && firstPassInfoText != null)
+                    {
+                        // 播放首次通關資訊動畫
+                        StartCoroutine(PlayFirstPassInfoAnimationCoroutine());
+                    }
+                    else
+                    {
+                        // 如果不是第一次通關，隱藏 FirstPassInfo
+                        if (firstPassInfoText != null)
+                            firstPassInfoText.gameObject.SetActive(false);
+                        if (firstPassInfoTextContainer != null)
+                            firstPassInfoTextContainer.gameObject.SetActive(false);
+                    }
+                }
+                else
+                {
+                    // 如果沒有設定 FirstPassInfo，隱藏相關 UI
+                    if (firstPassInfoText != null)
+                        firstPassInfoText.gameObject.SetActive(false);
+                    if (firstPassInfoTextContainer != null)
+                        firstPassInfoTextContainer.gameObject.SetActive(false);
+                }
+            }
         }
         
         private void SetPanelActive(GameObject panel, bool active)
@@ -1026,6 +1070,310 @@ namespace Tenronis.UI
                     accumulatedEnemyDamage = 0f;
                     enemyDamageCounterText.gameObject.SetActive(false);
                 }
+            }
+        }
+        
+        /// <summary>
+        /// 播放首次通關資訊動畫（協程版本）
+        /// 每個字符從透明+大 → 不透明+正常大小，然後整句向左移出
+        /// </summary>
+        private IEnumerator PlayFirstPassInfoAnimationCoroutine()
+        {
+            if (firstPassInfoText == null || GameManager.Instance == null || GameManager.Instance.CurrentTheme == null)
+                yield break;
+            
+            var currentTheme = GameManager.Instance.CurrentTheme;
+            
+            // 清理之前的字符對象
+            ClearFirstPassInfoChars();
+            
+            // 獲取本地化的 FirstPassInfo 文字
+            string text = GetLocalizedFirstPassInfo(currentTheme);
+            
+            if (string.IsNullOrEmpty(text))
+            {
+                yield break;
+            }
+            
+            // 先設置文字並強制更新，以獲取字符位置信息
+            firstPassInfoText.text = text;
+            firstPassInfoText.ForceMeshUpdate();
+            
+            // 獲取容器（如果沒有指定，使用文字本身的 Transform）
+            Transform container = firstPassInfoTextContainer != null ? firstPassInfoTextContainer : firstPassInfoText.transform;
+            Vector3 originalContainerPosition = container.localPosition;
+            
+            // 設置容器初始位置（X=0，保持 Y 和 Z 不變）
+            Vector3 centerPosition = new Vector3(0f, originalContainerPosition.y, originalContainerPosition.z);
+            container.localPosition = centerPosition;
+            
+            // 獲取容器的 RectTransform（如果有的話）來控制高度
+            RectTransform containerRect = container as RectTransform;
+            float originalHeight = 1f;
+            if (containerRect != null)
+            {
+                originalHeight = containerRect.sizeDelta.y;
+                // 設置初始高度為 0
+                containerRect.sizeDelta = new Vector2(containerRect.sizeDelta.x, 0f);
+            }
+            else
+            {
+                // 如果不是 RectTransform，使用 scaleY
+                Vector3 originalScale = container.localScale;
+                container.localScale = new Vector3(originalScale.x, 0f, originalScale.z);
+                originalHeight = originalScale.y;
+            }
+            
+            // 顯示容器
+            container.gameObject.SetActive(true);
+            
+            // 獲取字符信息（需要先顯示文字才能獲取正確的字符信息）
+            firstPassInfoText.gameObject.SetActive(true);
+            TMP_TextInfo textInfo = firstPassInfoText.textInfo;
+            int characterCount = textInfo.characterCount;
+            
+            // 如果字符數量為 0，可能是文字還沒更新，強制更新一次
+            if (characterCount == 0)
+            {
+                firstPassInfoText.ForceMeshUpdate();
+                textInfo = firstPassInfoText.textInfo;
+                characterCount = textInfo.characterCount;
+            }
+            
+            // 如果還是沒有字符，直接返回
+            if (characterCount == 0)
+            {
+                Debug.LogWarning("[GameUI] FirstPassInfo 文字沒有字符，無法播放動畫");
+                yield break;
+            }
+            
+            // 隱藏原始文字（我們將使用單獨的字符對象）
+            firstPassInfoText.gameObject.SetActive(false);
+            
+            // 為每個字符創建單獨的 TextMeshProUGUI 對象
+            List<GameObject> charObjects = new List<GameObject>();
+            
+            for (int i = 0; i < characterCount; i++)
+            {
+                TMP_CharacterInfo charInfo = textInfo.characterInfo[i];
+                
+                // 跳過空格和不可見字符
+                if (!charInfo.isVisible || charInfo.character == ' ') continue;
+                
+                // 創建字符對象
+                GameObject charObj = new GameObject($"FirstPassInfoChar_{i}");
+                charObj.transform.SetParent(container, false);
+                
+                // 添加 TextMeshProUGUI 組件
+                TextMeshProUGUI charText = charObj.AddComponent<TextMeshProUGUI>();
+                charText.text = charInfo.character.ToString();
+                
+                // 複製字體相關屬性
+                charText.font = firstPassInfoText.font;
+                charText.fontSize = firstPassInfoText.fontSize;
+                charText.fontSizeMin = firstPassInfoText.fontSizeMin;
+                charText.fontSizeMax = firstPassInfoText.fontSizeMax;
+                charText.fontStyle = firstPassInfoText.fontStyle;
+                charText.fontWeight = firstPassInfoText.fontWeight;
+                charText.enableAutoSizing = firstPassInfoText.enableAutoSizing;
+                
+                // 複製顏色相關屬性
+                charText.color = firstPassInfoText.color;
+                charText.faceColor = firstPassInfoText.faceColor;
+                charText.enableVertexGradient = firstPassInfoText.enableVertexGradient;
+                if (firstPassInfoText.enableVertexGradient)
+                {
+                    charText.colorGradient = firstPassInfoText.colorGradient;
+                }
+                charText.colorGradientPreset = firstPassInfoText.colorGradientPreset;
+                
+                // 複製對齊方式
+                charText.alignment = firstPassInfoText.alignment;
+                charText.horizontalAlignment = firstPassInfoText.horizontalAlignment;
+                charText.verticalAlignment = firstPassInfoText.verticalAlignment;
+                
+                // 複製間距
+                charText.characterSpacing = firstPassInfoText.characterSpacing;
+                charText.wordSpacing = firstPassInfoText.wordSpacing;
+                charText.lineSpacing = firstPassInfoText.lineSpacing;
+                charText.paragraphSpacing = firstPassInfoText.paragraphSpacing;
+                
+                // 複製其他屬性
+                charText.textWrappingMode = firstPassInfoText.textWrappingMode;
+                charText.overflowMode = firstPassInfoText.overflowMode;
+                
+                // 複製材質
+                charText.fontSharedMaterial = firstPassInfoText.fontSharedMaterial;
+                charText.fontMaterials = firstPassInfoText.fontMaterials;
+                
+                // 複製 Outline 效果（如果有的話）
+                var originalOutline = firstPassInfoText.GetComponent<UnityEngine.UI.Outline>();
+                if (originalOutline != null)
+                {
+                    var charOutline = charObj.AddComponent<UnityEngine.UI.Outline>();
+                    charOutline.effectColor = originalOutline.effectColor;
+                    charOutline.effectDistance = originalOutline.effectDistance;
+                    charOutline.useGraphicAlpha = originalOutline.useGraphicAlpha;
+                }
+                
+                // 複製 Shadow 效果（如果有的話）
+                var originalShadow = firstPassInfoText.GetComponent<UnityEngine.UI.Shadow>();
+                if (originalShadow != null)
+                {
+                    var charShadow = charObj.AddComponent<UnityEngine.UI.Shadow>();
+                    charShadow.effectColor = originalShadow.effectColor;
+                    charShadow.effectDistance = originalShadow.effectDistance;
+                    charShadow.useGraphicAlpha = originalShadow.useGraphicAlpha;
+                }
+                
+                // 複製其他 UI 屬性
+                charText.raycastTarget = firstPassInfoText.raycastTarget;
+                charText.maskable = firstPassInfoText.maskable;
+                
+                // 計算字符位置（相對於容器）
+                Vector3 charCenterLocal = (charInfo.topLeft + charInfo.topRight + 
+                                          charInfo.bottomLeft + charInfo.bottomRight) / 4f;
+                
+                // 轉換為世界空間
+                Vector3 charCenterWorld = firstPassInfoText.transform.TransformPoint(charCenterLocal);
+                
+                // 轉換為容器的本地空間
+                Vector3 charCenterContainerLocal = container.InverseTransformPoint(charCenterWorld);
+                // 確保 Y 位置為 0
+                charObj.transform.localPosition = new Vector3(charCenterContainerLocal.x, 0f, charCenterContainerLocal.z);
+                
+                // 初始狀態：透明+大（保留原始顏色的 RGB，只改變 alpha）
+                Color originalColor = charText.color;
+                charText.color = new Color(originalColor.r, originalColor.g, originalColor.b, 0f);
+                charObj.transform.localScale = Vector3.one * 2f;
+                
+                charObjects.Add(charObj);
+                firstPassInfoCharObjects.Add(charObj);
+            }
+            
+            // 如果沒有創建任何字符對象，直接返回
+            if (charObjects.Count == 0)
+            {
+                Debug.LogWarning("[GameUI] FirstPassInfo 沒有可顯示的字符，無法播放動畫");
+                // 恢復原始文字顯示
+                firstPassInfoText.gameObject.SetActive(true);
+                yield break;
+            }
+            
+            // 創建動畫序列
+            Sequence mainSequence = DOTween.Sequence();
+            
+            // 第一階段：容器高度從 0 擴展到原始高度（上下擴展）
+            float containerExpandDuration = 1f;
+            if (containerRect != null)
+            {
+                // 使用 RectTransform 的 sizeDelta
+                mainSequence.Append(containerRect.DOSizeDelta(new Vector2(containerRect.sizeDelta.x, originalHeight), containerExpandDuration));
+            }
+            else
+            {
+                // 使用 scaleY
+                Vector3 originalScale = container.localScale;
+                mainSequence.Append(container.DOScaleY(originalHeight, containerExpandDuration));
+            }
+            
+            // 第二階段：每個字符依次從透明+大 → 不透明+正常大小（在第一階段完成後才開始）
+            for (int i = 0; i < charObjects.Count; i++)
+            {
+                GameObject charObj = charObjects[i];
+                TextMeshProUGUI charText = charObj.GetComponent<TextMeshProUGUI>();
+                
+                float delay = i * 0.1f; // 每個字符延遲 0.1 秒
+                float duration = 0.4f; // 動畫持續時間
+                
+                // 字符動畫（使用 Append 確保在第一階段完成後才開始）
+                Sequence charSeq = DOTween.Sequence();
+                charSeq.AppendInterval(delay);
+                charSeq.Append(charText.DOFade(1f, duration));
+                charSeq.Join(charObj.transform.DOScale(Vector3.one, duration));
+                
+                // 第一個字符動畫使用 Append，後續的字符動畫使用 Join（與第一個字符動畫同時進行）
+                if (i == 0)
+                {
+                    mainSequence.Append(charSeq);
+                }
+                else
+                {
+                    mainSequence.Join(charSeq);
+                }
+            }
+            
+            // 計算字符動畫總時間
+            float totalCharAnimationTime = charObjects.Count * 0.1f + 0.4f;
+            
+            // 確保序列等待所有字符動畫完成（如果字符動畫還沒完成）
+            if (mainSequence.Duration() < containerExpandDuration + totalCharAnimationTime)
+            {
+                mainSequence.AppendInterval((containerExpandDuration + totalCharAnimationTime) - mainSequence.Duration());
+            }
+            
+            // 第三階段：短暫停留
+            mainSequence.AppendInterval(0.5f);
+            
+            // 第四階段：容器向左移出到 -2000（只改變 X 軸）
+            Vector3 exitPosition = new Vector3(-2000f, originalContainerPosition.y, originalContainerPosition.z);
+            mainSequence.Append(container.DOLocalMove(exitPosition, 0.8f));
+            
+            // 等待動畫完成
+            yield return mainSequence.WaitForCompletion();
+            
+            // 動畫完成後清理
+            ClearFirstPassInfoChars();
+            if (container != null)
+            {
+                // 恢復原始位置和大小
+                container.localPosition = originalContainerPosition;
+                if (containerRect != null)
+                {
+                    containerRect.sizeDelta = new Vector2(containerRect.sizeDelta.x, originalHeight);
+                }
+                else
+                {
+                    Vector3 originalScale = container.localScale;
+                    container.localScale = new Vector3(originalScale.x, originalHeight, originalScale.z);
+                }
+                container.gameObject.SetActive(false);
+            }
+        }
+        
+        /// <summary>
+        /// 清理 FirstPassInfo 字符對象
+        /// </summary>
+        private void ClearFirstPassInfoChars()
+        {
+            foreach (var charObj in firstPassInfoCharObjects)
+            {
+                if (charObj != null)
+                {
+                    Destroy(charObj);
+                }
+            }
+            firstPassInfoCharObjects.Clear();
+        }
+        
+        /// <summary>
+        /// 根據當前語言獲取首次通關資訊
+        /// </summary>
+        private string GetLocalizedFirstPassInfo(StageSetSO theme)
+        {
+            if (theme == null) return "";
+            
+            string languageCode = GetCurrentLanguageCode();
+            
+            switch (languageCode)
+            {
+                case "en":
+                    return !string.IsNullOrEmpty(theme.firstPassInfoEn) ? theme.firstPassInfoEn : theme.firstPassInfo;
+                case "ja":
+                    return !string.IsNullOrEmpty(theme.firstPassInfoJa) ? theme.firstPassInfoJa : theme.firstPassInfo;
+                case "zh-TW":
+                default:
+                    return theme.firstPassInfo;
             }
         }
     }
