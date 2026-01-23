@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "com.bgtools.playerprefseditor": "https://github.com/Dysman/bgTools-playerPrefsEditor.git#upm",
     "com.boxqkrtm.ide.cursor": "https://github.com/boxqkrtm/com.unity.ide.cursor.git",
     "com.unity.2d.animation": "12.0.2",
     "com.unity.2d.aseprite": "2.0.1",

@@ -12,9 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b4b436aae261119448a7d93cc922b45e, type: 3}
   m_Name: StageSet_Theme_3
   m_EditorClassIdentifier: 
-  themeName: "\u96E3\u5EA6\u4E09 \u8840\u5492\u4E4B\u591C"
-  themeNameEn: Difficulty III\nBlood Curse
-  themeNameJa: "\u96E3\u5EA6\u2162\uFF1A\u8840\u546A\u306E\u591C"
+  themeName: "\u8840\u5492\u4E4B\u591C"
+  themeNameEn: Blood Curse
+  themeNameJa: "\u8840\u546A\u306E\u591C"
   themeIcon: {fileID: 0}
   themeColor: {r: 1, g: 0, b: 0, a: 1}
   description: 
@@ -33,3 +33,5 @@ MonoBehaviour:
   - {fileID: 11400000, guid: dbda2ebe2512baf4a8ebc732866f0ac4, type: 2}
   - {fileID: 11400000, guid: 58ae6f047c0a5cd47a96b794ca2d592b, type: 2}
   - {fileID: 11400000, guid: 5ce8c5e6ebf613d4ea6262b5d38d63c9, type: 2}
+  passKey: 
+  unlockKey: 

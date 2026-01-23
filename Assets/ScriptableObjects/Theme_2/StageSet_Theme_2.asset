@@ -12,9 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b4b436aae261119448a7d93cc922b45e, type: 3}
   m_Name: StageSet_Theme_2
   m_EditorClassIdentifier: 
-  themeName: "\u96E3\u5EA6\u4E8C \u708E\u6EC5\u4E4B\u591C"
-  themeNameEn: Difficulty II\n Infernal Ruin
-  themeNameJa: "\u96E3\u5EA6\u2161\uFF1A\u708E\u6EC5\u306E\u591C"
+  themeName: "\u708E\u6EC5\u4E4B\u591C"
+  themeNameEn: Infernal Ruin
+  themeNameJa: "\u708E\u6EC5\u306E\u591C"
   themeIcon: {fileID: 0}
   themeColor: {r: 1, g: 0.5735731, b: 0, a: 1}
   description: 
@@ -33,3 +33,5 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 0dfefe60d8615f348a3f1153321c3177, type: 2}
   - {fileID: 11400000, guid: 9c8849e563bf0eb4686ed624ad10fedd, type: 2}
   - {fileID: 11400000, guid: 967144beef7ec744fbdcf6943d85ca14, type: 2}
+  passKey: Theme3
+  unlockKey: Theme2

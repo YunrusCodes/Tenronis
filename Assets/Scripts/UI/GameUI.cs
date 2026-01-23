@@ -355,13 +355,41 @@ namespace Tenronis.UI
                 {
                     int index = i; // 閉包捕獲
                     var theme = themes[i];
-                    var btn = Instantiate(themeButtonPrefab, themeButtonContainer);
-                    var btnText = btn.GetComponentInChildren<TextMeshProUGUI>();
-                    if (btnText != null) btnText.text = GetLocalizedThemeName(theme);
                     
-                    btn.onClick.AddListener(() => OnThemeSelected(index));
+                    // 檢查主題是否已解鎖
+                    bool isUnlocked = IsThemeUnlocked(theme);
+                    
+                    // 只有已解鎖的主題才顯示按鈕
+                    if (isUnlocked)
+                    {
+                        var btn = Instantiate(themeButtonPrefab, themeButtonContainer);
+                        var btnText = btn.GetComponentInChildren<TextMeshProUGUI>();
+                        if (btnText != null) btnText.text = GetLocalizedThemeName(theme);
+                        
+                        btn.onClick.AddListener(() => OnThemeSelected(index));
+                    }
                 }
             }
+        }
+        
+        /// <summary>
+        /// 檢查主題是否已解鎖
+        /// </summary>
+        /// <param name="theme">主題資料</param>
+        /// <returns>如果主題已解鎖則返回 true</returns>
+        private bool IsThemeUnlocked(StageSetSO theme)
+        {
+            if (theme == null) return false;
+            
+            // 如果 UnlockKey 為空，表示無需解鎖，直接返回 true
+            if (string.IsNullOrEmpty(theme.unlockKey))
+            {
+                return true;
+            }
+            
+            // 檢查 PlayerPrefs 中是否存在對應的 PassKey
+            bool hasPassKey = PlayerPrefs.HasKey(theme.unlockKey);
+            return hasPassKey;
         }
         
         private void OnThemeSelected(int index)

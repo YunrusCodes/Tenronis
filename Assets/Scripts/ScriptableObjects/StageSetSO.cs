@@ -41,6 +41,13 @@ namespace Tenronis.ScriptableObjects
 
         [Header("關卡列表")]
         public List<StageDataSO> stages = new List<StageDataSO>();
+        
+        [Header("解鎖系統")]
+        [Tooltip("通關後獲得的通關鑰匙，會保存在 PlayerPrefs 中")]
+        public string passKey = "";
+        
+        [Tooltip("解鎖此主題所需的通關鑰匙（需在 PlayerPrefs 中存在對應的 PassKey）。若為空則表示無需解鎖")]
+        public string unlockKey = "";
 
         /// <summary>
         /// 獲取關卡列表

@@ -237,6 +237,15 @@ namespace Tenronis.Managers
             {
                 // 勝利
                 Debug.Log($"[GameManager] 所有關卡完成！");
+                
+                // 保存通關鑰匙到 PlayerPrefs
+                if (currentTheme != null && !string.IsNullOrEmpty(currentTheme.passKey))
+                {
+                    PlayerPrefs.SetString(currentTheme.passKey, "1");
+                    PlayerPrefs.Save();
+                    Debug.Log($"[GameManager] 已保存通關鑰匙: {currentTheme.passKey}");
+                }
+                
                 ChangeGameState(GameState.Victory);
             }
             else
