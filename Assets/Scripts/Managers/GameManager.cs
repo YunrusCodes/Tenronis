@@ -44,21 +44,17 @@ namespace Tenronis.Managers
         private List<StageDataSO> currentStages = null;
         private int currentStageIndex = 0;
         private int pendingBuffCount = 0;
-        private float damageAccumulator = 0f;
-        private int rogueRequirement = GameConstants.INITIAL_ROGUE_REQUIREMENT;
         private bool isFirstPass = false; // 是否為第一次通關
         
         // 屬性
         public GameState CurrentState => currentState;
         public StageSetSO CurrentTheme => currentTheme;
         public StageDataSO CurrentStage => currentStages != null && currentStageIndex < currentStages.Count ? currentStages[currentStageIndex] : null;
-        public StageDataSO NextStage => currentStages != null && currentStageIndex + 1 < currentStages.Count ? currentStages[currentStageIndex + 1] : null;
         public int CurrentStageIndex => currentStageIndex;
         public int TotalStages => currentStages != null ? currentStages.Count : 0;
         public BuffDataSO[] NormalBuffs => normalBuffs;
         public BuffDataSO[] LegendaryBuffs => legendaryBuffs;
         public int PendingBuffCount => pendingBuffCount;
-        public int RogueRequirement => rogueRequirement;
         public bool IsFirstPass => isFirstPass;
         
         private void Awake()
@@ -140,8 +136,6 @@ namespace Tenronis.Managers
             // 重置遊戲數據
             currentStageIndex = 0;
             pendingBuffCount = 0;
-            damageAccumulator = 0f;
-            rogueRequirement = GameConstants.INITIAL_ROGUE_REQUIREMENT;
             
             // 重置玩家數據
             if (PlayerManager.Instance != null)
