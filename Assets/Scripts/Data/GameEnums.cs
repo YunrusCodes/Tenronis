@@ -50,7 +50,7 @@ namespace Tenronis.Data
     public enum BlockType
     {
         Normal,      // 普通方塊：無特性
-        Void,        // 虛無方塊：消除時不產生導彈（垃圾行）
+        Void,        // 虛無方塊：消除行中含有虛無方塊時，整次消除不產生導彈（虛無抵銷）
         Explosive    // 爆炸方塊：被敵人射擊破壞時對玩家造成傷害
     }
 
@@ -81,7 +81,7 @@ namespace Tenronis.Data
         Salvo,          // 齊射強化：多行消除時增加導彈傷害
         Burst,          // 連發：連擊加成
         Counter,        // 反擊：新放置方塊被擊中時反擊
-        Execution,      // 處決：清除每列最底部方塊
+        Execution,      // 處決：清除每列最頂部的非垃圾方塊（削平表面）
         Repair,         // 修復：填補封閉空洞
         SpaceExpansion, // 空間擴充：解鎖儲存槽位
         ResourceExpansion, // 資源擴充：增加CP上限

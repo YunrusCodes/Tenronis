@@ -502,7 +502,7 @@ namespace Tenronis.Managers
             
             if (topRowHasBlocks)
             {
-                // 觸發溢出：清空網格並造成傷害（50% 當前HP）
+                // 觸發溢出：清空網格，消耗 CP（不足則 HP 降至 1）
                 HandleOverflow();
                 return; // 溢出後直接返回，不再插入行
             }
@@ -635,7 +635,8 @@ namespace Tenronis.Managers
         
         /// <summary>
         /// 處理溢出（統一處理：清空網格 + 消耗 Castle Point）
-        /// 溢出時消耗 25 CP，CP 不足時 HP 變成 1
+        /// 溢出時消耗 75 CP，CP 不足時 HP 變成 1、CP 歸零
+        /// 同時觸發爆炸充能傷害（對敵人）
         /// </summary>
         public void HandleOverflow()
         {

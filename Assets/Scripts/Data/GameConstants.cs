@@ -36,7 +36,6 @@ namespace Tenronis.Data
         public const float SALVO_DAMAGE_MULTIPLIER = 0.5f;
         public const float BURST_DAMAGE_MULTIPLIER = 0.25f;
         public const float EXECUTION_DAMAGE = 4f;
-        public const float REPAIR_DAMAGE = 2f;
 
         // 方塊設定
         public const int BASE_BLOCK_HP = 1;
@@ -45,9 +44,6 @@ namespace Tenronis.Data
 
         // 敵人子彈傷害
         public const int BULLET_DAMAGE = 10;
-        public const int BASE_HIT_DAMAGE = 10;
-        public const int OVERFLOW_DAMAGE_PERCENT = 50;
-        public const int INSERT_ROW_OVERFLOW_DAMAGE = 50;
 
         // 爆炸充能系統
         public const int EXPLOSION_INITIAL_MAX_CHARGE = 200;

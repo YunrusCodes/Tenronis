@@ -377,10 +377,27 @@ namespace Tenronis.UI
             {
                 enemyInfoPanel.SetActive(false);
             }
-            
-            // 關閉敵人面板後，開始顯示提示訊息
+
+            // 關閉敵人面板後，檢查是否需要顯示教學提示
+            var currentStage = GameManager.Instance?.CurrentStage;
+            if (currentStage != null && currentStage.showHint && hintPanel != null)
+            {
+                StartCoroutine(ShowHintPanelCoroutine(currentStage));
+                return;
+            }
+
+            // 沒有教學提示，直接進入下一步
+            ProceedAfterEnemyPanel();
+        }
+
+        /// <summary>
+        /// 敵人面板（及教學提示）結束後，進入提示訊息和 Buff 選擇
+        /// </summary>
+        private void ProceedAfterEnemyPanel()
+        {
+            // 開始顯示提示訊息
             StartTipsDisplay();
-            
+
             // 檢查是否有待選的 Buff
             if (GameManager.Instance != null && GameManager.Instance.PendingBuffCount > 0)
             {
@@ -397,9 +414,78 @@ namespace Tenronis.UI
                 {
                     GameManager.Instance.ChangeGameState(GameState.Playing);
                 }
-                
+
                 // 關閉選單
                 gameObject.SetActive(false);
+            }
+        }
+
+        /// <summary>
+        /// 顯示教學提示面板的協程（從敵人面板關閉後觸發）
+        /// </summary>
+        private IEnumerator ShowHintPanelCoroutine(StageDataSO stage)
+        {
+            string hintTextContent = GetLocalizedHint(stage);
+
+            // 顯示提示面板
+            hintPanel.SetActive(true);
+
+            // 先隱藏其他元素（影片、標題、描述、按鈕）
+            if (hintAnimationImage != null)
+                hintAnimationImage.gameObject.SetActive(false);
+            if (hintTitleText != null)
+                hintTitleText.gameObject.SetActive(false);
+            if (this.hintText != null)
+                this.hintText.gameObject.SetActive(false);
+            if (hintCloseButton != null)
+                hintCloseButton.gameObject.SetActive(false);
+
+            // 先讓背景 Image 淡入
+            if (hintPanelBackgroundImage != null)
+            {
+                Color bgColor = hintPanelBackgroundImage.color;
+                bgColor.a = 0f;
+                hintPanelBackgroundImage.color = bgColor;
+                hintPanelBackgroundImage.gameObject.SetActive(true);
+                yield return hintPanelBackgroundImage.DOFade(1f, 0.5f).WaitForCompletion();
+            }
+
+            // 背景淡入完成後，設置提示動畫（如果有）
+            SetupHintAnimation(stage);
+
+            // 顯示並播放提示動畫（如果有）
+            if (hintAnimationImage != null && stage.hintAnimatorController != null)
+            {
+                hintAnimationImage.gameObject.SetActive(true);
+                yield return hintAnimationImage.DOFade(1f, 0.5f).WaitForCompletion();
+            }
+
+            // 顯示提示標題
+            if (hintTitleText != null)
+            {
+                hintTitleText.gameObject.SetActive(true);
+                string hintTitleContent = GetLocalizedHintTitle(stage);
+                if (!string.IsNullOrEmpty(hintTitleContent))
+                {
+                    // 使用打字機效果顯示提示標題
+                    yield return StartCoroutine(TypewriterEffect(hintTitleText, hintTitleContent, 0.01f));
+                }
+            }
+
+            // 顯示提示文字
+            if (this.hintText != null)
+            {
+                this.hintText.gameObject.SetActive(true);
+                if (!string.IsNullOrEmpty(hintTextContent))
+                {
+                    yield return StartCoroutine(TypewriterEffect(this.hintText, hintTextContent, 0.01f));
+                }
+            }
+
+            // 顯示關閉按鈕
+            if (hintCloseButton != null)
+            {
+                hintCloseButton.gameObject.SetActive(true);
             }
         }
         
@@ -516,25 +602,22 @@ namespace Tenronis.UI
             {
                 hintAnimator.enabled = false;
             }
-            
+
             // 停止同步協程
             if (hintSpriteSyncCoroutine != null)
             {
                 StopCoroutine(hintSpriteSyncCoroutine);
                 hintSpriteSyncCoroutine = null;
             }
-            
+
             // 關閉提示面板
             if (hintPanel != null)
             {
                 hintPanel.SetActive(false);
             }
-            
-            // 顯示關閉敵人面板按鈕
-            if (closeEnemyPanelButton != null)
-            {
-                closeEnemyPanelButton.gameObject.SetActive(true);
-            }
+
+            // 教學提示關閉後，進入提示訊息和 Buff 選擇
+            ProceedAfterEnemyPanel();
         }
         
         /// <summary>
@@ -3383,88 +3466,15 @@ namespace Tenronis.UI
             // 描述文字顯示完成後，延遲 0.5 秒再顯示提示或確認按鈕
             yield return new WaitForSeconds(0.5f);
             
-            // 顯示提示（如果 showHint 為 true）
-            if (stage != null && stage.showHint && hintPanel != null)
+            // 隱藏提示面板（教學提示將在關閉敵人面板後顯示）
+            if (hintPanel != null)
             {
-                // 顯示提示面板
-                hintPanel.SetActive(true);
-                
-                // 先隱藏其他元素（影片、標題、描述、按鈕）
-                if (hintAnimationImage != null)
-                    hintAnimationImage.gameObject.SetActive(false);
-                if (hintTitleText != null)
-                    hintTitleText.gameObject.SetActive(false);
-                if (this.hintText != null)
-                    this.hintText.gameObject.SetActive(false);
-                if (hintCloseButton != null)
-                    hintCloseButton.gameObject.SetActive(false);
-                
-                // 先讓背景 Image 淡入
-                if (hintPanelBackgroundImage != null)
-                {
-                    Color bgColor = hintPanelBackgroundImage.color;
-                    bgColor.a = 0f;
-                    hintPanelBackgroundImage.color = bgColor;
-                    hintPanelBackgroundImage.gameObject.SetActive(true);
-                    yield return hintPanelBackgroundImage.DOFade(1f, 0.5f).WaitForCompletion();
-                }
-                
-                // 背景淡入完成後，設置提示動畫（如果有）
-                SetupHintAnimation(stage);
-                
-                // 顯示並播放提示動畫（如果有）
-                if (hintAnimationImage != null && stage.hintAnimatorController != null)
-                {
-                    hintAnimationImage.gameObject.SetActive(true);
-                    yield return hintAnimationImage.DOFade(1f, 0.5f).WaitForCompletion();
-                }
-                
-                // 顯示提示標題
-                if (hintTitleText != null)
-                {
-                    hintTitleText.gameObject.SetActive(true);
-                    string hintTitleContent = GetLocalizedHintTitle(stage);
-                    if (!string.IsNullOrEmpty(hintTitleContent))
-                    {
-                        // 使用打字機效果顯示提示標題
-                        yield return StartCoroutine(TypewriterEffect(hintTitleText, hintTitleContent, 0.01f));
-                    }
-                }
-                
-                // 顯示提示文字
-                if (this.hintText != null)
-                {
-                    this.hintText.gameObject.SetActive(true);
-                    if (!string.IsNullOrEmpty(hintText))
-                    {
-                        yield return StartCoroutine(TypewriterEffect(this.hintText, hintText, 0.01f));
-                    }
-                }
-                
-                // 顯示關閉按鈕
-                if (hintCloseButton != null)
-                {
-                    hintCloseButton.gameObject.SetActive(true);
-                }
-                
-                // 如果顯示提示，不顯示確認按鈕
-                if (closeEnemyPanelButton != null)
-                {
-                    closeEnemyPanelButton.gameObject.SetActive(false);
-                }
+                hintPanel.SetActive(false);
             }
-            else
+            // 顯示確認按鈕
+            if (closeEnemyPanelButton != null)
             {
-                // 如果不顯示提示，隱藏提示面板
-                if (hintPanel != null)
-                {
-                    hintPanel.SetActive(false);
-                }
-                // 如果不顯示提示，顯示確認按鈕
-                if (closeEnemyPanelButton != null)
-                {
-                    closeEnemyPanelButton.gameObject.SetActive(true);
-                }
+                closeEnemyPanelButton.gameObject.SetActive(true);
             }
         }
         

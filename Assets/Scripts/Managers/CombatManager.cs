@@ -493,7 +493,7 @@ namespace Tenronis.Managers
                     }
                     else if (hitPos.y == 0)
                     {
-                        // 頂部溢出：清空網格並造成傷害（50% 當前HP）
+                        // 頂部溢出：清空網格，消耗 CP（不足則 HP 降至 1）
                         Debug.Log("[CombatManager] AddBlock 溢出！方塊堆到頂部，清空網格");
                         GridManager.Instance.HandleOverflow();
                     }
@@ -524,7 +524,7 @@ namespace Tenronis.Managers
                     }
                     else if (hitPos.y == 0)
                     {
-                        // 頂部溢出：清空網格並造成傷害（50% 當前HP）
+                        // 頂部溢出：清空網格，消耗 CP（不足則 HP 降至 1）
                         Debug.Log("[CombatManager] AddExplosiveBlock 溢出！方塊堆到頂部，清空網格");
                         GridManager.Instance.HandleOverflow();
                     }

@@ -1,0 +1,3566 @@
+TENRONIS - Complete Narrative Text Extraction
+Generated from ScriptableObject .asset files
+All Unicode escape sequences decoded to readable text
+================================================================================
+
+
+================================================================================
+  SECTION 1: STAGESET (THEME) FILES
+================================================================================
+
+------------------------------------------------------------
+  StageSet_Theme_0.asset
+------------------------------------------------------------
+  File: D:\SideProjects\Tenronis\Tenronis\Assets\ScriptableObjects\Theme_0\StageSet_Theme_0.asset
+
+  themeName (ZH): 教學 演習之夜
+  themeNameEn (EN):
+    Tutorial
+     Night of Drills
+  themeNameJa (JA): 訓練・演習の夜
+
+------------------------------------------------------------
+  StageSet_Theme_1.asset
+------------------------------------------------------------
+  File: D:\SideProjects\Tenronis\Tenronis\Assets\ScriptableObjects\Theme_1\StageSet_Theme_1.asset
+
+  themeName (ZH): 夢襲之夜
+  themeNameEn (EN): Dream Assault
+  themeNameJa (JA): 夢襲の夜
+  passKey: Theme1
+  firstPassInfo (ZH): 解鎖了新關卡
+  firstPassInfoEn (EN): New Level Unlocked!
+  firstPassInfoJa (JA): 新ステージ解放！
+
+------------------------------------------------------------
+  StageSet_Theme_2.asset
+------------------------------------------------------------
+  File: D:\SideProjects\Tenronis\Tenronis\Assets\ScriptableObjects\Theme_2\StageSet_Theme_2.asset
+
+  themeName (ZH): 炎滅之夜
+  themeNameEn (EN): Infernal Ruin
+  themeNameJa (JA): 炎滅の夜
+  passKey: Theme2
+  unlockKey: Theme1
+  firstPassInfo (ZH): 解鎖了新關卡
+  firstPassInfoEn (EN): New Level Unlocked!
+  firstPassInfoJa (JA): 新ステージ解放！
+
+------------------------------------------------------------
+  StageSet_Theme_3.asset
+------------------------------------------------------------
+  File: D:\SideProjects\Tenronis\Tenronis\Assets\ScriptableObjects\Theme_3\StageSet_Theme_3.asset
+
+  themeName (ZH): 血咒之夜
+  themeNameEn (EN): Blood Curse
+  themeNameJa (JA): 血呪の夜
+  passKey: Theme3
+  unlockKey: Theme2
+  firstPassInfo (ZH): 完成了全部關卡!
+  firstPassInfoEn (EN): All Stages Cleared!
+  firstPassInfoJa (JA): 全ステージ制覇！
+
+------------------------------------------------------------
+  StageSet_Theme_4.asset
+------------------------------------------------------------
+  File: D:\SideProjects\Tenronis\Tenronis\Assets\ScriptableObjects\Theme_4\StageSet_Theme_4.asset
+
+  themeName (ZH): Theme_4
+
+================================================================================
+  SECTION 2: STAGE DATA FILES (BY THEME)
+================================================================================
+
+
+################################################################################
+  THEME 0 STAGES
+################################################################################
+
+------------------------------------------------------------
+  StageData.asset
+------------------------------------------------------------
+  File: D:\SideProjects\Tenronis\Tenronis\Assets\ScriptableObjects\Theme_0\StageData.asset
+  m_Name: StageData
+  stageIndex: 0
+  isBossStage: 0
+
+  stageName (ZH): 未命名威脅
+
+
+------------------------------------------------------------
+  Stage_10_Corruptor.asset
+------------------------------------------------------------
+  File: D:\SideProjects\Tenronis\Tenronis\Assets\ScriptableObjects\Theme_0\Stage_10_Corruptor.asset
+  m_Name: Stage_10_Corruptor
+  stageIndex: 10
+  isBossStage: 1
+
+  stageName (ZH): 夢渦王
+
+  --- Description ---
+  ZH:
+    那已經不是存在，而是一場無法醒來的集體惡夢。
+    當他浮現，現實會開始崩解，恐懼彼此纏繞、增殖，像漩渦般吞噬所有意識。
+    那張張開到不合常理的巨口，不是在咆哮——而是在嘲笑，嘲笑任何仍試圖理解他的存在。
+    無數扭曲的夢影在他身後翻湧，正是被他吞噬後，再也無法醒來的證明。
+
+
+
+
+------------------------------------------------------------
+  Stage_1_Scout.asset
+------------------------------------------------------------
+  File: D:\SideProjects\Tenronis\Tenronis\Assets\ScriptableObjects\Theme_0\Stage_1_Scout.asset
+  m_Name: Stage_1_Scout
+  stageIndex: 1
+  isBossStage: 0
+
+  stageName (ZH): 瓦磚牆
+  stageNameEn (EN): Brickwall
+  stageNameJa (JA): 瓦磚の壁
+
+  --- Description ---
+  ZH:
+    歡迎加入執炮人的行列。
+    你今後將在此守夜，我們這行甚麼不多，就鬼故事最多。
+    讓我看看你的炮術吧!
+    
+    [說明]
+    ←
+    / → ：平移
+    ↑：旋轉
+    ↓：加速下落
+    Space：硬降
+    
+    [攻擊方式]
+    完整排列整排方塊觸發消除
+
+  EN:
+    Welcome to the ranks of the Cannon Bearers.
+    From this night on,
+    you will stand watch here. We may not have much—but ghost stories are never
+    in short supply.
+    Let me see your cannon technique!
+    [Instructions]
+    ← /
+    → : Move
+    ↑ : Rotate
+    ↓ : Soft Drop
+    Space : Hard Drop
+    [Attack
+    Method]
+    Clear a full horizontal line of blocks \
+     to trigger an attack.
+
+  JA:
+    執炮人の隊列へようこそ。
+    今夜から、ここで夜を守ることになる。
+    この稼業、物は少ないが、怪談だけは尽きない。
+    さあ、お前の砲術を見せてみろ。
+    
+    【操作説明】
+    ←
+    / →：移動
+    ↑：回転
+    ↓：高速落下
+    Space：ハードドロップ
+    
+    【攻撃方法】
+    ブロックを横一列すべて揃えると、消去が発動する。
+
+
+------------------------------------------------------------
+  Stage_2_Skirmisher.asset
+------------------------------------------------------------
+  File: D:\SideProjects\Tenronis\Tenronis\Assets\ScriptableObjects\Theme_0\Stage_2_Skirmisher.asset
+  m_Name: Stage_2_Skirmisher
+  stageIndex: 2
+  isBossStage: 0
+
+  stageName (ZH): 演習用投石機
+  stageNameEn (EN): Training Trebuchet
+  stageNameJa (JA): 演習用投石機
+
+  --- Description ---
+  ZH:
+    接下來會開始模擬實戰攻擊你，看看你如何抵擋攻勢
+    
+    [說明]
+    敵方子彈會持續落下，破壞掉落的方塊
+    子彈若掉落至底部，會造成城堡受損
+    城堡耐久歸零，即宣告失守。
+
+  EN:
+    Next, a simulated combat assault will begin.
+    Let’s see how
+    you withstand the incoming attack
+    
+    [Instructions]
+    Enemy projectiles will continuously
+    fall, destroying blocks they strike.
+    If a projectile reaches the bottom, the
+    castle will take damage.
+    When the castle’s durability reaches zero, the
+    defense is considered lost.
+
+  JA:
+    これより実戦を想定した攻撃を開始する。
+    どこまで攻勢を防ぎきれるか、見せてもらおう。
+    
+    【説明】
+    敵の弾は継続的に落下し、接触したブロックを破壊する。
+    弾が最下部まで到達すると、城が損傷を受ける。
+    城の耐久値がゼロになると、防衛失敗となる。
+
+
+------------------------------------------------------------
+  Stage_3_Striker.asset
+------------------------------------------------------------
+  File: D:\SideProjects\Tenronis\Tenronis\Assets\ScriptableObjects\Theme_0\Stage_3_Striker.asset
+  m_Name: Stage_3_Striker
+  stageIndex: 3
+  isBossStage: 0
+
+  stageName (ZH): 演習用攻城車
+  stageNameEn (EN): Training Siege Ram
+  stageNameJa (JA): 演習用攻城車
+
+  --- Description ---
+  ZH:
+    雖然說是演習，但你如果沒擋住城堡是真的會垮掉喔，好好在備戰階段指揮你的工程部隊吧
+    
+    [說明]
+    選擇一個強化建設來提升工程等級。
+    將一個工程升滿將進行傳奇工程以獲得關鍵性強化!
+
+  EN:
+    It may be called a training exercise, but if you fail to hold them
+    back, the castle will truly collapse.
+    
+    Use the preparation phase wisely and
+    command your engineering corps well.
+    
+    
+    [Instructions]
+    
+    Choose one build
+    to increase its engineering level.
+    
+    Fully upgrading a build will trigger
+    a Legendary Bonus, granting a critical enhancement.
+
+  JA:
+    演習とはいえ、防ぎきれなければ城は本当に崩壊する。
+    備戦段階で工兵部隊を的確に指揮せよ。
+    
+    【説明】
+    強化する建設を一つ選択し、工兵レベルを上昇させる。
+    いずれかの建設を最大まで強化すると、伝説級工事が発動し、決定的な強化を獲得できる。
+
+
+------------------------------------------------------------
+  Stage_4_Hunter.asset
+------------------------------------------------------------
+  File: D:\SideProjects\Tenronis\Tenronis\Assets\ScriptableObjects\Theme_0\Stage_4_Hunter.asset
+  m_Name: Stage_4_Hunter
+  stageIndex: 4
+  isBossStage: 0
+
+  stageName (ZH): 演習用爆破機
+  stageNameEn (EN): Training Demolisher
+  stageNameJa (JA): 演習用爆破機
+
+  --- Description ---
+  ZH:
+    這台爆破機模擬能把整座城堡夷平的怪物，一名合格的執炮人不會讓這件事情發生
+    如果發覺難以進攻，反擊也是一種策略。
+    
+    [反擊]
+    方塊在放置後如果立刻受到傷害，會生成導彈
+    
+    [操作提示]
+    將方塊硬降在馬上會被命中的位置
+
+  EN:
+    This demolisher simulates a monster capable of leveling the entire
+    castle.
+    
+    A qualified Cannon Bearer will never allow that to happen.
+    
+    If
+    offense proves difficult, counterattack is also a valid strategy.
+    
+    
+    [Counterattack]
+    
+    If
+    a block takes damage immediately after being placed, it will generate a missile.
+    
+    
+    [Tips]
+    
+    Hard
+    drop blocks into positions that
+     are about to be hit.
+
+  JA:
+    この爆破機は、城を丸ごと吹き飛ばす怪物を想定した演習用装置だ。
+    一人前の執炮人なら、そんな事態は決して許さない。
+    攻めあぐねたなら、反撃もまた一つの戦術だ。
+    
+    【反撃】
+    方塊が設置直後にダメージを受けると、ミサイルが生成される。
+    
+    【操作ヒント】
+    直撃される直前の位置に、方塊をハードドロップせよ。
+
+  --- Tips ---
+    - [TIPS]_硬降觸發反擊
+    - [TIPS]_齊射與連發傷害
+    - [TIPS]_反擊亦為連發
+    - [TIPS]_範圍彈九宮破壞
+
+
+------------------------------------------------------------
+  Stage_5_Enforcer.asset
+------------------------------------------------------------
+  File: D:\SideProjects\Tenronis\Tenronis\Assets\ScriptableObjects\Theme_0\Stage_5_Enforcer.asset
+  m_Name: Stage_5_Enforcer
+  stageIndex: 5
+  isBossStage: 1
+
+  stageName (ZH): 演習用戰車
+  stageNameEn (EN): Training War Tank
+  stageNameJa (JA): 演習用戦車
+
+  --- Description ---
+  ZH:
+    試著使用衝擊炮摧毀這堅固的玩意吧!
+    
+    [說明]
+    反擊或完整排列整排方塊觸發消除時，會累積衝擊炮充能。
+    方塊溢出時會會消耗75cp，釋放充能並造成對等傷害。
+    
+    [技巧]
+    在滿充能的狀態下刻意讓方塊溢出能對敵人造成鉅額傷害。
+
+  EN:
+    Try using the Impact Cannon to smash this heavily armored machine!
+    
+    
+    [Instructions]
+    
+    Impact
+    Cannon charge is accumulated when triggering a counterattack or clearing a full
+    line of blocks.
+    
+    When blocks overflow, 75 CP is consumed to release the stored
+    charge and deal equivalent damage.
+    
+    
+    [Tips]
+    
+    Intentionally causing block
+    overflow 
+    while at full charge can deal 
+    massive damage to the enemy.
+
+  JA:
+    衝撃砲を使って、この堅牢な代物を粉砕してみろ！
+    
+    【説明】
+    反撃、またはブロックを横一列揃えて消去すると、衝撃砲のチャージが蓄積される。
+    ブロックがオーバーフローすると、75CPを消費してチャージを解放し、同等のダメージを与える。
+    
+    【テクニック】
+    フルチャージ状態で意図的にブロックを溢れさせることで、敵に甚大なダメージを与えられる。
+
+  --- Tips ---
+    - [TIPS]_溢出必有代價
+    - [TIPS]_戰術性溢出
+
+
+------------------------------------------------------------
+  Stage_6_Blocker.asset
+------------------------------------------------------------
+  File: D:\SideProjects\Tenronis\Tenronis\Assets\ScriptableObjects\Theme_0\Stage_6_Blocker.asset
+  m_Name: Stage_6_Excavator
+  stageIndex: 6
+  isBossStage: 1
+
+  stageName (ZH): 演習聘任邪術士
+
+  --- Description ---
+  ZH:
+    放馬過來吧，我的職責是測驗執炮人今後能不能應對真正的怪物
+    
+    [腐蝕方塊]
+    有些方塊
+
+
+
+
+------------------------------------------------------------
+  Stage_8_Crasher.asset
+------------------------------------------------------------
+  File: D:\SideProjects\Tenronis\Tenronis\Assets\ScriptableObjects\Theme_0\Stage_8_Crasher.asset
+  m_Name: Stage_8_Enforcer
+  stageIndex: 8
+  isBossStage: 0
+
+  stageName (ZH): 雙角
+
+  --- Description ---
+  ZH:
+    他是終點?還是惡夢真正開始的地方?
+    有人說，那對高舉的雙角，是無數恐懼堆疊後形成的王冠。
+    當他降臨，世界會陷入短暫的靜止，彷彿所有惡夢都在向他俯首稱臣。
+    那雙冷光閃爍的眼睛掃過之處，意志不再掙扎，只剩下等待裁決的空白。
+
+
+
+
+------------------------------------------------------------
+  Stage_9_Pusher.asset
+------------------------------------------------------------
+  File: D:\SideProjects\Tenronis\Tenronis\Assets\ScriptableObjects\Theme_0\Stage_9_Pusher.asset
+  m_Name: Stage_9_Pusher
+  stageIndex: 9
+  isBossStage: 0
+
+  stageName (ZH): 逆印
+
+  --- Description ---
+  ZH:
+    沒有人知道那道倒懸的印記象徵什麼，有人認為那是被顛倒的救贖。
+    當他現身，信仰與恐懼不再有區別，一切祈禱都會被重新解讀。
+    那雙發光的眼不帶情感，只是在衡量——誰該被留下，誰該被抹除。
+    伸出的雙手不是索求，而是在宣讀結果之前，給予最後的錯覺。
+
+
+
+
+------------------------------------------------------------
+  nouse.asset
+------------------------------------------------------------
+  File: D:\SideProjects\Tenronis\Tenronis\Assets\ScriptableObjects\Theme_0\nouse.asset
+  m_Name: nouse
+  stageIndex: 7
+  isBossStage: 0
+
+  stageName (ZH): 鐵皮牆
+
+  --- Description ---
+  ZH:
+    試著讓炮火猛烈些吧
+    齊射：多行消除
+    連發：連續消除
+
+
+
+
+
+################################################################################
+  THEME 1 STAGES
+################################################################################
+
+------------------------------------------------------------
+  StageData.asset
+------------------------------------------------------------
+  File: D:\SideProjects\Tenronis\Tenronis\Assets\ScriptableObjects\Theme_1\StageData.asset
+  m_Name: StageData
+  stageIndex: 0
+  isBossStage: 0
+
+  stageName (ZH): 未命名威脅
+
+
+------------------------------------------------------------
+  Stage_10_Corruptor.asset
+------------------------------------------------------------
+  File: D:\SideProjects\Tenronis\Tenronis\Assets\ScriptableObjects\Theme_1\Stage_10_Corruptor.asset
+  m_Name: Stage_10_Obliterator
+  stageIndex: 10
+  isBossStage: 1
+
+  stageName (ZH): 夢渦王
+  stageNameEn (EN): Dreamwhorl King
+  stageNameJa (JA): 夢渦王
+
+  --- Description ---
+  ZH:
+    那已經不是存在，而是一場無法醒來的集體惡夢。當他浮現，現實會開始崩解，恐懼彼此纏繞、增殖，像漩渦般吞噬所有意識。那張張開到不合常理的巨口，不是在咆哮——而是在嘲笑，嘲笑任何仍試圖理解他的存在。
+    無數扭曲的夢影在他身後翻湧，正是被他吞噬後，再也無法醒來的證明。
+
+  EN:
+    It is no longer an existence, but an inescapable collective nightmare.When
+    it emerges, reality collapses as fear intertwines and devours all consciousness.
+    
+    Its
+    impossibly wide maw is not a roar, but a mocking laugh at those who seek to understand
+    it.The twisted dreamshades behind it are proof of those who will never awaken
+    again.
+
+  JA:
+    それはもはや「存在」ではない。目覚めることのできない、集合的な悪夢そのものだ。彼が浮かび上がると、現実は崩壊を始め、恐怖は互いに絡み合い、増殖し、渦となってあらゆる意識を呑み込んでいく。常識ではあり得ないほど大きく開かれたその巨口は、咆哮ではない――
+    それは嘲笑だ。なおも彼を理解しようとするすべてを嘲る笑いなのだ。
+    背後で翻り蠢く無数の歪んだ夢影は、彼に喰らわれ、二度と目覚めることのない存在であることの証明である。
+
+  --- Hint System (showHint: 1) ---
+  hintTitle (ZH): 衝擊爆破
+  hintTitleEn (EN): Impact Blast
+  hintTitleJa (JA): 衝撃爆破
+
+  hint (ZH):
+    衝擊爆破\r
+    當方塊溢出時並不會直接導致防守失敗，而是消耗75CP，消耗充能對敵人造成等量傷害，並清空所有方塊(若無法擊敗敵人，無法讓既有敵方攻擊消失)\r
+    消排跟反擊都能累積充能，溢出時若CP不夠，HP會變成1，因此必須從各方面慎選溢出時機。\r
+    若充能足以斬殺敵人，或是場面佈滿垃圾行與腐化方塊，可考慮直接讓方塊溢出清空場面，製造大幅傷害。
+
+  hintEn (EN):
+    When blocks overflow, it does not immediately result in defense failure.
+    
+    Instead,
+    75 CP is consumed to release the accumulated charge, dealing equivalent damage
+    to the enemy and clearing all blocks.
+    
+    (If the enemy is not defeated, existing
+    enemy attacks will not disappear.)
+    
+    
+    Both row clears and Counter accumulate
+    charge.
+    
+    If CP is insufficient when overflow occurs, HP will be reduced to
+    1, so the timing of overflow must be chosen carefully from every angle.
+    
+    
+    If
+    the accumulated charge is enough to finish the enemy,
+    
+    or if the board is
+    filled with Garbage Rows and Corrupt Blocks,
+    
+    deliberately triggering an
+    overflow to wipe the field and deal massive damage can be a viable option.
+
+  hintJa (JA):
+    ブロックがオーバーフローしても、防衛は即座に失敗しません。
+    代わりに
+    75CP を消費して蓄積されたチャージを解放し、
+    敵に
+    同等のダメージ を与え、すべてのブロックを消去します。
+    （敵を撃破できなかった場合、既存の敵攻撃は消滅しません）
+    
+    列消去および
+    反撃 のいずれでもチャージは蓄積されます。
+    オーバーフロー時にCPが不足している場合、HPは
+    1 になります。
+    そのため、あらゆる状況を考慮して発動タイミングを慎重に選ぶ必要があります。
+    
+    チャージが敵を倒すのに十分な場合、
+    または盤面が
+    ゴミ行 や 腐敗ブロック で埋め尽くされている場合は、
+    意図的にオーバーフローさせて盤面を一掃し、大ダメージを与えるのも有効です。
+
+  --- Tips ---
+    - [TIPS]_虛無垃圾封鎖
+    - [TIPS]_垃圾行消除規則
+    - [TIPS]_垃圾行直傷城堡
+    - [TIPS]_齊射與連發傷害
+    - [TIPS]_溢出清場重擊
+    - [TIPS]_旋轉拖延戰局
+    - [TIPS]_反擊亦為連發
+    - [TIPS]_處決攔截致命攻擊
+    - [TIPS]_鞏固防禦質變
+    - [TIPS]_火力不足即恐懼
+    - [TIPS]_修補是轉捩點
+    - [TIPS]_等待添加子彈
+    - [TIPS]_借敵破虛無
+    - [TIPS]_戰鬥開始回復CP
+    - [TIPS]_主動技能溢出風險
+    - [TIPS]_儲存槽交換操作
+    - [TIPS]_空間擴充儲存鍵
+    - [TIPS]_保留充能待機
+    - [TIPS]_反擊帶來混亂
+    - [TIPS]_溢出後重整態勢
+    - [TIPS]_範圍彈九宮破壞
+    - [TIPS]_虛無封鎖攻擊
+    - [TIPS]_反擊對抗範圍彈
+    - [TIPS]_傳奇工程解鎖條件
+    - [TIPS]_工程等級上限差異
+
+
+------------------------------------------------------------
+  Stage_1_Scout.asset
+------------------------------------------------------------
+  File: D:\SideProjects\Tenronis\Tenronis\Assets\ScriptableObjects\Theme_1\Stage_1_Scout.asset
+  m_Name: Stage_1_Rookie
+  stageIndex: 1
+  isBossStage: 0
+
+  stageName (ZH): 夢影
+  stageNameEn (EN): Dreamshade
+  stageNameJa (JA): 夢影
+
+  --- Description ---
+  ZH:
+    沒有人知道他們為何出現，有人認為是人類惡夢的化身。
+    但只要他進到城鎮，所有人都會在同一夜陷入惡夢之中。
+    這就是為什麼我們執炮人存在的目的，舉起你的加農炮打到他!
+
+  EN:
+    No one knows why they appear. Some believe they are the embodiment
+    of humanity’s nightmares.
+    But whenever it enters a town, everyone will
+    fall into nightmares on the very same night.
+    That is why we, the Cannon Bearers,
+    exist—raise your cannon and blast it down!
+
+  JA:
+    なぜ彼らが現れるのか、誰も知らない。人類の悪夢が具現化した存在だと考える者もいる。
+    だが、ひとたび町に侵入すれば、その夜、すべての人々が同じ悪夢に囚われる。
+    それこそが、我々〈執炮人〉が存在する理由だ。さあ、加農砲を構えて撃ち落とせ！
+
+  --- Hint System (showHint: 1) ---
+  hintTitle (ZH): 基本規則
+  hintTitleEn (EN): Basic Rules
+  hintTitleJa (JA): 基本規則
+
+  hint (ZH):
+    [我方攻擊] 排一列完整方塊後產生導彈
+    [敵方攻擊]
+    命中方塊會直接破壞，命中底部則直接扣HP，HP
+    = 0 防守失敗。
+    [操作方式]
+    ← / →
+    ：平移
+    ↑：旋轉
+    ↓：加速下落
+    Space：硬降
+
+  hintEn (EN):
+    [Allied Attack] Completing a full horizontal line of blocks generates
+    a missile.
+    [Enemy Attack] Enemy attacks destroy blocks on impact. If an attack
+    hits the bottom, it directly reduces HP. When HP reaches 0, the defense fails.
+    [Controls]
+    ←
+    / → : Move
+    ↑ : Rotate
+    ↓ : Soft Drop
+    Space : Hard Drop
+
+  hintJa (JA):
+    [我方攻擊] ブロックを横一列すべて揃えると、ミサイルが生成される。
+    [敵方攻擊]
+    敵の攻撃がブロックに命中すると、即座に破壊される。最下部に命中した場合、HPが直接減少する。HPが0になると、防衛失敗となる。
+    [Controls]
+    ←
+    / →：移動
+    ↑：回転
+    ↓：高速落下
+    Space：ハードドロップ
+
+  --- Tips ---
+    - [TIPS]_齊射與連發傷害
+    - [TIPS]_傳奇工程解鎖條件
+    - [TIPS]_工程等級上限差異
+    - [TIPS]_旋轉拖延戰局
+    - [TIPS]_反擊亦為連發
+    - [TIPS]_反擊帶來混亂
+    - [TIPS]_儲存槽交換操作
+
+
+------------------------------------------------------------
+  Stage_2_Skirmisher.asset
+------------------------------------------------------------
+  File: D:\SideProjects\Tenronis\Tenronis\Assets\ScriptableObjects\Theme_1\Stage_2_Skirmisher.asset
+  m_Name: Stage_2_Skirmisher
+  stageIndex: 2
+  isBossStage: 0
+
+  stageName (ZH): 空骨
+  stageNameEn (EN): Hollow Remains
+  stageNameJa (JA): 空骨
+
+  --- Description ---
+  ZH:
+    沒有人知道他是否曾經活著，也沒有人能證明他已經死去。\r
+    有人說，他是被遺忘之人的殘影，空殼裡只剩下執念在回響。\r
+    當他現身，耳邊會傳來不屬於自己的低語，意志被一節一節剝離，直到只剩下服從。
+
+  EN:
+    No one knows whether it was ever alive, and no one can prove that
+    it is truly dead.
+    Some say it is the afterimage of the forgotten, an empty shell
+    in which only obsession still echoes.
+    When it appears, whispers not your own
+    creep into your ears, your will stripped away piece by piece—
+    until nothing
+    remains but obedience.
+
+  JA:
+    彼がかつて生きていたのか、誰にも分からない。そして、すでに死んだと証明できる者もいない。
+    忘れ去られた者たちの残影であり、空の殻には執念だけが反響している――そう語る者もいる。
+    その姿を現した瞬間、己のものではない囁きが耳元に忍び寄り、
+    意志は一節ずつ剥がされ、やがて残るのは服従のみとなる。
+
+  --- Hint System (showHint: 1) ---
+  hintTitle (ZH): 工程建設
+  hintTitleEn (EN): Buildings
+  hintTitleJa (JA): 工事建設
+
+  hint (ZH):
+    從三個選項中升級一個工程項目。將一個工程提升至滿級能隨機獲得傳奇工程，帶來關鍵性強化:
+    [加倍火力]
+    額外生成導彈
+    [鞏固防禦] 方塊能額外承受傷害
+    [戰術擴展]
+    解鎖強力主動技能
+    另外，普通工程項目的等級上限因其性質而有所不同，選擇某些類型的工程能較快獲得傳奇強化
+
+  hintEn (EN):
+    Choose one project to upgrade from three available options.
+    
+    Fully
+    upgrading a project will randomly grant a Legendary Project, providing a critical
+    enhancement:
+    
+    
+    [Double Firepower] Generates additional missiles
+    
+    
+    [Fortify
+    Defense] Blocks can withstand extra damage
+    
+    
+    [Tactical Expansion] Unlocks
+    powerful active skills
+    
+    
+    Additionally, normal projects have different level
+    caps depending on their type.
+    
+    Choosing certain types of projects allows
+    you to obtain Legendary enhancements more quickly.
+
+  hintJa (JA):
+    3つの選択肢の中から、1つの工事を選んで強化します。いずれかの工事を最大レベルまで強化すると、ランダムで伝説工事を獲得し、重要な強化が得られます。
+    【火力倍増】
+    追加でミサイルを生成
+    【防御強化】
+    ブロックが追加ダメージに耐えられる
+    【戦術拡張】
+    強力なアクティブスキルを解放
+    また、通常の工事は種類によってレベル上限が異なります。
+    特定の工事を選択することで、より早く伝説強化を獲得できます。
+
+  --- Tips ---
+    - [TIPS]_儲存槽交換操作
+    - [TIPS]_空間擴充儲存鍵
+    - [TIPS]_反擊亦為連發
+    - [TIPS]_反擊帶來混亂
+    - [TIPS]_旋轉拖延戰局
+
+
+------------------------------------------------------------
+  Stage_3_Striker.asset
+------------------------------------------------------------
+  File: D:\SideProjects\Tenronis\Tenronis\Assets\ScriptableObjects\Theme_1\Stage_3_Striker.asset
+  m_Name: Stage_3_Striker
+  stageIndex: 3
+  isBossStage: 0
+
+  stageName (ZH): 噬夜魔
+  stageNameEn (EN): Night Devourer
+  stageNameJa (JA): 噬夜魔
+
+  --- Description ---
+  ZH:
+    他最初是何種形態?無人知曉，有人認為黑暗本身學會了飢餓。
+    凡是他徘徊之地，燈火會逐一熄滅，勇氣會在低語中被啃噬殆盡。
+    倖存者只記得那對發光的雙眼，與黑暗中傳來的撕裂聲。
+
+  EN:
+    No one knows what form it originally had. Some believe that darkness
+    itself learned how to hunger.
+    
+    Wherever it prowls, lights are extinguished
+    one by one, and courage is gnawed away by murmuring whispers.
+    
+    Survivors
+    remember only a pair of glowing eyes, and the tearing sounds echoing from the
+    dark.
+
+  JA:
+    それが最初にどのような姿だったのか、知る者はいない。
+    闇そのものが「飢え」を覚えたのだと考える者もいる。
+    彼が彷徨う地では、灯りは次々と消え去り、囁きの中で勇気は喰らい尽くされる。
+    生存者が覚えているのは、闇の中で光る一対の眼と、引き裂くような音だけだ。
+
+  --- Hint System (showHint: 1) ---
+  hintTitle (ZH): 方塊儲存功能
+  hintTitleEn (EN): Block Storage
+  hintTitleJa (JA): ブロック保存機能
+
+  hint (ZH):
+    方塊儲存功能允許將當前的方塊放入空的儲存空間，或是將當前的方塊與以儲存的方塊置換
+    空間擴充Lv.1能以按鍵A進行儲存與置換，升級後能解鎖S、D、F
+
+  hintEn (EN):
+    The Block Storage feature allows you to store the current block in an
+    empty storage slot,
+    
+    or swap it with a previously stored block.
+    
+    
+    At
+    Space Expansion Lv.1, storage and swapping can be performed using the A key.
+    
+    Upgrading
+    further unlocks additional storage slots bound to S, D, and F.
+
+  hintJa (JA):
+    ブロック保存機能では、現在のブロックを空いている保存スロットに格納するか、
+    すでに保存されているブロックと入れ替えることができます。
+    
+    空間拡張Lv.1で
+    Aキー による保存・交換が可能になり、
+    アップグレードすることで
+    S・D・Fキー の保存スロットが解放されます。
+
+  --- Tips ---
+    - [TIPS]_傳奇工程解鎖條件
+    - [TIPS]_工程等級上限差異
+    - [TIPS]_戰術擴張等級
+    - [TIPS]_修補是轉捩點
+    - [TIPS]_主動技能溢出風險
+    - [TIPS]_處決攔截致命攻擊
+    - [TIPS]_鞏固防禦質變
+    - [TIPS]_火力不足即恐懼
+    - [TIPS]_儲存槽交換操作
+    - [TIPS]_空間擴充儲存鍵
+    - [TIPS]_反擊亦為連發
+    - [TIPS]_反擊帶來混亂
+    - [TIPS]_旋轉拖延戰局
+
+
+------------------------------------------------------------
+  Stage_4_Hunter.asset
+------------------------------------------------------------
+  File: D:\SideProjects\Tenronis\Tenronis\Assets\ScriptableObjects\Theme_1\Stage_4_Hunter.asset
+  m_Name: Stage_4_Hunter
+  stageIndex: 4
+  isBossStage: 0
+
+  stageName (ZH): 裂角
+  stageNameEn (EN): Rift-Horn
+  stageNameJa (JA): 裂角
+
+  --- Description ---
+  ZH:
+    那對扭曲的角，看似恐懼具象化後長出的形狀。
+    當他踏入現實，空氣會變得沉重，靈魂像被拉出身體般顫抖。
+    那張充滿光齒的笑容，並非威嚇——而是宣告狩獵已經開始。
+    凡與他對視者，意識會被一口一口撕碎，只留下空洞的軀殼。
+
+  EN:
+    Those twisted horns look like fear itself, given form and grown
+    into flesh.
+    When it steps into reality, the air grows heavy, and souls tremble
+    as if being torn from their bodies.
+    That grin filled with radiant teeth is not
+    a threat—it is the declaration that the hunt has begun.
+    Anyone who meets
+    its gaze has their consciousness ripped apart, bite by bite, leaving behind only
+    an empty shell.
+
+  JA:
+    歪んだその角は、恐怖が具現化して生え出たかのような形をしている。
+    彼が現実へと足を踏み入れた瞬間、空気は重く沈み、魂は身体から引き剥がされるかのように震え出す。
+    光る歯を並べたその笑みは威嚇ではない――狩りの始まりを告げる宣言だ。
+    彼と目を合わせた者は、意識を一口ずつ引き裂かれ、やがて空虚な器だけが残される。
+
+  --- Hint System (showHint: 1) ---
+  hintTitle (ZH): 反擊
+  hintTitleEn (EN): Counter
+  hintTitleJa (JA): 反擊
+
+  hint (ZH):
+    方塊在放置後的0.2秒內受到傷害會觸發反擊，生成導彈攻擊敵人，反擊觸發時視為一次連發。
+    [觸發技巧]
+    當敵方攻擊進入硬降預覽區域時發動硬降，能直接觸發反擊。
+    反擊不如消橫排能製造爆發輸出，但能透過連續反擊堆疊連發累進傷害加成。
+    可以作為第二種輸出模式，但會導致零碎版面。
+
+  hintEn (EN):
+    If a block takes damage within 0.2 seconds after being placed, it will
+    trigger Counter, generating missiles to attack the enemy.
+    
+    Each Counter trigger
+    is counted as one Combo.
+    
+    [Trigger Tip]
+    
+    When an enemy attack enters
+    the hard drop preview area, perform a hard drop to trigger Counter immediately.
+    
+    
+    While
+    Counter does not provide the same burst damage as clearing full rows,
+    
+    it
+    can stack Combo-based cumulative damage bonuses through consecutive Counters.
+    
+    This
+    can serve as a secondary damage strategy, but will result in a more fragmented
+    board state.
+
+  hintJa (JA):
+    ブロックが設置後 0.2秒以内
+    にダメージを受けると、反撃が発動し、
+    ミサイルを生成して敵を攻撃します。反撃の発動は
+    連射1回分としてカウントされます。
+    【発動テクニック】
+    敵の攻撃がハードドロップの予測エリアに入った瞬間にハードドロップを行うことで、
+    反撃を直接発動できます。
+    反撃は横一列消去ほどの瞬間火力はありませんが、
+    連続して反撃を行うことで
+    連射による累積ダメージ補正を重ねることができます。
+    第二の攻撃手段として有効ですが、盤面が細かく崩れやすくなります。
+
+  --- Tips ---
+    - [TIPS]_戰鬥開始回復CP
+    - [TIPS]_齊射與連發傷害
+    - [TIPS]_戰術擴張等級
+    - [TIPS]_湮滅閃避腐化
+    - [TIPS]_修補是轉捩點
+    - [TIPS]_主動技能溢出風險
+    - [TIPS]_處決攔截致命攻擊
+    - [TIPS]_鞏固防禦質變
+    - [TIPS]_火力不足即恐懼
+    - [TIPS]_儲存槽交換操作
+    - [TIPS]_空間擴充儲存鍵
+    - [TIPS]_反擊亦為連發
+    - [TIPS]_反擊帶來混亂
+    - [TIPS]_旋轉拖延戰局
+
+
+------------------------------------------------------------
+  Stage_5_Enforcer.asset
+------------------------------------------------------------
+  File: D:\SideProjects\Tenronis\Tenronis\Assets\ScriptableObjects\Theme_1\Stage_5_Enforcer.asset
+  m_Name: Stage_5_Enforcer
+  stageIndex: 5
+  isBossStage: 1
+
+  stageName (ZH): 深淵使者
+  stageNameEn (EN): Abyssal Herald
+  stageNameJa (JA): 深淵使者
+
+  --- Description ---
+  ZH:
+    沒有人知道他是在呼喚，還是在回應某個早已存在的聲音。
+    有人說，他是惡夢彼端的門扉本身，那些如蛛網般張開的觸影，正是在拉扯現實的邊界。
+    當他現身，空氣會開始震顫，低沉的呢喃滲入腦海，彷彿有無數名字在同時被呼喊。
+    那雙刺目的光眼與張開的利齒，不是威脅——而是邀請，邀請你成為下一個回應者。
+
+  EN:
+    No one knows whether it is calling out, or answering a voice that
+    has existed long before.Some say it is the very gate on the far side of nightmares,
+    and that the web-like spreading tendrils are pulling at the edges of reality
+    itself.When it appears, the air begins to tremble, and low murmurs seep into
+    the mind, as if countless names are being called at once.Those piercing eyes
+    of light and the bared fangs are not a threat—they are an invitation, inviting
+    you to become the next responder.
+
+  JA:
+    それが呼びかけているのか、それとも、はるか以前から存在する何かの声に応えているのか――誰にも分からない。
+    悪夢の彼岸にある門扉そのものだという者もいる。蛛の巣のように広がる触影は、現実の境界を引き裂こうとしているのだ。
+    彼が現れると、空気は震え始め、低く沈んだ囁きが脳裏に染み込み、無数の名が同時に呼ばれているかのように感じられる。
+    眩い光を放つその双眼と、開かれた鋭い歯は威嚇ではない――
+    それは誘いだ。次なる「応答者」になるための。
+
+  --- Hint System (showHint: 1) ---
+  hintTitle (ZH): 腐化虛無
+  hintTitleEn (EN): Corrupt Void
+  hintTitleJa (JA): 腐敗虚無
+
+  hint (ZH):
+    腐化虛無命中方塊會\"腐化\"下一個方塊，將一個位置變成虛無方塊。
+    消橫排時若消除虛無方塊，會使該次火力無效化。
+    可以用被腐化的一側進行反擊、暫時放入儲存槽延後處裡。
+    若能獲得[傳奇強化]戰術擴張Lv.1
+    ，\"湮滅\"能直接腐化效果無效化
+
+  hintEn (EN):
+    When Corrupt Void hits a block, it will corrupt the next piece, turning
+    one of its cells into a Void Block.
+    
+    If Void Blocks are cleared during a
+    full-row clear, the attack power of that clear will be nullified.
+    
+    
+    You can
+    use the corrupted side to trigger Counter,
+    
+    or temporarily store the piece
+    in a storage slot to deal with it later.
+    
+    
+    If you obtain [Legendary Enhancement]
+    Tactical Expansion Lv.1,
+    
+    Erase can directly nullify the Corrupt effect.
+
+  hintJa (JA):
+    腐敗虚無がブロックに命中すると、次のピースが「腐敗」し、
+    その中の1マスが
+    虚無ブロック に変化します。
+    横一列消去時に虚無ブロックを消去すると、その消去による火力は
+    無効化 されます。
+    
+    腐敗した側を利用して
+    反撃 を行うか、
+    一時的に 保存スロット
+    に入れて処理を遅らせることも可能です。
+    
+    【伝説強化】戦術拡張Lv.1
+    を獲得していれば、
+    抹消 によって腐敗効果を直接無効化できます。
+
+  --- Tips ---
+    - [TIPS]_借敵破虛無
+    - [TIPS]_虛無封鎖攻擊
+    - [TIPS]_溢出清場重擊
+    - [TIPS]_反擊亦為連發
+    - [TIPS]_反擊帶來混亂
+    - [TIPS]_齊射與連發傷害
+    - [TIPS]_旋轉拖延戰局
+    - [TIPS]_湮滅迴避腐化
+    - [TIPS]_處決攔截致命攻擊
+    - [TIPS]_鞏固防禦質變
+    - [TIPS]_修補是轉捩點
+    - [TIPS]_戰鬥開始回復CP
+    - [TIPS]_主動技能溢出風險
+    - [TIPS]_儲存槽交換操作
+    - [TIPS]_空間擴充儲存鍵
+    - [TIPS]_保留充能待機
+    - [TIPS]_溢出後重整態勢
+
+
+------------------------------------------------------------
+  Stage_6_Blocker.asset
+------------------------------------------------------------
+  File: D:\SideProjects\Tenronis\Tenronis\Assets\ScriptableObjects\Theme_1\Stage_6_Blocker.asset
+  m_Name: Stage_6_Blocker
+  stageIndex: 6
+  isBossStage: 0
+
+  stageName (ZH): 獨眼
+  stageNameEn (EN): The One-Eyed Void
+  stageNameJa (JA): 独眼
+
+  --- Description ---
+  ZH:
+    那顆獨眼是惡夢凝視世界時留下的孔洞。
+    當他甦醒，時間彷彿被拖慢，所有目光都會不自覺地被拉向那道刺眼的光。
+    被注視者將失去對現實的判斷，記憶如潮水倒流，只剩最深層的恐懼浮現。
+    那些蠕動的觸影，正是在收割崩潰之前，替他封鎖所有逃離的可能。
+
+  EN:
+    That solitary eye is a hole left behind when nightmares gazed upon
+    the world.
+    
+    When it awakens, time itself seems to slow, and every gaze is
+    irresistibly drawn toward that blinding light.
+    
+    Those who are watched lose
+    their grasp on reality, their memories flowing backward like a tide, until only
+    their deepest fears rise to the surface.
+    
+    The writhing tendrils are sealing
+    every possible escape, harvesting collapse before it can flee.
+
+  JA:
+    その独眼は、悪夢が世界を凝視した際に残された孔だ。
+    彼が目覚めると、時間は引き延ばされたかのように鈍り、あらゆる視線が無意識のうちに、あの眩い光へと引き寄せられる。
+    見つめられた者は現実を判断する力を失い、記憶は潮のように逆流し、最奥の恐怖だけが浮かび上がる。
+    蠢く触影は、崩壊が訪れる前に、逃走の可能性をすべて封じ込めるためのものなのだ。
+
+  --- Hint System (showHint: 1) ---
+  hintTitle (ZH): 添加方塊
+  hintTitleEn (EN): Add Block
+  hintTitleJa (JA): ブロック追加
+
+  hint (ZH):
+    方塊若被這類攻擊命中，會受到傷害並在上方製造一個方塊。
+    此效果能直接對版面造成結構性破壞，建議透過快速消排攔截此類攻擊。
+    若無法快速消排，亦可放慢放置節奏，判斷形式在進行排列。
+    若能獲得[傳奇強化]鞏固防禦，能大幅減輕此類攻擊的干擾性
+
+  hintEn (EN):
+    When a block is hit by Add Block, it takes damage and generates an additional
+    block above it.
+    
+    This effect can cause structural disruption to the board,
+    and is best countered by rapid row clears.
+    
+    If clearing rows quickly is not
+    an option,
+    
+    slow down your placement pace and reassess the board before arranging
+    pieces.
+    
+    Obtaining [Legendary Enhancement] Fortify Defense can greatly reduce
+    the disruptive impact of this attack.
+
+  hintJa (JA):
+    ブロック追加がブロックに命中すると、ダメージを受け、その上に新たなブロックが生成されます。
+    この効果は盤面に
+    構造的な破壊 をもたらすため、
+    素早い列消去による迎撃が推奨されます。
+    
+    迅速な消去が難しい場合は、
+    配置のテンポを落とし、盤面を見極めてから整列しましょう。
+    【伝説強化】防御強化
+    を獲得していれば、この攻撃による妨害を大幅に軽減できます。
+
+  --- Tips ---
+    - [TIPS]_等待添加子彈
+    - [TIPS]_主動技能控場
+    - [TIPS]_齊射與連發傷害
+    - [TIPS]_溢出清場重擊
+    - [TIPS]_旋轉拖延戰局
+    - [TIPS]_保留充能待機
+    - [TIPS]_反擊亦為連發
+    - [TIPS]_處決攔截致命攻擊
+    - [TIPS]_鞏固防禦質變
+    - [TIPS]_火力不足即恐懼
+    - [TIPS]_修補是轉捩點
+    - [TIPS]_戰鬥開始回復CP
+    - [TIPS]_主動技能溢出風險
+    - [TIPS]_儲存槽交換操作
+    - [TIPS]_空間擴充儲存鍵
+    - [TIPS]_反擊帶來混亂
+    - [TIPS]_溢出後重整態勢
+
+
+------------------------------------------------------------
+  Stage_7_Disruptor.asset
+------------------------------------------------------------
+  File: D:\SideProjects\Tenronis\Tenronis\Assets\ScriptableObjects\Theme_1\Stage_7_Disruptor.asset
+  m_Name: Stage_7_Disruptor
+  stageIndex: 7
+  isBossStage: 0
+
+  stageName (ZH): 索命者
+  stageNameEn (EN): Reaper of the Last Breath
+  stageNameJa (JA): 索命者
+
+  --- Description ---
+  ZH:
+    那對雙眼，是死亡留下的殘光。
+    當他靠近，四周會陷入異樣的寂靜，彷彿連恐懼都被強行壓低了聲音。
+    他不急著撲殺，只是伸出那扭曲的手，緩慢地索取最後的反抗。
+    凡被他觸及者，生命會像燈火般一節一節熄滅，只剩空殼在原地站立。
+
+  EN:
+    Those twin eyes are the afterglow of death itself.
+    As it approaches,
+    an unnatural silence falls, as if even fear has been muted.
+    It does not strike
+    in haste—its twisted hand slowly drains the last resistance.
+    Those it touches
+    fade like dying flames, leaving only empty shells behind.
+
+  JA:
+    その双眼は、死が残した残光だ。
+    彼が近づくと、周囲は異様な静寂に包まれ、恐怖さえも声を押し殺したかのようになる。
+    彼は急いで襲いかかることはない。ただ歪んだ手を差し伸べ、最後の抵抗をゆっくりと奪い取る。
+    触れられた者の命は灯火のように一節ずつ消え去り、その場には空の殻だけが立ち尽くす。
+
+  --- Hint System (showHint: 1) ---
+  hintTitle (ZH): 範圍傷害
+  hintTitleEn (EN): Area Damage
+  hintTitleJa (JA): 範囲ダメージ
+
+  hint (ZH):
+    被這類攻擊命中，會直接破壞九宮格範圍的方塊
+    若未獲得[傳奇強化]鞏固防禦，用多數方塊能在反擊後而不殘留。
+
+  hintEn (EN):
+    Being hit by this type of attack will directly destroy all blocks within
+    a 3\xD73 area.
+    If [Legendary Enhancement] Fortify Defense has not been obtained,
+    most
+    blocks will not survive even after triggering Counter.
+
+  hintJa (JA):
+    このタイプの攻撃に命中すると、3\xD73範囲内のブロックが直接破壊されます。
+    【伝説強化】防御強化を獲得していない場合、
+    反撃を発動しても、多くのブロックは
+    残りません。
+
+  --- Tips ---
+    - [TIPS]_範圍彈九宮破壞
+    - [TIPS]_主動技能控場
+    - [TIPS]_反擊對抗範圍彈
+    - [TIPS]_等待添加子彈
+    - [TIPS]_齊射與連發傷害
+    - [TIPS]_溢出清場重擊
+    - [TIPS]_旋轉拖延戰局
+    - [TIPS]_反擊亦為連發
+    - [TIPS]_處決攔截致命攻擊
+    - [TIPS]_鞏固防禦質變
+    - [TIPS]_火力不足即恐懼
+    - [TIPS]_修補是轉捩點
+    - [TIPS]_借敵破虛無
+    - [TIPS]_戰鬥開始回復CP
+    - [TIPS]_主動技能溢出風險
+    - [TIPS]_儲存槽交換操作
+    - [TIPS]_空間擴充儲存鍵
+    - [TIPS]_保留充能待機
+    - [TIPS]_反擊帶來混亂
+    - [TIPS]_溢出後重整態勢
+
+
+------------------------------------------------------------
+  Stage_8_Crasher.asset
+------------------------------------------------------------
+  File: D:\SideProjects\Tenronis\Tenronis\Assets\ScriptableObjects\Theme_1\Stage_8_Crasher.asset
+  m_Name: Stage_8_Crasher
+  stageIndex: 8
+  isBossStage: 0
+
+  stageName (ZH): 雙角
+  stageNameEn (EN): Twin-Horn Sovereign
+  stageNameJa (JA): 双角
+
+  --- Description ---
+  ZH:
+    他是終點?還是惡夢真正開始的地方?
+    有人說，那對高舉的雙角，是無數恐懼堆疊後形成的王冠。
+    當他降臨，世界會陷入短暫的靜止，彷彿所有惡夢都在向他俯首稱臣。
+    那雙冷光閃爍的眼睛掃過之處，意志不再掙扎，只剩下等待裁決的空白。
+
+  EN:
+    Is it the end—or the place where nightmares truly begin?
+    Some
+    say the twin horns raised high are a crown formed from countless stacked fears.
+    When
+    it descends, the world falls into a brief stillness, as if all nightmares bow
+    before it.
+    Wherever its cold, gleaming eyes pass, will no longer struggles—only
+    an empty calm remains, awaiting judgment.
+
+  JA:
+    それは終焉なのか、それとも悪夢が本当に始まる場所なのか。
+    高く掲げられた二本の角は、無数の恐怖が積み重なって形作られた王冠だと言われている。
+    彼が降臨すると、世界は束の間の静止に包まれ、すべての悪夢が彼に跪いているかのように感じられる。
+    冷たい光を宿したその双眼が掃過した先では、意志はもはや抗わず、裁きを待つ空白だけが残される。
+
+  --- Tips ---
+    - [TIPS]_主動技能控場
+    - [TIPS]_溢出清場重擊
+    - [TIPS]_範圍彈九宮破壞
+    - [TIPS]_反擊亦為連發
+    - [TIPS]_齊射與連發傷害
+    - [TIPS]_保留充能待機
+    - [TIPS]_旋轉拖延戰局
+    - [TIPS]_處決攔截致命攻擊
+    - [TIPS]_鞏固防禦質變
+    - [TIPS]_火力不足即恐懼
+    - [TIPS]_修補是轉捩點
+    - [TIPS]_等待添加子彈
+    - [TIPS]_戰鬥開始回復CP
+    - [TIPS]_主動技能溢出風險
+    - [TIPS]_儲存槽交換操作
+    - [TIPS]_空間擴充儲存鍵
+    - [TIPS]_反擊帶來混亂
+    - [TIPS]_溢出後重整態勢
+
+
+------------------------------------------------------------
+  Stage_9_Pusher.asset
+------------------------------------------------------------
+  File: D:\SideProjects\Tenronis\Tenronis\Assets\ScriptableObjects\Theme_1\Stage_9_Pusher.asset
+  m_Name: Stage_9_Pusher
+  stageIndex: 9
+  isBossStage: 0
+
+  stageName (ZH): 逆印
+  stageNameEn (EN): Inverted Sigil
+  stageNameJa (JA): 逆印
+
+  --- Description ---
+  ZH:
+    沒有人知道那道倒懸的印記象徵什麼，有人認為那是被顛倒的救贖。
+    當他現身，信仰與恐懼不再有區別，一切祈禱都會被重新解讀。
+    那雙發光的眼不帶情感，只是在衡量——誰該被留下，誰該被抹除。
+    伸出的雙手不是索求，而是在宣讀結果之前，給予最後的錯覺。
+
+  EN:
+    No one knows what the inverted mark means—some call it inverted
+    salvation.
+    When it appears, faith and fear become one, and every prayer is rewritten.
+    Its
+    emotionless eyes judge who remains and who is erased.
+    The outstretched hands
+    offer not mercy, but a final illusion before the verdict.
+
+  JA:
+    逆さに刻まれたその印が何を象徴しているのか、誰にも分からない。
+    それは「顛倒された救済」だと語る者もいる。
+    彼が現れた瞬間、信仰と恐怖の境界は失われ、あらゆる祈りは新たな意味へと書き換えられる。
+    感情を宿さない発光する双眼は、ただ量るだけだ――誰を残し、誰を抹消するのかを。
+    差し伸べられた両手は索めているのではない。裁定が下される直前に与えられる、最後の錯覚なのだ。
+
+  --- Hint System (showHint: 1) ---
+  hintTitle (ZH): 插入垃圾行
+  hintTitleEn (EN): Insert Garbage Row
+  hintTitleJa (JA): ゴミ行挿入
+
+  hint (ZH):
+    被插入垃圾行的攻擊命中會在底下生成一整排垃圾方塊。垃圾方塊必須靠消一排常規方塊來清除。
+    垃圾行無法被敵方攻擊破壞，且受到傷害時會直接扣HP。
+    附帶虛無方塊標記的垃圾行被消除時，會觸發與消除虛無方塊等效的效應，導致攻擊無法發動。
+
+  hintEn (EN):
+    When hit by this attack, a full row of Garbage Blocks is inserted at the
+    bottom of the grid.
+    
+    Garbage Blocks can only be removed by completing a full
+    row clear with regular blocks.
+    
+    
+    Garbage Rows cannot be destroyed by enemy
+    attacks.
+    
+    If they take damage, the castle will directly lose HP.
+    
+    
+    If
+    a Garbage Row is marked with Void, clearing it will trigger the same effect as
+    clearing Void Blocks,
+    
+    causing the attack to be nullified.
+
+  hintJa (JA):
+    この攻撃が命中すると、グリッドの最下部にゴミブロックの一列が挿入されます。
+    ゴミブロックは通常ブロックで完全な列消去を行うことでのみ除去できます。
+    
+    ゴミ行は敵の攻撃では破壊されません。
+    ダメージを受けた場合、城のHPが直接減少します。
+    
+    虚無の印が付いたゴミ行を消去すると、虚無ブロック消去と同様の効果が発動し、
+    攻撃は無効化されます。
+
+  --- Tips ---
+    - [TIPS]_垃圾行消除規則
+    - [TIPS]_垃圾行直傷城堡
+    - [TIPS]_溢出清場重擊
+    - [TIPS]_範圍彈九宮破壞
+    - [TIPS]_反擊亦為連發
+    - [TIPS]_反擊帶來混亂
+    - [TIPS]_齊射與連發傷害
+    - [TIPS]_保留充能待機
+    - [TIPS]_旋轉拖延戰局
+    - [TIPS]_處決攔截致命攻擊
+    - [TIPS]_鞏固防禦質變
+    - [TIPS]_火力不足即恐懼
+    - [TIPS]_修補是轉捩點
+    - [TIPS]_等待添加子彈
+    - [TIPS]_戰鬥開始回復CP
+    - [TIPS]_主動技能溢出風險
+    - [TIPS]_儲存槽交換操作
+    - [TIPS]_空間擴充儲存鍵
+    - [TIPS]_溢出後重整態勢
+
+
+
+################################################################################
+  THEME 2 STAGES
+################################################################################
+
+------------------------------------------------------------
+  Stage_10_Abyssal_Maw.asset
+------------------------------------------------------------
+  File: D:\SideProjects\Tenronis\Tenronis\Assets\ScriptableObjects\Theme_2\Stage_10_Abyssal_Maw.asset
+  m_Name: Stage_10_Abyssal_Maw
+  stageIndex: 10
+  isBossStage: 1
+
+  stageName (ZH): 閻蝕王
+  stageNameEn (EN): Eclipse King of the Inferno
+  stageNameJa (JA): 閻蝕王
+
+  --- Description ---
+  ZH:
+    沒有人知道他是否仍是王，有人說那只是煉獄在吞噬自己後，殘留下來的核心意志。
+    當他顯現，火焰不再分辨個體，萬千亡影被熔鑄為同一具形體，在他周身低聲哀嚎。
+    那張層層疊合的牙口反覆宣告著——死亡，從來不是解脫。
+    環繞他的諸多焚首，正是被他侵蝕後仍未熄滅的意志碎片，永遠被迫見證終局。
+
+  EN:
+    No one knows if it remains a king—some say it is the core
+    will left after the inferno consumed itself.When it manifests, flame erases individuality,
+    fusing countless dead into one wailing form.
+    Its layered maws proclaim that
+    death is never release, while the burning heads that orbit it are unextinguished
+    fragments forced to witness the end.
+
+  JA:
+    彼が今も「王」なのかは分からない。
+    煉獄が自らを喰らった末に残された、核となる意志だと語られている。
+    顕現とともに炎は個を失い、亡影は溶け合い一つの形となって嘆き続ける。
+    重なり合う牙は告げる――死は決して解放ではない。
+    周囲を巡る焚首は、侵蝕されても消えきらなかった意志の断片だ。
+
+  --- Tips ---
+    - [TIPS]_範圍爆炸組合警戒
+    - [TIPS]_腐化爆炸警告
+    - [TIPS]_齊射與連發傷害
+    - [TIPS]_溢出清場重擊
+    - [TIPS]_旋轉拖延戰局
+    - [TIPS]_反擊亦為連發
+    - [TIPS]_湮滅迴避腐化
+    - [TIPS]_處決攔截致命攻擊
+    - [TIPS]_鞏固防禦質變
+    - [TIPS]_火力不足即恐懼
+    - [TIPS]_修補是轉捩點
+    - [TIPS]_垃圾行消除規則
+    - [TIPS]_等待添加子彈
+    - [TIPS]_借敵破虛無
+    - [TIPS]_戰鬥開始回復CP
+    - [TIPS]_主動技能溢出風險
+    - [TIPS]_儲存槽交換操作
+    - [TIPS]_空間擴充儲存鍵
+    - [TIPS]_保留充能待機
+    - [TIPS]_反擊帶來混亂
+    - [TIPS]_溢出後重整態勢
+    - [TIPS]_範圍彈九宮破壞
+    - [TIPS]_虛無封鎖攻擊
+    - [TIPS]_反擊對抗範圍彈
+
+
+------------------------------------------------------------
+  Stage_1_Rookie.asset
+------------------------------------------------------------
+  File: D:\SideProjects\Tenronis\Tenronis\Assets\ScriptableObjects\Theme_2\Stage_1_Rookie.asset
+  m_Name: Stage_1_Rookie
+  stageIndex: 1
+  isBossStage: 0
+
+  stageName (ZH): 朽影
+  stageNameEn (EN): Decaying Shade
+  stageNameJa (JA): 朽影
+
+  --- Description ---
+  ZH:
+    有人說，那是在世界第一次失去意義時留下的殘渣。
+    當他靠近，事物並不會崩壞，卻會悄然失去存在的理由，彷彿早已腐朽，只是現在才被察覺。
+    那對刺眼的白光之眼不是在注視你，他扭曲的身影不斷蠕動，像是在努力維持形體，又像是在抗拒徹底消散。
+
+  EN:
+    Some say it is the residue left behind when the world first lost
+    its meaning.
+    As it draws near, things do not collapse, but quietly lose their
+    reason to exist, as if they had long been rotten, only now noticed.
+    Those piercing
+    white eyes are not watching you; its warped form writhes endlessly, as if struggling
+    to hold its shape—or resisting total dissolution.
+
+  JA:
+    それは、世界が初めて意味を失った瞬間に残された残滓だと言われている。
+    彼が近づいても、物事は崩れ去ることはない。ただ静かに存在する理由を失っていく――
+    まるでずっと朽ちていたものが、今になって気づかれただけのように。
+    眩い白光を放つその眼は、あなたを見ているわけではない。
+    歪んだその影は絶えず蠢き、形を保とうとしているのか、それとも完全な消滅に抗っているのか、判別はつかない。
+
+  --- Tips ---
+    - [TIPS]_虛無時改用反擊
+    - [TIPS]_虛無封鎖攻擊
+    - [TIPS]_傳奇工程解鎖條件
+    - [TIPS]_傳奇工程種類
+    - [TIPS]_戰術擴張等級
+    - [TIPS]_鞏固防禦質變
+    - [TIPS]_火力不足即恐懼
+    - [TIPS]_虛無時改用反擊
+    - [TIPS]_虛無封鎖攻擊
+    - [TIPS]_反擊亦為連發
+    - [TIPS]_齊射與連發傷害
+
+
+------------------------------------------------------------
+  Stage_2_Scout.asset
+------------------------------------------------------------
+  File: D:\SideProjects\Tenronis\Tenronis\Assets\ScriptableObjects\Theme_2\Stage_2_Scout.asset
+  m_Name: Stage_2_Scout
+  stageIndex: 2
+  isBossStage: 0
+
+  stageName (ZH): 腐獵
+  stageNameEn (EN): Rot-Hunter
+  stageNameJa (JA): 腐獵
+
+  --- Description ---
+  ZH:
+    當他逼近，時間會變得遲鈍，行動卻仍在發生，卻已失去結果的意義。
+    他伸出手並非為了捕捉，而是在確認你是否還殘留著被奪走的價值。
+
+  EN:
+    As it draws near, time grows sluggish—actions still occur,
+    but their outcomes lose all meaning.
+    It extends its hand not to seize, but to
+    determine whether you still possess any value left to be taken.
+
+  JA:
+    彼が近づくと、時間は鈍り、行動は続いているにもかかわらず、その結果は意味を失っていく。
+    伸ばされるその手は捕らえるためではない――
+    奪われ尽くしたはずの価値が、なお残っているかを確かめるためのものだ。
+
+  --- Tips ---
+    - [TIPS]_傳奇工程解鎖條件
+    - [TIPS]_傳奇工程種類
+    - [TIPS]_戰術擴張等級
+    - [TIPS]_鞏固防禦質變
+    - [TIPS]_火力不足即恐懼
+    - [TIPS]_虛無時改用反擊
+    - [TIPS]_虛無封鎖攻擊
+    - [TIPS]_反擊亦為連發
+    - [TIPS]_齊射與連發傷害
+    - [TIPS]_虛無時改用反擊
+    - [TIPS]_虛無封鎖攻擊
+
+
+------------------------------------------------------------
+  Stage_3_Harrier.asset
+------------------------------------------------------------
+  File: D:\SideProjects\Tenronis\Tenronis\Assets\ScriptableObjects\Theme_2\Stage_3_Harrier.asset
+  m_Name: Stage_3_Harrier
+  stageIndex: 3
+  isBossStage: 0
+
+  stageName (ZH): 朽妖
+  stageNameEn (EN): Rotbound Wraith
+  stageNameJa (JA): 朽妖
+
+  --- Description ---
+  ZH:
+    那件破爛的斗篷不是裝飾，是用來固定某種不該存在的意志。
+    當他現身，像是有重量般壓在心口，讓人難以呼吸。
+    那張布滿光齒的笑容並非情緒，而是一種本能的裂縫，黑暗正從其中不斷滲出。
+
+  EN:
+    That tattered cloak is not decoration, but a restraint binding
+    a will that should not exist.
+    
+    When it appears, an oppressive weight presses
+    upon the chest, stealing the breath away.
+    
+    The grin lined with glowing teeth
+    is not an expression, but an instinctive fracture from which darkness endlessly
+    seeps.
+
+  JA:
+    そのぼろ切れの斗篷は装飾ではない。存在してはならない意志を縛り留めるためのものだ。
+    彼が現れると、重みを持ったかのような圧迫感が胸にのしかかり、呼吸さえ困難になる。
+    光る歯が並ぶその笑みは感情ではない――
+    それは本能的に生じた裂け目であり、そこから闇が絶え間なく滲み出している。
+
+  --- Tips ---
+    - [TIPS]_這不是益智遊戲
+    - [TIPS]_反擊帶來混亂
+    - [TIPS]_溢出清場重擊
+    - [TIPS]_等待添加子彈
+
+
+------------------------------------------------------------
+  Stage_4_Striker.asset
+------------------------------------------------------------
+  File: D:\SideProjects\Tenronis\Tenronis\Assets\ScriptableObjects\Theme_2\Stage_4_Striker.asset
+  m_Name: Stage_4_Striker
+  stageIndex: 4
+  isBossStage: 0
+
+  stageName (ZH): 顎獰
+  stageNameEn (EN): Gnawjaw
+  stageNameJa (JA): 顎獰
+
+  --- Description ---
+  ZH:
+    那張過度張裂的嘴是否還屬於臉的一部分?或許只是黑暗找到出口後留下的痕跡。
+    當他現身，所有聲音彷彿都被那排發光的利齒吸走。
+    那對死白的眼睛沒有焦距，卻總能準確鎖定目標，像是在本能地尋找下一次張口的理由。
+
+  EN:
+    Does that torn maw still belong to a face, or is it the scar left
+    when darkness found an exit?
+    
+    When it appears, all sound is swallowed by
+    its glowing fangs.
+    
+    Its death-white eyes lack focus, yet unerringly seek
+    a reason to open its jaws once more.
+
+  JA:
+    過度に裂けたその顎は、果たしてまだ「顔」の一部なのだろうか。それは、闇が出口を見つけた後に残された痕跡にすぎないのかもしれない。
+    彼が現れると、あらゆる音は発光する牙の列に吸い込まれていくかのように消えていく。焦点を持たない死白の双眼は、それでも常に正確に獲物を捉える――
+    まるで次に口を開く理由を、本能的に探しているかのように。
+
+  --- Tips ---
+    - [TIPS]_先觀察再落子
+    - [TIPS]_借敵破虛無
+    - [TIPS]_虛無封鎖攻擊
+    - [TIPS]_溢出清場重擊
+    - [TIPS]_旋轉拖延戰局
+    - [TIPS]_反擊帶來混亂
+    - [TIPS]_溢出清場重擊
+    - [TIPS]_等待添加子彈
+    - [TIPS]_這不是益智遊戲
+
+
+------------------------------------------------------------
+  Stage_5_Rupturer.asset
+------------------------------------------------------------
+  File: D:\SideProjects\Tenronis\Tenronis\Assets\ScriptableObjects\Theme_2\Stage_5_Rupturer.asset
+  m_Name: Stage_5_Rupturer
+  stageIndex: 5
+  isBossStage: 1
+
+  stageName (ZH): 焚影
+  stageNameEn (EN): Cinder Shade
+  stageNameJa (JA): 焚影
+
+  --- Description ---
+  ZH:
+    沒有人知道他是否曾有實體，有人說那只是地獄之火學會模仿笑容的結果。
+    當他出現，空氣會自行燃燒，陰影在火光中扭曲成痛苦的形狀。
+    那對燃燒的雙眼並非用來視物，而是在搜尋尚未被焚毀的恐懼。
+    他不吞噬靈魂——他讓一切在尖叫中化為燃料，只留下焦黑的記憶。
+
+  EN:
+    No one knows if it ever had form—some say it is hellfire that
+    learned to smile.
+    When it appears, the air ignites and shadows writhe in agony.
+    Its
+    burning eyes seek unscorched fear, turning all into fuel and leaving only charred
+    memories.
+
+  JA:
+    それがかつて実体を持っていたのかは分からない。
+    地獄の炎が笑みを学んだ結果だと語られている。
+    彼が現れると、空気は燃え、影は苦痛の形へ歪む。
+    その燃える双眼は、まだ灰になっていない恐怖を探している。
+
+  --- Tips ---
+    - [TIPS]_爆炸方塊城堡風險
+    - [TIPS]_溢出清場重擊
+    - [TIPS]_等待添加子彈
+    - [TIPS]_保留充能待機
+
+
+------------------------------------------------------------
+  Stage_6_Corrupter.asset
+------------------------------------------------------------
+  File: D:\SideProjects\Tenronis\Tenronis\Assets\ScriptableObjects\Theme_2\Stage_6_Corrupter.asset
+  m_Name: Stage_6_Corrupter
+  stageIndex: 6
+  isBossStage: 0
+
+  stageName (ZH): 炎髏
+  stageNameEn (EN): Infernal Skull
+  stageNameJa (JA): 炎髏
+
+  --- Description ---
+  ZH:
+    那具骸骨，是被永恆之火保留下來的懲罰。
+    當他現身，大地會龜裂，熱浪如呼吸般一波一波擴散，連影子都會被燒得退縮。
+    那副燃燒的頭顱露出的不是笑，而是痛苦被拉長到極限後，只剩下的本能表情。
+    他行走之處，死亡不再是終點——而是被反覆點燃的過程。
+
+  EN:
+    That skeleton is a punishment preserved by eternal flame.
+    When
+    it appears, the ground fractures as waves of heat spread like breathing, forcing
+    even shadows to recoil.
+    The burning skull bears not a smile, but the final instinctive
+    expression left after pain has been stretched beyond its limit.
+    Where it walks,
+    death is no longer an end—but a process, ignited again and again.
+
+  JA:
+    その骸骨は、永劫の炎によって残され続ける懲罰だ。
+    彼が現れると大地はひび割れ、熱波が呼吸のように幾重にも広がり、影さえも焼かれて後退する。
+    燃え盛るその頭蓋が浮かべるのは笑みではない――
+    苦痛が極限まで引き延ばされた末に残った、本能だけの表情だ。
+    彼が歩む場所では、死はもはや終わりではない。
+    それは何度も点火される、終わらない過程となる。
+
+  --- Tips ---
+    - [TIPS]_湮滅迴避腐化
+    - [TIPS]_爆炸方塊城堡風險
+    - [TIPS]_溢出清場重擊
+    - [TIPS]_溢出後重整態勢
+    - [TIPS]_保留充能待機
+    - [TIPS]_戰鬥開始回復CP
+    - [TIPS]_主動技能溢出風險
+    - [TIPS]_儲存槽交換操作
+    - [TIPS]_空間擴充儲存鍵
+    - [TIPS]_鞏固防禦質變
+    - [TIPS]_修補是轉捩點
+
+
+------------------------------------------------------------
+  Stage_7_Purgemind.asset
+------------------------------------------------------------
+  File: D:\SideProjects\Tenronis\Tenronis\Assets\ScriptableObjects\Theme_2\Stage_7_Purgemind.asset
+  m_Name: Stage_7_Purgemind
+  stageIndex: 7
+  isBossStage: 0
+
+  stageName (ZH): 獄衛
+  stageNameEn (EN): Infernal Warden
+  stageNameJa (JA): 獄衛
+
+  --- Description ---
+  ZH:
+    當他現身，火焰不再失控，而是如軍列般在他身後排列，等待命令。
+    那對燃燒的雙眼不帶憤怒，也不帶喜悅——只是冷靜地判定，誰有資格踏入下一層深淵。
+    伸出的利爪不是追擊，而是宣告：越界者，必須付出代價。
+
+  EN:
+    When it appears, the flames no longer rage, but fall into formation
+    behind it like disciplined ranks awaiting command.
+    Those burning eyes hold neither
+    anger nor joy—only calm judgment, deciding who is worthy to step into the
+    next abyss.
+    The extended claws are not in pursuit, but a declaration: those
+    who cross the line must pay the price.
+
+  JA:
+    彼が現れると、炎はもはや暴走せず、命令を待つ軍列のように背後へと整列する。
+    燃え盛るその双眼に怒りも歓喜もない――
+    あるのは冷静な裁定だけだ。誰が次なる深淵へ踏み入る資格を持つのかを。
+    差し出された鋭い爪は追撃ではない。
+    それは宣告だ――越境者には、必ず代償が支払われる。
+
+  --- Tips ---
+    - [TIPS]_湮滅迴避腐化
+    - [TIPS]_爆炸方塊城堡風險
+    - [TIPS]_溢出清場重擊
+    - [TIPS]_溢出後重整態勢
+    - [TIPS]_保留充能待機
+    - [TIPS]_戰鬥開始回復CP
+    - [TIPS]_主動技能溢出風險
+    - [TIPS]_儲存槽交換操作
+    - [TIPS]_空間擴充儲存鍵
+    - [TIPS]_鞏固防禦質變
+    - [TIPS]_修補是轉捩點
+
+
+------------------------------------------------------------
+  Stage_8_Blightlord.asset
+------------------------------------------------------------
+  File: D:\SideProjects\Tenronis\Tenronis\Assets\ScriptableObjects\Theme_2\Stage_8_Blightlord.asset
+  m_Name: Stage_8_Blightlord
+  stageIndex: 8
+  isBossStage: 0
+
+  stageName (ZH): 昇影
+  stageNameEn (EN): Ascendant Ember
+  stageNameJa (JA): 昇影
+
+  --- Description ---
+  ZH:
+    他是在誕生? 還是在逃離煉獄。有人說，那並非上升的身影，而是火焰在失去束縛後，第一次學會意志。
+    當他現身，烈焰不再向下吞噬，而是反向翻湧，彷彿整個地獄正在試圖越界。
+    那張被火光撐開的笑容，不是狂喜——而是即將掙脫枷鎖前，最後一次確認世界的表情。
+    凡被他照亮者，恐懼會被灼燒成渴望，甘願隨他一同墜入更深的熾熱之中。
+
+  EN:
+    Is it being born, or escaping the inferno? Some say it is flame
+    itself, learning will after its restraints break.
+    
+    When it appears, fire
+    surges upward, as if hell itself seeks to cross its bounds.
+    
+    The firelit
+    smile is not ecstasy, but a final glance before the shackles fall.
+
+  JA:
+    それは誕生か、煉獄からの逃走か。束縛を失った炎が、初めて意志を得た姿だと語られている。彼が現れると、炎は逆流するように天へ噴き上がり、地獄そのものが境界を越えようとする。
+    火光に裂かれたその笑みは狂喜ではなく、枷が外れる直前に世界を確かめるための最後の表情だ。
+    彼に照らされた者は、恐怖を渇望へと灼かれ、自ら進んでより深い灼熱へ墜ちていく。
+
+  --- Tips ---
+    - [TIPS]_湮滅迴避腐化
+    - [TIPS]_爆炸方塊城堡風險
+    - [TIPS]_溢出清場重擊
+    - [TIPS]_這不是益智遊戲
+    - [TIPS]_溢出後重整態勢
+    - [TIPS]_保留充能待機
+    - [TIPS]_戰鬥開始回復CP
+    - [TIPS]_主動技能溢出風險
+    - [TIPS]_儲存槽交換操作
+    - [TIPS]_空間擴充儲存鍵
+    - [TIPS]_鞏固防禦質變
+    - [TIPS]_修補是轉捩點
+
+
+------------------------------------------------------------
+  Stage_9_Night_Scar.asset
+------------------------------------------------------------
+  File: D:\SideProjects\Tenronis\Tenronis\Assets\ScriptableObjects\Theme_2\Stage_9_Night_Scar.asset
+  m_Name: Stage_9_Night_Scar
+  stageIndex: 9
+  isBossStage: 1
+
+  stageName (ZH): 毀鐮
+  stageNameEn (EN): Annihilation Scythe
+  stageNameJa (JA): 毀鐮
+
+  --- Description ---
+  ZH:
+    當他降臨，火焰不再只是燃燒，而是開始執行——摧毀、清空、歸零。
+    那對展開的火翼不是飛翔的工具，而是宣告範圍的界線；
+    凡被翼影覆蓋之地，存在的意義都會被逐一剝除。
+    他手中的鎖鏈與鐮刃，並非刑具，而是秩序崩解後，唯一剩下的語言。
+
+  EN:
+    When it descends, fire ceases to burn and begins to execute—erasing
+    all things to zero.
+    Its wings of flame declare a boundary, within which existence
+    is stripped of meaning.
+    The chains and scythe are not punishment, but the last
+    language left after order collapses.
+
+  JA:
+    彼が降臨すると、炎はもはや燃え広がるだけのものではなくなる。それは実行を始める――破壊、清算、そしてゼロへの回帰を。広げられた火翼は飛翔のためではない。
+    それは範囲を宣告する境界線だ。
+    翼影に覆われた地では、存在の意味が一つずつ剥ぎ取られていく。手にした鎖と鎌は刑具ではない。
+    秩序が崩壊した後に、なお残された唯一の言語なのだ。
+
+  --- Tips ---
+    - [TIPS]_湮滅迴避腐化
+    - [TIPS]_爆炸方塊城堡風險
+    - [TIPS]_虛無封鎖攻擊
+    - [TIPS]_溢出清場重擊
+    - [TIPS]_這不是益智遊戲
+    - [TIPS]_溢出後重整態勢
+    - [TIPS]_保留充能待機
+    - [TIPS]_戰鬥開始回復CP
+    - [TIPS]_主動技能溢出風險
+    - [TIPS]_儲存槽交換操作
+    - [TIPS]_空間擴充儲存鍵
+    - [TIPS]_鞏固防禦質變
+    - [TIPS]_修補是轉捩點
+
+
+
+################################################################################
+  THEME 3 STAGES
+################################################################################
+
+------------------------------------------------------------
+  Stage_10_Entropy_Core.asset
+------------------------------------------------------------
+  File: D:\SideProjects\Tenronis\Tenronis\Assets\ScriptableObjects\Theme_3\Stage_10_Entropy_Core.asset
+  m_Name: Stage_10_Entropy_Core
+  stageIndex: 10
+  isBossStage: 1
+
+  stageName (ZH): 怨血王
+  stageNameEn (EN): Bloodgrudge King
+  stageNameJa (JA): 怨血王
+
+  --- Description ---
+  ZH:
+    當怨血王降臨，空間會開始滲血。
+    那不是傷口，而是世界本身被迫回憶起曾經流過的所有血。
+    懸浮於他周身的赤色光核，如同尚未冷卻的怨念結晶，脈動時便會誕生新的血口。
+    每一次張合，都是一次集體的尖嘯——
+    不是為了威嚇，而是為了宣泄永遠無法平息的仇恨。
+
+  EN:
+    When the Bloodgrudge King descends, space itself begins to bleed—not
+    as wounds, but as memory.
+    Crimson light-cores pulse around it, birthing bleeding
+    maws with each beat.
+    Every opening is a collective shriek, venting a hatred
+    that can never be silenced.
+
+  JA:
+    怨血王が降臨すると、空間は血を滲ませ始める。
+    それは傷ではなく、世界が流した血の記憶だ。
+    周囲に浮かぶ赤き光核は、冷えきらぬ怨念の結晶であり、
+    脈動のたび血の口を生み、集団の尖叫を放つ。
+    それは威嚇ではない――鎮まらぬ憎悪の発露なのだ。
+
+  --- Tips ---
+    - [TIPS]_這不是益智遊戲
+    - [TIPS]_範圍爆炸組合警戒
+    - [TIPS]_齊射與連發傷害
+    - [TIPS]_溢出清場重擊
+    - [TIPS]_旋轉拖延戰局
+    - [TIPS]_反擊亦為連發
+    - [TIPS]_湮滅迴避腐化
+    - [TIPS]_處決攔截致命攻擊
+    - [TIPS]_鞏固防禦質變
+    - [TIPS]_火力不足即恐懼
+    - [TIPS]_修補是轉捩點
+    - [TIPS]_垃圾行消除規則
+    - [TIPS]_等待添加子彈
+    - [TIPS]_腐化爆炸警告
+    - [TIPS]_借敵破虛無
+    - [TIPS]_戰鬥開始回復CP
+    - [TIPS]_主動技能溢出風險
+    - [TIPS]_儲存槽交換操作
+    - [TIPS]_空間擴充儲存鍵
+    - [TIPS]_保留充能待機
+    - [TIPS]_反擊帶來混亂
+    - [TIPS]_溢出後重整態勢
+    - [TIPS]_範圍彈九宮破壞
+    - [TIPS]_虛無封鎖攻擊
+    - [TIPS]_反擊對抗範圍彈
+
+
+------------------------------------------------------------
+  Stage_1_Flicker.asset
+------------------------------------------------------------
+  File: D:\SideProjects\Tenronis\Tenronis\Assets\ScriptableObjects\Theme_3\Stage_1_Flicker.asset
+  m_Name: Stage_1_Flicker
+  stageIndex: 1
+  isBossStage: 0
+
+  stageName (ZH): 憎夢影
+  stageNameEn (EN): Spitebound Dreamshade
+  stageNameJa (JA): 憎夢影
+
+  --- Description ---
+  ZH:
+    沒有人知道他誕生於哪一場惡夢，有人說，那是怨恨在無法醒來時，學會了微笑。
+    當他出現，夢境會被染成猩紅，記憶反覆播放最痛恨的片段，直到情感被磨成尖刺。
+    他不追逐肉體，只緊貼心智，在你最不想回想的瞬間，低聲提醒你還記得什麼。
+    凡被他纏上的人，將在清醒中持續作夢，而夢裡的每一次憎恨，都是他變得更清晰的養分。
+
+  EN:
+    No one knows which nightmare birthed it—some say it is hatred
+    that learned to smile when it could no longer wake.
+    When it appears, dreams
+    turn crimson and memories sharpen into barbs.
+    It clings to the mind, not the
+    flesh, feeding on hatred as its victims dream while awake.
+
+  JA:
+    それがどの悪夢から生まれたのか、知る者はいない。
+    目覚めることのできない憎しみが、やがて笑みを覚えた姿だと語る者もいる。
+    彼が現れると、夢は深紅に染まり、最も忌まわしい記憶が何度も再生され、感情は棘へと削られていく。
+    彼は肉体を追わない。ただ心に貼りつき、思い出したくない瞬間に、まだ覚えているだろうと低く囁く。
+    彼に絡め取られた者は、目覚めたまま夢を見続け、
+    夢の中で生まれる憎悪の一つ一つが、彼をより鮮明にする糧となる。
+
+  --- Tips ---
+    - [TIPS]_這不是益智遊戲
+    - [TIPS]_齊射與連發傷害
+    - [TIPS]_溢出清場重擊
+    - [TIPS]_旋轉拖延戰局
+    - [TIPS]_反擊亦為連發
+    - [TIPS]_湮滅迴避腐化
+    - [TIPS]_處決攔截致命攻擊
+    - [TIPS]_鞏固防禦質變
+    - [TIPS]_火力不足即恐懼
+    - [TIPS]_修補是轉捩點
+    - [TIPS]_戰鬥開始回復CP
+    - [TIPS]_主動技能溢出風險
+    - [TIPS]_儲存槽交換操作
+    - [TIPS]_空間擴充儲存鍵
+    - [TIPS]_反擊帶來混亂
+
+
+------------------------------------------------------------
+  Stage_2_Scatterling.asset
+------------------------------------------------------------
+  File: D:\SideProjects\Tenronis\Tenronis\Assets\ScriptableObjects\Theme_3\Stage_2_Scatterling.asset
+  m_Name: Stage_2_Scatterling
+  stageIndex: 2
+  isBossStage: 0
+
+  stageName (ZH): 獄影
+  stageNameEn (EN): Infernal Shade
+  stageNameJa (JA): 獄影
+
+  --- Description ---
+  ZH:
+    他是從煉獄中誕生?還是煉獄本身投射到現實的影子?
+    當他現身，空氣會被染成暗紅，熱度不再來自火焰，而是從內心深處被喚醒的恐懼。
+    那張詭異而過於平靜的笑臉，並非喜悅——而是一種確信，確信你終將無法逃離。
+    他伸展的黑影如同獄火的觸手，緩慢卻不可抗拒，將意志一寸寸拖入深淵。
+
+  EN:
+    Was it born from the inferno—or is it the inferno itself cast
+    as a shadow upon reality?
+    When it appears, the air turns dark crimson, and heat
+    no longer comes from flame, but from fear awakened deep within the heart.
+    That
+    eerily calm smile is not joy—it is certainty, the certainty that escape
+    is impossible.
+    The black shadows it unfurls move like infernal tendrils, slow
+    yet irresistible, dragging the will inch by inch into the abyss.
+
+  JA:
+    それは煉獄から生まれたのか、それとも煉獄そのものが現実に落とした影なのか。
+    彼が現れると、空気は暗紅に染まり、熱は炎からではなく、心の奥底で呼び覚まされた恐怖から湧き上がる。
+    異様なほど静かなその笑みは喜びではない――
+    それは、いずれ逃れられないという確信だ。
+    伸び広がる黒影は獄火の触手のように、緩慢でありながら抗えず、
+    意志を一寸ずつ深淵へと引きずり込んでいく。
+
+  --- Tips ---
+    - [TIPS]_範圍彈九宮破壞
+    - [TIPS]_反擊對抗範圍彈
+    - [TIPS]_這不是益智遊戲
+    - [TIPS]_齊射與連發傷害
+    - [TIPS]_溢出清場重擊
+    - [TIPS]_旋轉拖延戰局
+    - [TIPS]_反擊亦為連發
+    - [TIPS]_湮滅迴避腐化
+    - [TIPS]_處決攔截致命攻擊
+    - [TIPS]_鞏固防禦質變
+    - [TIPS]_火力不足即恐懼
+    - [TIPS]_修補是轉捩點
+    - [TIPS]_垃圾行消除規則
+    - [TIPS]_等待添加子彈
+    - [TIPS]_借敵破虛無
+    - [TIPS]_戰鬥開始回復CP
+    - [TIPS]_主動技能溢出風險
+    - [TIPS]_儲存槽交換操作
+    - [TIPS]_空間擴充儲存鍵
+    - [TIPS]_反擊帶來混亂
+    - [TIPS]_溢出後重整態勢
+
+
+------------------------------------------------------------
+  Stage_3_Distorter.asset
+------------------------------------------------------------
+  File: D:\SideProjects\Tenronis\Tenronis\Assets\ScriptableObjects\Theme_3\Stage_3_Distorter.asset
+  m_Name: Stage_3_Distorter
+  stageIndex: 3
+  isBossStage: 1
+
+  stageName (ZH): 怨形
+  stageNameEn (EN): Wraith of Resentment
+  stageNameJa (JA): 怨形
+
+  --- Description ---
+  ZH:
+    那片垂落的黑影之下是否還存在形體?也許，那只是無數怨念糾結後留下的輪廓。
+    當他出現，四周會瀰漫一種沉重的壓迫感，彷彿空氣中混雜著未曾出口的哭喊。
+    那對刺目的光眼不斷滲落光痕，像是凝固的哀號，將所有目光牢牢釘在原地。
+    他不追逐，也不揮擊，只是靜靜逼近，讓怨恨隨著黑影一層層覆上心智。
+
+  EN:
+    Does a true form exist beneath that drooping shadow, or is it only
+    the outline of countless grudges entwined?
+    When it appears, the air grows heavy
+    with unspoken cries.
+    Its piercing eyes leak glowing trails that pin every gaze
+    in place.
+    It does not chase—it advances in silence, letting resentment
+    layer itself over the mind.
+
+  JA:
+    垂れ落ちる黒影の下に、果たして形と呼べるものは残っているのだろうか。
+    それは、無数の怨念が絡み合った末に残された輪郭にすぎないのかもしれない。
+    彼が現れると、周囲には重苦しい圧迫感が満ち、
+    空気には、吐き出されることのなかった哭き声が混じっているかのようだ。
+    刺すように眩いその双眼からは光の痕が滴り落ち、
+    凝固した哀号のように、すべての視線をその場に縫い留める。
+    彼は追わず、振るわない。
+    ただ静かに迫り、黒影とともに怨恨を一層ずつ心智へと覆い重ねていく。
+
+  --- Tips ---
+    - [TIPS]_腐化爆炸警告
+    - [TIPS]_範圍爆炸組合警戒
+    - [TIPS]_這不是益智遊戲
+    - [TIPS]_範圍彈九宮破壞
+    - [TIPS]_齊射與連發傷害
+    - [TIPS]_溢出清場重擊
+    - [TIPS]_旋轉拖延戰局
+    - [TIPS]_反擊亦為連發
+    - [TIPS]_湮滅迴避腐化
+    - [TIPS]_處決攔截致命攻擊
+    - [TIPS]_鞏固防禦質變
+    - [TIPS]_火力不足即恐懼
+    - [TIPS]_修補是轉捩點
+    - [TIPS]_戰鬥開始回復CP
+    - [TIPS]_主動技能溢出風險
+    - [TIPS]_儲存槽交換操作
+    - [TIPS]_空間擴充儲存鍵
+    - [TIPS]_保留充能待機
+    - [TIPS]_反擊帶來混亂
+    - [TIPS]_溢出後重整態勢
+    - [TIPS]_虛無封鎖攻擊
+
+
+------------------------------------------------------------
+  Stage_4_Instable.asset
+------------------------------------------------------------
+  File: D:\SideProjects\Tenronis\Tenronis\Assets\ScriptableObjects\Theme_3\Stage_4_Instable.asset
+  m_Name: Stage_4_Instable
+  stageIndex: 4
+  isBossStage: 0
+
+  stageName (ZH): 獄淵使者
+  stageNameEn (EN): Herald of the Infernal Abyss
+  stageNameJa (JA): 獄淵使者
+
+  --- Description ---
+  ZH:
+    煉獄與深淵之間的通道。當他現身，血紅的空氣會開始翻湧，彷彿整個世界正被拖向更深一層的地獄。
+    那對燃白的雙眼不帶狂怒，只有冷靜的確信——確信你已經站在不可回頭的位置。
+    張裂到不自然的牙口不是咆哮，而是在宣告，使者已至，結局已定。他揮動的利爪如同深淵的印章，每一次逼近，都是對靈魂的正式收割。
+
+  EN:
+    A passage between inferno and abyss.
+    When it appears, blood-red
+    air churns as the world is dragged toward deeper hell.
+    Its burning white eyes
+    hold only certainty—you have crossed the point of no return.
+    The torn maw
+    proclaims the end, each advancing claw sealing the soul’s harvest.
+
+  JA:
+    煉獄と深淵を繋ぐ通路。
+    彼が現れると、血のように赤い空気が渦を巻き、世界そのものが、さらに深い地獄へ引きずり込まれていくかのようだ。
+    燃えるように白い双眼に狂怒はない。
+    あるのはただ、すでに引き返せない場所に立っているという冷静な確信だけだ。
+    不自然なほど裂けた牙の口は咆哮ではない――
+    それは宣告だ。使者は到来し、結末はすでに定まった。
+    振るわれる利爪は深淵の刻印のごとく、
+    その一歩一歩が、魂を正式に収穫していく。
+
+  --- Tips ---
+    - [TIPS]_反擊對抗範圍彈
+    - [TIPS]_齊射與連發傷害
+    - [TIPS]_等待添加子彈
+    - [TIPS]_範圍彈九宮破壞
+    - [TIPS]_溢出清場重擊
+    - [TIPS]_旋轉拖延戰局
+    - [TIPS]_反擊亦為連發
+    - [TIPS]_處決攔截致命攻擊
+    - [TIPS]_鞏固防禦質變
+    - [TIPS]_火力不足即恐懼
+    - [TIPS]_這不是益智遊戲
+    - [TIPS]_修補是轉捩點
+    - [TIPS]_借敵破虛無
+    - [TIPS]_戰鬥開始回復CP
+    - [TIPS]_主動技能溢出風險
+    - [TIPS]_儲存槽交換操作
+    - [TIPS]_空間擴充儲存鍵
+    - [TIPS]_保留充能待機
+    - [TIPS]_反擊帶來混亂
+    - [TIPS]_溢出後重整態勢
+
+
+------------------------------------------------------------
+  Stage_5_Fractal_Maw.asset
+------------------------------------------------------------
+  File: D:\SideProjects\Tenronis\Tenronis\Assets\ScriptableObjects\Theme_3\Stage_5_Fractal_Maw.asset
+  m_Name: Stage_5_Fractal_Maw
+  stageIndex: 5
+  isBossStage: 1
+
+  stageName (ZH): 獄嚎
+  stageNameEn (EN): Infernal Howl
+  stageNameJa (JA): 獄嚎
+
+  --- Description ---
+  ZH:
+    當他發出嚎叫，聲音並不只是震動空氣，而是直接撕扯意識，讓記憶與理智一同崩散。
+    那對燃白的雙眼不斷滲落光痕，像是被強行擠出的痛苦，沿著黑影滴落不止。
+    翻湧的長影在他周圍狂亂舞動，彷彿每一道都是被嚎聲喚醒、再也無法安息的殘魂。
+
+  EN:
+    When it howls, the sound tears at consciousness, shattering memory
+    and reason.
+    
+    Its burning white eyes bleed light like forced pain, dripping
+    along its shadow.
+    
+    The writhing shadows around it are awakened remnants,
+    never allowed to rest again.
+
+  JA:
+    彼が咆哮すると、その音は空気を震わせるだけではない。
+    意識そのものを引き裂き、記憶と理性を同時に崩壊させる。
+    燃えるように白いその双眼からは光の痕が溢れ落ち、
+    無理やり絞り出された痛苦のように、黒影を伝って止まることなく滴り続ける。
+    周囲で翻り狂う長い影は、嚎声によって呼び覚まされ、
+    二度と安息を許されぬ残魂であるかのようだ。
+
+  --- Tips ---
+    - [TIPS]_齊射與連發傷害
+    - [TIPS]_溢出清場重擊
+    - [TIPS]_等待添加子彈
+    - [TIPS]_範圍彈九宮破壞
+    - [TIPS]_反擊對抗範圍彈
+    - [TIPS]_旋轉拖延戰局
+    - [TIPS]_反擊亦為連發
+    - [TIPS]_處決攔截致命攻擊
+    - [TIPS]_鞏固防禦質變
+    - [TIPS]_火力不足即恐懼
+    - [TIPS]_這不是益智遊戲
+    - [TIPS]_修補是轉捩點
+    - [TIPS]_借敵破虛無
+    - [TIPS]_戰鬥開始回復CP
+    - [TIPS]_主動技能溢出風險
+    - [TIPS]_儲存槽交換操作
+    - [TIPS]_空間擴充儲存鍵
+    - [TIPS]_保留充能待機
+    - [TIPS]_反擊帶來混亂
+    - [TIPS]_溢出後重整態勢
+
+
+------------------------------------------------------------
+  Stage_6_Breakphase.asset
+------------------------------------------------------------
+  File: D:\SideProjects\Tenronis\Tenronis\Assets\ScriptableObjects\Theme_3\Stage_6_Breakphase.asset
+  m_Name: Stage_6_Breakphase
+  stageIndex: 6
+  isBossStage: 1
+
+  stageName (ZH): 恨鬼
+  stageNameEn (EN): Hatebound Wraith
+  stageNameJa (JA): 恨鬼
+
+  --- Description ---
+  ZH:
+    它曾是人。現在只剩下張開的嘴與不會熄滅的怒意。
+    雙眼燃燒，卻沒有視線...它不是在看你，而是在回想。
+    恨鬼不需要理由行動——
+    恨，本身就是它存在的形態。
+
+  EN:
+    It was once human. Now, only a gaping mouth and unextinguished
+    rage remain.
+    Its eyes burn, yet hold no gaze—it is not looking at you,
+    but remembering.
+    The Hatebound Wraith needs no reason to act—hatred itself
+    is the form of its existence.
+
+  JA:
+    それは、かつて人だった。
+    今残っているのは、開ききった口と、決して消えない怒りだけだ。
+    燃え盛る双眼に視線はない。
+    それはあなたを見ているのではなく、思い出しているのだ。
+    恨鬼に理由は要らない――
+    憎しみそのものが、彼の存在の形なのだから。
+
+  --- Tips ---
+    - [TIPS]_湮滅迴避腐化
+    - [TIPS]_這不是益智遊戲
+    - [TIPS]_齊射與連發傷害
+    - [TIPS]_溢出清場重擊
+    - [TIPS]_旋轉拖延戰局
+    - [TIPS]_反擊亦為連發
+    - [TIPS]_處決攔截致命攻擊
+    - [TIPS]_鞏固防禦質變
+    - [TIPS]_火力不足即恐懼
+    - [TIPS]_修補是轉捩點
+    - [TIPS]_等待添加子彈
+    - [TIPS]_借敵破虛無
+    - [TIPS]_戰鬥開始回復CP
+    - [TIPS]_主動技能溢出風險
+    - [TIPS]_儲存槽交換操作
+    - [TIPS]_空間擴充儲存鍵
+    - [TIPS]_保留充能待機
+    - [TIPS]_反擊帶來混亂
+    - [TIPS]_溢出後重整態勢
+
+
+------------------------------------------------------------
+  Stage_7_Multiplier.asset
+------------------------------------------------------------
+  File: D:\SideProjects\Tenronis\Tenronis\Assets\ScriptableObjects\Theme_3\Stage_7_Multiplier.asset
+  m_Name: Stage_7_Multiplier
+  stageIndex: 7
+  isBossStage: 0
+
+  stageName (ZH): 食鬼蟲
+  stageNameEn (EN): Grudge-Eater Larva
+  stageNameJa (JA): 食鬼蟲
+
+  --- Description ---
+  ZH:
+    它以尖叫般張開的口存在，細長的齒向內彎曲，只為防止獵物逃離。
+    頭部周圍懸浮著數顆發光的眼囊，像誘餌，又像監視器，滴落黏稠光液。
+    它們並非感知世界，而是標記獵物的位置。
+    食鬼蟲不吞噬肉體，它啃食的是殘留的怨、恨與恐懼。
+    被它盯上的存在，會先被吃空，再被留下。
+
+  EN:
+    It exists as a screaming maw, its inward-curving teeth trapping
+    prey.
+    Glowing eye-sacs drift around it, not to see, but to mark.
+    The Grudge-Eater
+    feeds on resentment, hatred, and fear—
+    hollowing its targets from within,
+    then leaving them behind.
+
+  JA:
+    それは、悲鳴のように開いた口として存在する。
+    内側に湾曲した牙は、獲物を逃がさぬためのものだ。
+    周囲に浮かぶ発光する眼嚢は視るのではなく、獲物を「標記」する。
+    食鬼蟲は肉体ではなく、怨と憎しみ、恐怖を啃み取る。
+    狙われた者は内側から空にされ、生かされたまま残される。
+
+  --- Tips ---
+    - [TIPS]_等待添加子彈
+    - [TIPS]_湮滅迴避腐化
+    - [TIPS]_齊射與連發傷害
+    - [TIPS]_溢出清場重擊
+    - [TIPS]_旋轉拖延戰局
+    - [TIPS]_反擊亦為連發
+    - [TIPS]_處決攔截致命攻擊
+    - [TIPS]_鞏固防禦質變
+    - [TIPS]_火力不足即恐懼
+    - [TIPS]_這不是益智遊戲
+    - [TIPS]_修補是轉捩點
+    - [TIPS]_垃圾行消除規則
+    - [TIPS]_借敵破虛無
+    - [TIPS]_戰鬥開始回復CP
+    - [TIPS]_主動技能溢出風險
+    - [TIPS]_儲存槽交換操作
+    - [TIPS]_空間擴充儲存鍵
+    - [TIPS]_保留充能待機
+    - [TIPS]_反擊帶來混亂
+    - [TIPS]_溢出後重整態勢
+    - [TIPS]_反擊對抗範圍彈
+
+
+------------------------------------------------------------
+  Stage_8_Cascade_Rift.asset
+------------------------------------------------------------
+  File: D:\SideProjects\Tenronis\Tenronis\Assets\ScriptableObjects\Theme_3\Stage_8_Cascade_Rift.asset
+  m_Name: Stage_8_Cascade_Rift
+  stageIndex: 8
+  isBossStage: 0
+
+  stageName (ZH): 血巫
+  stageNameEn (EN): Blood Hexer
+  stageNameJa (JA): 血巫
+
+  --- Description ---
+  ZH:
+    有人說，那是血液在獲得意志後，替自己取的名字。
+    當他現身，空氣會變得黏稠，傷口無需觸碰便自行裂開，血液像被召喚般流向他的方向。
+    那對猩紅的雙眼並不注視肉體，而是在計算——恐懼、痛楚與犧牲，哪一種更值得收割。
+    從他身上滴落的不是鮮血，而是被奪走的記憶與誓言，在地面上慢慢蒸發成詛咒。
+
+  EN:
+    Some say it is the name blood gave itself after gaining will.
+    
+    When
+    it appears, blood answers its call, wounds opening without touch.
+    
+    Its crimson
+    eyes calculate fear, pain, and sacrifice.
+    
+    What drips from it is not blood,
+    but stolen memories, fading into curses.
+
+  JA: それは、意志を得た血が自らに与えた名だと語られている。彼が現れると、空気は粘つき、触れられずとも傷は裂け、血は呼び寄せられるように彼のもとへ流れていく。猩紅の双眼が見つめるのは肉体ではない。恐怖、痛み、犠牲――どれがより収穫に値するかを計算しているのだ。彼から滴り落ちるのは血ではない。奪われた記憶と誓いが、地に落ちてゆっくりと蒸発し、呪いへと変わっていく。
+
+  --- Tips ---
+    - [TIPS]_範圍爆炸組合警戒
+    - [TIPS]_這不是益智遊戲
+    - [TIPS]_腐化爆炸警告
+    - [TIPS]_齊射與連發傷害
+    - [TIPS]_溢出清場重擊
+    - [TIPS]_旋轉拖延戰局
+    - [TIPS]_反擊亦為連發
+    - [TIPS]_湮滅迴避腐化
+    - [TIPS]_處決攔截致命攻擊
+    - [TIPS]_鞏固防禦質變
+    - [TIPS]_火力不足即恐懼
+    - [TIPS]_修補是轉捩點
+    - [TIPS]_垃圾行消除規則
+    - [TIPS]_等待添加子彈
+    - [TIPS]_借敵破虛無
+    - [TIPS]_戰鬥開始回復CP
+    - [TIPS]_主動技能溢出風險
+    - [TIPS]_儲存槽交換操作
+    - [TIPS]_空間擴充儲存鍵
+    - [TIPS]_保留充能待機
+    - [TIPS]_反擊帶來混亂
+    - [TIPS]_溢出後重整態勢
+    - [TIPS]_範圍彈九宮破壞
+    - [TIPS]_虛無封鎖攻擊
+    - [TIPS]_反擊對抗範圍彈
+
+
+------------------------------------------------------------
+  Stage_9_Spiral_Collapse.asset
+------------------------------------------------------------
+  File: D:\SideProjects\Tenronis\Tenronis\Assets\ScriptableObjects\Theme_3\Stage_9_Spiral_Collapse.asset
+  m_Name: Stage_9_Spiral_Collapse
+  stageIndex: 9
+  isBossStage: 1
+
+  stageName (ZH): 蝕纏獸
+  stageNameEn (EN): Erosion Coil Beast
+  stageNameJa (JA): 蝕纏獸
+
+  --- Description ---
+  ZH:
+    它們不看外界，只凝視自身深處的裂口。
+    齒間不斷滴落液體，無聲、卻留下痕跡。蝕纏獸不追逐，也不咆哮——
+    一旦靠近，便開始纏繞。不是吞噬，而是把目標拖進它永遠未完成的進食之中。
+
+  EN:
+    They do not watch the outside world, only the fissures within themselves.
+    Liquid
+    drips endlessly from between their teeth—silent, yet leaving unmistakable
+    traces.
+    Erosion Coil Beasts neither pursue nor roar.
+    Once they draw near, they
+    begin to coil—not to devour, but to drag their target into an act of feeding
+    that is never completed.
+
+  JA:
+    それらは外界を見ない。
+    凝視しているのは、自身の内側に走る裂け目だけだ。
+    歯の隙間からは液体が絶えず滴り落ち、音もなく、しかし確かな痕跡を残していく。
+    蝕纏獣は追わず、咆哮もしない。
+    ひとたび近づけば、ただ絡みつくだけだ。
+    それは捕食ではない――
+    決して終わることのない「摂食」の中へ、標的を引きずり込む行為なのだ。
+
+  --- Tips ---
+    - [TIPS]_垃圾行消除規則
+    - [TIPS]_範圍傷害垃圾懲罰
+    - [TIPS]_齊射與連發傷害
+    - [TIPS]_溢出清場重擊
+    - [TIPS]_旋轉拖延戰局
+    - [TIPS]_反擊亦為連發
+    - [TIPS]_湮滅迴避腐化
+    - [TIPS]_處決攔截致命攻擊
+    - [TIPS]_鞏固防禦質變
+    - [TIPS]_火力不足即恐懼
+    - [TIPS]_修補是轉捩點
+    - [TIPS]_等待添加子彈
+    - [TIPS]_這不是益智遊戲
+    - [TIPS]_借敵破虛無
+    - [TIPS]_戰鬥開始回復CP
+    - [TIPS]_主動技能溢出風險
+    - [TIPS]_儲存槽交換操作
+    - [TIPS]_空間擴充儲存鍵
+    - [TIPS]_範圍爆炸組合警戒
+    - [TIPS]_保留充能待機
+    - [TIPS]_反擊帶來混亂
+    - [TIPS]_溢出後重整態勢
+    - [TIPS]_範圍彈九宮破壞
+    - [TIPS]_虛無封鎖攻擊
+    - [TIPS]_反擊對抗範圍彈
+
+
+
+################################################################################
+  THEME 4 STAGES
+################################################################################
+
+------------------------------------------------------------
+  Stage_10_Gravity_Overlord.asset
+------------------------------------------------------------
+  File: D:\SideProjects\Tenronis\Tenronis\Assets\ScriptableObjects\Theme_4\Stage_10_Gravity_Overlord.asset
+  m_Name: Stage_10_Gravity_Overlord
+  stageIndex: 10
+  isBossStage: 1
+
+  stageName (ZH): Gravity Overlord
+  stageNameEn (EN): Unnamed Threat
+  stageNameJa (JA): 無名の脅威
+
+  --- Tips ---
+    - [TIPS]_齊射與連發傷害
+    - [TIPS]_溢出清場重擊
+    - [TIPS]_旋轉拖延戰局
+    - [TIPS]_反擊亦為連發
+    - [TIPS]_湮滅閃避腐化
+    - [TIPS]_處決攔截致命攻擊
+    - [TIPS]_腐化爆炸警告
+    - [TIPS]_鞏固防禦質變
+    - [TIPS]_火力不足即恐懼
+    - [TIPS]_修補是轉捩點
+    - [TIPS]_垃圾行消除規則
+    - [TIPS]_等待添加子彈
+    - [TIPS]_借敵破虛無
+    - [TIPS]_戰鬥開始回復CP
+    - 湮滅、處決、修補可能讓你無法償還方塊溢出的代價，這時就會變得不堵一擊
+    - [TIPS]_儲存槽交換操作
+    - [TIPS]_空間擴充儲存鍵
+    - 撑著吧，也許現在的充能之後才會用到
+    - [TIPS]_反擊帶來混亂
+    - [TIPS]_溢出後重整態勢
+    - [TIPS]_範圍彈九宮破壞
+    - [TIPS]_虛無封鎖攻擊
+    - [TIPS]_反擊對抗範圍彈
+
+
+------------------------------------------------------------
+  Stage_1_Downforce.asset
+------------------------------------------------------------
+  File: D:\SideProjects\Tenronis\Tenronis\Assets\ScriptableObjects\Theme_4\Stage_1_Downforce.asset
+  m_Name: Stage_1_Downforce
+  stageIndex: 1
+  isBossStage: 0
+
+  stageName (ZH): Downforce
+
+
+------------------------------------------------------------
+  Stage_2_Pressureline.asset
+------------------------------------------------------------
+  File: D:\SideProjects\Tenronis\Tenronis\Assets\ScriptableObjects\Theme_4\Stage_2_Pressureline.asset
+  m_Name: Stage_2_Pressureline
+  stageIndex: 2
+  isBossStage: 0
+
+  stageName (ZH): Pressureline
+
+
+------------------------------------------------------------
+  Stage_3_Weighshift.asset
+------------------------------------------------------------
+  File: D:\SideProjects\Tenronis\Tenronis\Assets\ScriptableObjects\Theme_4\Stage_3_Weighshift.asset
+  m_Name: Stage_3_Weighshift
+  stageIndex: 3
+  isBossStage: 0
+
+  stageName (ZH): Weighshift
+
+
+------------------------------------------------------------
+  Stage_4_Collapse_Edge.asset
+------------------------------------------------------------
+  File: D:\SideProjects\Tenronis\Tenronis\Assets\ScriptableObjects\Theme_4\Stage_4_Collapse_Edge.asset
+  m_Name: Stage_4_Collapse_Edge
+  stageIndex: 4
+  isBossStage: 0
+
+  stageName (ZH): Collapse Edge
+
+
+------------------------------------------------------------
+  Stage_5_Singularity_Maw.asset
+------------------------------------------------------------
+  File: D:\SideProjects\Tenronis\Tenronis\Assets\ScriptableObjects\Theme_4\Stage_5_Singularity_Maw.asset
+  m_Name: Stage_5_Singularity_Maw
+  stageIndex: 5
+  isBossStage: 1
+
+  stageName (ZH): Singularity Maw
+
+
+------------------------------------------------------------
+  Stage_6_Graviton.asset
+------------------------------------------------------------
+  File: D:\SideProjects\Tenronis\Tenronis\Assets\ScriptableObjects\Theme_4\Stage_6_Graviton.asset
+  m_Name: Stage_6_Graviton
+  stageIndex: 6
+  isBossStage: 0
+
+  stageName (ZH): Graviton
+
+
+------------------------------------------------------------
+  Stage_7_Horizon_Tilt.asset
+------------------------------------------------------------
+  File: D:\SideProjects\Tenronis\Tenronis\Assets\ScriptableObjects\Theme_4\Stage_7_Horizon_Tilt.asset
+  m_Name: Stage_7_Horizon_Tilt
+  stageIndex: 7
+  isBossStage: 0
+
+  stageName (ZH): Horizon Tilt
+
+
+------------------------------------------------------------
+  Stage_8_Event_Turbine.asset
+------------------------------------------------------------
+  File: D:\SideProjects\Tenronis\Tenronis\Assets\ScriptableObjects\Theme_4\Stage_8_Event_Turbine.asset
+  m_Name: Stage_8_Event_Turbine
+  stageIndex: 8
+  isBossStage: 1
+
+  stageName (ZH): Event Turbine
+
+
+------------------------------------------------------------
+  Stage_9_Orbitfall.asset
+------------------------------------------------------------
+  File: D:\SideProjects\Tenronis\Tenronis\Assets\ScriptableObjects\Theme_4\Stage_9_Orbitfall.asset
+  m_Name: Stage_9_Orbitfall
+  stageIndex: 9
+  isBossStage: 0
+
+  stageName (ZH): Orbitfall
+
+
+================================================================================
+  SECTION 3: BUFF DATA FILES
+================================================================================
+
+------------------------------------------------------------
+  Buff_Burst.asset
+------------------------------------------------------------
+  File: D:\SideProjects\Tenronis\Tenronis\Assets\ScriptableObjects\Buffs\Buff_Burst.asset
+  m_Name: Buff_Burst
+  buffType: 5
+
+  buffName (ZH): 連發強化
+  buffNameEn (EN): Burst Enhancement
+  buffNameJa (JA): 連射強化
+
+  description (ZH): 提升連發傷害加成
+  descriptionEn (EN): Increase burst damage bonus
+  descriptionJa (JA): 連射ダメージ補正を上昇させる
+
+------------------------------------------------------------
+  Buff_Counter.asset
+------------------------------------------------------------
+  File: D:\SideProjects\Tenronis\Tenronis\Assets\ScriptableObjects\Buffs\Buff_Counter.asset
+  m_Name: Buff_Counter
+  buffType: 6
+
+  buffName (ZH): 反擊強化
+  buffNameEn (EN): Counter Enhancement
+  buffNameJa (JA): 反撃強化
+
+  description (ZH): 反擊時產生的導彈額外追加一發
+  descriptionEn (EN): Counterattacks generate one additional missile
+  descriptionJa (JA): 反撃時に生成されるミサイルが1発追加される
+
+------------------------------------------------------------
+  Buff_Defense.asset
+------------------------------------------------------------
+  File: D:\SideProjects\Tenronis\Tenronis\Assets\ScriptableObjects\Buffs\Buff_Defense.asset
+  m_Name: Buff_Defense
+  buffType: 0
+
+  buffName (ZH): 鞏固防禦
+  buffNameEn (EN): Fortify Defense
+  buffNameJa (JA): 防御強化
+
+  description (ZH): 接下來的方塊額外能多承受一發子彈
+  descriptionEn (EN): Subsequent blocks can withstand one additional bullet
+  descriptionJa (JA): 以降に生成されるブロックが、追加で1発の弾に耐えられる
+
+------------------------------------------------------------
+  Buff_Expansion.asset
+------------------------------------------------------------
+  File: D:\SideProjects\Tenronis\Tenronis\Assets\ScriptableObjects\Buffs\Buff_Expansion.asset
+  m_Name: Buff_Expansion
+  buffType: 9
+
+  buffName (ZH): 空間擴充
+  buffNameEn (EN): Space Expansion
+  buffNameJa (JA): 空間拡張
+
+  description (ZH): 追加一個方塊儲存槽位
+  descriptionEn (EN): Add one additional block storage slot
+  descriptionJa (JA): ブロックの保存スロットを1つ追加する
+
+------------------------------------------------------------
+  Buff_Explosion.asset
+------------------------------------------------------------
+  File: D:\SideProjects\Tenronis\Tenronis\Assets\ScriptableObjects\Buffs\Buff_Explosion.asset
+  m_Name: Buff_Explosion
+  buffType: 3
+
+  buffName (ZH): 衝擊擴充
+  buffNameEn (EN): Impact Expansion
+  buffNameJa (JA): 衝撃拡張
+
+  description (ZH): 增加衝擊充能上限
+  descriptionEn (EN): Increase Impact Cannon charge capacity
+  descriptionJa (JA): 衝撃砲のチャージ上限を増加させる
+
+------------------------------------------------------------
+  Buff_Heal.asset
+------------------------------------------------------------
+  File: D:\SideProjects\Tenronis\Tenronis\Assets\ScriptableObjects\Buffs\Buff_Heal.asset
+  m_Name: Buff_Heal
+  buffType: 2
+
+  buffName (ZH): 緊急修復
+  buffNameEn (EN): Emergency Repair
+  buffNameJa (JA): 緊急修復
+
+  description (ZH): 立即回復 50% 最大血量
+  descriptionEn (EN): Instantly restore 50% of maximum HP
+  descriptionJa (JA): 最大HPの50%を即座に回復する
+
+------------------------------------------------------------
+  Buff_ResourceExpansion.asset
+------------------------------------------------------------
+  File: D:\SideProjects\Tenronis\Tenronis\Assets\ScriptableObjects\Buffs\Buff_ResourceExpansion.asset
+  m_Name: Buff_ResourceExpansion
+  buffType: 10
+
+  buffName (ZH): 資源擴充
+  buffNameEn (EN): Resource Expansion
+  buffNameJa (JA): 資源拡張
+
+  description (ZH): 增加CP上限
+  descriptionEn (EN): Increase CP capacity
+  descriptionJa (JA): CPの上限を増加させる
+
+------------------------------------------------------------
+  Buff_Salvo.asset
+------------------------------------------------------------
+  File: D:\SideProjects\Tenronis\Tenronis\Assets\ScriptableObjects\Buffs\Buff_Salvo.asset
+  m_Name: Buff_Salvo
+  buffType: 4
+
+  buffName (ZH): 齊射強化
+  buffNameEn (EN): Salvo Enhancement
+  buffNameJa (JA): 斉射強化
+
+  description (ZH): 額外增加多排消除時的導彈傷害
+  descriptionEn (EN): Increase missile damage when clearing multiple rows
+  descriptionJa (JA): 複数列消去時のミサイルダメージが増加する
+
+------------------------------------------------------------
+  Buff_TacticalExpansion.asset
+------------------------------------------------------------
+  File: D:\SideProjects\Tenronis\Tenronis\Assets\ScriptableObjects\Buffs\Buff_TacticalExpansion.asset
+  m_Name: Buff_TacticalExpansion
+  buffType: 11
+
+  buffName (ZH): 戰術擴展
+
+  description (ZH):
+    每次選擇解鎖主動技能
+    Lv1
+    解鎖湮滅 
+    Lv2 解鎖處決
+    Lv3 解鎖修補
+
+------------------------------------------------------------
+  Buff_Volley.asset
+------------------------------------------------------------
+  File: D:\SideProjects\Tenronis\Tenronis\Assets\ScriptableObjects\Buffs\Buff_Volley.asset
+  m_Name: Buff_Volley
+  buffType: 1
+
+  buffName (ZH): 加倍火力
+
+  description (ZH): 反擊以外的導彈生成額外追加一發
+
+================================================================================
+  SECTION 4: UI_TEXT.CSV LOCALIZATION
+================================================================================
+
+  File: D:\SideProjects\Tenronis\Tenronis\Assets\Localization\UI_Text.csv
+
+  Columns: Key, Id, Chinese (Traditional)(zh-TW), English(en), Japanese(ja)
+
+  Key: 確認
+  ID: 3623289126912
+    ZH: 確認
+    EN: Confirm
+    JA: 決定
+
+  Key: 工程建設
+  ID: 4794401718272
+    ZH: 工程建設
+    EN: Building
+    JA: 工事建設
+
+  Key: 傳奇工程
+  ID: 4884457619456
+    ZH: 傳奇工程
+    EN: Legendary
+    JA: 伝説建設
+
+  Key: 遭遇強敵!!!
+  ID: 4899867492352
+    ZH: 遭遇強敵!!!
+    EN: Dangerous!!!
+    JA: 強敵出現!!!
+
+  Key: 連發
+  ID: 5035309957120
+    ZH: 連發
+    EN: Combo
+    JA: 連射
+
+  Key: 衝擊炮充能
+  ID: 5149332111360
+    ZH: 衝擊炮充能
+    EN: Charging
+    JA: チャージ
+
+  Key: 衝擊爆破!
+  ID: 5172593721344
+    ZH: 衝擊爆破!
+    EN: Impact Blast!
+    JA: 衝撃爆破！
+
+  Key: 顯示詳細資訊
+  ID: 5241124454400
+    ZH: 顯示詳細資訊
+    EN: Show Details
+    JA: 詳細情報を表示
+
+  Key: 湮滅
+  ID: 5294949957632
+    ZH: 湮滅
+    EN: Erase
+    JA: 抹消
+
+  Key: 處決
+  ID: 5308002631680
+    ZH: 處決
+    EN: Execute
+    JA: 処刑
+
+  Key: 修補
+  ID: 5319981563904
+    ZH: 修補
+    EN: Repair
+    JA: 修復
+
+  Key: 溢出代價
+  ID: 5370501955584
+    ZH: 溢出代價
+    EN: Overflow Cost
+    JA: オーバーフローコスト
+
+  Key: 衝擊爆破
+  ID: 5408963723264
+    ZH: 衝擊爆破
+    EN: Impact Blast
+    JA: 衝撃爆破
+
+  Key: 重玩
+  ID: 5597216669696
+    ZH: 重玩
+    EN: Retry
+    JA: リトライ
+
+  Key: 離開
+  ID: 5611611521024
+    ZH: 離開
+    EN: Exit
+    JA: 終了
+
+  Key: 取消
+  ID: 5624110546944
+    ZH: 取消
+    EN: Cancel
+    JA: キャンセル
+
+  Key: 查看建設狀態
+  ID: 5708357337088
+    ZH: 查看建設狀態
+    EN: View Status
+    JA: 建設状況を確認
+
+  Key: 返回
+  ID: 5785188597760
+    ZH: 返回
+    EN: Back
+    JA: 戻る
+
+  Key: 放棄
+  ID: 5810538971136
+    ZH: 放棄
+    EN: Quit
+    JA: 放棄
+
+  Key: 防守成功!
+  ID: 6562351185920
+    ZH: 防守成功!
+    EN: Defense Successful!
+    JA: 防衛成功！
+
+  Key: 中斷遊戲並返回標題?
+  ID: 6579061293056
+    ZH: 中斷遊戲並返回標題?
+    EN: Quit game and return to title?
+    JA: ゲームを中断してタイトルに戻りますか？
+
+  Key: 城堡失守
+  ID: 6599143620608
+    ZH: 城堡失守
+    EN: Castle Fallen
+    JA: 城が陥落した
+
+  Key: 連發!
+  ID: 6700000000001
+    ZH: 連發!
+    EN: Combo!
+    JA: 連射！
+
+  Key: 全彈齊射!
+  ID: 6700000000002
+    ZH: 全彈齊射!
+    EN: Full Salvo!
+    JA: 全弾斉射！
+
+  Key: 三連齊射!
+  ID: 6700000000003
+    ZH: 三連齊射!
+    EN: Triple Salvo!
+    JA: 三連斉射！
+
+  Key: 雙管齊射!
+  ID: 6700000000004
+    ZH: 雙管齊射!
+    EN: Double Salvo!
+    JA: 二連斉射！
+
+  Key: 最終分數:
+  ID: 6700000000005
+    ZH: 最終分數:
+    EN: Final Score:
+    JA: 最終スコア：
+
+  Key: HP:
+  ID: 6700000000006
+    ZH: HP:
+    EN: HP:
+    JA: HP：
+
+  Key: CP:
+  ID: 6700000000007
+    ZH: CP:
+    EN: CP:
+    JA: CP：
+
+  Key: 衝擊炮充能 :
+  ID: 6700000000008
+    ZH: 衝擊炮充能 :
+    EN: Cannon Charge :
+    JA: 衝撃砲チャージ：
+
+  Key: 溢出代價 : CP -
+  ID: 6700000000009
+    ZH: 溢出代價 : CP -
+    EN: Overflow Cost : CP -
+    JA: オーバーコスト：CP -
+
+  Key: 溢出代價 : HP ⇒ 1
+  ID: 6700000000010
+    ZH: 溢出代價 : HP ⇒ 1
+    EN: Overflow Cost : HP ⇒ 1
+    JA: オーバーフローコスト：HP ⇒ 1
+
+  Key: STAGE
+  ID: 6700000000011
+    ZH: STAGE
+    EN: STAGE
+    JA: ステージ
+
+  Key: 反擊!
+  ID: 6700000000012
+    ZH: 反擊!
+    EN: Counter!
+    JA: 反撃！
+
+  Key: 普通增益強化項目
+  ID: 6700000000013
+    ZH: 普通增益強化項目
+    EN: Normal Buff Items
+    JA: 通常強化項目
+
+  Key: 傳奇增益強化項目
+  ID: 6700000000014
+    ZH: 傳奇增益強化項目
+    EN: Legendary Buff Items
+    JA: 伝説強化項目
+
+  Key: 齊射強化
+  ID: 6700000000015
+    ZH: 齊射強化
+    EN: Salvo Enhancement
+    JA: 斉射強化
+
+  Key: 連發強化
+  ID: 6700000000016
+    ZH: 連發強化
+    EN: Burst Enhancement
+    JA: 連射強化
+
+  Key: 反擊強化
+  ID: 6700000000017
+    ZH: 反擊強化
+    EN: Counter Enhancement
+    JA: 反撃強化
+
+  Key: 衝擊擴充
+  ID: 6700000000018
+    ZH: 衝擊擴充
+    EN: Impact Expansion
+    JA: 衝撃拡張
+
+  Key: 資源擴充
+  ID: 6700000000019
+    ZH: 資源擴充
+    EN: Resource Expansion
+    JA: 資源拡張
+
+  Key: 空間擴充
+  ID: 6700000000020
+    ZH: 空間擴充
+    EN: Space Expansion
+    JA: 空間拡張
+
+  Key: 方塊可承受子彈次數 :
+  ID: 6700000000021
+    ZH: 方塊可承受子彈次數 :
+    EN: Block Defense :
+    JA: ブロック防御回数：
+
+  Key: 導彈傷害倍率 :
+  ID: 6700000000022
+    ZH: 導彈傷害倍率 :
+    EN: Missile Damage Multiplier :
+    JA: ミサイルダメージ倍率：
+
+  Key: 湮滅 (按鍵1) - 消耗
+  ID: 6700000000023
+    ZH: 湮滅 (按鍵1) - 消耗
+    EN: Erase (Key 1) - Cost
+    JA: 抹消（キー1）- 消費
+
+  Key: 處決 (按鍵2) - 消耗
+  ID: 6700000000024
+    ZH: 處決 (按鍵2) - 消耗
+    EN: Execution (Key 2) - Cost
+    JA: 処刑（キー2）- 消費
+
+  Key: 修補 (按鍵3) - 消耗
+  ID: 6700000000025
+    ZH: 修補 (按鍵3) - 消耗
+    EN: Repair (Key 3) - Cost
+    JA: 修復（キー3）- 消費
+
+  Key: 進入幽靈穿透狀態，硬降時破壞重疊方塊並發射導彈
+  ID: 6700000000026
+    ZH: 進入幽靈穿透狀態，硬降時破壞重疊方塊並發射導彈
+    EN: Enter ghost penetration state, destroy overlapping blocks on hard drop and fire missiles
+    JA: 幽霊貫通状態に入り、ハードドロップ時に重複ブロックを破壊してミサイルを発射
+
+  Key: 清除每列最上方的方塊並發射導彈
+  ID: 6700000000027
+    ZH: 清除每列最上方的方塊並發射導彈
+    EN: Clear the top block of each column and fire missiles
+    JA: 各列の最上部ブロックをクリアしてミサイルを発射
+
+  Key: 填補封閉空洞並檢查消除
+  ID: 6700000000028
+    ZH: 填補封閉空洞並檢查消除
+    EN: Fill closed gaps and check for clears
+    JA: 閉鎖された空洞を埋めて消去をチェック
+
+  Key: 無法使用，獲得一次戰術擴張以解鎖
+  ID: 6700000000029
+    ZH: 無法使用，獲得一次戰術擴張以解鎖
+    EN: Unavailable, obtain one Tactical Expansion to unlock
+    JA: 使用不可、戦術拡張を1回獲得してアンロック
+
+  Key: 無法使用，獲得兩次戰術擴張以解鎖
+  ID: 6700000000030
+    ZH: 無法使用，獲得兩次戰術擴張以解鎖
+    EN: Unavailable, obtain two Tactical Expansions to unlock
+    JA: 使用不可、戦術拡張を2回獲得してアンロック
+
+  Key: 無法使用，獲得三次戰術擴張以解鎖
+  ID: 6700000000031
+    ZH: 無法使用，獲得三次戰術擴張以解鎖
+    EN: Unavailable, obtain three Tactical Expansions to unlock
+    JA: 使用不可、戦術拡張を3回獲得してアンロック
+
+  Key: 方塊在生成後的0.2秒內受到傷害會觸發反擊
+  ID: 6700000000032
+    ZH: 方塊在生成後的0.2秒內受到傷害會觸發反擊
+    EN: Blocks take damage within 0.2 seconds after generation will trigger counter
+    JA: ブロック生成後0.2秒以内にダメージを受けると反撃を発動
+
+  Key: 網格溢位時消耗 {0} CP，釋放衝擊炮累積的充能對敵人造成傷害
+  ID: 6700000000033
+    ZH: 網格溢位時消耗 {0} CP，釋放衝擊炮累積的充能對敵人造成傷害
+    EN: When grid overflows, consume {0} CP, release accumulated charge of impact cannon to damage enemies
+    JA: グリッドオーバーフロー時に{0} CPを消費し、衝撃砲の蓄積チャージを解放して敵にダメージ
+
+  Key: 若 CP 不足，自身HP 歸 1
+  ID: 6700000000034
+    ZH: 若 CP 不足，自身HP 歸 1
+    EN: If CP is insufficient, own HP becomes 1
+    JA: CPが不足している場合、自身のHPが1になる
+
+  Key: 釋放衝擊炮和使用主動技能需消耗CP
+  ID: 6700000000035
+    ZH: 釋放衝擊炮和使用主動技能需消耗CP
+    EN: Releasing impact cannon and using active skills consume CP
+    JA: 衝撃砲の解放とアクティブスキルの使用にはCPを消費
+
+  Key: 可儲存的方塊槽位數量
+  ID: 6700000000036
+    ZH: 可儲存的方塊槽位數量
+    EN: Number of storable block slots
+    JA: 保存可能なブロックスロット数
+
+  Key: 現在消除方塊，會生成 {0} 發飛彈
+  ID: 6700000000037
+    ZH: 現在消除方塊，會生成 {0} 發飛彈
+    EN: Now clearing blocks will generate {0} missiles
+    JA: 現在ブロックを消去すると{0}発のミサイルが生成されます
+
+  Key: 方塊現在可以承受 {0} 發飛彈
+  ID: 6700000000038
+    ZH: 方塊現在可以承受 {0} 發飛彈
+    EN: Blocks can now withstand {0} missiles
+    JA: ブロックは現在{0}発のミサイルに耐えられます
+
+  Key: 按 1 將當前方塊轉化為可穿透已存在方塊的湮滅方塊。按 空白鍵 將摧毀所有與湮滅方塊重疊的方塊，並生成飛彈。
+  ID: 6700000000039
+    ZH: 按 1 將當前方塊轉化為可穿透已存在方塊的湮滅方塊。按 空白鍵 將摧毀所有與湮滅方塊重疊的方塊，並生成飛彈。
+    EN: Press 1 to phase through blocks.Press Space to wipe out overlaps and launch missiles. 
+    JA: 1を押すと現在のブロックを既存ブロックを貫通できる抹消ブロックに変換。スペースキーを押すと抹消ブロックと重複するすべてのブロックを破壊し、ミサイルを生成。
+
+  Key: 按 2 消除每一行最上方的方塊，並生成飛彈。
+  ID: 6700000000040
+    ZH: 按 2 消除每一行最上方的方塊，並生成飛彈。
+    EN: Press 2 to clear the top block of each row and generate missiles.
+    JA: 2を押すと各行の最上部ブロックを消去し、ミサイルを生成。
+
+  Key: 按 3 將所有封閉區域填充為方塊。若形成整列，則視為有效消除。消除虛無方塊時不會產生任何飛彈。
+  ID: 6700000000041
+    ZH: 按 3 將所有封閉區域填充為方塊。若形成整列，則視為有效消除。消除虛無方塊時不會產生任何飛彈。
+    EN: Press 3 to fill all enclosed areas with blocks.Completed rows count as valid clears. Clearing void blocks generates no missiles. 
+    JA: 3を押すとすべての閉鎖領域をブロックで埋めます。完全な列が形成された場合、有効な消去としてカウントされます。修復によって虚無ブロックを消去した場合、ミサイルは生成されません。
+
+  Key: 戰術擴張
+  ID: 6700000000042
+    ZH: 戰術擴張
+    EN: Tactical Expansion
+    JA: 戦術拡張
+
+  Key: 鞏固防禦
+  ID: 6700000000043
+    ZH: 鞏固防禦
+    EN: Fortify Defense
+    JA: 防御強化
+
+  Key: 加倍火力
+  ID: 6700000000044
+    ZH: 加倍火力
+    EN: Double Firepower
+    JA: 火力倍増
+
+  Key: Lv{0} -> Lv{1}
+  ID: 6700000000045
+    ZH: Lv{0} -> Lv{1}
+    EN: Lv{0} -> Lv{1}
+    JA: Lv{0} -> Lv{1}
+
+  Key: Boss Battle
+  ID: 6700000000046
+    ZH: Boss Battle
+    EN: Boss Battle
+    JA: ボスバトル
+
+  Key: 工程選擇
+  ID: 6700000000047
+    ZH: 工程選擇
+    EN: Project Selection
+    JA: 工事選択
+
+  Key: Bonus Enhance
+  ID: 6700000000048
+    ZH: Bonus Enhance
+    EN: Bonus Enhance
+    JA: ボーナス強化
+
+  Key: 虛無抵銷!
+  ID: 6700000000049
+    ZH: 虛無抵銷!
+    EN: Void Nullify!
+    JA: 虚無相殺！
+
+  Key: 城堡受損
+  ID: 6700000000050
+    ZH: 城堡受損
+    EN: Castle Damaged
+    JA: 城が損傷
+
+  Key: 普通子彈
+  ID: 6700000000051
+    ZH: 普通子彈
+    EN: Normal Bullet
+    JA: 通常弾
+
+  Key: 範圍傷害
+  ID: 6700000000052
+    ZH: 範圍傷害
+    EN: Area Damage
+    JA: 範囲ダメージ
+
+  Key: 添加方塊
+  ID: 6700000000053
+    ZH: 添加方塊
+    EN: Add Block
+    JA: ブロック追加
+
+  Key: 爆炸方塊
+  ID: 6700000000054
+    ZH: 爆炸方塊
+    EN: Explosive Block
+    JA: 爆発ブロック
+
+  Key: 插入垃圾行
+  ID: 6700000000055
+    ZH: 插入垃圾行
+    EN: Insert Garbage Row
+    JA: ゴミ行挿入
+
+  Key: 虛無垃圾行
+  ID: 6700000000056
+    ZH: 虛無垃圾行
+    EN: Insert Void Row
+    JA: 虚無行挿入
+
+  Key: 腐化爆炸
+  ID: 6700000000057
+    ZH: 腐化爆炸
+    EN: Corrupt Explosive
+    JA: 腐敗爆発
+
+  Key: 腐化虛無
+  ID: 6700000000058
+    ZH: 腐化虛無
+    EN: Corrupt Void
+    JA: 腐敗虚無
+
+  Key: 對命中的方塊造成傷害
+  ID: 6700000000059
+    ZH: 對命中的方塊造成傷害
+    EN: Deals damage to the hit block
+    JA: 命中したブロックにダメージを与える
+
+  Key: 以命中的方塊為中心，對 3x3 範圍內的方塊造成傷害
+  ID: 6700000000060
+    ZH: 以命中的方塊為中心，對 3x3 範圍內的方塊造成傷害
+    EN: Deals damage to blocks in a 3x3 area centered on the hit block
+    JA: 命中したブロックを中心に3x3範囲内のブロックにダメージを与える
+
+  Key: 對命中的方塊造成傷害，並上方添加垃圾方塊
+  ID: 6700000000061
+    ZH: 對命中的方塊造成傷害，並上方添加垃圾方塊
+    EN: Deals damage to the hit block and adds a garbage block above it
+    JA: 命中したブロックにダメージを与え、その上にゴミブロックを追加
+
+  Key: 對命中的方塊造成傷害，並上方添加爆炸方塊
+  ID: 6700000000062
+    ZH: 對命中的方塊造成傷害，並上方添加爆炸方塊
+    EN: Deals damage to the hit block and adds an explosive block above it
+    JA: 命中したブロックにダメージを与え、その上に爆発ブロックを追加
+
+  Key: 對命中的方塊造成傷害，並從底部插入一整行垃圾方塊
+  ID: 6700000000063
+    ZH: 對命中的方塊造成傷害，並從底部插入一整行垃圾方塊
+    EN: Deals damage to the hit block and inserts a full row of garbage blocks from the bottom
+    JA: 命中したブロックにダメージを与え、底部からゴミブロックの完全な行を挿入
+
+  Key: 對命中的方塊造成傷害，並從底部插入一整行虛無方塊
+  ID: 6700000000064
+    ZH: 對命中的方塊造成傷害，並從底部插入一整行虛無方塊
+    EN: Deals damage to the hit block and inserts a full row of void blocks from the bottom
+    JA: 命中したブロックにダメージを与え、底部から虚無ブロックの完全な行を挿入
+
+  Key: 對命中的方塊造成傷害，並將下個方塊隨機一格變成爆炸方塊
+  ID: 6700000000065
+    ZH: 對命中的方塊造成傷害，並將下個方塊隨機一格變成爆炸方塊
+    EN: Deals damage to the hit block and randomly corrupts one cell of the next piece into an explosive block
+    JA: 命中したブロックにダメージを与え、次のピースのランダムな1セルを爆発ブロックに腐敗させる
+
+  Key: 對命中的方塊造成傷害，並將下個方塊隨機一格變成虛無方塊
+  ID: 6700000000066
+    ZH: 對命中的方塊造成傷害，並將下個方塊隨機一格變成虛無方塊
+    EN: Deals damage to the hit block and randomly corrupts one cell of the next piece into a void block
+    JA: 命中したブロックにダメージを与え、次のピースのランダムな1セルを虚無ブロックに腐敗させる
+
+  Key: 無
+  ID: 6700000000067
+    ZH: 無
+    EN: None
+    JA: なし
+
+  Key: 敵人不會發射任何子彈
+  ID: 6700000000068
+    ZH: 敵人不會發射任何子彈
+    EN: Enemy will not fire any bullets
+    JA: 敵は弾を発射しない
+
+  Key: [傳奇強化]
+  ID: 6700000000069
+    ZH: [傳奇強化]
+    EN: [Legendary Enhancement]
+    JA: [伝説強化]
+
+  Key: 攻擊間隔:
+  ID: 6700000000070
+    ZH: 攻擊間隔:
+    EN: Attack Interval:
+    JA: 攻撃間隔：
+
+  Key: [TIPS]_先觀察再落子
+  ID: 6800000000001
+    ZH: 不必急著放置方塊，觀察戰局也是重要的一環
+    EN: You don't need to place blocks immediately. Observing the battlefield is also crucial.
+    JA: 急いでブロックを置く必要はありません。戦況を観察することも重要です。
+
+  Key: [TIPS]_工程等級上限差異
+  ID: 6800000000002
+    ZH: 不同性質的工程等級上限也不同
+    EN: Different types of projects have different level caps.
+    JA: 工事の種類によってレベル上限は異なります。
+
+  Key: [TIPS]_腐化爆炸警告
+  ID: 6800000000003
+    ZH: 不要用腐化爆炸的方塊去反擊範圍傷害，否則後果自負
+    EN: Do not counter area damage with Corrupt Explosive blocks, or face the consequences.
+    JA: 腐敗爆発ブロックで範囲ダメージに反撃するのは危険です。自己責任で。
+
+  Key: [TIPS]_反擊亦為連發
+  ID: 6800000000004
+    ZH: 反擊也算一次連發
+    EN: Counter also counts as a Combo.
+    JA: 反撃も連射としてカウントされます。
+
+  Key: [TIPS]_溢出必有代價
+  ID: 6800000000005
+    ZH: 方塊溢出是需要代價的，如果你無法償還，就會變得不堪一擊
+    EN: Block overflow has a cost. If you cannot pay it, you will become extremely vulnerable.
+    JA: ブロックのオーバーフローには代償があります。支払えなければ、非常に脆くなります。
+
+  Key: [TIPS]_火力不足即恐懼
+  ID: 6800000000006
+    ZH: 加倍火力可是用純粹的量變引起質變，畢竟恐懼源於火力不足
+    EN: Double Firepower turns pure quantity into a qualitative shift. Fear comes from insufficient firepower.
+    JA: 火力倍増は量の変化で質を変えます。恐怖は火力不足から生まれます。
+
+  Key: [TIPS]_戰術性溢出
+  ID: 6800000000007
+    ZH: 必要的時候就把方塊堆爆吧，清掃戰場，順便來發大的
+    EN: When necessary, overflow the grid to wipe the battlefield—and unleash a massive strike.
+    JA: 必要な時はブロックを溢れさせ、戦場を一掃し、大火力を叩き込みましょう。
+
+  Key: [TIPS]_溢出清場重擊
+  ID: 6800000000008
+    ZH: 必要的時候就把方塊堆爆吧，清掃戰場，順便給那怪物來發大的
+    EN: Sometimes overflowing the grid is the best way to clean the field and hit the monster hard.
+    JA: 時にはブロックを溢れさせて戦場を整理し、怪物に大ダメージを与えましょう。
+
+  Key: [TIPS]_借敵破虛無
+  ID: 6800000000009
+    ZH: 用怪物的攻擊幫你打掉虛無方塊吧
+    EN: Use enemy attacks to help remove Void blocks.
+    JA: 敵の攻撃を利用して虚無ブロックを処理しましょう。
+
+  Key: [TIPS]_虛無時改用反擊
+  ID: 6800000000010
+    ZH: 如果虛無方塊讓你一直無法攻擊，不妨改用反擊對付
+    EN: If Void blocks prevent you from attacking, try relying on Counter instead.
+    JA: 虚無ブロックで攻撃できない場合は、反撃を活用しましょう。
+
+  Key: [TIPS]_範圍傷害垃圾懲罰
+  ID: 6800000000011
+    ZH: 如果範圍攻擊命中垃圾行方塊，城堡會承受加倍損害
+    EN: If area damage hits Garbage Rows, the castle will take double damage.
+    JA: 範囲ダメージがゴミ行に命中すると、城へのダメージが倍増します。
+
+  Key: [TIPS]_修補是轉捩點
+  ID: 6800000000012
+    ZH: 成功造出修補那你可幸運了，它可以讓你狠狠制裁怪物
+    EN: If you manage to unlock Repair, you're in luck—it allows you to punish the monster severely.
+    JA: 修復を解放できたなら幸運です。怪物を強く制裁できます。
+
+  Key: [TIPS]_湮滅閃避腐化
+  ID: 6800000000013
+    ZH: 有些執炮人會用湮滅來閃腐化方塊
+    EN: Some gunners use Erase to evade Corrupt blocks.
+    JA: 一部の執炮人は抹消を使って腐敗ブロックを回避します。
+
+  Key: [TIPS]_反擊帶來混亂
+  ID: 6800000000014
+    ZH: 你可以一直反擊，但是戰場一定會超亂
+    EN: You can keep countering, but the battlefield will become chaotic.
+    JA: 反撃し続けることは可能ですが、戦場は非常に混沌とします。
+
+  Key: [TIPS]_旋轉拖延戰局
+  ID: 6800000000015
+    ZH: 你可以不斷旋轉方塊來拉延戰局
+    EN: You can keep rotating blocks to stall the battle.
+    JA: ブロックを回転させ続けて戦況を引き延ばすことができます。
+
+  Key: [TIPS]_硬降觸發反擊
+  ID: 6800000000016
+    ZH: 把方塊硬降在子彈的落點觸發反擊吧
+    EN: Hard drop blocks into bullet paths to trigger Counter.
+    JA: 弾の落下地点にハードドロップして反撃を発動させましょう。
+
+  Key: [TIPS]_垃圾行直傷城堡
+  ID: 6800000000017
+    ZH: 垃圾行的方塊如果受到傷害會直接造成城堡損毀
+    EN: If Garbage Row blocks take damage, the castle will be damaged directly.
+    JA: ゴミ行のブロックがダメージを受けると、城が直接損傷します。
+
+  Key: [TIPS]_垃圾行消除規則
+  ID: 6800000000018
+    ZH: 垃圾行要透過完整排列整排方塊來消除
+    EN: Garbage Rows can only be removed by completing full rows.
+    JA: ゴミ行は完全な列消去によってのみ除去できます。
+
+  Key: [TIPS]_空間擴充儲存鍵
+  ID: 6800000000019
+    ZH: 空間擴充能解鎖按鍵S、D、F對應的儲存槽
+    EN: Space Expansion unlocks storage slots for keys S, D, and F.
+    JA: 空間拡張により、S・D・Fキーの保存スロットが解放されます。
+
+  Key: [TIPS]_儲存槽交換操作
+  ID: 6800000000020
+    ZH: 按鍵A使用儲存槽，將現有的方塊放入空的槽位，或是與槽位內的方塊進行交換
+    EN: Press A to store the current block or swap it with a stored one.
+    JA: Aキーで現在のブロックを保存、または保存済みブロックと交換できます。
+
+  Key: [TIPS]_虛無封鎖攻擊
+  ID: 6800000000021
+    ZH: 消到虛無方塊會讓你直接無法攻擊
+    EN: Clearing Void blocks will disable your attacks.
+    JA: 虚無ブロックを消去すると攻撃できなくなります。
+
+  Key: [TIPS]_主動技能控場
+  ID: 6800000000022
+    ZH: 能使用湮滅或處決的話，消除被怪物亂加的方塊是種策略
+    EN: If available, using Erase or Execute to remove unwanted blocks is a viable strategy.
+    JA: 抹消や処刑が使えるなら、怪物が追加したブロックを処理するのも戦術です。
+
+  Key: [TIPS]_湮滅迴避腐化
+  ID: 6800000000023
+    ZH: 能使用湮滅的話用來閃避腐化方塊吧
+    EN: Use Erase to avoid Corrupt blocks when possible.
+    JA: 抹消を使って腐敗ブロックを回避しましょう。
+
+  Key: [TIPS]_主動技能溢出風險
+  ID: 6800000000024
+    ZH: 湮滅、處決、修補可能讓你無法償還方塊溢出的代價，這時就會變得不堪一擊
+    EN: Erase, Execute, and Repair may prevent you from paying overflow costs, leaving you vulnerable.
+    JA: 抹消・処刑・修復はオーバーフローの代償を支払えなくする場合があり、その際は非常に危険です。
+
+  Key: [TIPS]_等待添加子彈
+  ID: 6800000000025
+    ZH: 等待怪物用添加方塊的子彈幫你補上方塊缺口吧
+    EN: Wait for enemies to fill gaps using Add Block bullets.
+    JA: 敵のブロック追加弾で欠けた部分を補ってもらいましょう。
+
+  Key: [TIPS]_虛無垃圾封鎖
+  ID: 6800000000026
+    ZH: 虛無垃圾行會直接封鎖你的常規攻擊
+    EN: Void Garbage Rows will completely block your normal attacks.
+    JA: 虚無ゴミ行は通常攻撃を完全に封鎖します。
+
+  Key: [TIPS]_戰術擴張等級
+  ID: 6800000000027
+    ZH: 傳奇工程中的戰術強化，一級解鎖湮滅，二級解鎖處決，三級解鎖修補
+    EN: In Legendary Projects, Tactical Expansion unlocks Erase at level 1, Execute at level 2, and Repair at level 3.
+    JA: 伝説工事における戦術拡張は、Lv1で抹消、Lv2で処刑、Lv3で修復が解放される。
+
+  Key: [TIPS]_傳奇工程種類
+  ID: 6800000000028
+    ZH: 傳奇工程有鞏固防禦、加倍火力、戰術擴張
+    EN: Legendary Projects include Fortify Defense, Double Firepower, and Tactical Expansion.
+    JA: 伝説工事には防御強化、火力倍増、戦術拡張があります。
+
+  Key: [TIPS]_傳奇工程解鎖條件
+  ID: 6800000000029
+    ZH: 傳奇工程需要透過把一個工程的等級升滿獲得
+    EN: Legendary Projects are obtained by fully upgrading a project.
+    JA: 伝説工事は工事を最大レベルまで強化することで獲得できます。
+
+  Key: [TIPS]_溢出後重整態勢
+  ID: 6800000000030
+    ZH: 溢出方塊後在乾淨的戰場重整態勢吧!
+    EN: After overflowing the grid, regroup on a clean battlefield.
+    JA: ブロックを溢れさせた後は、整理された戦場で立て直しましょう。
+
+  Key: [TIPS]_反擊對抗範圍彈
+  ID: 6800000000031
+    ZH: 試著用反擊擋住範圍子彈的攻勢吧
+    EN: Try using Counter to block incoming area bullets.
+    JA: 反撃で範囲弾を防いでみましょう。
+
+  Key: [TIPS]_齊射與連發傷害
+  ID: 6800000000032
+    ZH: 齊射(多行消除)跟連發(連續消除)都能造成額外傷害。
+    EN: Both Salvo (multi-row clears) and Combo (consecutive clears) deal extra damage.
+    JA: 斉射（複数列消去）と連射（連続消去）は追加ダメージを与えます。
+
+  Key: [TIPS]_保留充能待機
+  ID: 6800000000033
+    ZH: 撐著吧，也許現在的充能之後才會用到
+    EN: Hang on—your current charge may be useful later.
+    JA: 今は耐えましょう。そのチャージは後で役立つかもしれません。
+
+  Key: [TIPS]_範圍彈九宮破壞
+  ID: 6800000000034
+    ZH: 範圍子彈會直接炸掉整個九宮格範圍的方塊
+    EN: Area bullets will destroy all blocks in a 3x3 area.
+    JA: 範囲弾は3x3範囲のブロックをすべて破壊します。
+
+  Key: [TIPS]_這不是益智遊戲
+  ID: 6800000000035
+    ZH: 請記得，這裡是執炮人與怪物之間的戰場，不是益智遊戲
+    EN: Remember: this is a battlefield between gunners and monsters, not a puzzle game.
+    JA: ここは執炮人と怪物の戦場です。パズルゲームではありません。
+
+  Key: [TIPS]_範圍爆炸組合警戒
+  ID: 6800000000036
+    ZH: 請謹慎應對範圍傷害與爆炸方塊的組合
+    EN: Be cautious when dealing with combinations of area damage and explosive blocks.
+    JA: 範囲ダメージと爆発ブロックの組み合わせには注意してください。
+
+  Key: [TIPS]_鞏固防禦質變
+  ID: 6800000000037
+    ZH: 鞏固防禦看似不起眼，其實會引起質變，用過的都說讚
+    EN: Fortify Defense may seem modest, but it can fundamentally change the battle.
+    JA: 防御強化は地味に見えても、戦局を大きく変えます。
+
+  Key: [TIPS]_戰鬥開始回復CP
+  ID: 6800000000038
+    ZH: 戰鬥開始時都會回復cp
+    EN: CP is restored at the start of each battle.
+    JA: 戦闘開始時にCPが回復します。
+
+  Key: [TIPS]_爆炸方塊城堡風險
+  ID: 6800000000039
+    ZH: 爆炸方塊一旦被敵方攻擊破壞，城堡就會受損
+    EN: If an Explosive Block is destroyed by enemy attacks, the castle will be damaged.
+    JA: 爆発ブロックが敵の攻撃で破壊されると、城が損傷します。
+
+  Key: [TIPS]_處決攔截致命攻擊
+  ID: 6800000000040
+    ZH: 讓這個攻擊打到你的方塊會完蛋?那用處決攔截吧
+    EN: Will this attack devastate your blocks? Use Execute to intercept it.
+    JA: この攻撃を受けると危険です。処刑で迎撃しましょう。
+
+
+================================================================================
+  END OF EXTRACTION
+================================================================================
