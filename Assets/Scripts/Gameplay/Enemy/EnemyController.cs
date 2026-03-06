@@ -35,7 +35,6 @@ namespace Tenronis.Gameplay.Enemy
         private Queue<Vector2Int> effectQueue = new Queue<Vector2Int>();
         private int activeProcessors = 0;
         private Coroutine effectSpawnCoroutine;
-        private int pendingEffectCount = 0; // 待生成的特效數量
         
         // 屬性
         public float CurrentHp => currentHp;
@@ -98,7 +97,6 @@ namespace Tenronis.Gameplay.Enemy
                 currentHp = currentStageData.maxHp;
                 shootTimer = 0f;
                 isDefeated = false; // 重置擊敗狀態
-                pendingEffectCount = 0; // 清空特效隊列
                 
                 // 停止所有進行中的協程
                 if (shakeCoroutine != null)

@@ -141,7 +141,6 @@ namespace Tenronis.Core
         OnPlayInsertVoidRowSound = null;
         OnPlayOverflowSound = null;
         OnPlayExplosiveBlockDestroyedSound = null;
-        OnPlayOverflowSound = null;
     }
 }
 }

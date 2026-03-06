@@ -11,9 +11,6 @@ namespace Tenronis.Managers
     /// </summary>
     public class InputManager : MonoBehaviour
     {
-        [Header("設定")]
-        [SerializeField] private bool useNewInputSystem = false;
-        
         [Header("DAS/ARR 設定")]
         [SerializeField] private float dasDelay = 0.15f;      // DAS 延遲時間（秒）
         [SerializeField] private float arrInterval = 0.03f;   // ARR 重複間隔（秒）

@@ -291,7 +291,6 @@ namespace Tenronis.Managers
             allRowsToClear.AddRange(normalRows);
             allRowsToClear.AddRange(indestructibleRows);
             
-            int nonGarbageRowCount = 0;
             List<int> nonGarbageRowsList = new List<int>(); // 記錄非垃圾行的行號
             foreach (int row in allRowsToClear)
             {
@@ -307,8 +306,7 @@ namespace Tenronis.Managers
                 
                 if (!isGarbageRow)
                 {
-                    nonGarbageRowCount++;
-                    nonGarbageRowsList.Add(row); // 記錄非垃圾行
+                    nonGarbageRowsList.Add(row);
                 }
             }
             

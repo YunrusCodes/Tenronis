@@ -25,10 +25,6 @@ namespace Tenronis.Data
         // 導彈設定
         public const float MISSILE_SPEED = 20f;
 
-        // Roguelike系統
-        public const int INITIAL_ROGUE_REQUIREMENT = 50;
-        public const int ROGUE_REQUIREMENT_INCREMENT = 5;
-
         // 反擊系統
         public const float COUNTER_FIRE_TIME_WINDOW = 0.2f;
 

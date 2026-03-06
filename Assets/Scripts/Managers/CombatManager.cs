@@ -228,30 +228,6 @@ namespace Tenronis.Managers
         }
         
         /// <summary>
-        /// 計算程度等級（0-8）
-        /// </summary>
-        private int CalculateIntensityLevel(int volleyLevel, int clearedRows, int comboCount)
-        {
-            // Volley 等級：每級 +1 程度
-            int intensity = volleyLevel;
-            
-            // 消除行數加成：n < 4 時 +n，n >= 4 時 +4（封頂）
-            int rowBonus = Mathf.Min(clearedRows, 4);
-            intensity += rowBonus;
-            
-            // 連擊加成：每10連擊 +1 程度，最多 +3
-            int comboBonus = Mathf.Min(comboCount / 10, 3);
-            intensity += comboBonus;
-            
-            // 最終程度上限：8
-            intensity = Mathf.Min(intensity, 8);
-            
-            Debug.Log($"[CombatManager] 程度計算: Volley={volleyLevel}, 行數={clearedRows}(+{rowBonus}), 連擊={comboCount}(+{comboBonus}) → 程度={intensity}");
-            
-            return intensity;
-        }
-        
-        /// <summary>
         /// 發射子彈(敵人攻擊)
         /// </summary>
         public void FireBullet(int column, BulletType type, int damage, float speed)

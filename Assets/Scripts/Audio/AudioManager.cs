@@ -19,8 +19,6 @@ namespace Tenronis.Audio
     [SerializeField] private AudioClip impactSound;
     [SerializeField] private AudioClip counterFireSound; // 反擊音效
     [SerializeField] private AudioClip lockSound; // 方塊鎖定音效
-    [SerializeField] private AudioClip enemyHitSound;
-    [SerializeField] private AudioClip buffSound;
     
     [Header("敵人射擊音效")]
     [SerializeField] private AudioClip enemyShootNormalSound;        // 普通子彈音效
@@ -158,8 +156,6 @@ namespace Tenronis.Audio
     public void PlayImpactSound() => PlaySound(impactSound);
     public void PlayCounterFireSound() => PlaySound(counterFireSound);
     public void PlayLockSound() => PlaySound(lockSound);
-    public void PlayEnemyHitSound() => PlaySound(enemyHitSound);
-    public void PlayBuffSound() => PlaySound(buffSound);
     
     /// <summary>
     /// 根據子彈類型播放敵人射擊音效
